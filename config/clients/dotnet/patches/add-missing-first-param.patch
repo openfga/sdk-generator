@@ -1,0 +1,29 @@
+diff --git a/src/OpenFga.Sdk/Api/OpenFgaApi.cs b/src/OpenFga.Sdk/Api/OpenFgaApi.cs
+index ecbcecc..6f718ce 100644
+--- a/src/OpenFga.Sdk/Api/OpenFgaApi.cs
++++ b/src/OpenFga.Sdk/Api/OpenFgaApi.cs
+@@ -93,9 +93,10 @@ public class OpenFgaApi : IDisposable {
+     /// Create a store Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.
+     /// </summary>
+     /// <exception cref="OpenFga.Sdk.Exceptions.ApiException">Thrown when fails to make API call</exception>
++    /// <param name="body"></param>
+     /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
+     /// <returns>Task of CreateStoreResponse</returns>
+-    public async Task<CreateStoreResponse> CreateStore(CancellationToken cancellationToken = default) {
++    public async Task<CreateStoreResponse> CreateStore(CreateStoreRequest body, CancellationToken cancellationToken = default) {
+         var pathParams = new Dictionary<string, string> { { "store_id", _configuration.StoreId } };
+         var queryParams = new Dictionary<string, string>();
+ 
+@@ -187,10 +188,11 @@ public class OpenFgaApi : IDisposable {
+     /// Get all stores Returns a paginated list of OpenFGA stores.
+     /// </summary>
+     /// <exception cref="OpenFga.Sdk.Exceptions.ApiException">Thrown when fails to make API call</exception>
++    /// <param name="pageSize"> (optional)</param>
+     /// <param name="continuationToken"> (optional)</param>
+     /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
+     /// <returns>Task of ListStoresResponse</returns>
+-    public async Task<ListStoresResponse> ListStores(string? continuationToken = default(string?), CancellationToken cancellationToken = default) {
++    public async Task<ListStoresResponse> ListStores(int? pageSize = default(int?), string? continuationToken = default(string?), CancellationToken cancellationToken = default) {
+         var pathParams = new Dictionary<string, string> { { "store_id", _configuration.StoreId } };
+         var queryParams = new Dictionary<string, string>();
+         if (pageSize != null) {

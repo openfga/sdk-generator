@@ -1,0 +1,117 @@
+{
+  "sdkId": "dotnet",
+  "gitRepoId": "dotnet-sdk",
+  "packageDescription": ".NET SDK for OpenFGA",
+  "packageAuthors": "OpenFGA",
+  "packageCompany": "OpenFGA",
+  "packageCopyright": "OpenFGA",
+  "packageTitle": "OpenFGA SDK for .NET",
+  "projectGuid": "59de7a42-91d3-40f9-b967-84ff8236d62a",
+  "packageGuid": "b8d9e3e9-0156-4948-9de7-5e0d3f9c4d9e",
+  "testPackageGuid": "d119dfae-509a-4eba-a973-645b739356fc",
+  "packageName": "OpenFga.Sdk",
+  "packageVersion": "0.0.1",
+  "licenseUrl": "https://github.com/openfga/dotnet-sdk/blob/main/LICENSE",
+  "termsOfService": "",
+  "caseInsensitiveResponseHeaders": true,
+  "disallowAdditionalPropertiesIfNotPresent": false,
+  "library": "httpclient",
+  "modelPropertyNaming": "PascalCase",
+  "netCoreProjectFile": true,
+  "nonPublicApi": false,
+  "nullableReferenceTypes": true,
+  "optionalAssemblyInfo": true,
+  "optionalEmitDefaultValues": false,
+  "optionalMethodArgument": true,
+  "optionalProjectFile": true,
+  "releaseNote": "",
+  "sortParamsByRequiredFlag": true,
+  "sourceFolder": "src",
+  "targetFramework": "net6.0",
+  "validatable": true,
+  "enablePostProcessFile": true,
+  "tokenExpiryThresholdBufferInSec": 300,
+  "tokenExpiryJitterInSec": 300,
+  "hashCodeBasePrimeNumber": 9661,
+  "hashCodeMultiplierPrimeNumber": 9923,
+  "files": {
+    ".github/workflows/main.yaml.mustache": {
+      "destinationFilename": ".github/workflows/main.yaml",
+      "templateType": "SupportingFiles"
+    },
+    "Client_OAuth2Client.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/OAuth2Client.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client_ApiClient.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/ApiClient.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client_BaseClient.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/BaseClient.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client_RequestBuilder.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/RequestBuilder.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client_Utils.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Utils.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Configuration_Configuration.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Configuration/Configuration.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Exceptions_Parsers_ApiErrorParser.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Exceptions/Parsers/ApiErrorParser.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Exceptions_Parsers_RateLimitParser.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Exceptions/Parsers/RateLimitParser.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Exceptions_ApiError.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Exceptions/ApiError.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Exceptions_ApiException.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Exceptions/ApiException.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Exceptions_ApiInternalError.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Exceptions/ApiInternalError.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Exceptions_ApiValidationError.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Exceptions/ApiValidationError.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Exceptions_ApiAuthenticationError.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Exceptions/ApiAuthenticationError.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Exceptions_GenericError.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Exceptions/GenericError.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Exceptions_RateLimitExceededError.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Exceptions/RateLimitExceededError.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Exceptions_RequiredParamError.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Exceptions/RequiredParamError.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Exceptions_ValidationError.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Exceptions/ValidationError.cs",
+      "templateType": "SupportingFiles"
+    },
+    ".fossa.yml.mustache": {
+      "destinationFilename": ".fossa.yml",
+      "templateType": "SupportingFiles"
+    },
+    "assets/FGAIcon.png": {},
+    ".editorconfig": {}
+  }
+}

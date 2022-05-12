@@ -1,0 +1,8 @@
+.vscode
+.idea
+.env
+docs/openapi/*.json
+
+.DS_Store
+
+clients/**/*

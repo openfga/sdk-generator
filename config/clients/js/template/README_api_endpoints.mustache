@@ -1,0 +1,15 @@
+| Method | HTTP request | Description |
+| ------------- | ------------- | ------------- |{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
+| [**{{operationId}}**](#{{operationIdLowerCase}}) | **{{httpMethod}}** {{path}} | {{#summary}}{{summary}}{{/summary}} |{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
+
+#### {{operationId}}
+{{^allParams}}This endpoint does not need any parameter.{{/allParams}}
+{{#allParams}}{{#-last}}
+| Name | Type | Description  | Notes |
+| ------------- | ------------- | ------------- | ------------- |{{/-last}}{{/allParams}}
+{{#allParams}}{{^-first}}| **{{paramName}}** | {{#isContainer}}{{#isArray}}{{#items}}{{^isPrimitiveType}}[{{/isPrimitiveType}}**{{dataType}}**{{^isPrimitiveType}}[]]({{^baseType}}{{dataType}}{{/baseType}}{{baseType}}){{/isPrimitiveType}}{{/items}}{{/isArray}}{{#isMap}}{{#items}}{{^isPrimitiveType}}[{{/isPrimitiveType}}**Record<string, {{dataType}}**{{^isPrimitiveType}}>]({{^baseType}}{{dataType}}{{/baseType}}{{baseType}}){{/isPrimitiveType}}{{/items}}{{/isMap}}{{/isContainer}}{{^isContainer}}{{^isPrimitiveType}}[{{/isPrimitiveType}}**{{dataType}}**{{^isPrimitiveType}}](#{{^baseType}}{{dataType}}{{/baseType}}{{baseType}}){{/isPrimitiveType}}{{/isContainer}} | {{description}} | {{#defaultValue}}[default to {{defaultValue}}]{{/defaultValue}}|{{/-first}}{{/allParams}}
+
+##### Return type
+
+{{#returnType}}{{#returnTypeIsPrimitive}}**{{{returnType}}}**{{/returnTypeIsPrimitive}}{{^returnTypeIsPrimitive}}[**{{{returnType}}}**](#{{returnBaseType}}){{/returnTypeIsPrimitive}}{{/returnType}}{{^returnType}} (empty response body){{/returnType}}
+{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}

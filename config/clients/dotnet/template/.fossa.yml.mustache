@@ -1,0 +1,15 @@
+version: 3
+
+server: https://app.fossa.com
+
+project:
+  id: {{gitHost}}/{{gitUserId}}/{{gitRepoId}}
+  name: {{gitHost}}/{{gitUserId}}/{{gitRepoId}}
+  link: fga.dev
+  url: {{gitHost}}/{{gitUserId}}/{{gitRepoId}}
+
+paths:
+  only:
+    - ./src/{{packageName}}
+  exclude:
+    - ./src/{{packageName}}.Test

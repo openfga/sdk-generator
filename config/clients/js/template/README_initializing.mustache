@@ -1,0 +1,13 @@
+```javascript
+const { {{appShortName}}Api } = require('{{packageName}}'); // OR import { {{appShortName}}Api } from '{{packageName}}';
+
+const {{appCamelCaseName}} = new {{appShortName}}Api({
+  apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
+  apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.openfga.example instead of https://api.openfga.example)
+  storeId: {{appUpperCaseName}}_STORE_ID,
+  apiTokenIssuer: {{appUpperCaseName}}_API_TOKEN_ISSUER, // optional, required if client id is set
+  apiAudience: {{appUpperCaseName}}_API_AUDIENCE, // optional, required if client id is set
+  clientId: {{appUpperCaseName}}_CLIENT_ID, // optional (pass in if your provider requires authentication via client credential flow)
+  clientSecret: {{appUpperCaseName}}_CLIENT_SECRET, // optional, required if client id is set
+});
+```

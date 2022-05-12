@@ -1,0 +1,10 @@
+{{^withSeparateModelsAndApi}}
+/* tslint:disable */
+/* eslint-disable */
+{{>partial_header}}
+
+{{#models}}
+{{#model}}{{#isEnum}}{{>modelEnum}}{{/isEnum}}{{#oneOf}}{{#-first}}{{>modelOneOf}}{{/-first}}{{/oneOf}}{{^isEnum}}{{^oneOf}}{{>modelGeneric}}{{/oneOf}}{{/isEnum}}{{/model}}
+{{/models}}
+
+{{/withSeparateModelsAndApi}}

@@ -1,0 +1,20 @@
+diff --git a/src/OpenFga.Sdk/Model/UsersetTreeDifference.cs b/src/OpenFga.Sdk/Model/UsersetTreeDifference.cs
+index 7fd55e2..330e651 100644
+--- a/src/OpenFga.Sdk/Model/UsersetTreeDifference.cs
++++ b/src/OpenFga.Sdk/Model/UsersetTreeDifference.cs
+@@ -35,6 +35,15 @@ namespace OpenFga.Sdk.Model {
+             this.AdditionalProperties = new Dictionary<string, object>();
+         }
+
++        /// <summary>
++        /// Initializes a new instance of the <see cref="UsersetTreeDifference" /> class.
++        /// </summary>
++        [JsonConstructor]
++        public UsersetTreeDifference()
++        {
++            this.AdditionalProperties = new Dictionary<string, object>();
++        }
++
+         /// <summary>
+         /// Gets or Sets Base
+         /// </summary>

@@ -1,0 +1,29 @@
+```csharp
+using {{packageName}}.{{apiPackage}};
+using {{packageName}}.Client;
+using {{packageName}}.Configuration;
+using {{packageName}}.{{modelPackage}};
+
+namespace Example {
+    public class {{operationId}}Example {
+        public static void Main() {
+            try {
+                var configuration = new Configuration(storeId, environment) {
+                    ApiScheme = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
+                    ApiHost = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.openfga.example instead of https://api.openfga.example)
+                    StoreId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_STORE_ID"),
+                    ApiTokenIssuer = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_TOKEN_ISSUER"), // optional, required if client id is passed
+                    ApiAudience = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_AUDIENCE"), // optional, required if client id is passed
+                    ClientId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_CLIENT_ID"), // optional (pass in if your provider requires authentication via client credential flow)
+                    ClientSecret = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_CLIENT_SECRET"), // optional, required if client id is passed
+                };
+                var {{appCamelCaseName}}Api = new {{appShortName}}Api(configuration);
+                var response = {{appCamelCaseName}}Api.ReadAuthorizationModels();
+                Debug.WriteLine(response.AuthorizationModelIds);
+            } catch (ApiException e) {
+                 Debug.Print("Status Code: "+ e.ErrorCode);
+            }
+        }
+    }
+}
+```

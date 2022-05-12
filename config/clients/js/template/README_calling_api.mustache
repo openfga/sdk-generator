@@ -1,0 +1,171 @@
+#### Write Authorization Model
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/WriteAuthorizationModel)
+
+> Note: To learn how to build your authorization model, check the Docs at {{docsUrl}}.
+
+> Learn more about [the {{appName}} configuration language]({{docsUrl}}/modeling/configuration-language).
+
+```javascript
+const { authorization_model_id: id } = await {{appCamelCaseName}}.writeAuthorizationModel({
+  type_definitions: [{
+    type: "document",
+    relations: {
+      "writer": { "this": {} },
+      "viewer": {
+        "union": {
+          "child": [
+            { "this": {} },
+            { "computedUserset": {
+               "object": "",
+              "relation": "viewer" }
+            }
+          ]
+        }
+      }
+    } }],
+});
+
+// id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"
+```
+
+#### Read a Single Authorization Model
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
+
+```javascript
+// Assuming `1uHxCSuTP0VKPYSnkq1pbb1jeZw` is an id of a single model
+const { authorization_model: authorizationModel } = await {{appCamelCaseName}}.readAuthorizationModel('1uHxCSuTP0VKPYSnkq1pbb1jeZw');
+
+// authorizationModel = { id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw", type_definitions: [...] }
+```
+
+#### Read Authorization Model IDs
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModels)
+
+```javascript
+const { authorization_model_ids: authorizationModelIds } = await {{appCamelCaseName}}.readAuthorizationModels();
+
+// authorizationModelIds = ["1uHxCSuTP0VKPYSnkq1pbb1jeZw", "GtQpMohWezFmIbyXxVEocOCxxgq"];
+```
+
+#### Check
+
+[API Documentation]({{apiDocsUrl}}#/Tuples/Check)
+
+> Provide a tuple and ask the {{appName}} API to check for a relationship
+
+```javascript
+const result = await {{appCamelCaseName}}.check({
+  tuple_key: {
+    user: "81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation: "admin",
+    object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+  },
+});
+
+// result = { allowed: true, resolution: "" }
+```
+
+#### Write Tuples
+
+[API Documentation]({{apiDocsUrl}}#/Tuples/Write)
+
+```javascript
+await {{appCamelCaseName}}.write({
+  writes: {
+    tuple_keys: [{ user: "anne", relation: "viewer", object: "document:roadmap" }],
+  },
+});
+
+```
+
+#### Delete Tuples
+
+[API Documentation]({{apiDocsUrl}}#/Tuples/Write)
+
+```javascript
+await {{appCamelCaseName}}.write({
+  deletes: {
+    tuple_keys: [{ user: "anne", relation: "viewer", object: "document:roadmap" }],
+  },
+});
+
+```
+
+#### Expand
+
+[API Documentation]({{apiDocsUrl}}#/Debugging/Expand)
+
+```javascript
+const { tree } = await {{appCamelCaseName}}.expand({
+  tuple_key: {
+    relation: "admin",
+    object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+  },
+});
+
+// tree  = { root: { name: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin", leaf: { users: { users: ["anne", "beth"] } } } }
+```
+
+#### Read
+
+[API Documentation]({{apiDocsUrl}}#/Tuples/Read)
+
+```javascript
+// Find if a relationship tuple stating that a certain user is an admin on a certain workspace
+const body = {
+  tuple_key: {
+    user: "81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation: "admin",
+    object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+  },
+};
+
+// Find all relationship tuples where a certain user has a relationship as any relation to a certain workspace
+const body = {
+  tuple_key: {
+    user: "81684243-9356-4421-8fbf-a4f8d36aa31b",
+    object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+  },
+};
+
+// Find all relationship tuples where a certain user is an admin on any workspace
+const body = {
+  tuple_key: {
+    user: "81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation: "admin",
+    object: "workspace:",
+  },
+};
+
+// Find all relationship tuples where any user has a relationship as any relation with a particular workspace
+const body = {
+  tuple_key: {
+    object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+  },
+};
+
+const { tuples } = await {{appCamelCaseName}}.read(body);
+
+// In all the above situations, the response will be of the form:
+// tuples = [{ key: { user, relation, object }, timestamp: ... }]
+```
+
+#### Read Changes (Watch)
+
+[API Documentation]({{apiDocsUrl}}#/Tuples/ReadChanges)
+
+```javascript
+const type = 'workspace';
+const pageSize = 25;
+const continuationToken = 'eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==';
+const response = await {{appCamelCaseName}}.readChanges(type, pageSize, continuationToken);
+
+// response.continuation_token = ...
+// response.changes = [
+//   { tuple_key: { user, relation, object }, operation: "write", timestamp: ... },
+//   { tuple_key: { user, relation, object }, operation: "delete", timestamp: ... }
+// ]
+```

@@ -1,0 +1,9 @@
+version: 3
+
+server: https://app.fossa.com
+
+project:
+  id: github.com/openfga/sdk-generator
+  name: github.com/openfga/sdk-generator
+  link: openfga.dev
+  url: github.com/openfga/sdk-generator

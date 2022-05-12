@@ -1,0 +1,27 @@
+{{#models}}{{#model}} - [{{{classname}}}](#{{{classname}}})
+{{/model}}{{/models}}
+
+{{#models}}{{#model}}#### {{classname}}
+
+{{^isEnum}}
+##### Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+{{#vendorExtensions.x-is-one-of-interface}}
+**{{classname}}Interface** | **interface { {{#discriminator}}{{propertyGetter}}() {{propertyType}}{{/discriminator}} }** | An interface that can hold any of the proper implementing types |
+{{/vendorExtensions.x-is-one-of-interface}}
+{{^vendorExtensions.x-is-one-of-interface}}
+{{#vars}}**{{name}}** | {{#isContainer}}{{#isArray}}{{#items}}{{^isPrimitiveType}}{{^isFile}}[{{/isFile}}{{/isPrimitiveType}}**{{dataType}}**{{^isPrimitiveType}}{{^isFile}}[]](#{{dataType}}){{/isFile}}{{/isPrimitiveType}}{{/items}}{{/isArray}}{{#isMap}}{{#items}}{{^isPrimitiveType}}{{^isFile}}[{{/isFile}}{{/isPrimitiveType}}**Record<string, {{dataType}}**{{^isPrimitiveType}}{{^isFile}}>](#{{^baseType}}{{dataType}}{{/baseType}}{{baseType}}){{/isFile}}{{/isPrimitiveType}}{{/items}}{{/isMap}}{{/isContainer}}{{^isContainer}}{{^isPrimitiveType}}{{^isFile}}{{^isDateTime}}[{{/isDateTime}}{{/isFile}}{{/isPrimitiveType}}**{{dataType}}**{{^isPrimitiveType}}{{^isFile}}{{^isDateTime}}](#{{^baseType}}{{dataType}}{{/baseType}}{{baseType}}){{/isDateTime}}{{/isFile}}{{/isPrimitiveType}}{{/isContainer}} | {{description}} | {{^required}}[optional] {{/required}}{{#isReadOnly}}[readonly] {{/isReadOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
+{{/vars}}
+{{/vendorExtensions.x-is-one-of-interface}}
+{{/isEnum}}
+{{#isEnum}}
+##### Enum
+
+{{#allowableValues}}{{#enumVars}}
+* `{{name}}` (value: `{{{value}}}`)
+{{/enumVars}}{{/allowableValues}}
+{{/isEnum}}
+
+{{/model}}{{/models}}

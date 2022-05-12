@@ -1,0 +1,16 @@
+{{>partial_header}}
+
+using {{packageName}}.Exceptions.Parsers;
+
+namespace {{packageName}}.Exceptions;
+
+public class FgaApiInternalError : FgaApiError {
+    public FgaApiInternalError(HttpResponseMessage response, HttpRequestMessage request, string? apiName,
+        ApiErrorParser? apiError = null) : base(response, request, apiName, apiError) {
+    }
+
+    internal new static async Task<FgaApiInternalError> CreateAsync(HttpResponseMessage response, HttpRequestMessage request, string? apiName) {
+        return new FgaApiInternalError(response, request, apiName,
+            await ApiErrorParser.Parse(response).ConfigureAwait(false));
+    }
+}

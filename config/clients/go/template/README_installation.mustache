@@ -1,0 +1,23 @@
+To install:
+
+```
+go get -u {{gitHost}}/{{gitUserId}}/{{gitRepoId}}
+```
+
+In your code, import the module and use it:
+
+```go
+import "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
+
+func Main() {
+	configuration, err := {{#lambda.lowercase}}{{appShortName}}{{/lambda.lowercase}}.NewConfiguration({{#lambda.lowercase}}{{appShortName}}{{/lambda.lowercase}}.UserConfiguration{})
+}
+```
+
+You can then run
+
+```shell
+go mod tidy
+```
+
+to update `go.mod` and `go.sum` if you are using them.

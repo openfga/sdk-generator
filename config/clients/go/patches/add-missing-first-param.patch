@@ -1,0 +1,24 @@
+diff --git a/api_open_fga.go b/api_open_fga.go
+index 79a4889..c6b9eba 100644
+--- a/api_open_fga.go
++++ b/api_open_fga.go
+@@ -861,7 +861,8 @@ func (a *OpenFgaApiService) CheckExecute(r ApiCheckRequest) (CheckResponse, *_ne
+ type ApiCreateStoreRequest struct {
+ 	ctx _context.Context
+ 	ApiService OpenFgaApi
+-    
++   
++body *CreateStoreRequest 
+ }
+ 
+ func (r ApiCreateStoreRequest) Body(body CreateStoreRequest) ApiCreateStoreRequest {
+@@ -1953,7 +1954,8 @@ func (a *OpenFgaApiService) GetStoreExecute(r ApiGetStoreRequest) (GetStoreRespo
+ type ApiListStoresRequest struct {
+ 	ctx _context.Context
+ 	ApiService OpenFgaApi
+-    
++
++pageSize          *int32    
+     continuationToken *string
+ }
+ 

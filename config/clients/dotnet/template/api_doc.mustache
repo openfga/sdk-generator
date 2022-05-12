@@ -1,0 +1,106 @@
+# {{packageName}}.{{apiPackage}}.{{classname}}{{#description}}
+{{.}}{{/description}}
+
+All URIs are relative to *{{{basePath}}}*
+
+Method | HTTP request | Description
+------------- | ------------- | -------------
+{{#operations}}{{#operation}}[**{{operationId}}**]({{classname}}.md#{{operationIdLowerCase}}) | **{{httpMethod}}** {{path}} | {{summary}}
+{{/operation}}{{/operations}}
+
+{{#operations}}
+{{#operation}}
+<a name="{{{operationIdLowerCase}}}"></a>
+# **{{{operationId}}}**
+> {{returnType}}{{^returnType}}void{{/returnType}} {{operationId}} ({{#allParams}}{{^-first}}{{{dataType}}} {{paramName}}{{^required}}{{#optionalMethodArgument}} = null{{/optionalMethodArgument}}{{/required}}{{^-last}}, {{/-last}}{{/-first}}{{/allParams}})
+
+{{{summary}}}{{#notes}}
+
+{{{.}}}{{/notes}}
+
+### Example
+```csharp
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net.Http;
+using {{packageName}}.{{apiPackage}};
+using {{packageName}}.Client;
+using {{packageName}}.Configuration;
+using {{packageName}}.{{modelPackage}};
+
+namespace Example
+{
+    public class {{operationId}}Example
+    {
+        public static void Main()
+        {
+            var configuration = new Configuration(storeId, environment) {
+                StoreId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_STORE_ID"),
+                Host = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_HOST"),
+                ApiTokenIssuer = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_TOKEN_ISSUER"), // optional, required if client id is passed
+                ApiAudience = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_AUDIENCE"), // optional, required if client id is passed
+                ClientId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_CLIENT_ID"), // optional
+                ClientSecret = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_CLIENT_SECRET"), // optional, required if client id is passed
+            };
+            HttpClient httpClient = new HttpClient();
+            var {{appCamelCaseName}}Api = new {{classname}}(config, httpClient);
+            {{#allParams}}
+            {{^-first}}
+            {{#isPrimitiveType}}
+            var {{paramName}} = {{{example}}};  // {{{dataType}}} | {{{description}}}{{^required}} (optional) {{/required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}
+            {{/isPrimitiveType}}
+            {{^isPrimitiveType}}
+            var {{paramName}} = new {{{dataType}}}(); // {{{dataType}}} | {{{description}}}{{^required}} (optional) {{/required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}
+            {{/isPrimitiveType}}
+            {{/-first}}
+            {{/allParams}}
+
+            try
+            {
+                {{#summary}}
+                // {{{.}}}
+                {{/summary}}
+                {{#returnType}}{{{.}}} response = await {{/returnType}}{{appCamelCaseName}}Api.{{{operationId}}}({{#allParams}}{{^-first}}{{paramName}}{{^-last}}, {{/-last}}{{/-first}}{{/allParams}});{{#returnType}}
+                Debug.WriteLine(response);{{/returnType}}
+            }
+            catch (ApiException  e)
+            {
+                Debug.Print("Exception when calling {{classname}}.{{operationId}}: " + e.Message );
+                Debug.Print("Status Code: "+ e.ErrorCode);
+                Debug.Print(e.StackTrace);
+            }
+        }
+    }
+}
+```
+
+### Parameters
+{{^allParams}}This endpoint does not need any parameter.{{/allParams}}{{#allParams}}{{#-last}}
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------{{/-last}}{{/allParams}}
+{{#allParams}}{{^-first}} **{{paramName}}** | {{#isFile}}**{{dataType}}**{{/isFile}}{{#isPrimitiveType}}**{{dataType}}**{{/isPrimitiveType}}{{^isPrimitiveType}}{{^isFile}}[**{{dataType}}**]({{#isContainer}}{{baseType}}{{/isContainer}}{{^isContainer}}{{dataType}}{{/isContainer}}.md){{/isFile}}{{/isPrimitiveType}}| {{description}} | {{^required}}[optional] {{/required}}{{#defaultValue}}[default to {{.}}]{{/defaultValue}}{{/-first}}
+{{/allParams}}
+
+### Return type
+
+{{#returnType}}{{#returnTypeIsPrimitive}}**{{{returnType}}}**{{/returnTypeIsPrimitive}}{{^returnTypeIsPrimitive}}[**{{returnType}}**]({{returnBaseType}}.md){{/returnTypeIsPrimitive}}{{/returnType}}{{^returnType}}void (empty response body){{/returnType}}
+
+### HTTP request headers
+
+ - **Content-Type**: {{#consumes}}{{{mediaType}}}{{^-last}}, {{/-last}}{{/consumes}}{{^consumes}}Not defined{{/consumes}}
+ - **Accept**: {{#produces}}{{{mediaType}}}{{^-last}}, {{/-last}}{{/produces}}{{^produces}}Not defined{{/produces}}
+
+{{#responses.0}}
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+{{#responses}}
+| **{{code}}** | {{message}} | {{#headers}} * {{baseName}} - {{description}} <br> {{/headers}}{{^headers.0}} - {{/headers.0}} |
+{{/responses}}
+{{/responses.0}}
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+{{/operation}}
+{{/operations}}

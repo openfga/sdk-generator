@@ -1,0 +1,367 @@
+{{#withSeparateModelsAndApi}}
+/* tslint:disable */
+/* eslint-disable */
+{{>partial_header}}
+
+import { COLLECTION_FORMATS, BaseAPI } from '{{apiRelativeToRoot}}base';
+import {
+    DUMMY_BASE_URL,
+    setBearerAuthToObject,
+    setSearchParams,
+    serializeDataIfNeeded,
+    toPathString,
+    createRequestFunction,
+    RequestArgs,
+    PromiseResult
+} from '{{apiRelativeToRoot}}common';
+
+import { Configuration } from '{{apiRelativeToRoot}}configuration';
+import { {{classname}}Error } from '{{apiRelativeToRoot}}errors';
+import { assertParamExists } from '{{apiRelativeToRoot}}validation';
+
+{{#imports}}
+// @ts-ignore
+import { {{classname}} } from '{{apiRelativeToRoot}}{{tsModelPackage}}';
+{{/imports}}
+{{/withSeparateModelsAndApi}}
+{{^withSeparateModelsAndApi}}
+{{/withSeparateModelsAndApi}}
+{{#operations}}
+/**
+ * {{classname}} - axios parameter creator{{#description}}
+ * {{&description}}{{/description}}
+ * @export
+ */
+export const {{classname}}AxiosParamCreator = function (configuration: Configuration) {
+    return {
+    {{#operation}}
+        /**
+         * {{&notes}}
+         {{#summary}}
+         * @summary {{&summary}}
+         {{/summary}}
+         {{#allParams}}
+         {{^-first}}
+         * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
+         {{/-first}}
+         {{/allParams}}
+         * @param {*} [options] Override http request option.{{#isDeprecated}}
+         * @deprecated{{/isDeprecated}}
+         * @throws { FgaError }
+         */
+        {{nickname}}: async ({{#allParams}}{{^-first}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/-first}}{{/allParams}}options: any = {}): Promise<RequestArgs> => {
+    {{#allParams}}
+    {{^-first}}
+    {{#required}}
+            // verify required parameter '{{paramName}}' is not null or undefined
+            assertParamExists('{{nickname}}', '{{paramName}}', {{paramName}})
+    {{/required}}
+    {{/-first}}
+    {{/allParams}}
+            const localVarPath = `{{{path}}}`
+            {{#pathParams.0}}.replace(`{${"{{baseName}}"}}`, encodeURIComponent(String(configuration.{{paramName}}))){{/pathParams.0}}
+            {{#pathParams}}
+            {{^-first}}.replace(`{${"{{baseName}}"}}`, encodeURIComponent(String({{paramName}}))){{/-first}}{{/pathParams}};
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: '{{httpMethod}}', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;{{#vendorExtensions}}{{#hasFormParams}}
+            const localVarFormParams = new {{^multipartFormData}}URLSearchParams(){{/multipartFormData}}{{#multipartFormData}}((configuration && configuration.formDataCtor) || FormData)(){{/multipartFormData}};{{/hasFormParams}}{{/vendorExtensions}}
+
+    {{#authMethods}}
+            // authentication {{name}} required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+    {{/authMethods}}
+    {{#queryParams}}
+            {{#isArray}}
+            if ({{paramName}}) {
+            {{#isCollectionFormatMulti}}
+                {{#uniqueItems}}
+                localVarQueryParameter['{{baseName}}'] = Array.from({{paramName}});
+                {{/uniqueItems}}
+                {{^uniqueItems}}
+                localVarQueryParameter['{{baseName}}'] = {{paramName}};
+                {{/uniqueItems}}
+            {{/isCollectionFormatMulti}}
+            {{^isCollectionFormatMulti}}
+                {{#uniqueItems}}
+                localVarQueryParameter['{{baseName}}'] = Array.from({{paramName}}).join(COLLECTION_FORMATS.{{collectionFormat}});
+                {{/uniqueItems}}
+                {{^uniqueItems}}
+                localVarQueryParameter['{{baseName}}'] = {{paramName}}.join(COLLECTION_FORMATS.{{collectionFormat}});
+                {{/uniqueItems}}
+            {{/isCollectionFormatMulti}}
+            }
+            {{/isArray}}
+            {{^isArray}}
+            if ({{paramName}} !== undefined) {
+                {{#isDateTime}}
+                localVarQueryParameter['{{baseName}}'] = ({{paramName}} as any instanceof Date) ?
+                    ({{paramName}} as any).toISOString() :
+                    {{paramName}};
+                {{/isDateTime}}
+                {{^isDateTime}}
+                {{#isDate}}
+                localVarQueryParameter['{{baseName}}'] = ({{paramName}} as any instanceof Date) ?
+                    ({{paramName}} as any).toISOString().substr(0,10) :
+                    {{paramName}};
+                {{/isDate}}
+                {{^isDate}}
+                localVarQueryParameter['{{baseName}}'] = {{paramName}};
+                {{/isDate}}
+                {{/isDateTime}}
+            }
+            {{/isArray}}
+
+    {{/queryParams}}
+    {{#headerParams}}
+            {{#isArray}}
+            if ({{paramName}}) {
+                {{#uniqueItems}}
+                let mapped = Array.from({{paramName}}).map(value => (<any>"{{{dataType}}}" !== "Set<string>") ? JSON.stringify(value) : (value || ""));
+                {{/uniqueItems}}
+                {{^uniqueItems}}
+                let mapped = {{paramName}}.map(value => (<any>"{{{dataType}}}" !== "Array<string>") ? JSON.stringify(value) : (value || ""));
+                {{/uniqueItems}}
+                localVarHeaderParameter['{{baseName}}'] = mapped.join(COLLECTION_FORMATS["{{collectionFormat}}"]);
+            }
+            {{/isArray}}
+            {{^isArray}}
+            if ({{paramName}} !== undefined && {{paramName}} !== null) {
+                {{#isString}}
+                localVarHeaderParameter['{{baseName}}'] = String({{paramName}});
+                {{/isString}}
+                {{^isString}}
+                localVarHeaderParameter['{{baseName}}'] = String(JSON.stringify({{paramName}}));
+                {{/isString}}
+            }
+            {{/isArray}}
+
+    {{/headerParams}}
+    {{#vendorExtensions}}
+    {{#formParams}}
+            {{#isArray}}
+            if ({{paramName}}) {
+            {{#isCollectionFormatMulti}}
+                {{paramName}}.forEach((element) => {
+                    localVarFormParams.{{#multipartFormData}}append{{/multipartFormData}}{{^multipartFormData}}set{{/multipartFormData}}('{{baseName}}', element as any);
+                })
+            {{/isCollectionFormatMulti}}
+            {{^isCollectionFormatMulti}}
+                localVarFormParams.{{#multipartFormData}}append{{/multipartFormData}}{{^multipartFormData}}set{{/multipartFormData}}('{{baseName}}', {{paramName}}.join(COLLECTION_FORMATS.{{collectionFormat}}));
+            {{/isCollectionFormatMulti}}
+            }{{/isArray}}
+            {{^isArray}}
+            if ({{paramName}} !== undefined) { {{^multipartFormData}}
+                localVarFormParams.set('{{baseName}}', {{paramName}} as any);{{/multipartFormData}}{{#multipartFormData}}{{#isPrimitiveType}}
+                localVarFormParams.append('{{baseName}}', {{paramName}} as any);{{/isPrimitiveType}}{{^isPrimitiveType}}
+                localVarFormParams.append('{{baseName}}', new Blob([JSON.stringify({{paramName}})], { type: "application/json", }));{{/isPrimitiveType}}{{/multipartFormData}}
+            }{{/isArray}}
+    {{/formParams}}{{/vendorExtensions}}
+    {{#vendorExtensions}}{{#hasFormParams}}{{^multipartFormData}}
+            localVarHeaderParameter['Content-Type'] = 'application/x-www-form-urlencoded';{{/multipartFormData}}{{#multipartFormData}}
+            localVarHeaderParameter['Content-Type'] = 'multipart/form-data';{{/multipartFormData}}
+    {{/hasFormParams}}{{/vendorExtensions}}
+    {{#bodyParam}}
+            {{^consumes}}
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            {{/consumes}}
+            {{#consumes.0}}
+            localVarHeaderParameter['Content-Type'] = '{{{mediaType}}}';
+            {{/consumes.0}}
+
+    {{/bodyParam}}
+            setSearchParams(localVarUrlObj, localVarQueryParameter, options.query);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+    {{#hasFormParams}}
+            localVarRequestOptions.data = localVarFormParams{{#vendorExtensions}}{{^multipartFormData}}.toString(){{/multipartFormData}}{{/vendorExtensions}};
+    {{/hasFormParams}}
+    {{#bodyParam}}
+            localVarRequestOptions.data = serializeDataIfNeeded({{paramName}}, localVarRequestOptions, configuration)
+    {{/bodyParam}}
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    {{/operation}}
+    }
+};
+
+/**
+ * {{classname}} - functional programming interface{{#description}}
+ * {{{description}}}{{/description}}
+ * @export
+ */
+export const {{classname}}Fp = function(configuration: Configuration) {
+    const localVarAxiosParamCreator = {{classname}}AxiosParamCreator(configuration)
+    return {
+    {{#operation}}
+        /**
+         * {{&notes}}
+         {{#summary}}
+         * @summary {{&summary}}
+         {{/summary}}
+         {{#allParams}}
+         {{^-first}}
+         * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
+         {{/-first}}
+         {{/allParams}}
+         * @param {*} [options] Override http request option.{{#isDeprecated}}
+         * @deprecated{{/isDeprecated}}
+         * @throws { FgaError }
+         */
+        async {{nickname}}({{#allParams}}{{^-first}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/-first}}{{/allParams}}options?: any): Promise<(axios?: AxiosStatic) => PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.{{nickname}}({{#allParams}}{{^-first}}{{paramName}}, {{/-first}}{{/allParams}}options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, configuration);
+        },
+    {{/operation}}
+    }
+};
+
+/**
+ * {{classname}} - factory interface{{#description}}
+ * {{&description}}{{/description}}
+ * @export
+ */
+export const {{classname}}Factory = function (configuration: Configuration, axios?: AxiosStatic) {
+    const localVarFp = {{classname}}Fp(configuration)
+    return {
+    {{#operation}}
+        /**
+         * {{&notes}}
+         {{#summary}}
+         * @summary {{&summary}}
+         {{/summary}}
+         {{#allParams}}
+         {{^-first}}
+         * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
+         {{/-first}}
+         {{/allParams}}
+         * @param {*} [options] Override http request option.{{#isDeprecated}}
+         * @deprecated{{/isDeprecated}}
+         * @throws { FgaError }
+         */
+        {{nickname}}({{#allParams}}{{^-first}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/-first}}{{/allParams}}options?: any): PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}> {
+            return localVarFp.{{nickname}}({{#allParams}}{{^-first}}{{paramName}}, {{/-first}}{{/allParams}}options).then((request) => request(axios));
+        },
+    {{/operation}}
+    };
+};
+
+{{#withInterfaces}}
+/**
+ * {{classname}} - interface{{#description}}
+ * {{&description}}{{/description}}
+ * @export
+ * @interface {{classname}}
+ */
+export interface {{classname}}Interface {
+{{#operation}}
+    /**
+     * {{&notes}}
+     {{#summary}}
+     * @summary {{&summary}}
+     {{/summary}}
+     {{#allParams}}
+     {{^-first}}
+     * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
+     {{/-first}}
+     {{/allParams}}
+     * @param {*} [options] Override http request option.{{#isDeprecated}}
+     * @deprecated{{/isDeprecated}}
+     * @throws { FgaError }
+     * @memberof {{classname}}Interface
+     */
+    {{nickname}}({{#allParams}}{{^-first}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/-first}}{{/allParams}}options?: any): PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>;
+
+{{/operation}}
+}
+
+{{/withInterfaces}}
+{{#useSingleRequestParameter}}
+{{#operation}}
+{{#allParams.0}}
+/**
+ * Request parameters for {{nickname}} operation in {{classname}}.
+ * @export
+ * @interface {{classname}}{{operationIdCamelCase}}Request
+ */
+export interface {{classname}}{{operationIdCamelCase}}Request {
+    {{#allParams}}
+    /**
+     * {{description}}
+     * @type {{=<% %>=}}{<%&dataType%>}<%={{ }}=%>
+     * @memberof {{classname}}{{operationIdCamelCase}}
+     */
+    readonly {{paramName}}{{^required}}?{{/required}}: {{{dataType}}}
+    {{^-last}}
+
+    {{/-last}}
+    {{/allParams}}
+}
+
+{{/allParams.0}}
+{{/operation}}
+{{/useSingleRequestParameter}}
+/**
+ * {{classname}} - object-oriented interface{{#description}}
+ * {{{description}}}{{/description}}
+ * @export
+ * @class {{classname}}
+ * @extends {BaseAPI}
+ */
+{{#withInterfaces}}
+export class {{classname}} extends BaseAPI implements {{classname}}Interface {
+{{/withInterfaces}}
+{{^withInterfaces}}
+export class {{classname}} extends BaseAPI {
+{{/withInterfaces}}
+    {{#operation}}
+    /**
+     * {{&notes}}
+     {{#summary}}
+     * @summary {{&summary}}
+     {{/summary}}
+     {{#useSingleRequestParameter}}
+     {{#allParams.0}}
+     * @param {{=<% %>=}}{<%& classname %><%& operationIdCamelCase %>Request}<%={{ }}=%> requestParameters Request parameters.
+     {{/allParams.0}}
+     {{/useSingleRequestParameter}}
+     {{^useSingleRequestParameter}}
+     {{#allParams}}
+     {{^-first}}
+     * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
+     {{/-first}}
+     {{/allParams}}
+     {{/useSingleRequestParameter}}
+     * @param {*} [options] Override http request option.{{#isDeprecated}}
+     * @deprecated{{/isDeprecated}}
+     * @throws { FgaError }
+     * @memberof {{classname}}
+     */
+    {{#useSingleRequestParameter}}
+    public {{nickname}}({{#allParams.0}}requestParameters: {{classname}}{{operationIdCamelCase}}Request{{^hasRequiredParams}} = {}{{/hasRequiredParams}}, {{/allParams.0}}options?: any) {
+        return {{classname}}Fp(this.configuration).{{nickname}}({{#allParams.0}}{{#allParams}}requestParameters.{{paramName}}, {{/allParams}}{{/allParams.0}}options).then((request) => request(this.axios));
+    }
+    {{/useSingleRequestParameter}}
+    {{^useSingleRequestParameter}}
+    public {{nickname}}({{#allParams}}{{^-first}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/-first}}{{/allParams}}options?: any) {
+        return {{classname}}Fp(this.configuration).{{nickname}}({{#allParams}}{{^-first}}{{paramName}}, {{/-first}}{{/allParams}}options).then((request) => request(this.axios));
+    }
+    {{/useSingleRequestParameter}}
+    {{^-last}}
+
+    {{/-last}}
+    {{/operation}}
+}
+{{/operations}}

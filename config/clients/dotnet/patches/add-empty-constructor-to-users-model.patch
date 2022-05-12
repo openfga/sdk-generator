@@ -1,0 +1,20 @@
+diff --git a/src/OpenFga.Sdk/Model/Users.cs b/src/OpenFga.Sdk/Model/Users.cs
+index 46bd8d1..e0d6560 100644
+--- a/src/OpenFga.Sdk/Model/Users.cs
++++ b/src/OpenFga.Sdk/Model/Users.cs
+@@ -36,6 +36,15 @@ namespace OpenFga.Sdk.Model
+             this.AdditionalProperties = new Dictionary<string, object>();
+         }
+
++        /// <summary>
++        /// Initializes a new instance of the <see cref="Users" /> class.
++        /// </summary>
++        [JsonConstructor]
++        public Users()
++        {
++            this.AdditionalProperties = new Dictionary<string, object>();
++        }
++
+         /// <summary>
+         /// Gets or Sets _Users
+         /// </summary>

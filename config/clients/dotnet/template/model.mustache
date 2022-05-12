@@ -1,0 +1,30 @@
+{{>partial_header}}
+
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+{{#models}}
+{{#model}}
+{{#discriminator}}
+using JsonSubTypes;
+{{/discriminator}}
+{{/model}}
+{{/models}}
+{{#models}}
+{{#model}}
+{{#oneOf}}
+{{#-first}}
+{{/-first}}
+{{/oneOf}}
+{{#aneOf}}
+{{#-first}}
+{{/-first}}
+{{/aneOf}}
+
+namespace {{packageName}}.{{modelPackage}}
+{
+{{#isEnum}}{{>modelEnum}}{{/isEnum}}{{^isEnum}}{{#oneOf}}{{#-first}}{{>modelOneOf}}{{/-first}}{{/oneOf}}{{#anyOf}}{{#-first}}{{>modelAnyOf}}{{/-first}}{{/anyOf}}{{^oneOf}}{{^anyOf}}{{>modelGeneric}}{{/anyOf}}{{/oneOf}}{{/isEnum}}
+{{/model}}
+{{/models}}
+}

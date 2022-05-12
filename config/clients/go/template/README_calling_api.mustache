@@ -1,0 +1,195 @@
+#### Write Authorization Model
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/WriteAuthorizationModel)
+
+> Note: To learn how to build your authorization model, check the Docs at {{docsUrl}}.
+
+> Learn more about [the {{appName}} configuration language]({{docsUrl}}/modeling/configuration-language).
+
+```golang
+body  := {{packageName}}.TypeDefinitions{TypeDefinitions: &[]{{packageName}}.TypeDefinition{
+	{
+		Type: "repo",
+		Relations: map[string]{{packageName}}.Userset{
+			"writer": {This: &map[string]interface{}{}},
+			"reader": {Union: &{{packageName}}.Usersets{
+				Child: &[]{{packageName}}.Userset{
+					{This: &map[string]interface{}{}},
+					{ComputedUserset: &{{packageName}}.ObjectRelation{
+						Object:   {{packageName}}.PtrString(""),
+						Relation: {{packageName}}.PtrString("writer"),
+					}},
+				},
+			}},
+		},
+	},
+}}
+data, response, err := apiClient.{{appShortName}}Api.WriteAuthorizationModel(context.Background()).Body(body).Execute()
+
+fmt.Printf("%s", data.AuthorizationModelId) // 1uHxCSuTP0VKPYSnkq1pbb1jeZw
+```
+
+#### Read a Single Authorization Model
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
+
+```golang
+// Assuming `1uHxCSuTP0VKPYSnkq1pbb1jeZw` is an id of a single model
+data, response, err := apiClient.{{appShortName}}Api.ReadAuthorizationModel(context.Background(), "1uHxCSuTP0VKPYSnkq1pbb1jeZw").Execute()
+
+// data = {"authorization_model":{"id":"1uHxCSuTP0VKPYSnkq1pbb1jeZw","type_definitions":[{"type":"repo","relations":{"writer":{"this":{}},"reader":{ ... }}}]}} // JSON
+
+fmt.Printf("%s", data.AuthorizationModel.Id) // 1uHxCSuTP0VKPYSnkq1pbb1jeZw
+```
+
+#### Read Authorization Model IDs
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModels)
+
+```golang
+data, response, err := apiClient.{{appShortName}}Api.ReadAuthorizationModels(context.Background()).Execute()
+
+// data = {"authorization_model_ids":["1uHxCSuTP0VKPYSnkq1pbb1jeZw","GtQpMohWezFmIbyXxVEocOCxxgq"]} // in JSON
+
+fmt.Printf("%s", (*data.AuthorizationModelIds)[0]) // 1uHxCSuTP0VKPYSnkq1pbb1jeZw
+```
+
+#### Check
+
+[API Documentation]({{apiDocsUrl}}#/Tuples/Check)
+
+> Provide a tuple and ask the {{appName}} API to check for a relationship
+
+```golang
+body := {{packageName}}.CheckRequest{
+	TupleKey: &{{packageName}}.TupleKey{
+		User: {{packageName}}.PtrString("81684243-9356-4421-8fbf-a4f8d36aa31b"),
+		Relation: {{packageName}}.PtrString("admin"),
+		Object: {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
+	},
+}
+data, response, err := apiClient.{{appShortName}}Api.Check(context.Background()).Body(body).Execute()
+
+// data = {"allowed":true,"resolution":""} // in JSON
+
+fmt.Printf("%t", *data.Allowed) // True
+
+```
+
+#### Write Tuples
+
+[API Documentation]({{apiDocsUrl}}#/Tuples/Write)
+
+```golang
+body := {{packageName}}.WriteRequest{
+	Writes: &{{packageName}}.TupleKeys{
+		TupleKeys: []{{packageName}}.TupleKey{
+			{
+				User: {{packageName}}.PtrString("81684243-9356-4421-8fbf-a4f8d36aa31b"),
+				Relation: {{packageName}}.PtrString("admin"),
+				Object: {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
+			},
+		},
+	},
+}
+_, response, err := apiClient.{{appShortName}}Api.Write(context.Background()).Body(body).Execute()
+
+```
+
+#### Delete Tuples
+
+[API Documentation]({{apiDocsUrl}}#/Tuples/Write)
+
+```golang
+body := {{packageName}}.WriteRequest{
+	Deletes: &{{packageName}}.TupleKeys{
+		TupleKeys: []{{packageName}}.TupleKey{
+			{
+				User: {{packageName}}.PtrString("81684243-9356-4421-8fbf-a4f8d36aa31b"),
+				Relation: {{packageName}}.PtrString("admin"),
+				Object: {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
+			},
+		},
+	},
+}
+_, response, err := apiClient.{{appShortName}}Api.Write(context.Background()).Body(body).Execute()
+
+```
+
+#### Expand
+
+[API Documentation]({{apiDocsUrl}}#/Debugging/Expand)
+
+```golang
+body := {{packageName}}.ExpandRequest{
+	TupleKey: &{{packageName}}.TupleKey{
+		Relation: {{packageName}}.PtrString("admin"),
+		Object: {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
+	},
+}
+data, response, err := apiClient.{{appShortName}}Api.Expand(context.Background()).Body(body).Execute()
+
+// data = {"tree":{"root":{"name":"workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin","leaf":{"users":{"users":["anne","beth"]}}}}} // JSON
+```
+
+#### Read
+
+[API Documentation]({{apiDocsUrl}}#/Tuples/Read)
+
+```golang
+// Find if a relationship tuple stating that a certain user is an admin on a certain workspace
+body := {{packageName}}.ReadRequest{
+    TupleKey: &{{packageName}}.TupleKey{
+        User:     {{packageName}}.PtrString("81684243-9356-4421-8fbf-a4f8d36aa31b"),
+        Relation: {{packageName}}.PtrString("admin"),
+        Object:   {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
+    },
+}
+
+// Find all relationship tuples where a certain user has a relationship as any relation to a certain workspace
+body := {{packageName}}.ReadRequest{
+    TupleKey: &{{packageName}}.TupleKey{
+        User:     {{packageName}}.PtrString("81684243-9356-4421-8fbf-a4f8d36aa31b"),
+        Object:   {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
+    },
+}
+
+// Find all relationship tuples where a certain user is an admin on any workspace
+body := {{packageName}}.ReadRequest{
+    TupleKey: &{{packageName}}.TupleKey{
+        User:     {{packageName}}.PtrString("81684243-9356-4421-8fbf-a4f8d36aa31b"),
+        Relation: {{packageName}}.PtrString("admin"),
+        Object:   {{packageName}}.PtrString("workspace:"),
+    },
+}
+
+// Find all relationship tuples where any user has a relationship as any relation with a particular workspace
+body := {{packageName}}.ReadRequest{
+    TupleKey: &{{packageName}}.TupleKey{
+        Object:   {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
+    },
+}
+
+data, response, err := apiClient.{{appShortName}}Api.Read(context.Background()).Body(body).Execute()
+
+// In all the above situations, the response will be of the form:
+// data = {"tuples":[{"key":{"user":"...","relation":"...","object":"..."},"timestamp":"..."}]} // JSON
+```
+
+#### Read Changes (Watch)
+
+[API Documentation]({{apiDocsUrl}}#/Tuples/ReadChanges)
+
+```golang
+data, response, err := apiClient.{{appShortName}}Api.ReadChanges(context.Background()).
+    Type_("workspace").
+    PageSize(25).
+    ContinuationToken("eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==").
+    Execute()
+
+// response.continuation_token = ...
+// response.changes = [
+//   { tuple_key: { user, relation, object }, operation: "write", timestamp: ... },
+//   { tuple_key: { user, relation, object }, operation: "delete", timestamp: ... }
+// ]
+```

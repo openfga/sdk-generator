@@ -1,0 +1,25 @@
+```golang
+
+import (
+    {{#lambda.lowercase}}{{appShortName}}{{/lambda.lowercase}} "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
+    "os"
+)
+
+func Main() {
+    configuration, err := {{packageName}}.NewConfiguration({{packageName}}.Configuration{
+        ApiScheme:      os.Getenv("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
+        ApiHost:        os.Getenv("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.openfga.example instead of https://api.openfga.example)
+        StoreId:        os.Getenv("{{appUpperCaseName}}_STORE_ID"),
+        ApiTokenIssuer: os.Getenv("{{appUpperCaseName}}_API_TOKEN_ISSUER"), // optional, required if client id is passed
+        ApiAudience:    os.Getenv("{{appUpperCaseName}}_API_AUDIENCE"), // optional, required if client id is passed
+        ClientId:       os.Getenv("{{appUpperCaseName}}_CLIENT_ID"), // optional (pass in if your provider requires authentication via client credential flow)
+        ClientSecret:   os.Getenv("{{appUpperCaseName}}_CLIENT_SECRET"), // optional, required if client id is passed
+    })
+
+    if err != nil {
+    // .. Handle error
+    }
+
+    apiClient := {{packageName}}.NewAPIClient(configuration)
+}
+```

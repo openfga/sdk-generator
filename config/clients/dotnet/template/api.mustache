@@ -1,0 +1,107 @@
+{{>partial_header}}
+
+using {{packageName}}.Client;
+using {{packageName}}.{{modelPackage}};
+
+namespace {{packageName}}.{{apiPackage}};
+
+public class {{classname}} : IDisposable {
+    private Configuration.Configuration _configuration;
+    private ApiClient _apiClient;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="{{classname}}"/> class.
+    /// </summary>
+    /// <param name="storeId"></param>
+    /// <param name="apiHost">define without the scheme (e.g. api.openfga.example instead of https://api.openfga.example)</param>
+    /// <param name="apiTokenIssuer"></param>
+    /// <param name="apiAudience"></param>
+    /// <param name="clientId"></param>
+    /// <param name="clientSecret"></param>
+    /// <param name="defaultHeaders"></param>
+    /// <param name="httpClient"></param>
+    public {{classname}}(
+        string storeId,
+        string apiHost,
+        string? apiTokenIssuer,
+        string? apiAudience,
+        string? clientId,
+        string? clientSecret,
+        IDictionary<string, string>? defaultHeaders,
+        HttpClient? httpClient = null
+    ) : this(new Configuration.Configuration() {
+        StoreId = storeId,
+        ApiHost = apiHost,
+        ApiTokenIssuer = apiTokenIssuer,
+        ApiAudience = apiAudience,
+        ClientId = clientId,
+        ClientSecret = clientSecret,
+        DefaultHeaders = defaultHeaders ?? new Dictionary<string, string>()
+    }, httpClient) {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="{{classname}}"/> class.
+    /// </summary>
+    /// <param name="configuration"></param>
+    /// <param name="httpClient"></param>
+    public {{classname}}(
+        Configuration.Configuration configuration,
+        HttpClient? httpClient = null
+    ) {
+        this._configuration = configuration;
+        this._apiClient = new ApiClient(_configuration, httpClient);
+    }
+
+    {{#operations}}
+    {{#operation}}
+    /// <summary>
+    /// {{summary}} {{notes}}
+    /// </summary>
+    /// <exception cref="{{packageName}}.Exceptions.ApiException">Thrown when fails to make API call</exception>
+    {{#allParams}}
+    {{^-first}}
+    /// <param name="{{paramName}}">{{description}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}</param>
+    {{/-first}}
+    {{/allParams}}
+    /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
+    /// <returns>Task of {{returnType}}{{^returnType}}void{{/returnType}}</returns>
+    {{#isDeprecated}}
+    [Obsolete]
+    {{/isDeprecated}}
+    {{#returnType}}public async Task<{{{.}}}>{{/returnType}}{{^returnType}}public async Task{{/returnType}} {{operationId}}({{#allParams}}{{^-first}}{{{dataType}}} {{paramName}}{{^required}}{{#optionalMethodArgument}} = default({{{dataType}}}){{/optionalMethodArgument}}{{/required}}{{^-last}}, {{/-last}}{{/-first}}{{/allParams}}{{#allParams.1}}, {{/allParams.1}}CancellationToken cancellationToken = default) {
+        var pathParams = new Dictionary<string, string> { { "store_id", _configuration.StoreId } };
+        {{#pathParams}}
+        {{^-first}}if ({{paramName}} != null) {
+            pathParams.Add("{{baseName}}", {{paramName}}.ToString());
+        }{{/-first}}
+        {{/pathParams}}
+        var queryParams = new Dictionary<string, string>();
+        {{#queryParams}}
+        if ({{paramName}} != null) {
+            queryParams.Add("{{baseName}}", {{paramName}}.ToString());
+        }
+        {{/queryParams}}
+
+        var requestBuilder = new RequestBuilder {
+            Method = new HttpMethod("{{httpMethod}}"),
+            BasePath = _configuration.BasePath,
+            PathTemplate = "{{path}}",
+            PathParameters = pathParams,
+            {{#bodyParam}}
+            Body = Utils.CreateJsonStringContent({{paramName}}),
+            {{/bodyParam}}
+            QueryParameters = queryParams
+        };
+
+        {{#returnType}}return {{/returnType}}await this._apiClient.SendRequestAsync{{#returnType}}<{{{.}}}>{{/returnType}}(requestBuilder,
+            "{{operationId}}", cancellationToken);
+    }
+
+    {{/operation}}
+    {{/operations}}
+
+    public void Dispose() {
+        _apiClient.Dispose();
+    }
+}
