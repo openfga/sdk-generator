@@ -25,6 +25,10 @@
       "destinationFilename": "validation.ts",
       "templateType": "SupportingFiles"
     },
+    "credentials.mustache": {
+      "destinationFilename": "credentials.ts",
+      "templateType": "SupportingFiles"
+    },
     "errors.mustache": {
       "destinationFilename": "errors.ts",
       "templateType": "SupportingFiles"

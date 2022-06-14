@@ -1,6 +1,54 @@
+#### List Stores
+
+[API Documentation]({{apiDocsUrl}}#/Stores/ListStores)
+
+```javascript
+const { stores } = await {{appCamelCaseName}}.listStores();
+
+// stores = [{ "id": "1uHxCSuTP0VKPYSnkq1pbb1jeZw", "name": "OpenFGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }]
+```
+
+#### Create Store
+
+[API Documentation]({{apiDocsUrl}}#/Stores/CreateStore)
+
+```javascript
+const { id: storeId } = await {{appCamelCaseName}}.createStore({
+  name: "OpenFGA Demo Store",
+});
+
+// storeId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"
+```
+
+#### Get Store
+
+[API Documentation]({{apiDocsUrl}}#/Stores/GetStore)
+
+> Requires a client initialized with a storeId
+
+```javascript
+const store = await {{appCamelCaseName}}.getStore({
+  name: "OpenFGA Demo Store",
+});
+
+// stores = { "id": "1uHxCSuTP0VKPYSnkq1pbb1jeZw", "name": "OpenFGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }
+```
+
+#### Delete Store
+
+[API Documentation]({{apiDocsUrl}}#/Stores/DeleteStore)
+
+> Requires a client initialized with a storeId
+
+```javascript
+await {{appCamelCaseName}}.deleteStore();
+```
+
 #### Write Authorization Model
 
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/WriteAuthorizationModel)
+
+> Requires a client initialized with a storeId
 
 > Note: To learn how to build your authorization model, check the Docs at {{docsUrl}}.
 
@@ -33,6 +81,8 @@ const { authorization_model_id: id } = await {{appCamelCaseName}}.writeAuthoriza
 
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
 
+> Requires a client initialized with a storeId
+
 ```javascript
 // Assuming `1uHxCSuTP0VKPYSnkq1pbb1jeZw` is an id of a single model
 const { authorization_model: authorizationModel } = await {{appCamelCaseName}}.readAuthorizationModel('1uHxCSuTP0VKPYSnkq1pbb1jeZw');
@@ -54,6 +104,8 @@ const { authorization_model_ids: authorizationModelIds } = await {{appCamelCaseN
 
 [API Documentation]({{apiDocsUrl}}#/Tuples/Check)
 
+> Requires a client initialized with a storeId
+
 > Provide a tuple and ask the {{appName}} API to check for a relationship
 
 ```javascript
@@ -72,6 +124,8 @@ const result = await {{appCamelCaseName}}.check({
 
 [API Documentation]({{apiDocsUrl}}#/Tuples/Write)
 
+> Requires a client initialized with a storeId
+
 ```javascript
 await {{appCamelCaseName}}.write({
   writes: {
@@ -85,6 +139,8 @@ await {{appCamelCaseName}}.write({
 
 [API Documentation]({{apiDocsUrl}}#/Tuples/Write)
 
+> Requires a client initialized with a storeId
+
 ```javascript
 await {{appCamelCaseName}}.write({
   deletes: {
@@ -97,6 +153,8 @@ await {{appCamelCaseName}}.write({
 #### Expand
 
 [API Documentation]({{apiDocsUrl}}#/Debugging/Expand)
+
+> Requires a client initialized with a storeId
 
 ```javascript
 const { tree } = await {{appCamelCaseName}}.expand({
@@ -112,6 +170,8 @@ const { tree } = await {{appCamelCaseName}}.expand({
 #### Read
 
 [API Documentation]({{apiDocsUrl}}#/Tuples/Read)
+
+> Requires a client initialized with a storeId
 
 ```javascript
 // Find if a relationship tuple stating that a certain user is an admin on a certain workspace
@@ -154,6 +214,8 @@ const { tuples } = await {{appCamelCaseName}}.read(body);
 ```
 
 #### Read Changes (Watch)
+
+> Requires a client initialized with a storeId
 
 [API Documentation]({{apiDocsUrl}}#/Tuples/ReadChanges)
 

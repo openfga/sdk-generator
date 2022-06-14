@@ -1,101 +1,98 @@
 diff --git a/api.ts b/api.ts
-index 0f46c36..5e219ee 100644
+index 7cdf649..a384540 100644
 --- a/api.ts
 +++ b/api.ts
-@@ -134,10 +134,11 @@ export const OpenFgaApiAxiosParamCreator = function (configuration: Configuratio
-         /**
-          * Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.
-          * @summary Create a store
-+         * @param {CreateStoreRequest} body
-          * @param {*} [options] Override http request option.
-          * @throws { FgaError }
-          */
--        createStore: async (options: any = {}): Promise<RequestArgs> => {
-+        createStore: async (body: CreateStoreRequest, options: any = {}): Promise<RequestArgs> => {
-             const localVarPath = `/stores`
-             
- ;
-@@ -271,11 +272,12 @@ export const OpenFgaApiAxiosParamCreator = function (configuration: Configuratio
-         /**
-          * Returns a paginated list of OpenFGA stores.
-          * @summary Get all stores
--         * @param {string} [continuationToken] 
-+         * @param {number} [pageSize]
-+         * @param {string} [continuationToken]
-          * @param {*} [options] Override http request option.
-          * @throws { FgaError }
-          */
--        listStores: async (continuationToken?: string, options: any = {}): Promise<RequestArgs> => {
-+        listStores: async (pageSize?: number, continuationToken?: string, options: any = {}): Promise<RequestArgs> => {
-             const localVarPath = `/stores`
-             
- ;
-@@ -647,11 +649,12 @@ export const OpenFgaApiFp = function(configuration: Configuration) {
-         /**
-          * Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.
-          * @summary Create a store
-+         * @param {CreateStoreRequest} body
-          * @param {*} [options] Override http request option.
-          * @throws { FgaError }
-          */
--        async createStore(options?: any): Promise<(axios?: AxiosStatic) => PromiseResult<CreateStoreResponse>> {
--            const localVarAxiosArgs = await localVarAxiosParamCreator.createStore(options);
-+        async createStore(body: CreateStoreRequest, options?: any): Promise<(axios?: AxiosStatic) => PromiseResult<CreateStoreResponse>> {
-+            const localVarAxiosArgs = await localVarAxiosParamCreator.createStore(body, options);
-             return createRequestFunction(localVarAxiosArgs, globalAxios, configuration);
-         },
-         /**
-@@ -688,12 +691,13 @@ export const OpenFgaApiFp = function(configuration: Configuration) {
-         /**
-          * Returns a paginated list of OpenFGA stores.
-          * @summary Get all stores
--         * @param {string} [continuationToken] 
-+         * @param {number} [pageSize]
-+         * @param {string} [continuationToken]
-          * @param {*} [options] Override http request option.
-          * @throws { FgaError }
-          */
--        async listStores(continuationToken?: string, options?: any): Promise<(axios?: AxiosStatic) => PromiseResult<ListStoresResponse>> {
--            const localVarAxiosArgs = await localVarAxiosParamCreator.listStores(continuationToken, options);
-+        async listStores(pageSize?: number, continuationToken?: string, options?: any): Promise<(axios?: AxiosStatic) => PromiseResult<ListStoresResponse>> {
-+            const localVarAxiosArgs = await localVarAxiosParamCreator.listStores(pageSize, continuationToken, options);
-             return createRequestFunction(localVarAxiosArgs, globalAxios, configuration);
-         },
-         /**
-@@ -811,11 +815,12 @@ export const OpenFgaApiFactory = function (configuration: Configuration, axios?:
-         /**
-          * Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.
-          * @summary Create a store
-+         * @param {CreateStoreRequest} body
-          * @param {*} [options] Override http request option.
-          * @throws { FgaError }
-          */
--        createStore(options?: any): PromiseResult<CreateStoreResponse> {
--            return localVarFp.createStore(options).then((request) => request(axios));
-+        createStore(body: CreateStoreRequest, options?: any): PromiseResult<CreateStoreResponse> {
-+            return localVarFp.createStore(body, options).then((request) => request(axios));
-         },
-         /**
-          * Delete an OpenFGA store. This does not delete the data associated to it, like tuples or authorization models.
-@@ -848,12 +853,13 @@ export const OpenFgaApiFactory = function (configuration: Configuration, axios?:
-         /**
-          * Returns a paginated list of OpenFGA stores.
-          * @summary Get all stores
--         * @param {string} [continuationToken] 
-+         * @param {number} [pageSize]
-+         * @param {string} [continuationToken]
-          * @param {*} [options] Override http request option.
-          * @throws { FgaError }
-          */
--        listStores(continuationToken?: string, options?: any): PromiseResult<ListStoresResponse> {
--            return localVarFp.listStores(continuationToken, options).then((request) => request(axios));
-+        listStores(pageSize?: number, continuationToken?: string, options?: any): PromiseResult<ListStoresResponse> {
-+            return localVarFp.listStores(pageSize, continuationToken, options).then((request) => request(axios));
-         },
-         /**
-          * The POST read API will return the tuples for a certain store that matches a query filter specified in the body. Tuples and type definitions allow OpenFGA to determine whether a relationship exists between an object and an user. It is different from the `/stores/{store_id}/expand` API in that only read returns relationship tuples that are stored in the system and satisfy the query. It does not expand or traverse the graph by taking the authorization model into account.Path parameter `store_id` is required.  In the body: 1. Object is mandatory. An object can be a full object (e.g., `type:object_id`) or type only (e.g., `type:`). 2. User is mandatory in the case the object is type only. ## Examples ### Query for all objects in a type definition To query for all objects that `bob` has `reader` relationship in the document type definition, call read API with body of ```json {  \"tuple_key\": {      \"user\": \"bob\",      \"relation\": \"reader\",      \"object\": \"document:\"   } } ``` The API will return tuples and an optional continuation token, something like ```json {   \"tuples\": [     {       \"key\": {         \"user\": \"bob\",         \"relation\": \"reader\",         \"object\": \"document:2021-budget\"       },       \"timestamp\": \"2021-10-06T15:32:11.128Z\"     }   ] } ``` This means that `bob` has a `reader` relationship with 1 document `document:2021-budget`. ### Query for all users with particular relationships for a particular document To query for all users that have `reader` relationship with `document:2021-budget`, call read API with body of  ```json {   \"tuple_key\": {      \"object\": \"document:2021-budget\",      \"relation\": \"reader\"    } } ``` The API will return something like  ```json {   \"tuples\": [     {       \"key\": {         \"user\": \"bob\",         \"relation\": \"reader\",         \"object\": \"document:2021-budget\"       },       \"timestamp\": \"2021-10-06T15:32:11.128Z\"     }   ] } ``` This means that `document:2021-budget` has 1 `reader` (`bob`).  Note that the API will not return writers such as `anne` even when all writers are readers.  This is because only direct relationship are returned for the READ API. ### Query for all users with all relationships for a particular document To query for all users that have any relationship with `document:2021-budget`, call read API with body of  ```json {   \"tuple_key\": {       \"object\": \"document:2021-budget\"    } } ``` The API will return something like  ```json {   \"tuples\": [     {       \"key\": {         \"user\": \"anne\",         \"relation\": \"writer\",         \"object\": \"document:2021-budget\"       },       \"timestamp\": \"2021-10-05T13:42:12.356Z\"     },     {       \"key\": {         \"user\": \"bob\",         \"relation\": \"reader\",         \"object\": \"document:2021-budget\"       },       \"timestamp\": \"2021-10-06T15:32:11.128Z\"     }   ] } ``` This means that `document:2021-budget` has 1 `reader` (`bob`) and 1 `writer` (`anne`). 
-@@ -964,12 +970,13 @@ export class OpenFgaApi extends BaseAPI {
+@@ -132,10 +132,11 @@ export const OpenFgaApiAxiosParamCreator = function (configuration: Configuratio
      /**
+          * Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.
+          * @summary Create a store
++         * @param {CreateStoreRequest} body
+          * @param {*} [options] Override http request option.
+          * @throws { FgaError }
+          */
+-    createStore: async (options: any = {}): Promise<RequestArgs> => {
++    createStore: async (body: CreateStoreRequest, options: any = {}): Promise<RequestArgs> => {
+             
+       const localVarPath = "/stores"
+             
+@@ -273,11 +274,12 @@ export const OpenFgaApiAxiosParamCreator = function (configuration: Configuratio
+     /**
+          * Returns a paginated list of OpenFGA stores.
+          * @summary Get all stores
++         * @param {number} [pageSize]
+          * @param {string} [continuationToken]
+          * @param {*} [options] Override http request option.
+          * @throws { FgaError }
+          */
+-    listStores: async (continuationToken?: string, options: any = {}): Promise<RequestArgs> => {
++    listStores: async (pageSize?: number, continuationToken?: string, options: any = {}): Promise<RequestArgs> => {
+             
+       const localVarPath = "/stores"
+             
+@@ -658,11 +660,12 @@ export const OpenFgaApiFp = function(configuration: Configuration) {
+     /**
+          * Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.
+          * @summary Create a store
++         * @param {CreateStoreRequest} body
+          * @param {*} [options] Override http request option.
+          * @throws { FgaError }
+          */
+-    async createStore(options?: any): Promise<(axios?: AxiosStatic) => PromiseResult<CreateStoreResponse>> {
+-      const localVarAxiosArgs = await localVarAxiosParamCreator.createStore(options);
++    async createStore(body: CreateStoreRequest, options?: any): Promise<(axios?: AxiosStatic) => PromiseResult<CreateStoreResponse>> {
++      const localVarAxiosArgs = await localVarAxiosParamCreator.createStore(body, options);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration);
+     },
+     /**
+@@ -699,12 +702,13 @@ export const OpenFgaApiFp = function(configuration: Configuration) {
+     /**
+          * Returns a paginated list of OpenFGA stores.
+          * @summary Get all stores
++         * @param {number} [pageSize]
+          * @param {string} [continuationToken]
+          * @param {*} [options] Override http request option.
+          * @throws { FgaError }
+          */
+-    async listStores(continuationToken?: string, options?: any): Promise<(axios?: AxiosStatic) => PromiseResult<ListStoresResponse>> {
+-      const localVarAxiosArgs = await localVarAxiosParamCreator.listStores(continuationToken, options);
++    async listStores(pageSize?: number, continuationToken?: string, options?: any): Promise<(axios?: AxiosStatic) => PromiseResult<ListStoresResponse>> {
++      const localVarAxiosArgs = await localVarAxiosParamCreator.listStores(pageSize, continuationToken, options);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration);
+     },
+     /**
+@@ -822,11 +826,12 @@ export const OpenFgaApiFactory = function (configuration: Configuration, axios?:
+     /**
+          * Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.
+          * @summary Create a store
++         * @param {CreateStoreRequest} body
+          * @param {*} [options] Override http request option.
+          * @throws { FgaError }
+          */
+-    createStore(options?: any): PromiseResult<CreateStoreResponse> {
+-      return localVarFp.createStore(options).then((request) => request(axios));
++    createStore(body: CreateStoreRequest, options?: any): PromiseResult<CreateStoreResponse> {
++      return localVarFp.createStore(body, options).then((request) => request(axios));
+     },
+     /**
+          * Delete an OpenFGA store. This does not delete the data associated to it, like tuples or authorization models.
+@@ -859,12 +864,13 @@ export const OpenFgaApiFactory = function (configuration: Configuration, axios?:
+     /**
+          * Returns a paginated list of OpenFGA stores.
+          * @summary Get all stores
++         * @param {number} [pageSize]
+          * @param {string} [continuationToken]
+          * @param {*} [options] Override http request option.
+          * @throws { FgaError }
+          */
+-    listStores(continuationToken?: string, options?: any): PromiseResult<ListStoresResponse> {
+-      return localVarFp.listStores(continuationToken, options).then((request) => request(axios));
++    listStores(pageSize?: number, continuationToken?: string, options?: any): PromiseResult<ListStoresResponse> {
++      return localVarFp.listStores(pageSize, continuationToken, options).then((request) => request(axios));
+     },
+     /**
+          * The POST read API will return the tuples for a certain store that matches a query filter specified in the body. Tuples and type definitions allow OpenFGA to determine whether a relationship exists between an object and an user. It is different from the `/stores/{store_id}/expand` API in that only read returns relationship tuples that are stored in the system and satisfy the query. It does not expand or traverse the graph by taking the authorization model into account.Path parameter `store_id` is required.  In the body: 1. Object is mandatory. An object can be a full object (e.g., `type:object_id`) or type only (e.g., `type:`). 2. User is mandatory in the case the object is type only. ## Examples ### Query for all objects in a type definition To query for all objects that `bob` has `reader` relationship in the document type definition, call read API with body of ```json {  \"tuple_key\": {      \"user\": \"bob\",      \"relation\": \"reader\",      \"object\": \"document:\"   } } ``` The API will return tuples and an optional continuation token, something like ```json {   \"tuples\": [     {       \"key\": {         \"user\": \"bob\",         \"relation\": \"reader\",         \"object\": \"document:2021-budget\"       },       \"timestamp\": \"2021-10-06T15:32:11.128Z\"     }   ] } ``` This means that `bob` has a `reader` relationship with 1 document `document:2021-budget`. ### Query for all users with particular relationships for a particular document To query for all users that have `reader` relationship with `document:2021-budget`, call read API with body of  ```json {   \"tuple_key\": {      \"object\": \"document:2021-budget\",      \"relation\": \"reader\"    } } ``` The API will return something like  ```json {   \"tuples\": [     {       \"key\": {         \"user\": \"bob\",         \"relation\": \"reader\",         \"object\": \"document:2021-budget\"       },       \"timestamp\": \"2021-10-06T15:32:11.128Z\"     }   ] } ``` This means that `document:2021-budget` has 1 `reader` (`bob`).  Note that the API will not return writers such as `anne` even when all writers are readers.  This is because only direct relationship are returned for the READ API. ### Query for all users with all relationships for a particular document To query for all users that have any relationship with `document:2021-budget`, call read API with body of  ```json {   \"tuple_key\": {       \"object\": \"document:2021-budget\"    } } ``` The API will return something like  ```json {   \"tuples\": [     {       \"key\": {         \"user\": \"anne\",         \"relation\": \"writer\",         \"object\": \"document:2021-budget\"       },       \"timestamp\": \"2021-10-05T13:42:12.356Z\"     },     {       \"key\": {         \"user\": \"bob\",         \"relation\": \"reader\",         \"object\": \"document:2021-budget\"       },       \"timestamp\": \"2021-10-06T15:32:11.128Z\"     }   ] } ``` This means that `document:2021-budget` has 1 `reader` (`bob`) and 1 `writer` (`anne`). 
+@@ -975,12 +981,13 @@ export class OpenFgaApi extends BaseAPI {
+   /**
       * Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.
       * @summary Create a store
 +     * @param {CreateStoreRequest} body
@@ -103,28 +100,27 @@ index 0f46c36..5e219ee 100644
       * @throws { FgaError }
       * @memberof OpenFgaApi
       */
--    public createStore(options?: any) {
--        return OpenFgaApiFp(this.configuration).createStore(options).then((request) => request(this.axios));
-+    public createStore(body: CreateStoreRequest, options?: any) {
-+        return OpenFgaApiFp(this.configuration).createStore(body, options).then((request) => request(this.axios));
-     }
+-  public createStore(options?: any) {
+-    return OpenFgaApiFp(this.configuration).createStore(options).then((request) => request(this.axios));
++  public createStore(body: CreateStoreRequest, options?: any) {
++    return OpenFgaApiFp(this.configuration).createStore(body, options).then((request) => request(this.axios));
+   }
  
-     /**
-@@ -1009,13 +1016,14 @@ export class OpenFgaApi extends BaseAPI {
-     /**
+   /**
+@@ -1020,13 +1027,14 @@ export class OpenFgaApi extends BaseAPI {
+   /**
       * Returns a paginated list of OpenFGA stores.
       * @summary Get all stores
--     * @param {string} [continuationToken] 
 +     * @param {number} [pageSize]
-+     * @param {string} [continuationToken]
+      * @param {string} [continuationToken]
       * @param {*} [options] Override http request option.
       * @throws { FgaError }
       * @memberof OpenFgaApi
       */
--    public listStores(continuationToken?: string, options?: any) {
--        return OpenFgaApiFp(this.configuration).listStores(continuationToken, options).then((request) => request(this.axios));
-+    public listStores(pageSize?: number, continuationToken?: string, options?: any) {
-+        return OpenFgaApiFp(this.configuration).listStores(pageSize, continuationToken, options).then((request) => request(this.axios));
-     }
+-  public listStores(continuationToken?: string, options?: any) {
+-    return OpenFgaApiFp(this.configuration).listStores(continuationToken, options).then((request) => request(this.axios));
++  public listStores(pageSize?: number, continuationToken?: string, options?: any) {
++    return OpenFgaApiFp(this.configuration).listStores(pageSize, continuationToken, options).then((request) => request(this.axios));
+   }
  
-     /**
+   /**

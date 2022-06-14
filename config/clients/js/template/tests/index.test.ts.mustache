@@ -2,17 +2,18 @@
 import * as nock from "nock";
 
 import {
-  {{appShortName}}Api,
+  AuthorizationModel,
+  CheckResponse,
+  Configuration,
+  CredentialsMethod,
+  ErrorCode,
+  ExpandResponse,
+  FgaApiAuthenticationError,
   FgaApiInternalError,
   FgaApiNotFoundError,
   FgaApiRateLimitExceededError,
   FgaApiValidationError,
-  FgaApiAuthenticationError,
-  AuthorizationModel,
-  CheckResponse,
-  Configuration,
-  ErrorCode,
-  ExpandResponse,
+  {{appShortName}}Api,
   ReadAuthorizationModelResponse,
   ReadAuthorizationModelsResponse,
   ReadChangesResponse,
@@ -20,9 +21,11 @@ import {
   TupleKey,
   TupleOperation,
   TypeDefinitions,
+  UserConfigurationParams,
 } from "../index";
 import { CallResult } from "../common";
 import { GetDefaultRetryParams } from "../configuration";
+import { AuthCredentialsConfig } from "../credentials";
 
 nock.disableNetConnect();
 
@@ -32,14 +35,20 @@ const {{appUpperCaseName}}_API_TOKEN_ISSUER = "tokenissuer.fga.example";
 const {{appUpperCaseName}}_API_AUDIENCE = "https://api.fga.example/";
 const {{appUpperCaseName}}_CLIENT_ID = "some-random-id";
 const {{appUpperCaseName}}_CLIENT_SECRET = "this-is-very-secret";
+const {{appUpperCaseName}}_API_TOKEN = "fga_abcdef";
 
-const baseConfig = {
+const baseConfig: UserConfigurationParams = {
   storeId: {{appUpperCaseName}}_STORE_ID,
   apiHost: {{appUpperCaseName}}_API_HOST,
-  apiTokenIssuer: {{appUpperCaseName}}_API_TOKEN_ISSUER,
-  apiAudience: {{appUpperCaseName}}_API_AUDIENCE,
-  clientId: {{appUpperCaseName}}_CLIENT_ID,
-  clientSecret: {{appUpperCaseName}}_CLIENT_SECRET,
+  credentials: {
+    method: CredentialsMethod.ClientCredentials,
+    config: {
+      apiTokenIssuer: {{appUpperCaseName}}_API_TOKEN_ISSUER,
+      apiAudience: {{appUpperCaseName}}_API_AUDIENCE,
+      clientId: {{appUpperCaseName}}_CLIENT_ID,
+      clientSecret: {{appUpperCaseName}}_CLIENT_SECRET,
+    }
+  }
 };
 
 const defaultConfiguration = new Configuration(baseConfig);
@@ -159,10 +168,17 @@ const nocks = {
 
 describe("{{appShortName}} SDK", function () {
   describe("initializing the sdk", () => {
-    it("should require storeId in configuration", () => {
+    it("should not require storeId in configuration", () => {
       expect(
         () => new {{appShortName}}Api({ ...baseConfig, storeId: undefined! })
-      ).toThrowError();
+      ).not.toThrowError();
+    });
+
+    it("should require storeId when calling endpoints that require it", () => {
+      const {{appCamelCaseName}}Api = new {{appShortName}}Api({ ...baseConfig, storeId: undefined!, credentials: undefined! });
+      expect(
+        {{appCamelCaseName}}Api.readAuthorizationModels()
+      ).rejects.toThrow();
     });
 
     it("should require host in configuration", () => {
@@ -179,7 +195,16 @@ describe("{{appShortName}} SDK", function () {
 
     it("should validate apiTokenIssuer in configuration (adding scheme as part of the apiTokenIssuer)", () => {
       expect(
-        () => new {{appShortName}}Api({ ...baseConfig, apiTokenIssuer: "https://api.fga.example" })
+        () => new {{appShortName}}Api({
+          ...baseConfig,
+          credentials: {
+            method: CredentialsMethod.ClientCredentials,
+            config: {
+              ...(baseConfig.credentials as any).config,
+              apiTokenIssuer: "https://api.fga.example"
+            }
+          } as Configuration["credentials"]
+        })
       ).toThrowError();
     });
 
@@ -187,7 +212,7 @@ describe("{{appShortName}} SDK", function () {
       expect(
         () =>
           new {{appShortName}}Api({
-            storeId: baseConfig.storeId,
+            storeId: baseConfig.storeId!,
             apiHost: baseConfig.apiHost,
           })
       ).not.toThrowError();
@@ -198,7 +223,9 @@ describe("{{appShortName}} SDK", function () {
         () =>
           new {{appShortName}}Api({
             ...baseConfig,
-            clientSecret: undefined!,
+            credentials: {
+              method: CredentialsMethod.ClientCredentials,
+            } as AuthCredentialsConfig,
           })
       ).toThrowError();
 
@@ -206,7 +233,13 @@ describe("{{appShortName}} SDK", function () {
         () =>
           new {{appShortName}}Api({
             ...baseConfig,
-            clientId: undefined!,
+            credentials: {
+              method: CredentialsMethod.ClientCredentials,
+              config: {
+                ...(baseConfig.credentials as any)!.config,
+                clientId: undefined!
+              }
+            } as Configuration["credentials"]
           })
       ).toThrowError();
 
@@ -214,7 +247,13 @@ describe("{{appShortName}} SDK", function () {
         () =>
           new {{appShortName}}Api({
             ...baseConfig,
-            apiTokenIssuer: undefined!,
+            credentials: {
+              method: CredentialsMethod.ClientCredentials,
+              config: {
+                ...(baseConfig.credentials as any)!.clientCredentials,
+                clientSecret: undefined!
+              }
+            } as Configuration["credentials"]
           })
       ).toThrowError();
 
@@ -222,14 +261,34 @@ describe("{{appShortName}} SDK", function () {
         () =>
           new {{appShortName}}Api({
             ...baseConfig,
-            apiAudience: undefined!,
+            credentials: {
+              method: CredentialsMethod.ClientCredentials,
+              config: {
+                ...(baseConfig.credentials as any)!.config,
+                apiAudience: undefined!
+              }
+            } as Configuration["credentials"]
+          })
+      ).toThrowError();
+
+      expect(
+        () =>
+          new {{appShortName}}Api({
+            ...baseConfig,
+            credentials: {
+              method: CredentialsMethod.ClientCredentials,
+              config: {
+                ...(baseConfig.credentials as any)!.config,
+                apiTokenIssuer: undefined!
+              }
+            } as Configuration["credentials"]
           })
       ).toThrowError();
     });
 
     it("should issue a network call to get the token at the first request if client id is provided", async () => {
-      const scope = nocks.tokenExchange(defaultConfiguration.apiTokenIssuer!);
-      nocks.readAuthorizationModels(baseConfig.storeId);
+      const scope = nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER);
+      nocks.readAuthorizationModels(baseConfig.storeId!);
 
       const {{appCamelCaseName}}Api = new {{appShortName}}Api(baseConfig);
       expect(scope.isDone()).toBe(false);
@@ -242,11 +301,11 @@ describe("{{appShortName}} SDK", function () {
     });
 
     it("should not issue a network call to get the token at the first request if the clientId is not provided", async () => {
-      const scope = nocks.tokenExchange(defaultConfiguration.apiTokenIssuer!);
-      nocks.readAuthorizationModels(baseConfig.storeId);
+      const scope = nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER);
+      nocks.readAuthorizationModels(baseConfig.storeId!);
 
       const {{appCamelCaseName}}Api = new {{appShortName}}Api({
-        storeId: baseConfig.storeId,
+        storeId: baseConfig.storeId!,
         apiHost: baseConfig.apiHost,
       });
       expect(scope.isDone()).toBe(false);
@@ -260,7 +319,6 @@ describe("{{appShortName}} SDK", function () {
 
     it("should allow passing in a configuration instance", async () => {
       const configuration = new Configuration(baseConfig);
-      configuration.apiAudience = "api.fga.example";
       expect(() => new {{appShortName}}Api(configuration)).not.toThrowError();
     });
   });
@@ -282,7 +340,7 @@ describe("{{appShortName}} SDK", function () {
       };
 
       beforeEach(async () => {
-        nocks.tokenExchange(defaultConfiguration.apiTokenIssuer!, "test-token");
+        nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
 
         nock(basePath)
           .defaultReplyHeaders({
@@ -339,7 +397,7 @@ describe("{{appShortName}} SDK", function () {
           retryParams: GetDefaultRetryParams(2, 10),
         };
         {{appCamelCaseName}}Api = new {{appShortName}}Api({ ...updateBaseConfig });
-        nocks.tokenExchange(defaultConfiguration.apiTokenIssuer!, "test-token");
+        nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
 
         nock(basePath)
           .post(
@@ -380,7 +438,7 @@ describe("{{appShortName}} SDK", function () {
         };
         {{appCamelCaseName}}Api = new {{appShortName}}Api({ ...updateBaseConfig });
 
-        nocks.tokenExchange(defaultConfiguration.apiTokenIssuer!, "test-token");
+        nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
 
         nock(basePath)
           .post(
@@ -396,7 +454,7 @@ describe("{{appShortName}} SDK", function () {
             message: "nock error",
           });
 
-        nocks.check(baseConfig.storeId, tupleKey);
+        nocks.check(baseConfig.storeId!, tupleKey);
       });
 
       afterEach(() => {
@@ -417,7 +475,7 @@ describe("{{appShortName}} SDK", function () {
       };
 
       beforeEach(async () => {
-        nocks.tokenExchange(defaultConfiguration.apiTokenIssuer!, "test-token");
+        nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
 
         nock(basePath)
           .post(
@@ -433,7 +491,7 @@ describe("{{appShortName}} SDK", function () {
             message: "nock error",
           });
 
-        nocks.check(baseConfig.storeId, tupleKey);
+        nocks.check(baseConfig.storeId!, tupleKey);
       });
 
       afterEach(() => {
@@ -457,7 +515,7 @@ describe("{{appShortName}} SDK", function () {
       };
 
       beforeEach(async () => {
-        nocks.tokenExchange(defaultConfiguration.apiTokenIssuer!, "test-token");
+        nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
 
         nock(basePath)
           .post(
@@ -491,7 +549,7 @@ describe("{{appShortName}} SDK", function () {
       };
 
       beforeEach(async () => {
-        nocks.tokenExchange(defaultConfiguration.apiTokenIssuer!, "test-token");
+        nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
 
         nock(basePath)
           .post(
@@ -525,7 +583,7 @@ describe("{{appShortName}} SDK", function () {
       };
 
       beforeEach(async () => {
-        nock(`https://${defaultConfiguration.apiTokenIssuer}`)
+        nock(`https://${ {{appUpperCaseName}}_API_TOKEN_ISSUER}`)
           .post("/oauth/token")
           .reply(401);
 
@@ -548,7 +606,7 @@ describe("{{appShortName}} SDK", function () {
       });
 
       it("should throw FgaApiAuthenticationError", async () => {
-        openFgaApi = new OpenFgaApi({ ...baseConfig });
+        {{appCamelCaseName}}Api = new {{appShortName}}Api({ ...baseConfig });
         await expect(
           {{appCamelCaseName}}Api.check({ tuple_key: tupleKey })
         ).rejects.toThrow(FgaApiAuthenticationError);
@@ -562,14 +620,14 @@ describe("{{appShortName}} SDK", function () {
 
     beforeAll(async () => {
       {{appCamelCaseName}}Api = new {{appShortName}}Api({ ...baseConfig });
-      nocks.tokenExchange(defaultConfiguration.apiTokenIssuer!);
+      nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER);
 
       const tupleKey = {
         object: "foobar:x",
         user: "user:xyz",
         relation: "abc",
       };
-      const scope = nocks.check(baseConfig.storeId, tupleKey);
+      const scope = nocks.check(baseConfig.storeId!, tupleKey);
       expect(scope.isDone()).toBe(false);
 
       result = await {{appCamelCaseName}}Api.check({ tuple_key: tupleKey });
@@ -599,7 +657,7 @@ describe("{{appShortName}} SDK", function () {
     });
 
     beforeEach(() => {
-      nocks.tokenExchange(defaultConfiguration.apiTokenIssuer!);
+      nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER);
     });
 
     afterEach(() => {
@@ -613,7 +671,7 @@ describe("{{appShortName}} SDK", function () {
           relation: "admin",
           object: "workspace:1",
         };
-        const scope = nocks.check(baseConfig.storeId, tuple);
+        const scope = nocks.check(baseConfig.storeId!, tuple);
 
         expect(scope.isDone()).toBe(false);
         const data = await {{appCamelCaseName}}Api.check({ tuple_key: tuple });
@@ -630,7 +688,7 @@ describe("{{appShortName}} SDK", function () {
           relation: "admin",
           object: "workspace:1",
         };
-        const scope = nocks.write(baseConfig.storeId, tuple);
+        const scope = nocks.write(baseConfig.storeId!, tuple);
 
         expect(scope.isDone()).toBe(false);
         const data = await {{appCamelCaseName}}Api.write({
@@ -649,7 +707,7 @@ describe("{{appShortName}} SDK", function () {
           relation: "admin",
           object: "workspace:1",
         };
-        const scope = nocks.delete(baseConfig.storeId, tuple);
+        const scope = nocks.delete(baseConfig.storeId!, tuple);
 
         expect(scope.isDone()).toBe(false);
         const data = await {{appCamelCaseName}}Api.write({
@@ -668,7 +726,7 @@ describe("{{appShortName}} SDK", function () {
           relation: "admin",
           object: "workspace:1",
         };
-        const scope = nocks.expand(baseConfig.storeId, tuple);
+        const scope = nocks.expand(baseConfig.storeId!, tuple);
 
         expect(scope.isDone()).toBe(false);
         const data = await {{appCamelCaseName}}Api.expand({ tuple_key: tuple });
@@ -685,7 +743,7 @@ describe("{{appShortName}} SDK", function () {
           relation: "admin",
           object: "workspace:1",
         };
-        const scope = nocks.read(baseConfig.storeId, tuple);
+        const scope = nocks.read(baseConfig.storeId!, tuple);
 
         expect(scope.isDone()).toBe(false);
         const data = await {{appCamelCaseName}}Api.read({ tuple_key: tuple });
@@ -703,7 +761,7 @@ describe("{{appShortName}} SDK", function () {
           ],
         };
         const scope = nocks.writeAuthorizationModel(
-          baseConfig.storeId,
+          baseConfig.storeId!,
           authorizationModel
         );
 
@@ -720,7 +778,7 @@ describe("{{appShortName}} SDK", function () {
     describe("readAuthorizationModel", () => {
       it("should call the api and return the response", async () => {
         const configId = "string";
-        const scope = nocks.readSingleAuthzModel(baseConfig.storeId, configId);
+        const scope = nocks.readSingleAuthzModel(baseConfig.storeId!, configId);
 
         expect(scope.isDone()).toBe(false);
         const data = await {{appCamelCaseName}}Api.readAuthorizationModel(configId);
@@ -737,7 +795,7 @@ describe("{{appShortName}} SDK", function () {
 
     describe("readAuthorizationModels", () => {
       it("should call the api and return the response", async () => {
-        const scope = nocks.readAuthorizationModels(baseConfig.storeId);
+        const scope = nocks.readAuthorizationModels(baseConfig.storeId!);
 
         expect(scope.isDone()).toBe(false);
         const data = await {{appCamelCaseName}}Api.readAuthorizationModels();
@@ -755,7 +813,7 @@ describe("{{appShortName}} SDK", function () {
         const pageSize = 25;
         const continuationToken = "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==";
 
-        const scope = nocks.readChanges(baseConfig.storeId, type, pageSize, continuationToken);
+        const scope = nocks.readChanges(baseConfig.storeId!, type, pageSize, continuationToken);
 
         expect(scope.isDone()).toBe(false);
         const response = await {{appCamelCaseName}}Api.readChanges(type, pageSize, continuationToken);
