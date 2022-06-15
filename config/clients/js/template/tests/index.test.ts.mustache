@@ -208,7 +208,7 @@ describe("{{appShortName}} SDK", function () {
       ).toThrowError();
     });
 
-    it("should not require clientId, clientSecret, apiTokenIssuer and apiAudience in configuration when not needed", () => {
+    it("should not require credentials in configuration when not needed", () => {
       expect(
         () =>
           new {{appShortName}}Api({
@@ -218,7 +218,20 @@ describe("{{appShortName}} SDK", function () {
       ).not.toThrowError();
     });
 
-    it("should require clientId, clientSecret, apiTokenIssuer and apiAudience in configuration when needed", () => {
+    it("should require apiToken credentials in configuration in api_token flow", () => {
+      expect(
+        () =>
+          new {{appShortName}}Api({
+            storeId: baseConfig.storeId!,
+            apiHost: baseConfig.apiHost,
+            credentials: {
+              method: CredentialsMethod.ApiToken as any
+            }
+          })
+      ).toThrowError();
+    });
+
+    it("should require clientId, clientSecret, apiTokenIssuer and apiAudience credentials in configuration in client_credentials flow", () => {
       expect(
         () =>
           new {{appShortName}}Api({
@@ -320,6 +333,15 @@ describe("{{appShortName}} SDK", function () {
     it("should allow passing in a configuration instance", async () => {
       const configuration = new Configuration(baseConfig);
       expect(() => new {{appShortName}}Api(configuration)).not.toThrowError();
+    });
+
+    it("should allow updating the storeId after initialization", async () => {
+      const {{appCamelCaseName}}Api = new {{appShortName}}Api({
+        apiHost: {{appUpperCaseName}}_API_HOST
+      });
+      expect({{appCamelCaseName}}Api.storeId).toBe(undefined);
+      {{appCamelCaseName}}Api.storeId = {{appUpperCaseName}}_STORE_ID;
+      expect({{appCamelCaseName}}Api.storeId).toBe({{appUpperCaseName}}_STORE_ID);
     });
   });
 
