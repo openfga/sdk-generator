@@ -1,18 +1,15 @@
 {{#withSeparateModelsAndApi}}
-/* tslint:disable */
-/* eslint-disable */
 {{>partial_header}}
 
 import { COLLECTION_FORMATS, BaseAPI } from '{{apiRelativeToRoot}}base';
 import {
-    DUMMY_BASE_URL,
-    setBearerAuthToObject,
-    setSearchParams,
-    serializeDataIfNeeded,
-    toPathString,
-    createRequestFunction,
-    RequestArgs,
-    PromiseResult
+  DUMMY_BASE_URL,
+  setSearchParams,
+  serializeDataIfNeeded,
+  toPathString,
+  createRequestFunction,
+  RequestArgs,
+  PromiseResult
 } from '{{apiRelativeToRoot}}common';
 
 import { Configuration } from '{{apiRelativeToRoot}}configuration';
@@ -42,7 +39,7 @@ export const {{classname}}AxiosParamCreator = function (configuration: Configura
          {{/summary}}
          {{#allParams}}
          {{^-first}}
-         * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
+         * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
          {{/-first}}
          {{/allParams}}
          * @param {*} [options] Override http request option.{{#isDeprecated}}
@@ -58,10 +55,10 @@ export const {{classname}}AxiosParamCreator = function (configuration: Configura
     {{/required}}
     {{/-first}}
     {{/allParams}}
+            {{#pathParams.0}}assertParamExists('Configuration', '{{paramName}}', configuration.{{paramName}}){{/pathParams.0}}
             const localVarPath = `{{{path}}}`
             {{#pathParams.0}}.replace(`{${"{{baseName}}"}}`, encodeURIComponent(String(configuration.{{paramName}}))){{/pathParams.0}}
-            {{#pathParams}}
-            {{^-first}}.replace(`{${"{{baseName}}"}}`, encodeURIComponent(String({{paramName}}))){{/-first}}{{/pathParams}};
+            {{#pathParams}}{{^-first}}.replace(`{${"{{baseName}}"}}`, encodeURIComponent(String({{paramName}}))){{/-first}}{{/pathParams}};
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -213,7 +210,7 @@ export const {{classname}}Fp = function(configuration: Configuration) {
          {{/summary}}
          {{#allParams}}
          {{^-first}}
-         * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
+         * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
          {{/-first}}
          {{/allParams}}
          * @param {*} [options] Override http request option.{{#isDeprecated}}
@@ -244,7 +241,7 @@ export const {{classname}}Factory = function (configuration: Configuration, axio
          {{/summary}}
          {{#allParams}}
          {{^-first}}
-         * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
+         * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
          {{/-first}}
          {{/allParams}}
          * @param {*} [options] Override http request option.{{#isDeprecated}}
@@ -274,7 +271,7 @@ export interface {{classname}}Interface {
      {{/summary}}
      {{#allParams}}
      {{^-first}}
-     * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
+     * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
      {{/-first}}
      {{/allParams}}
      * @param {*} [options] Override http request option.{{#isDeprecated}}
@@ -340,7 +337,7 @@ export class {{classname}} extends BaseAPI {
      {{^useSingleRequestParameter}}
      {{#allParams}}
      {{^-first}}
-     * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}} {{description}}
+     * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
      {{/-first}}
      {{/allParams}}
      {{/useSingleRequestParameter}}

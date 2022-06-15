@@ -1,14 +1,11 @@
-/* tslint:disable */
-/* eslint-disable */
 {{>partial_header}}
 
 {{^withSeparateModelsAndApi}}
-import globalAxios, { AxiosPromise, AxiosStatic } from 'axios';
+import globalAxios, { AxiosStatic } from 'axios';
 
-import { COLLECTION_FORMATS, BaseAPI } from './base';
+import { BaseAPI } from './base';
 import {
     DUMMY_BASE_URL,
-    setBearerAuthToObject,
     setSearchParams,
     serializeDataIfNeeded,
     toPathString,
