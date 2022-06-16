@@ -1,10 +1,85 @@
+#### List Stores
+
+[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/ListStores)
+
+```golang
+configuration, err := {{packageName}}.NewConfiguration({{packageName}}.Configuration{
+    ApiHost: "api.fga.example"
+})
+
+if err != nil {
+// .. Handle error
+}
+
+apiClient := {{packageName}}.NewAPIClient(configuration)
+stores, response, err := openFga.ListStores(context.Background()).Body(body).Execute();
+
+// stores = [{ "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }]
+```
+
+#### Create Store
+
+[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/CreateStore)
+
+```golang
+configuration, err := {{packageName}}.NewConfiguration({{packageName}}.Configuration{
+    ApiHost: "api.fga.example"
+})
+
+if err != nil {
+// .. Handle error
+}
+
+apiClient := {{packageName}}.NewAPIClient(configuration)
+
+store, _, err := apiClient.{{appShortName}}Api.CreateStore(context.Background()).Body(CreateStoreRequest{Name: PtrString("FGA Demo")}).Execute()
+if err != nil {
+    // handle error
+}
+
+// store.Id = "01FQH7V8BEG3GPQW93KTRFR8JB"
+
+// store store.Id in database
+// update the storeId of the current instance
+apiClient.SetStoreId(*store.Id)
+// continue calling the API normally
+```
+
+#### Get Store
+
+[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/GetStore)
+
+> Requires a client initialized with a storeId
+
+```golang
+store, _, err := apiClient.{{appShortName}}Api.GetStore(context.Background()).Execute()
+if err != nil {
+    // handle error
+}
+
+// store = { "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }
+```
+
+#### Delete Store
+
+[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/DeleteStore)
+
+> Requires a client initialized with a storeId
+
+```golang
+_, _, err := apiClient.{{appShortName}}Api.DeleteStore(context.Background()).Execute()
+if err != nil {
+    // handle error
+}
+```
+
 #### Write Authorization Model
 
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/WriteAuthorizationModel)
 
 > Note: To learn how to build your authorization model, check the Docs at {{docsUrl}}.
 
-> Learn more about [the {{appName}} configuration language]({{docsUrl}}/modeling/configuration-language).
+> Learn more about [the {{appName}} configuration language]({{docsUrl}}/configuration-language).
 
 ```golang
 body  := {{packageName}}.TypeDefinitions{TypeDefinitions: &[]{{packageName}}.TypeDefinition{

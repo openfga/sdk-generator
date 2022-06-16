@@ -35,6 +35,10 @@
       "destinationFilename": "client.go",
       "templateType": "SupportingFiles"
     },
+    "credentials.mustache": {
+      "destinationFilename": "credentials/credentials.go",
+      "templateType": "SupportingFiles"
+    },
     "oauth2/oauth2.mustache": {
       "destinationFilename": "oauth2/oauth2.go",
       "templateType": "SupportingFiles"

@@ -5,7 +5,7 @@ const { {{appShortName}}Api } = require('{{packageName}}'); // OR import { {{app
 
 const {{appCamelCaseName}} = new {{appShortName}}Api({
   apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
-  apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.openfga.example instead of https://api.openfga.example)
+  apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
   storeId: {{appUpperCaseName}}_STORE_ID,
 });
 ```
@@ -17,7 +17,7 @@ const { {{appShortName}}Api } = require('{{packageName}}'); // OR import { {{app
 
 const {{appCamelCaseName}} = new {{appShortName}}Api({
   apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
-  apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.openfga.example instead of https://api.openfga.example)
+  apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
   storeId: {{appUpperCaseName}}_STORE_ID,
   credentials: {
     method: CredentialsMethod.ApiToken,

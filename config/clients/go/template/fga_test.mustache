@@ -5,9 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/jarcoal/httpmock"
 	"net/http"
 	"testing"
+
+	"github.com/jarcoal/httpmock"
+	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
 )
 
 type TestDefinition struct {
@@ -19,22 +21,92 @@ type TestDefinition struct {
 }
 
 func Test{{appShortName}}ApiConfiguration(t *testing.T) {
-	t.Run("Providing no store id should error", func(t *testing.T) {
+	t.Run("Providing no store id should not error", func(t *testing.T) {
 		_, err := NewConfiguration(Configuration{
             ApiHost: "api.fga.example",
 		})
 
-		if err == nil {
-			t.Errorf("Expected an error")
+		if err != nil {
+			t.Errorf("%v", err)
 			return
 		}
 	})
 
-	t.Run("Providing a client id with no secret, audience or issuer should error", func(t *testing.T) {
+	t.Run("Providing no store id when calling endpoints that require it should error", func(t *testing.T) {
+		configuration, err := NewConfiguration(Configuration{
+			ApiHost: "api.fga.example",
+		})
+
+		apiClient := NewAPIClient(configuration)
+
+		if _, _, err = apiClient.{{appShortName}}Api.ReadAuthorizationModels(context.Background()).Execute(); err == nil {
+			t.Errorf("Expected an error when storeId is required but not provided")
+			return
+		}
+	})
+
+	t.Run("Providing no ApiHost should error", func(t *testing.T) {
+		_, err := NewConfiguration(Configuration{})
+
+		if err == nil {
+			t.Errorf("Expected an error when storeId is required but not provided")
+			return
+		}
+	})
+
+	t.Run("ApiHost should be valid", func(t *testing.T) {
 		_, err := NewConfiguration(Configuration{
-            ApiHost:     "api.fga.example",
-			StoreId:  "6c181474-aaa1-4df7-8929-6e7b3a992754",
-			ClientId: "some-id",
+			ApiHost: "https://api.fga.example",
+		})
+
+		if err == nil {
+			t.Errorf("Expected an error when ApiHost is invalid (scheme is part of the host)")
+			return
+		}
+	})
+
+	t.Run("In ApiToken credential method, apiToken is required in the Credentials Config", func(t *testing.T) {
+		_, err := NewConfiguration(Configuration{
+			ApiHost: "https://api.fga.example",
+			Credentials: &credentials.Credentials{
+				Method: credentials.CredentialsMethodApiToken,
+			},
+		})
+
+		if err == nil {
+			t.Errorf("Expected an error when apiToken is missing but the credential method is ApiToken")
+			return
+		}
+	})
+
+	t.Run("In ClientCredentials method, providing no client id, secret, audience or issuer should error", func(t *testing.T) {
+		_, err := NewConfiguration(Configuration{
+			ApiHost: "https://api.fga.example",
+			StoreId: "6c181474-aaa1-4df7-8929-6e7b3a992754",
+			Credentials: &credentials.Credentials{
+				Method: credentials.CredentialsMethodApiToken,
+				Config: &credentials.Config{
+					ClientCredentialsClientSecret: "some-secret",
+				},
+			},
+		})
+
+		if err == nil {
+			t.Errorf("Expected an error: client id is required")
+			return
+		}
+
+		_, err = NewConfiguration(Configuration{
+			ApiHost: "https://api.fga.example",
+			StoreId: "6c181474-aaa1-4df7-8929-6e7b3a992754",
+			Credentials: &credentials.Credentials{
+				Method: credentials.CredentialsMethodApiToken,
+				Config: &credentials.Config{
+					ClientCredentialsClientId:       "some-id",
+					ClientCredentialsApiTokenIssuer: "some-issuer",
+					ClientCredentialsApiAudience:    "some-audience",
+				},
+			},
 		})
 
 		if err == nil {
@@ -43,10 +115,16 @@ func Test{{appShortName}}ApiConfiguration(t *testing.T) {
 		}
 
 		_, err = NewConfiguration(Configuration{
-            ApiHost:         "api.fga.example",
-			StoreId:      "6c181474-aaa1-4df7-8929-6e7b3a992754",
-			ClientId:     "some-id",
-			ClientSecret: "some-id",
+			ApiHost: "https://api.fga.example",
+			StoreId: "6c181474-aaa1-4df7-8929-6e7b3a992754",
+			Credentials: &credentials.Credentials{
+				Method: credentials.CredentialsMethodApiToken,
+				Config: &credentials.Config{
+					ClientCredentialsClientId:       "some-id",
+					ClientCredentialsClientSecret:   "some-secret",
+					ClientCredentialsApiTokenIssuer: "some-issuer",
+				},
+			},
 		})
 
 		if err == nil {
@@ -55,11 +133,16 @@ func Test{{appShortName}}ApiConfiguration(t *testing.T) {
 		}
 
 		_, err = NewConfiguration(Configuration{
-            ApiHost:         "api.fga.example",
-			StoreId:      "6c181474-aaa1-4df7-8929-6e7b3a992754",
-			ClientId:     "some-id",
-			ClientSecret: "some-secret",
-            ApiAudience:  "some-audience",
+			ApiHost: "https://api.fga.example",
+			StoreId: "6c181474-aaa1-4df7-8929-6e7b3a992754",
+			Credentials: &credentials.Credentials{
+				Method: credentials.CredentialsMethodApiToken,
+				Config: &credentials.Config{
+					ClientCredentialsClientId:     "some-id",
+					ClientCredentialsClientSecret: "some-secret",
+					ClientCredentialsApiAudience:  "some-audience",
+				},
+			},
 		})
 
 		if err == nil {
@@ -68,12 +151,17 @@ func Test{{appShortName}}ApiConfiguration(t *testing.T) {
 		}
 
 		_, err = NewConfiguration(Configuration{
-            ApiHost:         "api.fga.example",
-			StoreId:      "6c181474-aaa1-4df7-8929-6e7b3a992754",
-			ClientId:     "some-id",
-			ClientSecret: "some-secret",
-            ApiAudience:  "some-audience",
-            ApiTokenIssuer: "some-issuer",
+			ApiHost: "api.fga.example",
+			StoreId: "6c181474-aaa1-4df7-8929-6e7b3a992754",
+			Credentials: &credentials.Credentials{
+				Method: credentials.CredentialsMethodClientCredentials,
+				Config: &credentials.Config{
+					ClientCredentialsClientId:       "some-id",
+					ClientCredentialsClientSecret:   "some-secret",
+					ClientCredentialsApiAudience:    "some-audience",
+					ClientCredentialsApiTokenIssuer: "some-issuer.fga.example",
+				},
+			},
 		})
 
 		if err != nil {
@@ -86,10 +174,15 @@ func Test{{appShortName}}ApiConfiguration(t *testing.T) {
 		configuration, err := NewConfiguration(Configuration{
             ApiHost:         "api.fga.example",
 			StoreId:      "6c181474-aaa1-4df7-8929-6e7b3a992754",
-			ClientId:     "some-id",
-			ClientSecret: "some-secret",
-            ApiAudience:  "some-audience",
-            ApiTokenIssuer: "some-issuer",
+			Credentials: &credentials.Credentials{
+				Method: credentials.CredentialsMethodClientCredentials,
+				Config: &credentials.Config{
+					ClientCredentialsClientId:       "some-id",
+					ClientCredentialsClientSecret:   "some-secret",
+					ClientCredentialsApiAudience:    "some-audience",
+					ClientCredentialsApiTokenIssuer: "tokenissuer.fga.example",
+				},
+			},
 		})
 		if err != nil {
 			t.Errorf("%v", err)
@@ -119,7 +212,7 @@ func Test{{appShortName}}ApiConfiguration(t *testing.T) {
 			},
 		)
 
-		httpmock.RegisterResponder("POST", fmt.Sprintf("https://%s/oauth/token", configuration.ApiTokenIssuer),
+		httpmock.RegisterResponder("POST", fmt.Sprintf("https://%s/oauth/token", configuration.Credentials.Config.ClientCredentialsApiTokenIssuer),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(200, struct {
 					AccessToken string `json:"access_token"`
@@ -137,7 +230,7 @@ func Test{{appShortName}}ApiConfiguration(t *testing.T) {
 		}
 
 		info := httpmock.GetCallCountInfo()
-		numCalls := info[fmt.Sprintf("POST https://%s/oauth/token", configuration.ApiTokenIssuer)]
+		numCalls := info[fmt.Sprintf("POST https://%s/oauth/token", configuration.Credentials.Config.ClientCredentialsApiTokenIssuer)]
 		if numCalls != 1 {
 			t.Errorf("Expected call to get access token to be made exactly once, saw: %d", numCalls)
 			return
@@ -153,6 +246,10 @@ func Test{{appShortName}}ApiConfiguration(t *testing.T) {
 		configuration, err := NewConfiguration(Configuration{
             ApiHost:         "api.fga.example",
 			StoreId:      "6c181474-aaa1-4df7-8929-6e7b3a992754",
+			Credentials: &credentials.Credentials{
+				Method: credentials.CredentialsMethodNone,
+				Config: &credentials.Config{ClientCredentialsApiTokenIssuer: "tokenissuer.api.example"},
+			},
 		})
 		if err != nil {
 			t.Errorf("%v", err)
@@ -188,7 +285,7 @@ func Test{{appShortName}}ApiConfiguration(t *testing.T) {
 		}
 
 		info := httpmock.GetCallCountInfo()
-		numCalls := info[fmt.Sprintf("POST https://%s/oauth/token", configuration.ApiTokenIssuer)]
+		numCalls := info[fmt.Sprintf("POST https://%s/oauth/token", configuration.Credentials.Config.ClientCredentialsApiTokenIssuer)]
 		if numCalls != 0 {
 			t.Errorf("Unexpected call to get access token made. Expected 0, saw: %d", numCalls)
 			return
@@ -199,6 +296,65 @@ func Test{{appShortName}}ApiConfiguration(t *testing.T) {
 			return
 		}
 	})
+
+	t.Run("Updating StoreId after initialization should work", func(t *testing.T) {
+		configuration, err := NewConfiguration(Configuration{
+			ApiHost: "api.fga.example",
+			Credentials: &credentials.Credentials{
+				Method: credentials.CredentialsMethodClientCredentials,
+				Config: &credentials.Config{
+					ClientCredentialsClientId:       "some-id",
+					ClientCredentialsClientSecret:   "some-secret",
+					ClientCredentialsApiAudience:    "some-audience",
+					ClientCredentialsApiTokenIssuer: "tokenissuer.fga.example",
+				},
+			},
+		})
+
+		if err != nil {
+			t.Errorf("%v", err)
+			return
+		}
+
+		apiClient := NewAPIClient(configuration)
+		if apiClient.GetStoreId() != "" {
+			t.Errorf("apiClient.GetStoreId() = \"\", want %v", apiClient.GetStoreId())
+		}
+
+		storeId := "some-id"
+		apiClient.SetStoreId(storeId)
+		if apiClient.GetStoreId() != storeId {
+			t.Errorf("apiClient.GetStoreId() = %v, want %v", apiClient.GetStoreId(), storeId)
+		}
+
+		storeId = "some-other-id"
+		apiClient.SetStoreId(storeId)
+		if apiClient.GetStoreId() != storeId {
+			t.Errorf("apiClient.GetStoreId() = %v, want %v", apiClient.GetStoreId(), storeId)
+		}
+	})
+
+    t.Run("Issuing a call to a method that requires StoreId without providing it should error", func(t *testing.T) {
+        configuration, err := NewConfiguration(Configuration{
+            ApiHost: "api.fga.example",
+        })
+
+        if err != nil {
+            t.Errorf("%v", err)
+            return
+        }
+
+        apiClient := NewAPIClient(configuration)
+        if apiClient.GetStoreId() != "" {
+            t.Errorf("apiClient.GetStoreId() = \"\", want %v", apiClient.GetStoreId())
+        }
+
+        _, _, err = apiClient.OpenFgaApi.ReadAuthorizationModels(context.Background()).Execute()
+        if err == nil {
+            t.Errorf("Expected an error, got non")
+            return
+        }
+    })
 }
 
 func Test{{appShortName}}Api(t *testing.T) {

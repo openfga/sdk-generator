@@ -1,25 +1,51 @@
-```golang
+Without an API Token
 
+```golang
 import (
-    {{#lambda.lowercase}}{{appShortName}}{{/lambda.lowercase}} "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
+    openfga "github.com/openfga/go-sdk"
     "os"
 )
 
 func Main() {
-    configuration, err := {{packageName}}.NewConfiguration({{packageName}}.Configuration{
-        ApiScheme:      os.Getenv("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
-        ApiHost:        os.Getenv("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.openfga.example instead of https://api.openfga.example)
-        StoreId:        os.Getenv("{{appUpperCaseName}}_STORE_ID"),
-        ApiTokenIssuer: os.Getenv("{{appUpperCaseName}}_API_TOKEN_ISSUER"), // optional, required if client id is passed
-        ApiAudience:    os.Getenv("{{appUpperCaseName}}_API_AUDIENCE"), // optional, required if client id is passed
-        ClientId:       os.Getenv("{{appUpperCaseName}}_CLIENT_ID"), // optional (pass in if your provider requires authentication via client credential flow)
-        ClientSecret:   os.Getenv("{{appUpperCaseName}}_CLIENT_SECRET"), // optional, required if client id is passed
+    configuration, err := openfga.NewConfiguration(openfga.Configuration{
+        ApiScheme:      os.Getenv("OPENFGA_API_SCHEME"), // optional, defaults to "https"
+        ApiHost:        os.Getenv("OPENFGA_API_HOST"), // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
+        StoreId:        os.Getenv("OPENFGA_STORE_ID"),
     })
 
     if err != nil {
     // .. Handle error
     }
 
-    apiClient := {{packageName}}.NewAPIClient(configuration)
+    apiClient := openfga.NewAPIClient(configuration)
+}
+```
+
+With an API Token
+
+```golang
+import (
+    openfga "github.com/openfga/go-sdk"
+    "os"
+)
+
+func Main() {
+    configuration, err := openfga.NewConfiguration(openfga.Configuration{
+        ApiScheme:      os.Getenv("OPENFGA_API_SCHEME"), // optional, defaults to "https"
+        ApiHost:        os.Getenv("OPENFGA_API_HOST"), // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
+        StoreId:        os.Getenv("OPENFGA_STORE_ID"),
+        Credentials: &credentials.Credentials{
+            Method: credentials.CredentialsMethodApiToken,
+            Config: {
+                ApiToken: "fga_abcdef", // will be passed in the "Authorization: Bearer ${ApiToken}" header
+            },
+        },
+    })
+
+    if err != nil {
+    // .. Handle error
+    }
+
+    apiClient := openfga.NewAPIClient(configuration)
 }
 ```
