@@ -1,4 +1,4 @@
-# Open Client SDK Generator
+# OpenFGA Client SDK Generator
 
 ## Requirements
 1. Git
