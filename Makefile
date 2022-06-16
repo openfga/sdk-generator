@@ -84,10 +84,6 @@ build-client-dotnet:
 	rm -rf ${CLIENTS_OUTPUT_DIR}/fga-dotnet-sdk/src/OpenFga.Sdk.Test
 	make build-client sdk_language=dotnet tmpdir=${TMP_DIR}
 	make run-in-docker sdk_language=dotnet image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/src/OpenFga.Sdk/Api/OpenFgaApi.cs /config/clients/dotnet/patches/add-missing-first-param.patch'"
-	make run-in-docker sdk_language=dotnet image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/src/OpenFga.Sdk/Model/TupleKey.cs /config/clients/dotnet/patches/add-empty-constructor-to-tuplekey-model.patch'"
-	make run-in-docker sdk_language=dotnet image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/src/OpenFga.Sdk/Model/Users.cs /config/clients/dotnet/patches/add-empty-constructor-to-users-model.patch'"
-	make run-in-docker sdk_language=dotnet image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/src/OpenFga.Sdk/Model/Nodes.cs /config/clients/dotnet/patches/add-empty-constructor-to-nodes-model.patch'"
-	make run-in-docker sdk_language=dotnet image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/src/OpenFga.Sdk/Model/UsersetTreeDifference.cs /config/clients/dotnet/patches/add-empty-constructor-to-userset-tree-difference-model.patch'"
 
 	make run-in-docker sdk_language=dotnet image=mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet build --configuration Release'"
 	# For some reason the first round of formatting fails with an error - running it again produces the correct result

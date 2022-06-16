@@ -1,6 +1,6 @@
 # {{packageDescription}}
 
-{{>README_custom_badges}}![Release](https://img.shields.io/github/v/release/{{gitUserId}}/{{gitRepoId}}?sort=semver&color=green)
+{{>README_custom_badges}}[![Release](https://img.shields.io/github/v/release/{{gitUserId}}/{{gitRepoId}}?sort=semver&color=green)](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/releases)
 {{#licenseBadgeId}}[![License](https://img.shields.io/badge/License-{{licenseBadgeId}}-blue.svg)](./LICENSE){{/licenseBadgeId}}
 [![FOSSA Status](https://app.fossa.com/api/projects/{{#fossaProjectId}}{{.}}{{/fossaProjectId}}{{^fossaProjectId}}custom%2B4989%2F{{gitHost}}%2F{{gitUserId}}%2F{{gitRepoId}}{{/fossaProjectId}}.svg?type=shield)]({{#fossaComplianceReportId}}https://app.fossa.com/reports/{{.}}{{/fossaComplianceReportId}}{{^fossaComplianceReportId}}https://app.fossa.com/api/projects/{{#fossaProjectId}}{{.}}{{/fossaProjectId}}{{^fossaProjectId}}custom%2B4989%2F{{gitHost}}%2F{{gitUserId}}%2F{{gitRepoId}}{{/fossaProjectId}}.svg?type=shield{{/fossaComplianceReportId}})
 {{#discordServerId}}[![Discord Server](https://img.shields.io/discord/{{discordServerId}}?color=7289da&logo=discord "Discord Server")](https://discord.com/channels/{{discordServerId}}/{{discordChannelId}}){{/discordServerId}}
@@ -9,8 +9,6 @@
 {{#packageDetailedDescription}}
 {{{.}}}
 {{/packageDetailedDescription}}
-
-Warning: This SDK comes with no SLAs and is not production-ready!
 
 ## Table of Contents
 

@@ -6,7 +6,7 @@ const { {{appShortName}}Api } = require('{{packageName}}'); // OR import { {{app
 const {{appCamelCaseName}} = new {{appShortName}}Api({
   apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
   apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
-  storeId: {{appUpperCaseName}}_STORE_ID,
+  storeId: {{appUpperCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
 });
 ```
 
@@ -18,11 +18,11 @@ const { {{appShortName}}Api } = require('{{packageName}}'); // OR import { {{app
 const {{appCamelCaseName}} = new {{appShortName}}Api({
   apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
   apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
-  storeId: {{appUpperCaseName}}_STORE_ID,
+  storeId: {{appUpperCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
   credentials: {
     method: CredentialsMethod.ApiToken,
     config: {
-      token: {{appUpperCaseName}}_API_TOKEN,
+      token: {{appUpperCaseName}}_API_TOKEN, // will be passed as the "Authorization: Bearer ${ApiToken}" request header
     }
   }
 });

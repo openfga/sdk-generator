@@ -12,7 +12,7 @@ if err != nil {
 }
 
 apiClient := {{packageName}}.NewAPIClient(configuration)
-stores, response, err := openFga.ListStores(context.Background()).Execute();
+stores, response, err := apiClient.{{appShortName}}Api.ListStores(context.Background()).Execute();
 
 // stores = [{ "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }]
 ```

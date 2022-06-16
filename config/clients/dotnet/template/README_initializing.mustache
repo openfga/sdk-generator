@@ -1,3 +1,5 @@
+Without an API Token
+
 ```csharp
 using {{packageName}}.{{apiPackage}};
 using {{packageName}}.Client;
@@ -8,18 +10,46 @@ namespace Example {
     public class {{operationId}}Example {
         public static void Main() {
             try {
-                var configuration = new Configuration(storeId, environment) {
+                var configuration = new Configuration() {
                     ApiScheme = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
                     ApiHost = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
-                    StoreId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_STORE_ID"),
-                    ApiTokenIssuer = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_TOKEN_ISSUER"), // optional, required if client id is passed
-                    ApiAudience = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_AUDIENCE"), // optional, required if client id is passed
-                    ClientId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_CLIENT_ID"), // optional (pass in if your provider requires authentication via client credential flow)
-                    ClientSecret = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_CLIENT_SECRET"), // optional, required if client id is passed
+                    StoreId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
                 };
                 var {{appCamelCaseName}}Api = new {{appShortName}}Api(configuration);
                 var response = {{appCamelCaseName}}Api.ReadAuthorizationModels();
-                Debug.WriteLine(response.AuthorizationModelIds);
+            } catch (ApiException e) {
+                 Debug.Print("Status Code: "+ e.ErrorCode);
+            }
+        }
+    }
+}
+```
+
+With an API Token
+
+```csharp
+using {{packageName}}.{{apiPackage}};
+using {{packageName}}.Client;
+using {{packageName}}.Configuration;
+using {{packageName}}.{{modelPackage}};
+
+namespace Example {
+    public class {{operationId}}Example {
+        public static async void Main() {
+            try {
+                var configuration = new Configuration() {
+                    ApiScheme = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
+                    ApiHost = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+                    StoreId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+                    Credentials = new Credentials() {
+                        Method = CredentialsMethod.ApiToken,
+                        Config = new CredentialsConfig() {
+                            ApiToken = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_TOKEN"),  // will be passed as the "Authorization: Bearer ${ApiToken}" request header
+                        }
+                    }
+                };
+                var {{appCamelCaseName}}Api = new {{appShortName}}Api(configuration);
+                var response = await {{appCamelCaseName}}Api.ReadAuthorizationModels();
             } catch (ApiException e) {
                  Debug.Print("Status Code: "+ e.ErrorCode);
             }

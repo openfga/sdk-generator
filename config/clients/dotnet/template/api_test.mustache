@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 using {{packageName}}.Api;
 using {{packageName}}.Client;
+using {{packageName}}.Configuration;
 using {{packageName}}.Exceptions;
 using {{packageName}}.Exceptions.Parsers;
 using {{packageName}}.{{modelPackage}};
@@ -54,13 +55,24 @@ namespace {{testPackageName}}.Api {
         }
 
         /// <summary>
-        /// Test that a storeId is required in the configuration
+        /// Test that a storeId is not required in the configuration
         /// </summary>
         [Fact]
-        public void StoreIdRequired() {
-            var storeIdRequiredConfig = new Configuration.Configuration() {ApiHost = _host};
-            void ActionMissingStoreId() => storeIdRequiredConfig.IsValid();
-            var exception = Assert.Throws<FgaRequiredParamError>(ActionMissingStoreId);
+        public void StoreIdNotRequired() {
+            var storeIdRequiredConfig = new Configuration.Configuration() { ApiHost = _host };
+            storeIdRequiredConfig.IsValid();
+        }
+
+        /// <summary>
+        /// Test that a storeId is required when calling methods that need it
+        /// </summary>
+        [Fact]
+        public async void StoreIdRequiredWhenNeeded() {
+            var config = new Configuration.Configuration() {ApiHost = _host};
+            var {{appCamelCaseName}}Api = new {{classname}}(config);
+
+            async Task<ReadAuthorizationModelsResponse> ActionMissingStoreId() => await {{appCamelCaseName}}Api.ReadAuthorizationModels(null, null);
+            var exception = await Assert.ThrowsAsync<FgaRequiredParamError>(ActionMissingStoreId);
             Assert.Equal("Required parameter StoreId was not defined when calling Configuration.", exception.Message);
         }
 
@@ -86,12 +98,44 @@ namespace {{testPackageName}}.Api {
             Assert.Equal("Configuration.ApiScheme (https) and Configuration.ApiHost (https://api.{{sampleApiDomain}}) do not form a valid URI (https://https://api.{{sampleApiDomain}})", exception.Message);
         }
 
+        /// <summary>
+        /// Test that providing no api token when it is required should error
+        /// </summary>
+        [Fact]
+        public void ApiTokenRequired() {
+            var missingApiTokenConfig = new Configuration.Configuration() {
+                StoreId = _storeId,
+                ApiHost = _host,
+                Credentials = new Credentials() {
+                    Method = CredentialsMethod.ApiToken,
+                }
+            };
+            void ActionMissingApiToken() =>
+                missingApiTokenConfig.IsValid();
+            var exceptionMissingApiToken =
+                Assert.Throws<FgaRequiredParamError>(ActionMissingApiToken);
+            Assert.Equal("Required parameter ApiToken was not defined when calling Configuration.",
+                exceptionMissingApiToken.Message);
+        }
+
         // /// <summary>
         // /// Test that the provided api token issuer is well-formed
         // /// </summary>
         [Fact]
         public void ValidApiTokenIssuerWellFormed() {
-            var config = new Configuration.Configuration() {StoreId = _storeId, ApiHost = "api.{{sampleApiDomain}}", ApiTokenIssuer = "https://tokenissuer.{{sampleApiDomain}}"};
+            var config = new Configuration.Configuration() {
+                StoreId = _storeId,
+                ApiHost = _host,
+                Credentials = new Credentials() {
+                    Method = CredentialsMethod.ClientCredentials,
+                    Config = new CredentialsConfig() {
+                        ClientId = "some-id",
+                        ClientSecret = "some-secret",
+                        ApiTokenIssuer = "https://tokenissuer.{{sampleApiDomain}}",
+                        ApiAudience = "some-audience",
+                    }
+                }
+            };
             void ActionMalformedApiTokenIssuer() => config.IsValid();
             var exception = Assert.Throws<FgaValidationError>(ActionMalformedApiTokenIssuer);
             Assert.Equal("Configuration.ApiTokenIssuer does not form a valid URI (https://https://tokenissuer.{{sampleApiDomain}})", exception.Message);
@@ -105,9 +149,14 @@ namespace {{testPackageName}}.Api {
             var missingClientIdConfig = new Configuration.Configuration() {
                 StoreId = _storeId,
                 ApiHost = _host,
-                ClientSecret = "some-secret",
-                ApiTokenIssuer = "tokenisssuer.{{sampleApiDomain}}",
-                ApiAudience = _host,
+                Credentials = new Credentials() {
+                    Method = CredentialsMethod.ClientCredentials,
+                    Config = new CredentialsConfig() {
+                        ClientSecret = "some-secret",
+                        ApiTokenIssuer = "tokenissuer.{{sampleApiDomain}}",
+                        ApiAudience = "some-audience",
+                    }
+                }
             };
             void ActionMissingClientId() =>
                 missingClientIdConfig.IsValid();
@@ -119,9 +168,14 @@ namespace {{testPackageName}}.Api {
             var missingClientSecretConfig = new Configuration.Configuration() {
                 StoreId = _storeId,
                 ApiHost = _host,
-                ApiTokenIssuer = "tokenisssuer.{{sampleApiDomain}}",
-                ApiAudience = _host,
-                ClientId = "some-id"
+                Credentials = new Credentials() {
+                    Method = CredentialsMethod.ClientCredentials,
+                    Config = new CredentialsConfig() {
+                        ClientId = "some-id",
+                        ApiTokenIssuer = "tokenissuer.{{sampleApiDomain}}",
+                        ApiAudience = "some-audience",
+                    }
+                }
             };
             void ActionMissingClientSecret() =>
                 missingClientSecretConfig.IsValid();
@@ -133,9 +187,14 @@ namespace {{testPackageName}}.Api {
             var missingApiTokenIssuerConfig = new Configuration.Configuration() {
                 StoreId = _storeId,
                 ApiHost = _host,
-                ApiAudience = _host,
-                ClientId = "some-id",
-                ClientSecret = "some-secret"
+                Credentials = new Credentials() {
+                    Method = CredentialsMethod.ClientCredentials,
+                    Config = new CredentialsConfig() {
+                        ClientId = "some-id",
+                        ClientSecret = "some-secret",
+                        ApiAudience = "some-audience",
+                    }
+                }
             };
             void ActionMissingApiTokenIssuer() =>
                 missingApiTokenIssuerConfig.IsValid();
@@ -147,10 +206,16 @@ namespace {{testPackageName}}.Api {
             var missingApiAudienceConfig = new Configuration.Configuration() {
                 StoreId = _storeId,
                 ApiHost = _host,
-                ApiTokenIssuer = "tokenisssuer.{{sampleApiDomain}}",
-                ClientId = "some-id",
-                ClientSecret = "some-secret"
+                Credentials = new Credentials() {
+                    Method = CredentialsMethod.ClientCredentials,
+                    Config = new CredentialsConfig() {
+                        ClientId = "some-id",
+                        ClientSecret = "some-secret",
+                        ApiTokenIssuer = "tokenissuer.{{sampleApiDomain}}",
+                    }
+                }
             };
+
             void ActionMissingApiAudience() =>
                 missingApiAudienceConfig.IsValid();
             var exceptionMissingApiAudience =
@@ -167,10 +232,15 @@ namespace {{testPackageName}}.Api {
             var config = new Configuration.Configuration() {
                 StoreId = _storeId,
                 ApiHost = _host,
-                ApiTokenIssuer = "tokenisssuer.{{sampleApiDomain}}",
-                ApiAudience = _host,
-                ClientId = "some-id",
-                ClientSecret = "some-secret"
+                Credentials = new Credentials() {
+                    Method = CredentialsMethod.ClientCredentials,
+                    Config = new CredentialsConfig() {
+                        ClientId = "some-id",
+                        ClientSecret = "some-secret",
+                        ApiTokenIssuer = "tokenissuer.{{sampleApiDomain}}",
+                        ApiAudience = "some-audience",
+                    }
+                }
             };
 
             var mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
@@ -178,7 +248,7 @@ namespace {{testPackageName}}.Api {
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.Is<HttpRequestMessage>(req =>
-                        req.RequestUri == new Uri($"https://{config.ApiTokenIssuer}/oauth/token") &&
+                        req.RequestUri == new Uri($"https://{config.Credentials.Config.ApiTokenIssuer}/oauth/token") &&
                         req.Method == HttpMethod.Post),
                     ItExpr.IsAny<CancellationToken>()
                 )
@@ -215,7 +285,7 @@ namespace {{testPackageName}}.Api {
                 "SendAsync",
                 Times.Exactly(1),
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    req.RequestUri == new Uri($"https://{config.ApiTokenIssuer}/oauth/token") &&
+                    req.RequestUri == new Uri($"https://{config.Credentials.Config.ApiTokenIssuer}/oauth/token") &&
                     req.Method == HttpMethod.Post),
                 ItExpr.IsAny<CancellationToken>()
             );
@@ -235,6 +305,19 @@ namespace {{testPackageName}}.Api {
                     req.Method == HttpMethod.Post),
                 ItExpr.IsAny<CancellationToken>()
             );
+        }
+
+        /// <summary>
+        /// Test that updating StoreId after initialization works
+        /// </summary>
+        [Fact]
+        public void UpdateStoreIdTest() {
+            var config = new Configuration.Configuration() { ApiHost = _host };
+            var {{appCamelCaseName}}Api = new {{appShortName}}Api(config);
+            Assert.Equal(null, {{appCamelCaseName}}Api.StoreId);
+            var storeId = "some-id";
+            {{appCamelCaseName}}Api.StoreId = storeId;
+            Assert.Equal(storeId, {{appCamelCaseName}}Api.StoreId);
         }
 
         /**
@@ -802,8 +885,6 @@ namespace {{testPackageName}}.Api {
                     }))),
                 }))
             ));
-            var jsonResponse = JsonSerializer.Serialize(mockResponse);
-            //Console.Write(jsonResponse);
 
             mockHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>(
@@ -815,7 +896,7 @@ namespace {{testPackageName}}.Api {
                 )
                 .ReturnsAsync(new HttpResponseMessage() {
                     StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json"),
+                    Content = Utils.CreateJsonStringContent(mockResponse),
                 });
 
             var httpClient = new HttpClient(mockHandler.Object);

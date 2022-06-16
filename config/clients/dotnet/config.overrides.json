@@ -108,6 +108,14 @@
       "destinationFilename": "src/OpenFga.Sdk/Exceptions/ValidationError.cs",
       "templateType": "SupportingFiles"
     },
+    "Configuration_Credentials.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Configuration/Credentials.cs",
+      "templateType": "SupportingFiles"
+    },
+    "models_test.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk.Test/Models/ModelTests.cs",
+      "templateType": "SupportingFiles"
+    },
     ".fossa.yml.mustache": {
       "destinationFilename": ".fossa.yml",
       "templateType": "SupportingFiles"

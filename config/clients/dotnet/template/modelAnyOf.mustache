@@ -19,7 +19,7 @@
         {{#anyOf}}
         /// <summary>
         /// Initializes a new instance of the <see cref="{{classname}}" /> class
-        /// with the <see cref="{{{.}}}" /> class
+        /// with the <see cref="{{#lambdaCref}}{{{.}}}{{/lambdaCref}}" /> class
         /// </summary>
         /// <param name="actualInstance">An instance of {{{.}}}.</param>
         public {{classname}}({{{.}}} actualInstance)
@@ -68,6 +68,19 @@
             return ({{{.}}})this.ActualInstance;
         }
         {{/anyOf}}
+
+        /// <summary>
+        /// Returns the string presentation of the object
+        /// </summary>
+        /// <returns>String presentation of the object</returns>
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.Append("class {{classname}} {\n");
+            sb.Append("  ActualInstance: ").Append(this.ActualInstance).Append("\n");
+            sb.Append("}\n");
+            return sb.ToString();
+        }
 
         /// <summary>
         /// Returns the JSON string presentation of the object
@@ -162,6 +175,7 @@
             }
         }
 
+        {{#validatable}}
         /// <summary>
         /// To validate all properties of the instance
         /// </summary>
@@ -171,6 +185,7 @@
         {
             yield break;
         }
+        {{/validatable}}
     }
 
     /// <summary>

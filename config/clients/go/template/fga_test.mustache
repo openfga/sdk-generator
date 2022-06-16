@@ -329,7 +329,7 @@ func Test{{appShortName}}ApiConfiguration(t *testing.T) {
             t.Fatalf("apiClient.GetStoreId() = \"\", want %v", apiClient.GetStoreId())
         }
 
-        _, _, err = apiClient.OpenFgaApi.ReadAuthorizationModels(context.Background()).Execute()
+        _, _, err = apiClient.{{appShortName}}Api.ReadAuthorizationModels(context.Background()).Execute()
         if err == nil {
             t.Fatalf("Expected an error, got non")
         }
