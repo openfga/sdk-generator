@@ -63,11 +63,11 @@ func NewConfiguration(config Configuration) (*Configuration, error) {
 
     err := cfg.ValidateConfig()
 
-    if err == nil {
-        return cfg, nil
+    if err != nil {
+        return nil, err
     }
 
-    return nil, err
+    return cfg, nil
 }
 
 // AddDefaultHeader adds a new HTTP header to the default header in the request

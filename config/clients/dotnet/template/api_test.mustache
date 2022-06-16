@@ -25,7 +25,7 @@ namespace {{testPackageName}}.Api {
     /// </summary>
     public class {{classname}}Tests : IDisposable {
         private readonly string _storeId;
-        private readonly string _host = "api.fga.example";
+        private readonly string _host = "api.{{sampleApiDomain}}";
         private readonly Configuration.Configuration _config;
 
         public {{classname}}Tests() {
@@ -80,10 +80,10 @@ namespace {{testPackageName}}.Api {
         // /// </summary>
         [Fact]
         public void ValidHostWellFormed() {
-            var config = new Configuration.Configuration() {StoreId = _storeId, ApiHost = "https://api.fga.example"};
+            var config = new Configuration.Configuration() {StoreId = _storeId, ApiHost = "https://api.{{sampleApiDomain}}"};
             void ActionMalformedHost() => config.IsValid();
             var exception = Assert.Throws<FgaValidationError>(ActionMalformedHost);
-            Assert.Equal("Configuration.ApiScheme (https) and Configuration.ApiHost (https://api.fga.example) do not form a valid URI (https://https://api.fga.example)", exception.Message);
+            Assert.Equal("Configuration.ApiScheme (https) and Configuration.ApiHost (https://api.{{sampleApiDomain}}) do not form a valid URI (https://https://api.{{sampleApiDomain}})", exception.Message);
         }
 
         // /// <summary>
@@ -91,10 +91,10 @@ namespace {{testPackageName}}.Api {
         // /// </summary>
         [Fact]
         public void ValidApiTokenIssuerWellFormed() {
-            var config = new Configuration.Configuration() {StoreId = _storeId, ApiHost = "api.fga.example", ApiTokenIssuer = "https://tokenissuer.fga.example"};
+            var config = new Configuration.Configuration() {StoreId = _storeId, ApiHost = "api.{{sampleApiDomain}}", ApiTokenIssuer = "https://tokenissuer.{{sampleApiDomain}}"};
             void ActionMalformedApiTokenIssuer() => config.IsValid();
             var exception = Assert.Throws<FgaValidationError>(ActionMalformedApiTokenIssuer);
-            Assert.Equal("Configuration.ApiTokenIssuer does not form a valid URI (https://https://tokenissuer.fga.example)", exception.Message);
+            Assert.Equal("Configuration.ApiTokenIssuer does not form a valid URI (https://https://tokenissuer.{{sampleApiDomain}})", exception.Message);
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace {{testPackageName}}.Api {
                 StoreId = _storeId,
                 ApiHost = _host,
                 ClientSecret = "some-secret",
-                ApiTokenIssuer = "tokenisssuer.fga.example",
+                ApiTokenIssuer = "tokenisssuer.{{sampleApiDomain}}",
                 ApiAudience = _host,
             };
             void ActionMissingClientId() =>
@@ -119,7 +119,7 @@ namespace {{testPackageName}}.Api {
             var missingClientSecretConfig = new Configuration.Configuration() {
                 StoreId = _storeId,
                 ApiHost = _host,
-                ApiTokenIssuer = "tokenisssuer.fga.example",
+                ApiTokenIssuer = "tokenisssuer.{{sampleApiDomain}}",
                 ApiAudience = _host,
                 ClientId = "some-id"
             };
@@ -147,7 +147,7 @@ namespace {{testPackageName}}.Api {
             var missingApiAudienceConfig = new Configuration.Configuration() {
                 StoreId = _storeId,
                 ApiHost = _host,
-                ApiTokenIssuer = "tokenisssuer.fga.example",
+                ApiTokenIssuer = "tokenisssuer.{{sampleApiDomain}}",
                 ClientId = "some-id",
                 ClientSecret = "some-secret"
             };
@@ -167,7 +167,7 @@ namespace {{testPackageName}}.Api {
             var config = new Configuration.Configuration() {
                 StoreId = _storeId,
                 ApiHost = _host,
-                ApiTokenIssuer = "tokenisssuer.fga.example",
+                ApiTokenIssuer = "tokenisssuer.{{sampleApiDomain}}",
                 ApiAudience = _host,
                 ClientId = "some-id",
                 ClientSecret = "some-secret"

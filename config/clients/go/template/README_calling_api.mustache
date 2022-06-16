@@ -4,7 +4,7 @@
 
 ```golang
 configuration, err := {{packageName}}.NewConfiguration({{packageName}}.Configuration{
-    ApiHost: "api.fga.example"
+    ApiHost: "api.{{sampleApiDomain}}"
 })
 
 if err != nil {
@@ -12,7 +12,7 @@ if err != nil {
 }
 
 apiClient := {{packageName}}.NewAPIClient(configuration)
-stores, response, err := openFga.ListStores(context.Background()).Body(body).Execute();
+stores, response, err := openFga.ListStores(context.Background()).Execute();
 
 // stores = [{ "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }]
 ```
@@ -23,7 +23,7 @@ stores, response, err := openFga.ListStores(context.Background()).Body(body).Exe
 
 ```golang
 configuration, err := {{packageName}}.NewConfiguration({{packageName}}.Configuration{
-    ApiHost: "api.fga.example"
+    ApiHost: "api.{{sampleApiDomain}}"
 })
 
 if err != nil {
