@@ -43,7 +43,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: src/OpenFga.Sdk/
+          args: src/{{packageName}}/
 
   test:
     runs-on: ubuntu-latest

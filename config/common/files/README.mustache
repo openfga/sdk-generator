@@ -1,8 +1,10 @@
 # {{packageDescription}}
 
-{{#fossaProjectId}}
-[![FOSSA Status](https://app.fossa.com/api/projects/{{{.}}}.svg?type=shield)](https://app.fossa.com/projects/{{{.}}}?ref=badge_shield)
-{{/fossaProjectId}}
+{{>README_custom_badges}}![Release](https://img.shields.io/github/v/release/{{gitUserId}}/{{gitRepoId}}?sort=semver&color=green)
+{{#licenseBadgeId}}[![License](https://img.shields.io/badge/License-{{licenseBadgeId}}-blue.svg)](./LICENSE){{/licenseBadgeId}}
+[![FOSSA Status](https://app.fossa.com/api/projects/{{#fossaProjectId}}{{.}}{{/fossaProjectId}}{{^fossaProjectId}}custom%2B4989%2F{{gitHost}}%2F{{gitUserId}}%2F{{gitRepoId}}{{/fossaProjectId}}.svg?type=shield)]({{#fossaComplianceReportId}}https://app.fossa.com/reports/{{.}}{{/fossaComplianceReportId}}{{^fossaComplianceReportId}}https://app.fossa.com/api/projects/{{#fossaProjectId}}{{.}}{{/fossaProjectId}}{{^fossaProjectId}}custom%2B4989%2F{{gitHost}}%2F{{gitUserId}}%2F{{gitRepoId}}{{/fossaProjectId}}.svg?type=shield{{/fossaComplianceReportId}})
+{{#discordServerId}}[![Discord Server](https://img.shields.io/discord/{{discordServerId}}?color=7289da&logo=discord "Discord Server")](https://discord.com/channels/{{discordServerId}}/{{discordChannelId}}){{/discordServerId}}
+{{#twitterUserName}}[![Twitter](https://img.shields.io/twitter/follow/{{.}}?color=%23179CF0&logo=twitter&style=flat-square "@{{.}} on Twitter")](https://twitter.com/{{.}}){{/twitterUserName}}
 
 {{#packageDetailedDescription}}
 {{{.}}}
@@ -47,9 +49,9 @@ Warning: This SDK comes with no SLAs and is not production-ready!
 {{#apiDocsUrl}}
 - [{{appName}} API Documentation]({{apiDocsUrl}})
 {{/apiDocsUrl}}
-{{#twitterUrl}}
-- [Twitter]({{twitterUrl}})
-{{/twitterUrl}}
+{{#twitterUserName}}
+- [Twitter](https://twitter.com/{{.}})
+{{/twitterUserName}}
 {{#redditUrl}}
 - [{{appName}} Subreddit]({{redditUrl}})
 {{/redditUrl}}
@@ -67,7 +69,7 @@ Warning: This SDK comes with no SLAs and is not production-ready!
 
 ### Initializing the API Client
 
-[Learn how to setup your SDK](https://openfga.dev/docs/getting-started/setup-sdk-client)
+[Learn how to initialize your SDK]({{docsUrl}}/getting-started/setup-sdk-client)
 
 {{>README_initializing}}
 

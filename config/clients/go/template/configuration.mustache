@@ -2,30 +2,31 @@
 package {{packageName}}
 
 import (
-	"net/http"
-	"strings"
+    "net/http"
+    "strings"
+
+    "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
 )
+
+var SdkVersion = "{{packageVersion}}"
 
 // RetryParams configures configuration for retry in case of HTTP too many request
 type RetryParams struct {
-	MaxRetry       int               `json:"maxRetry,omitempty"`
-	MinWaitInMs    int               `json:"minWaitInMs,omitempty"`
+    MaxRetry    int `json:"maxRetry,omitempty"`
+    MinWaitInMs int `json:"minWaitInMs,omitempty"`
 }
 
 // Configuration stores the configuration of the API client
 type Configuration struct {
-	ApiScheme      string            `json:"apiScheme,omitempty"`
-	ApiHost        string            `json:"apiHost,omitempty"`
-	StoreId        string            `json:"storeId,omitempty"`
-	ApiTokenIssuer string            `json:"apiTokenIssuer,omitempty"`
-	ApiAudience    string            `json:"apiAudience,omitempty"`
-	ClientId       string            `json:"clientId,omitempty"`
-	ClientSecret   string            `json:"clientSecret,omitempty"`
-	DefaultHeaders map[string]string `json:"defaultHeader,omitempty"`
-	UserAgent      string            `json:"userAgent,omitempty"`
-	Debug          bool              `json:"debug,omitempty"`
-	HTTPClient     *http.Client
-	RetryParams    *RetryParams
+    ApiScheme      string                   `json:"apiScheme,omitempty"`
+    ApiHost        string                   `json:"apiHost,omitempty"`
+    StoreId        string                   `json:"storeId,omitempty"`
+    Credentials    *credentials.Credentials `json:"credentials,omitempty"`
+    DefaultHeaders map[string]string        `json:"defaultHeader,omitempty"`
+    UserAgent      string                   `json:"userAgent,omitempty"`
+    Debug          bool                     `json:"debug,omitempty"`
+    HTTPClient     *http.Client
+    RetryParams    *RetryParams
 }
 
 // DefaultRetryParams returns the default retry parameters
@@ -38,26 +39,23 @@ func DefaultRetryParams() *RetryParams {
 
 func GetSdkUserAgent() string {
 	userAgent := strings.Replace("{{#userAgent}}{{{.}}}{{/userAgent}}", "{sdkId}", "{{sdkId}}", -1)
-	userAgent = strings.Replace(userAgent, "{packageVersion}", "{{packageVersion}}", -1)
+    userAgent = strings.Replace(userAgent, "{packageVersion}", SdkVersion, -1)
 
     return userAgent
 }
 
 // NewConfiguration returns a new Configuration object
 func NewConfiguration(config Configuration) (*Configuration, error) {
-	cfg := &Configuration{
-		ApiScheme:      config.ApiScheme,
-		ApiHost:        config.ApiHost,
-		StoreId:        config.StoreId,
-		ApiTokenIssuer: config.ApiTokenIssuer,
-		ApiAudience:    config.ApiAudience,
-		ClientId:       config.ClientId,
-		ClientSecret:   config.ClientSecret,
-		DefaultHeaders: make(map[string]string),
-		UserAgent:      GetSdkUserAgent(),
-		Debug:          false,
-		RetryParams:    config.RetryParams,
-	}
+    cfg := &Configuration{
+        ApiScheme:      config.ApiScheme,
+        ApiHost:        config.ApiHost,
+        StoreId:        config.StoreId,
+        Credentials:    config.Credentials,
+        DefaultHeaders: make(map[string]string),
+        UserAgent:      GetSdkUserAgent(),
+        Debug:          false,
+        RetryParams:    config.RetryParams,
+    }
 
     if cfg.ApiScheme == "" {
         cfg.ApiScheme = "https"
@@ -65,16 +63,16 @@ func NewConfiguration(config Configuration) (*Configuration, error) {
 
     err := cfg.ValidateConfig()
 
-    if err == nil {
-        return cfg, nil
+    if err != nil {
+        return nil, err
     }
 
-    return nil, err
+    return cfg, nil
 }
 
 // AddDefaultHeader adds a new HTTP header to the default header in the request
 func (c *Configuration) AddDefaultHeader(key string, value string) {
-	c.DefaultHeaders[key] = value
+    c.DefaultHeaders[key] = value
 }
 
 // ValidateConfig ensures that the given configuration is valid
@@ -87,12 +85,14 @@ func (c *Configuration) ValidateConfig() error {
         return reportError("Configuration.ApiScheme is required")
     }
 
-    if c.StoreId == "" {
-        return reportError("Configuration.StoreId is required")
+    if !IsWellFormedUri(c.ApiScheme + "://" + c.ApiHost) {
+        return reportError("Configuration.ApiScheme and Configuration.ApiHost (%s) do not generate a valid uri", c.ApiScheme+"://"+c.ApiHost)
     }
 
-    if (c.ClientId != "" || c.ClientSecret != "") && (c.ClientId == "" || c.ClientSecret == "" || c.ApiAudience == "" || c.ApiTokenIssuer == "") {
-        return reportError("Configuration.ClientId or Configuration.ClientSecret is set, so all of Configuration.ClientId, Configuration.ClientSecret, Configuration.ApiAudience and Configuration.ApiTokenIssuer are required")
+    if c.Credentials != nil {
+        if err := c.Credentials.ValidateCredentialsConfig(); err != nil {
+            return reportError("Credentials are invalid: %v", err)
+        }
     }
 
     if c.RetryParams != nil && c.RetryParams.MaxRetry > {{retryMaxAllowedNumber}} {

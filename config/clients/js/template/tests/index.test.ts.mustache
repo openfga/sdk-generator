@@ -30,9 +30,9 @@ import { AuthCredentialsConfig } from "../credentials";
 nock.disableNetConnect();
 
 const {{appUpperCaseName}}_STORE_ID = "test-random-store-id";
-const {{appUpperCaseName}}_API_HOST = "api.fga.example";
-const {{appUpperCaseName}}_API_TOKEN_ISSUER = "tokenissuer.fga.example";
-const {{appUpperCaseName}}_API_AUDIENCE = "https://api.fga.example/";
+const {{appUpperCaseName}}_API_HOST = "api.{{sampleApiDomain}}";
+const {{appUpperCaseName}}_API_TOKEN_ISSUER = "tokenissuer.{{sampleApiDomain}}";
+const {{appUpperCaseName}}_API_AUDIENCE = "https://api.{{sampleApiDomain}}/";
 const {{appUpperCaseName}}_CLIENT_ID = "some-random-id";
 const {{appUpperCaseName}}_CLIENT_SECRET = "this-is-very-secret";
 const {{appUpperCaseName}}_API_TOKEN = "fga_abcdef";
@@ -189,11 +189,11 @@ describe("{{appShortName}} SDK", function () {
 
     it("should validate host in configuration (adding scheme as part of the host)", () => {
       expect(
-        () => new {{appShortName}}Api({ ...baseConfig, apiHost: "https://api.fga.example" })
+        () => new {{appShortName}}Api({ ...baseConfig, apiHost: "https://api.{{sampleApiDomain}}" })
       ).toThrowError();
     });
 
-    it("should validate apiTokenIssuer in configuration (adding scheme as part of the apiTokenIssuer)", () => {
+    it("should validate apiTokenIssuer in configuration (should not allow scheme as part of the apiTokenIssuer)", () => {
       expect(
         () => new {{appShortName}}Api({
           ...baseConfig,
@@ -201,7 +201,7 @@ describe("{{appShortName}} SDK", function () {
             method: CredentialsMethod.ClientCredentials,
             config: {
               ...(baseConfig.credentials as any).config,
-              apiTokenIssuer: "https://api.fga.example"
+              apiTokenIssuer: "https://tokenissuer.{{sampleApiDomain}}"
             }
           } as Configuration["credentials"]
         })

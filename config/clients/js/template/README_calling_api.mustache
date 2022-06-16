@@ -5,7 +5,7 @@
 ```javascript
 const { stores } = await {{appCamelCaseName}}.listStores();
 
-// stores = [{ "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "OpenFGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }]
+// stores = [{ "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }]
 ```
 
 #### Create Store
@@ -14,7 +14,7 @@ const { stores } = await {{appCamelCaseName}}.listStores();
 
 ```javascript
 const { id: storeId } = await {{appCamelCaseName}}.createStore({
-  name: "OpenFGA Demo Store",
+  name: "FGA Demo Store",
 });
 
 // storeId = "01FQH7V8BEG3GPQW93KTRFR8JB"
@@ -28,10 +28,10 @@ const { id: storeId } = await {{appCamelCaseName}}.createStore({
 
 ```javascript
 const store = await {{appCamelCaseName}}.getStore({
-  name: "OpenFGA Demo Store",
+  name: "FGA Demo Store",
 });
 
-// store = { "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "OpenFGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }
+// store = { "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }
 ```
 
 #### Delete Store
@@ -52,7 +52,7 @@ await {{appCamelCaseName}}.deleteStore();
 
 > Note: To learn how to build your authorization model, check the Docs at {{docsUrl}}.
 
-> Learn more about [the {{appName}} configuration language]({{docsUrl}}/modeling/configuration-language).
+> Learn more about [the {{appName}} configuration language]({{docsUrl}}/configuration-language).
 
 ```javascript
 const { authorization_model_id: id } = await {{appCamelCaseName}}.writeAuthorizationModel({
