@@ -1,3 +1,68 @@
+#### List Stores
+
+[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/ListStores)
+
+```csharp
+var configuration = new Configuration() {
+    ApiScheme = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_SCHEME"),
+    ApiHost = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_HOST"),
+};
+var {{appCamelCaseName}}Api = new {{appShortName}}Api(configuration);
+var response = await {{appCamelCaseName}}Api.ListStores();
+
+// stores = [{ "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }]
+```
+
+#### Create Store
+
+[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/CreateStore)
+
+```csharp
+var configuration = new Configuration() {
+    ApiScheme = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_SCHEME"),
+    ApiHost = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_HOST"),
+};
+var {{appCamelCaseName}}Api = new {{appShortName}}Api(configuration);
+var store = await {{appCamelCaseName}}Api.CreateStore(new CreateStoreRequest(){Name = "FGA Demo"})
+
+// store.Id = "01FQH7V8BEG3GPQW93KTRFR8JB"
+
+// store store.Id in database
+
+// update the storeId of the current instance
+{{appCamelCaseName}}Api.StoreId = storeId;
+
+// continue calling the API normally
+```
+
+#### Get Store
+
+[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/GetStore)
+
+> Requires a client initialized with a storeId
+
+```csharp
+var configuration = new Configuration() {
+    ApiScheme = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_SCHEME"),
+    ApiHost = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_HOST"),
+    StoreId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_STORE_ID"),
+};
+var {{appCamelCaseName}}Api = new {{appShortName}}Api(configuration);
+var store = await {{appCamelCaseName}}Api.GetStore();
+
+// store = { "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }
+```
+
+#### Delete Store
+
+[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/DeleteStore)
+
+> Requires a client initialized with a storeId
+
+```csharp
+var store = await {{appCamelCaseName}}Api.DeleteStore();
+```
+
 #### Write Authorization Model
 
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/WriteAuthorizationModel)
@@ -46,7 +111,7 @@ var response = await {{appCamelCaseName}}Api.ReadAuthorizationModels();
 
 #### Check
 
-[API Documentation]({{apiDocsUrl}}#/Tuples/Check)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Check)
 
 ```csharp
 var body =
@@ -57,7 +122,7 @@ var response = await {{appCamelCaseName}}Api.Check(body);
 
 #### Write Tuples
 
-[API Documentation]({{apiDocsUrl}}#/Tuples/Write)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
 
 ```csharp
 var body = new WriteRequest(new TupleKeys(new List<TupleKey>
@@ -67,7 +132,7 @@ var response = await {{appCamelCaseName}}Api.Write(body);
 
 #### Delete Tuples
 
-[API Documentation]({{apiDocsUrl}}#/Tuples/Write)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
 
 ```csharp
 var body = new WriteRequest(new TupleKeys(new List<TupleKey> { }),
@@ -77,7 +142,7 @@ var response = await {{appCamelCaseName}}Api.Write(body);
 
 #### Expand
 
-[API Documentation]({{apiDocsUrl}}#/Debugging/Expand)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Expand)
 
 ```csharp
 var body = new ExpandRequest(new TupleKey("document:project-roadmap", "editor"));
@@ -88,7 +153,7 @@ var response = await {{appCamelCaseName}}Api.Expand(body);
 
 #### Read
 
-[API Documentation]({{apiDocsUrl}}#/Tuples/Read)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Read)
 
 ```csharp
 // Find if a relationship tuple stating that a certain user is an admin on a certain workspace
@@ -121,7 +186,7 @@ var response = await {{appCamelCaseName}}Api.Read(body);
 
 #### Read Changes (Watch)
 
-[API Documentation]({{apiDocsUrl}}#/Tuples/ReadChanges)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/ReadChanges)
 
 ```csharp
 var type = 'workspace';

@@ -10,14 +10,14 @@ func main() {
     configuration, err := {{packageName}}.NewConfiguration({{packageName}}.Configuration{
         ApiScheme:      os.Getenv("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
         ApiHost:        os.Getenv("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
-        StoreId:        os.Getenv("{{appUpperCaseName}}_STORE_ID"),
+        StoreId:        os.Getenv("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
     })
 
     if err != nil {
     // .. Handle error
     }
 
-    apiClient := openfga.NewAPIClient(configuration)
+    apiClient := {{packageName}}.NewAPIClient(configuration)
 }
 ```
 
@@ -33,11 +33,11 @@ func main() {
     configuration, err := {{packageName}}.NewConfiguration({{packageName}}.Configuration{
         ApiScheme:      os.Getenv("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
         ApiHost:        os.Getenv("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
-        StoreId:        os.Getenv("{{appUpperCaseName}}_STORE_ID"),
+        StoreId:        os.Getenv("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
         Credentials: &credentials.Credentials{
             Method: credentials.CredentialsMethodApiToken,
             Config: {
-                ApiToken: "fga_abcdef", // will be passed as the "Authorization: Bearer ${ApiToken}" request header
+                ApiToken: os.Getenv("{{appUpperCaseName}}_API_TOKEN"), // will be passed as the "Authorization: Bearer ${ApiToken}" request header
             },
         },
     })
@@ -46,6 +46,6 @@ func main() {
     // .. Handle error
     }
 
-    apiClient := openfga.NewAPIClient(configuration)
+    apiClient := {{packageName}}.NewAPIClient(configuration)
 }
 ```

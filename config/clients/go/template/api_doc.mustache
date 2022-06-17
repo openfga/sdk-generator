@@ -40,12 +40,15 @@ func main() {
     {{^-first}}{{paramName}} := {{{vendorExtensions.x-go-example}}} // {{{dataType}}} | {{{description}}}{{^required}} (optional){{/required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}{{/-first}}
     {{/allParams}}
 
-    configuration := {{packageName}}.NewConfiguration(UserConfiguration{
-        StoreId:      os.Getenv("{{appUpperCaseName}}_STORE_ID"),
-        ClientId:     os.Getenv("{{appUpperCaseName}}_CLIENT_ID"),
-        ClientSecret: os.Getenv("{{appUpperCaseName}}_CLIENT_SECRET"),
-        Environment:  os.Getenv("{{appUpperCaseName}}_ENVIRONMENT"),
+    configuration, err := {{packageName}}.NewConfiguration({{packageName}}.Configuration{
+        ApiScheme:      os.Getenv("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
+        ApiHost:        os.Getenv("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+        StoreId:        os.Getenv("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
     })
+
+    if err != nil {
+    // .. Handle error
+    }
 
     apiClient := {{packageName}}.NewAPIClient(configuration)
 

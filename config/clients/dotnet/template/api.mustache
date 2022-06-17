@@ -1,6 +1,7 @@
 {{>partial_header}}
 
 using {{packageName}}.Client;
+using {{packageName}}.Exceptions;
 using {{packageName}}.{{modelPackage}};
 
 namespace {{packageName}}.{{apiPackage}};
@@ -10,34 +11,11 @@ public class {{classname}} : IDisposable {
     private ApiClient _apiClient;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="{{classname}}"/> class.
+    /// Store ID
     /// </summary>
-    /// <param name="storeId"></param>
-    /// <param name="apiHost">define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})</param>
-    /// <param name="apiTokenIssuer"></param>
-    /// <param name="apiAudience"></param>
-    /// <param name="clientId"></param>
-    /// <param name="clientSecret"></param>
-    /// <param name="defaultHeaders"></param>
-    /// <param name="httpClient"></param>
-    public {{classname}}(
-        string storeId,
-        string apiHost,
-        string? apiTokenIssuer,
-        string? apiAudience,
-        string? clientId,
-        string? clientSecret,
-        IDictionary<string, string>? defaultHeaders,
-        HttpClient? httpClient = null
-    ) : this(new Configuration.Configuration() {
-        StoreId = storeId,
-        ApiHost = apiHost,
-        ApiTokenIssuer = apiTokenIssuer,
-        ApiAudience = apiAudience,
-        ClientId = clientId,
-        ClientSecret = clientSecret,
-        DefaultHeaders = defaultHeaders ?? new Dictionary<string, string>()
-    }, httpClient) {
+    public string? StoreId {
+        get => _configuration.StoreId;
+        set => _configuration.StoreId = value;
     }
 
     /// <summary>
@@ -70,7 +48,14 @@ public class {{classname}} : IDisposable {
     [Obsolete]
     {{/isDeprecated}}
     {{#returnType}}public async Task<{{{.}}}>{{/returnType}}{{^returnType}}public async Task{{/returnType}} {{operationId}}({{#allParams}}{{^-first}}{{{dataType}}} {{paramName}}{{^required}}{{#optionalMethodArgument}} = default({{{dataType}}}){{/optionalMethodArgument}}{{/required}}{{^-last}}, {{/-last}}{{/-first}}{{/allParams}}{{#allParams.1}}, {{/allParams.1}}CancellationToken cancellationToken = default) {
-        var pathParams = new Dictionary<string, string> { { "store_id", _configuration.StoreId } };
+        var pathParams = new Dictionary<string, string> {};
+        {{#pathParams.0}}
+        if (string.IsNullOrWhiteSpace(_configuration.StoreId)) {
+            throw new FgaRequiredParamError("Configuration", nameof(_configuration.StoreId));
+        }
+        pathParams.Add("store_id", _configuration.StoreId);
+        {{/pathParams.0}}
+
         {{#pathParams}}
         {{^-first}}if ({{paramName}} != null) {
             pathParams.Add("{{baseName}}", {{paramName}}.ToString());

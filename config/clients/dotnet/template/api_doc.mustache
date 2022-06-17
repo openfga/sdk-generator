@@ -34,13 +34,10 @@ namespace Example
     {
         public static void Main()
         {
-            var configuration = new Configuration(storeId, environment) {
-                StoreId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_STORE_ID"),
-                Host = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_HOST"),
-                ApiTokenIssuer = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_TOKEN_ISSUER"), // optional, required if client id is passed
-                ApiAudience = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_AUDIENCE"), // optional, required if client id is passed
-                ClientId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_CLIENT_ID"), // optional
-                ClientSecret = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_CLIENT_SECRET"), // optional, required if client id is passed
+            var configuration = new Configuration() {
+                ApiScheme = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
+                ApiHost = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+                StoreId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
             };
             HttpClient httpClient = new HttpClient();
             var {{appCamelCaseName}}Api = new {{classname}}(config, httpClient);
