@@ -102,7 +102,7 @@ const { authorization_model_ids: authorizationModelIds } = await {{appCamelCaseN
 
 #### Check
 
-[API Documentation]({{apiDocsUrl}}#/Tuples/Check)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Check)
 
 > Requires a client initialized with a storeId
 
@@ -122,7 +122,7 @@ const result = await {{appCamelCaseName}}.check({
 
 #### Write Tuples
 
-[API Documentation]({{apiDocsUrl}}#/Tuples/Write)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
 
 > Requires a client initialized with a storeId
 
@@ -137,7 +137,7 @@ await {{appCamelCaseName}}.write({
 
 #### Delete Tuples
 
-[API Documentation]({{apiDocsUrl}}#/Tuples/Write)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
 
 > Requires a client initialized with a storeId
 
@@ -152,7 +152,7 @@ await {{appCamelCaseName}}.write({
 
 #### Expand
 
-[API Documentation]({{apiDocsUrl}}#/Debugging/Expand)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Expand)
 
 > Requires a client initialized with a storeId
 
@@ -167,9 +167,9 @@ const { tree } = await {{appCamelCaseName}}.expand({
 // tree  = { root: { name: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin", leaf: { users: { users: ["anne", "beth"] } } } }
 ```
 
-#### Read
+#### Read Tuples
 
-[API Documentation]({{apiDocsUrl}}#/Tuples/Read)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Read)
 
 > Requires a client initialized with a storeId
 
@@ -217,7 +217,7 @@ const { tuples } = await {{appCamelCaseName}}.read(body);
 
 > Requires a client initialized with a storeId
 
-[API Documentation]({{apiDocsUrl}}#/Tuples/ReadChanges)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/ReadChanges)
 
 ```javascript
 const type = 'workspace';

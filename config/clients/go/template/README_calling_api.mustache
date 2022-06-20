@@ -131,7 +131,7 @@ fmt.Printf("%s", (*data.AuthorizationModelIds)[0]) // 1uHxCSuTP0VKPYSnkq1pbb1jeZ
 
 #### Check
 
-[API Documentation]({{apiDocsUrl}}#/Tuples/Check)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Check)
 
 > Provide a tuple and ask the {{appName}} API to check for a relationship
 
@@ -153,7 +153,7 @@ fmt.Printf("%t", *data.Allowed) // True
 
 #### Write Tuples
 
-[API Documentation]({{apiDocsUrl}}#/Tuples/Write)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
 
 ```golang
 body := {{packageName}}.WriteRequest{
@@ -173,7 +173,7 @@ _, response, err := apiClient.{{appShortName}}Api.Write(context.Background()).Bo
 
 #### Delete Tuples
 
-[API Documentation]({{apiDocsUrl}}#/Tuples/Write)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
 
 ```golang
 body := {{packageName}}.WriteRequest{
@@ -193,7 +193,7 @@ _, response, err := apiClient.{{appShortName}}Api.Write(context.Background()).Bo
 
 #### Expand
 
-[API Documentation]({{apiDocsUrl}}#/Debugging/Expand)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Expand)
 
 ```golang
 body := {{packageName}}.ExpandRequest{
@@ -207,9 +207,9 @@ data, response, err := apiClient.{{appShortName}}Api.Expand(context.Background()
 // data = {"tree":{"root":{"name":"workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin","leaf":{"users":{"users":["anne","beth"]}}}}} // JSON
 ```
 
-#### Read
+#### Read Changes
 
-[API Documentation]({{apiDocsUrl}}#/Tuples/Read)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Read)
 
 ```golang
 // Find if a relationship tuple stating that a certain user is an admin on a certain workspace
@@ -253,7 +253,7 @@ data, response, err := apiClient.{{appShortName}}Api.Read(context.Background()).
 
 #### Read Changes (Watch)
 
-[API Documentation]({{apiDocsUrl}}#/Tuples/ReadChanges)
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/ReadChanges)
 
 ```golang
 data, response, err := apiClient.{{appShortName}}Api.ReadChanges(context.Background()).
