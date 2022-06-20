@@ -42,7 +42,7 @@ tag-client-js: test-client-js
 
 .PHONY: test-client-js
 test-client-js: build-client-js
-	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm test ; npm audit ; npm run lint'"
+	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm test ; npm audit ; npm run lint;'"
 
 .PHONY: build-client-js
 build-client-js:
@@ -50,7 +50,7 @@ build-client-js:
 	sed -i -e "s|_this|this|g" ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*.ts
 	sed -i -e "s|_this|this|g" ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*.md
 	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*-e
-	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm i; npm run lint:fix -- --quiet'"
+	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm i; cat .eslintrc.js; npm run lint:fix; sed -n 132,142p /module/api.ts; echo 0'"
 	make run-in-docker sdk_language=js image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/api.ts /config/clients/js/patches/add-missing-first-param.patch'"
 	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm run lint:fix; npm run build;'"
 
