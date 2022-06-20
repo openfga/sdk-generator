@@ -17,8 +17,12 @@
 - [Installation](#installation)
 - [Getting Started](#getting-started)
   - [Initializing the API Client](#initializing-the-api-client)
-  - [Getting your Store ID, Client ID and Client Secret](#getting-your-store-id-client-id-and-client-secret)
+  - [Get your Store ID](#get-your-store-id)
   - [Calling the API](#calling-the-api)
+    - [List All Stores](#list-stores)
+    - [Create a Store](#create-store)
+    - [Get a Store](#get-store)
+    - [Delete a Store](#delete-store)
     - [Write Authorization Model](#write-authorization-model)
     - [Read a Single Authorization Model](#read-a-single-authorization-model)
     - [Read Authorization Model IDs](#read-authorization-model-ids)
@@ -26,13 +30,13 @@
     - [Write Tuples](#write-tuples)
     - [Delete Tuples](#delete-tuples)
     - [Expand](#expand)
-    - [Read](#read)
+    - [Read Tuples](#read-tuples)
     - [Read Changes (Watch)](#read-changes-watch)
   - [API Endpoints](#api-endpoints)
   - [Models](#models)
 - [Contributing](#contributing)
   - [Issues](#issues)
-  - [Pull Requests](#pull-requests) [Note: We are not accepting Pull Requests at this time!]
+  - [Pull Requests](#pull-requests)
 - [License](#license)
 
 ## <a id="about">About {{appLongName}}</a>
@@ -71,9 +75,11 @@
 
 {{>README_initializing}}
 
-### Get your Store ID and optional credentials
+### Get your Store ID
 
-You need your store id to call the {{appName}} API (unless it is to create a store or list all stores). You may also configure your credentials if your service requires it.
+You need your store id to call the {{appName}} API (unless it is to call the [CreateStore](#create-store) or [ListStores](#list-stores) methods).
+
+If your server is configured with [authentication enabled]({{docsUrl}}/getting-started/setup-openfga#configuring-authentication), you also need to have your credentials ready.
 
 ### Calling the API
 
@@ -91,11 +97,11 @@ You need your store id to call the {{appName}} API (unless it is to create a sto
 
 ### Issues
 
-If you have found a bug or if you have a feature request, please report them at this repository [issues](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/issues) section. Please do not report security vulnerabilities on the public GitHub issue tracker.
+If you have found a bug or if you have a feature request, please report them on the [sdk-generator repo](https://{{gitHost}}/{{gitUserId}}/sdk-generator/issues) issues section. Please do not report security vulnerabilities on the public GitHub issue tracker.
 
 ### Pull Requests
 
-Pull Requests are not currently open, please [raise an issue](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/issues) or contact a team member on {{supportInfo}} if there is a feature you'd like us to implement.
+All changes made to this repo will be overwritten on the next generation, so we kindly ask that you send all pull requests related to the SDKs to the [sdk-generator repo](https://{{gitHost}}/{{gitUserId}}/sdk-generator) instead.
 
 ## Author
 
