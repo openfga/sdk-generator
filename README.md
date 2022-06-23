@@ -137,16 +137,18 @@ The following keys are also available but should be considered deprecated. Autom
 ## Contributing
 Please review the [Contributing Guidelines](https://github.com/openfga/.github/blob/main/CONTRIBUTING.md) before sending a PR or opening an issue.
 
-In addition, we ask that the SDK:
+In addition, we ask that the SDKs:
 
-* Be generated from the [openapiv2 swagger document](https://github.com/openfga/api/blob/main/docs/openapiv2/apidocs.swagger.json) using the sdk-generator.
+* be generated from the [openapiv2 swagger document](https://github.com/openfga/api/blob/main/docs/openapiv2/apidocs.swagger.json) using the sdk-generator.
 
-* All OpenFGA SDKs, such as [JS](https://github.com/openfga/js-sdk), [GoLang](https://github.com/openfga/go-sdk) and [.NET](https://github.com/openfga/dotnet-sdk, should have roughly the same consistent interface for configuration.
+* have roughly the same consistent interface for configuration, such as [JS](https://github.com/openfga/js-sdk), [GoLang](https://github.com/openfga/go-sdk) and [.NET](https://github.com/openfga/dotnet-sdk) SDKs.
 
-* All OpenFGA SDKs should support the same features.
+* support the same features with other existing SDKs.
 
-* All SDKs need to have a base set of tests.
+* have a base set of functional tests.
 
-* The building & publishing of SDKs needs to be automated through GitHub actions.
+* have no tests that talk to an external service (external calls should be disallowed and mocked).
 
-* Pull requests will be modified in the sdk-generator instead of individual SDK repos.
+* have building & publishing automated through GitHub actions.
+
+* be created and modified through pull requests to this sdk-generator repository instead of individual repositories. Most of the code will be in mustache files that will end up generating the resulting SDK for the appropriate language.
