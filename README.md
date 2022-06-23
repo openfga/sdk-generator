@@ -133,3 +133,22 @@ The following keys are also available but should be considered deprecated. Autom
 | `NPM_TOKEN`                  | The token of the user pushing to npm                                  |
 | `DOTNET_SDK_DRY_RUN`         | Whether to show git diff and exit without pushing changes for the SDK |
 | `DOTNET_SDK_TAGGING_DISABLE` | Whether to disable tagging and publishing for the SDK                 |
+
+## Contributing
+Please review the [Contributing Guidelines](https://github.com/openfga/.github/blob/main/CONTRIBUTING.md) before sending a PR or opening an issue.
+
+In addition, we ask that the SDKs:
+
+* be generated from the [openapiv2 swagger document](https://github.com/openfga/api/blob/main/docs/openapiv2/apidocs.swagger.json) using the sdk-generator.
+
+* have roughly the same consistent interface for configuration, such as [JS](https://github.com/openfga/js-sdk), [GoLang](https://github.com/openfga/go-sdk) and [.NET](https://github.com/openfga/dotnet-sdk) SDKs.
+
+* support the same features with other existing SDKs.
+
+* have a base set of functional tests.
+
+* have no tests that talk to an external service (external calls should be disallowed and mocked).
+
+* have building & publishing automated through GitHub actions.
+
+* be created and modified through pull requests to this sdk-generator repository instead of individual repositories. Most of the code will be in mustache files that will end up generating the resulting SDK for the appropriate language.
