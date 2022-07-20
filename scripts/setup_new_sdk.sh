@@ -69,7 +69,7 @@ printf "Task 2.2: Run git init"
 # shellcheck disable=SC2091
 $(git init > /dev/null 2>&1) && echo " - Done"
 git remote add origin $TEMPLATE_SOURCE_REPO
-FETCH_CMD="git fetch --depth 1 origin $TEMPLATE_SOURCE_BRANCH:refs/heads/$TEMPLATE_SOURCE_BRANCH"
+FETCH_CMD="git fetch -u --depth 1 origin $TEMPLATE_SOURCE_BRANCH:refs/heads/$TEMPLATE_SOURCE_BRANCH "
 CLONE_CMD="git checkout $TEMPLATE_SOURCE_BRANCH -- $TEMPLATE_SOURCE_PATH"
 printf "Task 2.3: Run fetch command: %s" "$FETCH_CMD"
 # shellcheck disable=SC2091
