@@ -92,15 +92,14 @@ build-client-dotnet:
 
 ### Python
 
-.PHONY: build-client-python
-build-client-python:
-	make build-client sdk_language=python tmpdir=${TMP_DIR}
-	# ... any other custom build steps ...
-
 .PHONY: test-client-python
 test-client-python: build-client-python
 	# ... any custom test code ...
 
+.PHONY: build-client-python
+build-client-python:
+	make build-client sdk_language=python tmpdir=${TMP_DIR}
+	# ... any other custom build steps ...
 
 .PHONY: run-in-docker
 run-in-docker:
@@ -183,4 +182,3 @@ shellcheck:
 .PHONY: setup-new-sdk
 setup-new-sdk:
 	./scripts/setup_new_sdk.sh
-
