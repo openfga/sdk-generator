@@ -7,7 +7,7 @@ CLIENTS_GENERATOR_DIR="${PWD}"
 CONFIG_PATH="${CLIENTS_GENERATOR_DIR}/config/clients/${SDK_ID:?}"
 SDK_OUTPUT_PATH="${CLIENTS_GENERATOR_DIR}/clients/${SDK_ID}"
 appLongName="OpenFGA"
-apiDocsUrl="https://openfga.dev/api/service"
+apiDocsUrl="https://openfga.dev/api"
 
 if [ -d "${CONFIG_PATH}" ]; then
   echo "Config Path: ${CONFIG_PATH} already exists. Clear it or choose a different SDK ID"
