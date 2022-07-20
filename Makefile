@@ -30,10 +30,10 @@ test: test-all-clients
 build: build-all-clients
 
 .PHONY: test-all-clients
-test-all-clients: test-client-js test-client-go test-client-dotnet
+test-all-clients: test-client-js test-client-go test-client-dotnet test-client-python
 
 .PHONY: build-all-clients
-build-all-clients: build-client-js build-client-go build-client-dotnet
+build-all-clients: build-client-js build-client-go build-client-dotnet build-client-python
 
 ### JavaScript
 .PHONY: tag-client-js
@@ -89,6 +89,18 @@ build-client-dotnet:
 	# For some reason the first round of formatting fails with an error - running it again produces the correct result
 	make run-in-docker sdk_language=dotnet image=mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet format ./OpenFga.Sdk.sln'" || true
 	make run-in-docker sdk_language=dotnet image=mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet format ./OpenFga.Sdk.sln'"
+
+### Python
+
+.PHONY: build-client-python
+build-client-python:
+	make build-client sdk_language=python tmpdir=${TMP_DIR}
+	# ... any other custom build steps ...
+
+.PHONY: test-client-python
+test-client-python: build-client-python
+	# ... any custom test code ...
+
 
 .PHONY: run-in-docker
 run-in-docker:
@@ -171,3 +183,4 @@ shellcheck:
 .PHONY: setup-new-sdk
 setup-new-sdk:
 	./scripts/setup_new_sdk.sh
+
