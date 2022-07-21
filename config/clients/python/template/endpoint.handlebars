@@ -300,7 +300,13 @@ class ApiResponseFor{{code}}(api_client.ApiResponse):
     headers: ResponseHeadersFor{{code}}
     body: Unset = unset
 {{else}}
+{{! We cannot use a simple if comparison because content resolves to {} }}
+{{! Therefore, we need to loop and only generate if there is first}}
+{{#each content}}
+{{#if @first}}
     body: typing.Union[
+{{/if}}
+{{/each}}
 {{#each content}}
 {{#if this.schema}}
         {{this.schema.baseName}},
@@ -308,7 +314,11 @@ class ApiResponseFor{{code}}(api_client.ApiResponse):
         Unset,
 {{/if}}
 {{/each}}
+{{#each content}}
+{{#if @first}}
     ]
+{{/if}}
+{{/each}}
     headers: Unset = unset
 {{/if}}
 {{/or}}
