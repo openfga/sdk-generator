@@ -1,7 +1,17 @@
 # Defining the host is optional and defaults to {{{basePath}}}
+{{#each pathParams}}
+{{#if @first}}
+# Defining the store_id is required
+{{/if}}
+{{/each}}
 # See configuration.py for a list of all supported configuration parameters.
 configuration = {{{packageName}}}.Configuration(
-    host = "{{{basePath}}}"
+    host = "{{{basePath}}}",
+{{#each pathParams}}
+{{#if @first}}
+    store_id = 'YOUR_STORE_ID'
+{{/if}}
+{{/each}}
 )
 
 {{#if hasAuthMethods}}
@@ -66,6 +76,11 @@ configuration = {{{packageName}}}.Configuration(
 # See {{{packageName}}}.signing for a list of all supported parameters.
 configuration = {{{packageName}}}.Configuration(
     host = "{{{basePath}}}",
+{{#each pathParams}}
+{{#if @first}}
+    store_id = "YOUR_STORE_ID",
+{{/if}}
+{{/each}}
     signing_info = {{{packageName}}}.signing.HttpSigningConfiguration(
         key_id = 'my-key-id',
         private_key_path = 'private_key.pem',

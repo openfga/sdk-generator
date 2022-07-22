@@ -16,9 +16,12 @@ with {{{packageName}}}.ApiClient(configuration) as api_client:
 {{#if pathParams}}
     path_params = {
     {{#each pathParams}}
+    {{! Do not require store_id}}
+    {{#unless @first}}
     {{#if required}}
         '{{baseName}}': {{{example}}},
     {{/if}}
+    {{/unless}}
     {{/each}}
     }
 {{/if}}
@@ -89,7 +92,10 @@ with {{{packageName}}}.ApiClient(configuration) as api_client:
 {{#if pathParams}}
     path_params = {
     {{#each pathParams}}
+    {{! Skip over the store_id}}
+    {{#unless @first}}
         '{{baseName}}': {{{example}}},
+    {{/unless}}
     {{/each}}
     }
 {{/if}}

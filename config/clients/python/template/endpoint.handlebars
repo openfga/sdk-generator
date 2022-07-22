@@ -98,17 +98,23 @@ class RequestHeaderParams(RequestRequiredHeaderParams, RequestOptionalHeaderPara
 {{#if pathParams}}
 # path params
 {{#each pathParams}}
+{{! We want to skip over the store_id as it is specified through configuration}}
+{{#unless @first}}
 {{#with schema}}
 {{> model_templates/schema }}
 {{/with}}
+{{/unless}}
 {{/each}}
 RequestRequiredPathParams = typing.TypedDict(
     'RequestRequiredPathParams',
     {
 {{#each pathParams}}
+{{! Skip over store_id}}
+{{#unless @first}}
 {{#if required}}
         '{{baseName}}': {{#with schema}}{{baseName}},{{/with}}
 {{/if}}
+{{/unless}}
 {{/each}}
     }
 )
@@ -130,7 +136,10 @@ class RequestPathParams(RequestRequiredPathParams, RequestOptionalPathParams):
 
 
 {{#each pathParams}}
+{{! Skip over store_id as it is specified in configuration}}
+{{#unless @first}}
 {{> endpoint_parameter }}
+{{/unless}}
 {{/each}}
 {{/if}}
 {{#if cookieParams}}
@@ -446,13 +455,26 @@ class {{operationIdCamelCase}}(api_client.Api):
     {{#if cookieParams}}
         self._verify_typed_dict_inputs(RequestCookieParams, cookie_params)
     {{/if}}
+    {{#each pathParams}}
+    {{#if @first}}
+        self._verify_store_id()
+    {{/if}}
+    {{/each}}
         used_path = _path
     {{#if pathParams}}
 
         _path_params = {}
+
+        # The store_is stored in the configuration.
+        store_id_config = {'store_id': self.api_client.configuration.store_id}
+        _path_params.update(store_id_config)
+
         for parameter in (
     {{#each pathParams}}
+    {{! We will skip the first parameter as it is the store id (which as already been updated earlier)}}
+    {{#unless @first}}
             request_path_{{paramName}},
+    {{/unless}}
     {{/each}}
         ):
             parameter_data = path_params.get(parameter.name, unset)
@@ -463,6 +485,7 @@ class {{operationIdCamelCase}}(api_client.Api):
 
         for k, v in _path_params.items():
             used_path = used_path.replace('{%s}' % k, v)
+
     {{/if}}
     {{#if queryParams}}
 

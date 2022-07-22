@@ -99,6 +99,8 @@ test-client-python: build-client-python
 .PHONY: build-client-python
 build-client-python:
 	make build-client sdk_language=python tmpdir=${TMP_DIR}
+	sed -i -e "s|\"key\": |key=|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md
+	sed -i -e "s|from openfga_sdk.model.tuple_keys import TupleKeys|from openfga_sdk.model.tuple_key import TupleKey\nfrom openfga_sdk.model.tuple_keys import TupleKeys|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md
 	# ... any other custom build steps ...
 
 .PHONY: run-in-docker

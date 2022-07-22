@@ -124,7 +124,10 @@ Name | Type | Description  | Notes
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
         {{#each pathParams}}
+{{! We want to skip over store_id parameters }}
+{{#unless @first}}
 {{baseName}} | {{#with schema}}{{baseName}}{{/with}} | | {{#unless required}}optional{{/unless}}
+{{/unless}}
         {{/each}}
         {{#each pathParams}}
         {{#with schema}}

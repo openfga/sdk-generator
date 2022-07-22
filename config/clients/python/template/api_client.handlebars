@@ -1244,6 +1244,18 @@ class Api:
                 )
             )
 
+    def _verify_store_id(self):
+        """
+        Verify that the store id has been configured and not empty string.
+        Otherwise, raise ApiTypeError
+        """
+        configuration = self.api_client.configuration
+        if configuration.store_id is None or configuration.store_id == '':
+            raise ApiTypeError(
+                'store_id is required but not configured'
+            )
+
+
     def get_host(
         self,
         operation_id: str,

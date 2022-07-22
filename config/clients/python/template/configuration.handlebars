@@ -28,6 +28,7 @@ class Configuration(object):
     Do not edit the class manually.
 
     :param host: Base url
+    :param store_id: ID of store for API
     :param api_key: Dict to store API key(s).
       Each entry in the dict specifies an API key.
       The dict key is the name of the security scheme in the OAS specification.
@@ -163,6 +164,7 @@ conf = {{{packageName}}}.Configuration(
     _default = None
 
     def __init__(self, host=None,
+                 store_id=None,
                  api_key=None, api_key_prefix=None,
                  username=None, password=None,
                  discard_unknown_keys=False,
@@ -176,6 +178,7 @@ conf = {{{packageName}}}.Configuration(
         """Constructor
         """
         self._base_path = "{{{basePath}}}" if host is None else host
+        self._store_id = store_id
         """Default Base url
         """
         self.server_index = 0 if server_index is None and host is None else server_index
@@ -634,3 +637,13 @@ conf = {{{packageName}}}.Configuration(
         """Fix base path."""
         self._base_path = value
         self.server_index = None
+
+    @property
+    def store_id(self):
+        """Return store id."""
+        return self._store_id
+
+    @store_id.setter
+    def store_id(self, value):
+        """Update store id."""
+        self._store_id = value
