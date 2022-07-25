@@ -3,31 +3,459 @@
 {{>partial_header}}
 
 import unittest
+from unittest.mock import ANY
+from mock import patch, Mock
 
 import {{packageName}}
-from {{packageName}}.{{apiPackage}}.{{classFilename}} import {{classname}}  # noqa: E501
+import urllib3
+from pprint import pprint
 
+from {{packageName}}.api import open_fga_api
+from {{packageName}}.schemas import ListSchema
+from {{packageName}}.{{apiPackage}}.{{classFilename}} import {{classname}}  # noqa: E501
+from {{packageName}}.model.assertion import Assertion
+from {{packageName}}.model.check_response import CheckResponse
+from {{packageName}}.model.create_store_request import CreateStoreRequest
+from {{packageName}}.model.create_store_response import CreateStoreResponse
+from {{packageName}}.model.expand_response import ExpandResponse
+from {{packageName}}.model.get_store_response import GetStoreResponse
+from {{packageName}}.model.leaf import Leaf
+from {{packageName}}.model.list_stores_response import ListStoresResponse
+from {{packageName}}.model.model_tuple import ModelTuple
+from {{packageName}}.model.node import Node
+from {{packageName}}.model.read_assertions_response import ReadAssertionsResponse
+from {{packageName}}.model.read_response import ReadResponse
+from {{packageName}}.model.store import Store
+from {{packageName}}.model.tuple_key import TupleKey
+from {{packageName}}.model.users import Users
+from {{packageName}}.model.userset_tree import UsersetTree
+
+store_id='d12345abc'
+
+# Helper function to construct mock response
+def mock_response(body, status):
+    headers = urllib3.response.HTTPHeaderDict({
+        'content-type': 'application/json'
+    })
+    return urllib3.HTTPResponse(
+        body,
+        headers,
+        status,
+        preload_content=False
+    )
 
 class {{#with operations}}Test{{classname}}(unittest.TestCase):
     """{{classname}} unit test stubs"""
 
     def setUp(self):
-        self.api = {{classname}}()  # noqa: E501
+        self.configuration = {{packageName}}.Configuration(
+            host = "http://api.fga.example",
+        )
 
     def tearDown(self):
         pass
 
-   {{#each operation}}
-    def test_{{operationId}}(self):
-        """Test case for {{{operationId}}}
+{{! We will need to define each test individually instead of via the generator to allow better control of what we are testing}}
 
-{{#if summary}}
-        {{{summary}}}  # noqa: E501
-{{/if}}
+    @patch.object({{packageName}}.api_client.ApiClient, 'request')
+    def test_check(self, mock_request):
+        """Test case for check
+
+        Check whether a user is authorized to access an object  # noqa: E501
+        """
+
+        # First, mock the response
+        response_body = '{"allowed": true}'
+        mock_request.return_value = mock_response(response_body, 200)
+
+        configuration = self.configuration
+        configuration.store_id = store_id
+        with {{packageName}}.ApiClient(self.configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            path_params = {}
+            body = dict(
+                tuple_key=TupleKey(
+                    object="document:2021-budget",
+                    relation="reader",
+                    user="anne",
+                ),
+            )
+            api_response = api_instance.check(
+                path_params=path_params,
+                body=body,
+            )
+            self.assertIsInstance(api_response.body, CheckResponse)
+            self.assertTrue(api_response.body.allowed)
+            # Make sure the API was called with the right data
+            mock_request.assert_called_once_with(
+                'POST',
+                'http://api.fga.example/stores/d12345abc/check',
+                headers=ANY,
+                fields=ANY,
+                body=b'{"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"anne"}}',
+                stream=False,
+                timeout=None
+            )
+
+    @patch.object({{packageName}}.api_client.ApiClient, 'request')
+    def test_create_store(self, mock_request):
+        """Test case for create_store
+
+        Create a store  # noqa: E501
+        """
+        response_body = '''{
+            "id": "01YCP46JKYM8FJCQ37NMBYHE5X",
+            "name": "test_store",
+            "created_at": "2022-07-25T17:41:26.607Z",
+            "updated_at": "2022-07-25T17:41:26.607Z"}
+            '''
+        mock_request.return_value = mock_response(response_body, 201)
+
+        configuration = self.configuration
+        with {{packageName}}.ApiClient(self.configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            path_params = {}
+            body = CreateStoreRequest(
+                name="test-store",
+            )
+            api_response = api_instance.create_store(
+                body=body,
+            )
+            self.assertIsInstance(api_response.body, CreateStoreResponse)
+            self.assertEqual(api_response.body.id, '01YCP46JKYM8FJCQ37NMBYHE5X')
+            mock_request.assert_called_once_with(
+                'POST',
+                'http://api.fga.example/stores',
+                headers=ANY,
+                fields=ANY,
+                body=b'{"name":"test-store"}',
+                stream=False,
+                timeout=None
+            )
+
+    @patch.object({{packageName}}.api_client.ApiClient, 'request')
+    def test_delete_store(self, mock_request):
+        """Test case for delete_store
+
+        Delete a store  # noqa: E501
+        """
+        response_body = ''
+        mock_request.return_value = mock_response(response_body, 201)
+        configuration = self.configuration
+        configuration.store_id = store_id
+        with {{packageName}}.ApiClient(self.configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            path_params = {}
+            api_response = api_instance.delete_store(
+                path_params=path_params,
+            )
+            mock_request.assert_called_once_with(
+                'DELETE',
+                'http://api.fga.example/stores/d12345abc',
+                headers=ANY,
+                fields=ANY,
+                body=ANY,
+                stream=False,
+                timeout=None
+            )
+
+    @patch.object({{packageName}}.api_client.ApiClient, 'request')
+    def test_expand(self, mock_request):
+        """Test case for expand
+
+        Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason about and debug a certain relationship  # noqa: E501
+        """
+        response_body = '''{
+            "tree": {"root": {"name": "document:budget#reader", "leaf": {"users": {"users": ["anne"]}}}}}
+            '''
+        mock_request.return_value = mock_response(response_body, 200)
+        configuration = self.configuration
+        configuration.store_id = store_id
+        with {{packageName}}.ApiClient(self.configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            path_params = {}
+            body = dict(
+                tuple_key=TupleKey(
+                    object="document:budget",
+                    relation="reader",
+                ),
+            )
+            api_response = api_instance.expand(
+                path_params=path_params,
+                body=body,
+            )
+            self.assertIsInstance(api_response.body, ExpandResponse)
+            curUsers = Users({"users": ["anne"]})
+            leaf = Leaf({"users": curUsers})
+            node = Node({"name": "document:budget#reader", "leaf": leaf})
+            expected_response = ExpandResponse({"tree": UsersetTree({"root": UsersetTree(node)})})
+            self.assertEqual(api_response.body, expected_response)
+            mock_request.assert_called_once_with(
+                'POST',
+                'http://api.fga.example/stores/d12345abc/expand',
+                headers=ANY,
+                fields=ANY,
+                body=b'{"tuple_key":{"object":"document:budget","relation":"reader"}}',
+                stream=False,
+                timeout=None
+            )
+
+    @patch.object({{packageName}}.api_client.ApiClient, 'request')
+    def test_get_store(self, mock_request):
+        """Test case for get_store
+
+        Get a store  # noqa: E501
+        """
+        response_body = '''{
+  "id": "d12345abc",
+  "name": "test_store",
+  "created_at": "2022-07-25T20:45:10.485Z",
+  "updated_at": "2022-07-25T20:45:10.485Z"
+}
+            '''
+        mock_request.return_value = mock_response(response_body, 200)
+        configuration = self.configuration
+        configuration.store_id = store_id
+        with {{packageName}}.ApiClient(self.configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            path_params = {}
+            # Get a store
+            api_response = api_instance.get_store(
+                path_params=path_params,
+            )
+            self.assertIsInstance(api_response.body, GetStoreResponse)
+            self.assertEqual(api_response.body.id, 'd12345abc')
+            self.assertEqual(api_response.body.name, 'test_store')
+            mock_request.assert_called_once_with(
+                'GET',
+                'http://api.fga.example/stores/d12345abc',
+                headers=ANY,
+                fields=ANY,
+                body=None,
+                stream=False,
+                timeout=None
+            )
+
+    @patch.object({{packageName}}.api_client.ApiClient, 'request')
+    def test_list_stores(self, mock_request):
+        """Test case for list_stores
+
+        Get all stores  # noqa: E501
+        """
+        response_body = '''
+{
+  "stores": [
+    {
+      "id": "01YCP46JKYM8FJCQ37NMBYHE5X",
+      "name": "store1",
+      "created_at": "2022-07-25T21:15:37.524Z",
+      "updated_at": "2022-07-25T21:15:37.524Z",
+      "deleted_at": "2022-07-25T21:15:37.524Z"
+    },
+    {
+      "id": "01YCP46JKYM8FJCQ37NMBYHE6X",
+      "name": "store2",
+      "created_at": "2022-07-25T21:15:37.524Z",
+      "updated_at": "2022-07-25T21:15:37.524Z",
+      "deleted_at": "2022-07-25T21:15:37.524Z"
+    }
+  ],
+  "continuation_token": "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
+}
+            '''
+        mock_request.return_value = mock_response(response_body, 200)
+        configuration = self.configuration
+        with {{packageName}}.ApiClient(self.configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            query_params = {
+                'page_size': 1,
+                'continuation_token': "continuation_token_example",
+            }
+            # Get all stores
+            api_response = api_instance.list_stores(
+                query_params=query_params,
+            )
+            self.assertIsInstance(api_response.body, ListStoresResponse)
+            self.assertEqual(api_response.body.continuation_token,
+                "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==")
+            store1 = Store({
+                "id" : "01YCP46JKYM8FJCQ37NMBYHE5X",
+                "name" : "store1",
+                "created_at" : "2022-07-25T21:15:37.524Z",
+                "updated_at" : "2022-07-25T21:15:37.524Z",
+                "deleted_at" : "2022-07-25T21:15:37.524Z",
+            })
+            store2 = Store({
+                "id" : "01YCP46JKYM8FJCQ37NMBYHE6X",
+                "name" : "store2",
+                "created_at" : "2022-07-25T21:15:37.524Z",
+                "updated_at" : "2022-07-25T21:15:37.524Z",
+                "deleted_at" : "2022-07-25T21:15:37.524Z",
+            })
+
+            stores = (store1, store2)
+            self.assertEqual(api_response.body.stores, stores)
+            mock_request.assert_called_once_with(
+                'GET',
+                'http://api.fga.example/stores?page_size=1&continuation_token=continuation_token_example',
+                headers=ANY,
+                fields=ANY,
+                body=None,
+                stream=False,
+                timeout=None
+            )
+
+    @patch.object(openfga_sdk.api_client.ApiClient, 'request')
+    def test_read(self, mock_request):
+        """Test case for read
+
+        Get tuples from the store that matches a query, without following userset rewrite rules  # noqa: E501
+        """
+        response_body = '''
+            {
+  "tuples": [
+    {
+      "key": {
+        "user": "anne",
+        "relation": "reader",
+        "object": "document:2021-budget"
+      },
+      "timestamp": "2021-10-06T15:32:11.128Z"
+    }
+  ]
+}
+        '''
+        mock_request.return_value = mock_response(response_body, 200)
+        configuration = self.configuration
+        configuration.store_id = store_id
+        with openfga_sdk.ApiClient(self.configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            path_params = {}
+            body = dict(
+                tuple_key=TupleKey(
+                    object="document:2021-budget",
+                    relation="reader",
+                    user="anne",
+                ),
+                authorization_model_id="01G5JAVJ41T49E9TT3SKVS7X1J",
+                page_size=50,
+                continuation_token="eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==",
+            )
+            api_response = api_instance.read(
+                path_params=path_params,
+                body=body,
+            )
+            self.assertIsInstance(api_response.body, ReadResponse)
+            key = TupleKey({"user":"anne","relation":"reader","object":"document:2021-budget"})
+            timestamp = "2021-10-06T15:32:11.128Z"
+            expected_data = (TupleKey({"key": key, "timestamp": timestamp }),)
+            self.assertEqual(api_response.body.tuples, expected_data)
+            mock_request.assert_called_once_with(
+                'POST',
+                'http://api.fga.example/stores/d12345abc/read',
+                headers=ANY,
+                fields=ANY,
+                body=b'{"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"anne"},"authorization_model_id":"01G5JAVJ41T49E9TT3SKVS7X1J","page_size":50,"continuation_token":"eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="}',
+                stream=False,
+                timeout=None
+            )
+
+    @patch.object(openfga_sdk.api_client.ApiClient, 'request')
+    def test_read_assertions(self, mock_request):
+        """Test case for read_assertions
+
+        Read assertions for an authorization model ID  # noqa: E501
+        """
+        response_body = '''
+{
+  "authorization_model_id": "01G5JAVJ41T49E9TT3SKVS7X1J",
+  "assertions": [
+    {
+      "tuple_key": {
+        "object": "document:2021-budget",
+        "relation": "reader",
+        "user": "anne"
+      },
+      "expectation": true
+    }
+  ]
+}
+        '''
+        mock_request.return_value = mock_response(response_body, 200)
+        configuration = self.configuration
+        configuration.store_id = store_id
+        with openfga_sdk.ApiClient(self.configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            path_params = {
+                'authorization_model_id': "01G5JAVJ41T49E9TT3SKVS7X1J",
+            }
+            api_response = api_instance.read_assertions(
+                path_params=path_params,
+            )
+            self.assertIsInstance(api_response.body, ReadAssertionsResponse)
+            self.assertEqual(api_response.body.authorization_model_id, '01G5JAVJ41T49E9TT3SKVS7X1J')
+            assertion= Assertion(
+                tuple_key=TupleKey(
+                    object="document:2021-budget",
+                    relation="reader",
+                    user="anne",
+                ),
+                expectation=True,
+            )
+            self.assertEqual(api_response.body.assertions, (assertion,))
+            mock_request.assert_called_once_with(
+                'GET',
+                'http://api.fga.example/stores/d12345abc/assertions/01G5JAVJ41T49E9TT3SKVS7X1J',
+                headers=ANY,
+                fields=ANY,
+                body=None,
+                stream=False,
+                timeout=None
+            )
+
+
+    def test_read_authorization_model(self):
+        """Test case for read_authorization_model
+
+        Return a particular version of an authorization model  # noqa: E501
         """
         pass
 
-   {{/each}}
+    def test_read_authorization_models(self):
+        """Test case for read_authorization_models
+
+        Return all the authorization models for a particular store  # noqa: E501
+        """
+        pass
+
+    def test_read_changes(self):
+        """Test case for read_changes
+
+        Return a list of all the tuple changes  # noqa: E501
+        """
+        pass
+
+    def test_write(self):
+        """Test case for write
+
+        Add or delete tuples from the store  # noqa: E501
+        """
+        pass
+
+    def test_write_assertions(self):
+        """Test case for write_assertions
+
+        Upsert assertions for an authorization model ID  # noqa: E501
+        """
+        pass
+
+    def test_write_authorization_model(self):
+        """Test case for write_authorization_model
+
+        Create a new authorization model  # noqa: E501
+        """
+        pass
+
 {{/with}}
 
 if __name__ == '__main__':

@@ -95,15 +95,13 @@ build-client-dotnet:
 
 .PHONY: test-client-python
 test-client-python: build-client-python
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install urllib3 certifi python-dateutil frozendict; python -m unittest test/*'"
-	# ... any custom test code ...
+	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install urllib3 certifi python-dateutil frozendict mock; python -m unittest test/*'"
 
 .PHONY: build-client-python
 build-client-python:
 	make build-client sdk_language=python tmpdir=${TMP_DIR}
 	sed -i -e "s|\"key\": |key=|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md
 	sed -i -e "s|from openfga_sdk.model.tuple_keys import TupleKeys|from openfga_sdk.model.tuple_key import TupleKey\nfrom openfga_sdk.model.tuple_keys import TupleKeys|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md
-	# ... any other custom build steps ...
 
 .PHONY: run-in-docker
 run-in-docker:
