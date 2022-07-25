@@ -6,6 +6,7 @@ GO_DOCKER_TAG = 1
 DOTNET_DOCKER_TAG = 6.0
 GOLINT_DOCKER_TAG = v1.46
 BUSYBOX_DOCKER_TAG = 1.34
+PYTHON_DOCKER_TAG = 3.10
 # Other config
 CONFIG_DIR = ${PWD}/config
 CLIENTS_OUTPUT_DIR = ${PWD}/clients
@@ -94,6 +95,7 @@ build-client-dotnet:
 
 .PHONY: test-client-python
 test-client-python: build-client-python
+	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install urllib3 certifi python-dateutil frozendict; python -m unittest test/*'"
 	# ... any custom test code ...
 
 .PHONY: build-client-python
