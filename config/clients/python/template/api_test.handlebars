@@ -14,6 +14,7 @@ from {{packageName}}.api import open_fga_api
 from {{packageName}}.schemas import ListSchema
 from {{packageName}}.{{apiPackage}}.{{classFilename}} import {{classname}}  # noqa: E501
 from {{packageName}}.model.assertion import Assertion
+from {{packageName}}.model.authorization_model import AuthorizationModel
 from {{packageName}}.model.check_response import CheckResponse
 from {{packageName}}.model.create_store_request import CreateStoreRequest
 from {{packageName}}.model.create_store_response import CreateStoreResponse
@@ -23,12 +24,23 @@ from {{packageName}}.model.leaf import Leaf
 from {{packageName}}.model.list_stores_response import ListStoresResponse
 from {{packageName}}.model.model_tuple import ModelTuple
 from {{packageName}}.model.node import Node
+from {{packageName}}.model.object_relation import ObjectRelation
 from {{packageName}}.model.read_assertions_response import ReadAssertionsResponse
+from {{packageName}}.model.read_authorization_model_response import ReadAuthorizationModelResponse
+from {{packageName}}.model.read_authorization_models_response import ReadAuthorizationModelsResponse
+from {{packageName}}.model.read_changes_response import ReadChangesResponse
 from {{packageName}}.model.read_response import ReadResponse
 from {{packageName}}.model.store import Store
+from {{packageName}}.model.tuple_change import TupleChange
 from {{packageName}}.model.tuple_key import TupleKey
+from {{packageName}}.model.tuple_keys import TupleKeys
+from {{packageName}}.model.type_definition import TypeDefinition
+from {{packageName}}.model.type_definitions import TypeDefinitions
 from {{packageName}}.model.users import Users
+from {{packageName}}.model.userset import Userset
 from {{packageName}}.model.userset_tree import UsersetTree
+from {{packageName}}.model.usersets import Usersets
+from {{packageName}}.model.write_authorization_model_response import WriteAuthorizationModelResponse
 
 store_id='d12345abc'
 
@@ -44,8 +56,9 @@ def mock_response(body, status):
         preload_content=False
     )
 
+
 class {{#with operations}}Test{{classname}}(unittest.TestCase):
-    """{{classname}} unit test stubs"""
+    """{{classname}} unit test"""
 
     def setUp(self):
         self.configuration = {{packageName}}.Configuration(
@@ -413,48 +426,447 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
                 timeout=None
             )
 
-
-    def test_read_authorization_model(self):
+    @patch.object(openfga_sdk.api_client.ApiClient, 'request')
+    def test_read_authorization_model(self, mock_request):
         """Test case for read_authorization_model
 
         Return a particular version of an authorization model  # noqa: E501
         """
-        pass
+        response_body = '''
+{
+  "authorization_model": {
+    "id": "01G5JAVJ41T49E9TT3SKVS7X1J",
+    "type_definitions": [
+      {
+        "type": "document",
+        "relations": {
+          "reader": {
+            "union": {
+              "child": [
+                {
+                  "this": {}
+                },
+                {
+                  "computedUserset": {
+                    "object": "",
+                    "relation": "writer"
+                  }
+                }
+              ]
+            }
+          },
+          "writer": {
+            "this": {}
+          }
+        }
+      }
+    ]
+  }
+}
+        '''
+        mock_request.return_value = mock_response(response_body, 200)
+        configuration = self.configuration
+        configuration.store_id = store_id
+        # Enter a context with an instance of the API client
+        with openfga_sdk.ApiClient(configuration) as api_client:
+            # Create an instance of the API class
+            api_instance = open_fga_api.OpenFgaApi(api_client)
 
-    def test_read_authorization_models(self):
+            # example passing only required values which don't have defaults set
+            path_params = {
+                'id': "01G5JAVJ41T49E9TT3SKVS7X1J",
+            }
+            # Return a particular version of an authorization model
+            api_response = api_instance.read_authorization_model(
+                path_params=path_params,
+            )
+            self.assertIsInstance(api_response.body, ReadAuthorizationModelResponse)
+            type_definitions = ( 
+                TypeDefinition(
+                    type="document",
+                    relations=dict(
+                        reader=Userset(
+                            union=Usersets(
+                                child=[
+                                    Userset(this=dict()),
+                                    Userset(computedUserset=ObjectRelation(
+                                        object="",
+                                        relation="writer",
+                                    )),
+                                ],
+                            ),
+                        ),
+					    writer=Userset(
+                            this=dict(),
+                        ),
+		            )
+                ),
+            )
+            authorization_model = AuthorizationModel(id='01G5JAVJ41T49E9TT3SKVS7X1J',
+                type_definitions=type_definitions)
+            self.assertEqual(api_response.body.authorization_model, authorization_model)
+            mock_request.assert_called_once_with(
+                'GET',
+                'http://api.fga.example/stores/d12345abc/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J',
+                headers=ANY,
+                fields=ANY,
+                body=None,
+                stream=False,
+                timeout=None
+            )
+
+    @patch.object(openfga_sdk.api_client.ApiClient, 'request')
+    def test_read_authorization_models(self, mock_request):
         """Test case for read_authorization_models
 
         Return all the authorization models for a particular store  # noqa: E501
         """
-        pass
+        response_body = '''
+{
+  "authorization_models": [ 
+  {
+    "id": "01G5JAVJ41T49E9TT3SKVS7X1J",
+    "type_definitions": [
+      {
+        "type": "document",
+        "relations": {
+          "reader": {
+            "union": {
+              "child": [
+                {
+                  "this": {}
+                },
+                {
+                  "computedUserset": {
+                    "object": "",
+                    "relation": "writer"
+                  }
+                }
+              ]
+            }
+          },
+          "writer": {
+            "this": {}
+          }
+        }
+      }
+    ]
+  }],
+  "continuation_token": "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
+}
+        '''
+        mock_request.return_value = mock_response(response_body, 200)
+        configuration = self.configuration
+        configuration.store_id = store_id
+        # Enter a context with an instance of the API client
+        with openfga_sdk.ApiClient(configuration) as api_client:
+            # Create an instance of the API class
+            api_instance = open_fga_api.OpenFgaApi(api_client)
 
-    def test_read_changes(self):
+            # example passing only required values which don't have defaults set
+            path_params = {
+            }
+            query_params = {
+                "page_size": 1,
+                "continuation_token": "abcdefg"
+            }
+            # Return a particular version of an authorization model
+            api_response = api_instance.read_authorization_models(
+                path_params=path_params,
+                query_params=query_params,
+            )
+            self.assertIsInstance(api_response.body, ReadAuthorizationModelsResponse)
+            type_definitions = ( 
+                TypeDefinition(
+                    type="document",
+                    relations=dict(
+                        reader=Userset(
+                            union=Usersets(
+                                child=[
+                                    Userset(this=dict()),
+                                    Userset(computedUserset=ObjectRelation(
+                                        object="",
+                                        relation="writer",
+                                    )),
+                                ],
+                            ),
+                        ),
+					    writer=Userset(
+                            this=dict(),
+                        ),
+		            )
+                ),
+            )
+            authorization_model = AuthorizationModel(id='01G5JAVJ41T49E9TT3SKVS7X1J',
+                type_definitions=type_definitions)
+            self.assertEqual(api_response.body.authorization_models, (authorization_model,))
+            self.assertEqual(api_response.body.continuation_token,
+                "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==")
+            mock_request.assert_called_once_with(
+                'GET',
+                'http://api.fga.example/stores/d12345abc/authorization-models?page_size=1&continuation_token=abcdefg',
+                headers=ANY,
+                fields=ANY,
+                body=None,
+                stream=False,
+                timeout=None
+            )
+
+    @patch.object(openfga_sdk.api_client.ApiClient, 'request')
+    def test_read_changes(self, mock_request):
         """Test case for read_changes
 
         Return a list of all the tuple changes  # noqa: E501
         """
-        pass
+        response_body = '''
+{
+  "changes": [
+    {
+      "tuple_key": {
+        "object": "document:2021-budget",
+        "relation": "reader",
+        "user": "anne"
+      },
+      "operation": "TUPLE_OPERATION_WRITE",
+      "timestamp": "2022-07-26T15:55:55.809Z"
+    }
+  ],
+  "continuation_token": "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
+}
+        '''
+        mock_request.return_value = mock_response(response_body, 200)
+        configuration = self.configuration
+        configuration.store_id = store_id
+        # Enter a context with an instance of the API client
+        with openfga_sdk.ApiClient(configuration) as api_client:
+            # Create an instance of the API class
+            api_instance = open_fga_api.OpenFgaApi(api_client)
 
-    def test_write(self):
+            # example passing only required values which don't have defaults set
+            path_params = {
+            }
+            query_params = {
+                "page_size": 1,
+                "continuation_token": "abcdefg",
+                "type": "document"
+            }
+            # Return a particular version of an authorization model
+            api_response = api_instance.read_changes(
+                path_params=path_params,
+                query_params=query_params,
+            )
+            self.assertIsInstance(api_response.body, ReadChangesResponse)
+            changes = TupleChange(
+                tuple_key=TupleKey(object="document:2021-budget",relation="reader",user="anne"),
+                operation="TUPLE_OPERATION_WRITE",
+                timestamp="2022-07-26T15:55:55.809Z")
+            read_changes = ReadChangesResponse(
+                continuation_token='eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==',
+                changes=(changes,))
+            self.assertEqual(api_response.body, read_changes)
+            mock_request.assert_called_once_with(
+                'GET',
+                'http://api.fga.example/stores/d12345abc/changes?type=document&page_size=1&continuation_token=abcdefg',
+                headers=ANY,
+                fields=ANY,
+                body=None,
+                stream=False,
+                timeout=None
+            )
+
+    @patch.object(openfga_sdk.api_client.ApiClient, 'request')
+    def test_write(self, mock_request):
         """Test case for write
 
-        Add or delete tuples from the store  # noqa: E501
+        Add tuples from the store  # noqa: E501
         """
-        pass
+        response_body = '{}'
+        mock_request.return_value = mock_response(response_body, 200)
+        configuration = self.configuration
+        configuration.store_id = store_id
+        # Enter a context with an instance of the API client
+        with openfga_sdk.ApiClient(configuration) as api_client:
+            # Create an instance of the API class
+            api_instance = open_fga_api.OpenFgaApi(api_client)
 
-    def test_write_assertions(self):
+            # example passing only required values which don't have defaults set
+            path_params = {
+            }
+            body = dict(
+                writes=TupleKeys(
+                    tuple_keys=[
+                        TupleKey(
+                            object="document:2021-budget",
+                            relation="reader",
+                            user="anne",
+                        )
+                    ],
+                ),
+                authorization_model_id="01G5JAVJ41T49E9TT3SKVS7X1J",
+            )
+            api_response = api_instance.write(
+                path_params=path_params,
+                body=body,
+            )
+            mock_request.assert_called_once_with(
+                'POST',
+                'http://api.fga.example/stores/d12345abc/write',
+                headers=ANY,
+                fields=ANY,
+                body=b'{"writes":{"tuple_keys":[{"object":"document:2021-budget","relation":"reader","user":"anne"}]},"authorization_model_id":"01G5JAVJ41T49E9TT3SKVS7X1J"}',
+                stream=False,
+                timeout=None
+            )
+
+    @patch.object(openfga_sdk.api_client.ApiClient, 'request')
+    def test_write_delete(self, mock_request):
+        """Test case for write
+
+        Delete tuples from the store  # noqa: E501
+        """
+        response_body = '{}'
+        mock_request.return_value = mock_response(response_body, 200)
+        configuration = self.configuration
+        configuration.store_id = store_id
+        # Enter a context with an instance of the API client
+        with openfga_sdk.ApiClient(configuration) as api_client:
+            # Create an instance of the API class
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+
+            # example passing only required values which don't have defaults set
+            path_params = {
+            }
+            body = dict(
+                deletes=TupleKeys(
+                    tuple_keys=[
+                        TupleKey(
+                            object="document:2021-budget",
+                            relation="reader",
+                            user="anne",
+                        )
+                    ],
+                ),
+                authorization_model_id="01G5JAVJ41T49E9TT3SKVS7X1J",
+            )
+            api_response = api_instance.write(
+                path_params=path_params,
+                body=body,
+            )
+            mock_request.assert_called_once_with(
+                'POST',
+                'http://api.fga.example/stores/d12345abc/write',
+                headers=ANY,
+                fields=ANY,
+                body=b'{"deletes":{"tuple_keys":[{"object":"document:2021-budget","relation":"reader","user":"anne"}]},"authorization_model_id":"01G5JAVJ41T49E9TT3SKVS7X1J"}',
+                stream=False,
+                timeout=None
+            )
+
+    @patch.object(openfga_sdk.api_client.ApiClient, 'request')
+    def test_write_assertions(self, mock_request):
         """Test case for write_assertions
 
         Upsert assertions for an authorization model ID  # noqa: E501
         """
-        pass
+        response_body = ''
+        mock_request.return_value = mock_response(response_body, 204)
+        configuration = self.configuration
+        configuration.store_id = store_id
+        # Enter a context with an instance of the API client
+        with openfga_sdk.ApiClient(configuration) as api_client:
+            # Create an instance of the API class
+            api_instance = open_fga_api.OpenFgaApi(api_client)
 
-    def test_write_authorization_model(self):
+            # example passing only required values which don't have defaults set
+            path_params = {
+                'authorization_model_id': "xyz0123",
+            }
+            body = dict(
+                assertions=[
+                    Assertion(
+                        tuple_key=TupleKey(
+                            object="document:2021-budget",
+                            relation="reader",
+                            user="anne",
+                        ),
+                        expectation=True,
+                    )
+                ],
+            )
+            # Upsert assertions for an authorization model ID
+            api_response = api_instance.write_assertions(
+                path_params=path_params,
+                body=body,
+            )
+            mock_request.assert_called_once_with(
+                'PUT',
+                'http://api.fga.example/stores/d12345abc/assertions/xyz0123',
+                headers=ANY,
+                fields=ANY,
+                body=b'{"assertions":[{"expectation":true,"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"anne"}}]}',
+                stream=False,
+                timeout=None
+            )
+
+    @patch.object(openfga_sdk.api_client.ApiClient, 'request')
+    def test_write_authorization_model(self, mock_request):
         """Test case for write_authorization_model
 
         Create a new authorization model  # noqa: E501
         """
-        pass
+        response_body = '{"authorization_model_id": "01G5JAVJ41T49E9TT3SKVS7X1J"}'
+        mock_request.return_value = mock_response(response_body, 201)
+        configuration = self.configuration
+        configuration.store_id = store_id
+        with openfga_sdk.ApiClient(configuration) as api_client:
+            # Create an instance of the API class
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+
+            # example passing only required values which don't have defaults set
+            path_params = {
+            }
+            body = TypeDefinitions(
+                type_definitions=[
+                    TypeDefinition(
+                        type="document",
+                        relations=dict(
+			        		writer=Userset(
+                                this=dict(),
+                            ),
+                            reader=Userset(
+                                union=Usersets(
+                                    child=[
+                                        Userset(this=dict()),
+                                        Userset(computedUserset=ObjectRelation(
+                                            object="",
+                                            relation="writer",
+                                        )),
+                                    ],
+                                ),
+                            ),
+		                )
+                    ),
+                ],
+            )
+            # Create a new authorization model
+            api_response = api_instance.write_authorization_model(
+                path_params=path_params,
+                body=body,
+            )
+            self.assertIsInstance(api_response.body, WriteAuthorizationModelResponse)
+            expected_response = WriteAuthorizationModelResponse(
+                authorization_model_id='01G5JAVJ41T49E9TT3SKVS7X1J'
+            )
+            self.assertEqual(api_response.body, expected_response)
+            mock_request.assert_called_once_with(
+                'POST',
+                'http://api.fga.example/stores/d12345abc/authorization-models',
+                headers=ANY,
+                fields=ANY,
+                body=b'{"type_definitions":[{"type":"document","relations":{"writer":{"this":{}},"reader":{"union":{"child":[{"this":{}},{"computedUserset":{"object":"","relation":"writer"}}]}}}}]}',
+                stream=False,
+                timeout=None
+            )
 
 {{/with}}
 
