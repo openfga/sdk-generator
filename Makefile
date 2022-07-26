@@ -102,6 +102,9 @@ build-client-python:
 	make build-client sdk_language=python tmpdir=${TMP_DIR}
 	sed -i -e "s|\"key\": |key=|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md
 	sed -i -e "s|from openfga_sdk.model.tuple_keys import TupleKeys|from openfga_sdk.model.tuple_key import TupleKey\nfrom openfga_sdk.model.tuple_keys import TupleKeys|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md
+	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/*-e
+    # Need to ignore E402 (import order) to avoid circular dependency
+	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install autopep8; autopep8 --in-place --ignore E402 --recursive openfga_sdk; autopep8 --in-place --recursive test'"
 
 .PHONY: run-in-docker
 run-in-docker:
