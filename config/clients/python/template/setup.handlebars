@@ -35,17 +35,17 @@ setup(
     name=NAME,
     version=VERSION,
     description="{{appName}}",
-    author="{{#if infoName}}{{infoName}}{{/if}}{{#unless infoName}}OpenAPI Generator community{{/unless}}",
-    author_email="{{#if infoEmail}}{{infoEmail}}{{/if}}{{#unless infoEmail}}team@openapitools.org{{/unless}}",
-    url="{{#if packageUrl}}{{packageUrl}}{{/if}}",
-    keywords=["OpenAPI", "OpenAPI-Generator", "{{{appName}}}"],
+    author="{{#if infoName}}{{infoName}}{{/if}}",
+    author_email="{{#if infoEmail}}{{infoEmail}}{{/if}}",
+    url="https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}",
+    keywords=[{{#each packageTags}}"{{this}}"{{#unless @last}}, {{/unless}}{{/each}}],
     python_requires="{{{generatorLanguageVersion}}}",
     install_requires=REQUIRES,
     packages=find_packages(exclude=["test", "tests"]),
     include_package_data=True,
-    {{#if licenseInfo}}license="{{licenseInfo}}",
+    {{#if licenseId}}license="{{licenseId}}",
     {{/if}}long_description="""\
-    {{appDescription}}  # noqa: E501
+    {{appDescription}}
     """
 )
 {{/with}}
