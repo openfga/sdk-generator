@@ -88,26 +88,26 @@ class ParameterStyle(enum.Enum):
 
 
 class PrefixSeparatorIterator:
-     # A class to store prefixes and separators for rfc6570 expansions
+    # A class to store prefixes and separators for rfc6570 expansions
 
-     def __init__(self, prefix: str, separator: str):
-         self.prefix = prefix
-         self.separator = separator
-         self.first = True
-         if separator in {'.', '|', '%20'}:
-             item_separator = separator
-         else:
-             item_separator = ','
-         self.item_separator = item_separator
+    def __init__(self, prefix: str, separator: str):
+        self.prefix = prefix
+        self.separator = separator
+        self.first = True
+        if separator in {'.', '|', '%20'}:
+            item_separator = separator
+        else:
+            item_separator = ','
+        self.item_separator = item_separator
 
-     def __iter__(self):
-         return self
+    def __iter__(self):
+        return self
 
-     def __next__(self):
-         if self.first:
-             self.first = False
-             return self.prefix
-         return self.separator
+    def __next__(self):
+        if self.first:
+            self.first = False
+            return self.prefix
+        return self.separator
 
 
 class ParameterSerializerBase:
