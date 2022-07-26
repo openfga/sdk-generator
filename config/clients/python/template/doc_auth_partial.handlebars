@@ -6,6 +6,7 @@
 {{/each}}
 # See configuration.py for a list of all supported configuration parameters.
 configuration = {{{packageName}}}.Configuration(
+    scheme = "https",
     host = "{{{basePath}}}",
 {{#each pathParams}}
 {{#if @first}}
