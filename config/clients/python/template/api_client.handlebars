@@ -990,10 +990,10 @@ class ApiClient:
 
         # request url
         if host is None:
-            url = self.configuration.host + resource_path
+            url = self.configuration.api_scheme + '://' + self.configuration.api_host + resource_path
         else:
             # use server/host defined in path or operation instead
-            url = host + resource_path
+            url = self.configuration.api_scheme + '://' + host + resource_path
 
         # perform request and return response
         response = {{#if asyncio}}await {{/if}}{{#if tornado}}yield {{/if}}self.request(

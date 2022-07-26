@@ -61,7 +61,8 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
 
     def setUp(self):
         self.configuration = {{packageName}}.Configuration(
-            host = "http://api.fga.example",
+            api_scheme = 'http',
+            api_host = "api.fga.example",
         )
 
     def tearDown(self):

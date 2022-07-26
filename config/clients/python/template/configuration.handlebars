@@ -27,17 +27,9 @@ class Configuration(object):
     Ref: https://openapi-generator.tech
     Do not edit the class manually.
 
-    :param host: Base url
+    :param api_scheme: Whether connection is 'https' or 'http'. Default as 'https'
+    :param api_host: Base url
     :param store_id: ID of store for API
-    :param api_key: Dict to store API key(s).
-      Each entry in the dict specifies an API key.
-      The dict key is the name of the security scheme in the OAS specification.
-      The dict value is the API key secret.
-    :param api_key_prefix: Dict to store API prefix (e.g. Bearer)
-      The dict key is the name of the security scheme in the OAS specification.
-      The dict value is an API key prefix when generating the auth data.
-    :param username: Username for HTTP basic authentication
-    :param password: Password for HTTP basic authentication
     :param discard_unknown_keys: Boolean value indicating whether to discard
       unknown properties. A server may send a response that includes additional
       properties that are not known by the client in the following scenarios:
@@ -78,45 +70,6 @@ class Configuration(object):
 
 {{#if hasAuthMethods}}
     :Example:
-{{#if hasApiKeyMethods}}
-
-    API Key Authentication Example.
-    Given the following security scheme in the OpenAPI specification:
-      components:
-        securitySchemes:
-          cookieAuth:         # name for the security scheme
-            type: apiKey
-            in: cookie
-            name: JSESSIONID  # cookie name
-
-    You can programmatically set the cookie:
-
-conf = {{{packageName}}}.Configuration(
-    api_key={'cookieAuth': 'abc123'}
-    api_key_prefix={'cookieAuth': 'JSESSIONID'}
-)
-
-    The following cookie will be added to the HTTP request:
-       Cookie: JSESSIONID abc123
-{{/if}}
-{{#if hasHttpBasicMethods}}
-
-    HTTP Basic Authentication Example.
-    Given the following security scheme in the OpenAPI specification:
-      components:
-        securitySchemes:
-          http_basic_auth:
-            type: http
-            scheme: basic
-
-    Configure API client with HTTP basic authentication:
-
-conf = {{{packageName}}}.Configuration(
-    username='the-user',
-    password='the-password',
-)
-
-{{/if}}
 {{#if hasHttpSignatureMethods}}
 
     HTTP Signature Authentication Example.
@@ -163,10 +116,8 @@ conf = {{{packageName}}}.Configuration(
 
     _default = None
 
-    def __init__(self, host=None,
+    def __init__(self, api_scheme="https", api_host=None,
                  store_id=None,
-                 api_key=None, api_key_prefix=None,
-                 username=None, password=None,
                  discard_unknown_keys=False,
                  disabled_client_side_validations="",
 {{#if hasHttpSignatureMethods}}
@@ -177,11 +128,12 @@ conf = {{{packageName}}}.Configuration(
                  ):
         """Constructor
         """
-        self._base_path = "{{{basePath}}}" if host is None else host
+        self._scheme = api_scheme
+        self._base_path = "{{{basePath}}}" if api_host is None else api_host
         self._store_id = store_id
         """Default Base url
         """
-        self.server_index = 0 if server_index is None and host is None else server_index
+        self.server_index = 0 if server_index is None and api_host is None else server_index
         self.server_operation_index = server_operation_index or {}
         """Default server index
         """
@@ -193,30 +145,11 @@ conf = {{{packageName}}}.Configuration(
         """Temp file folder for downloading files
         """
         # Authentication Settings
-        self.api_key = {}
-        if api_key:
-            self.api_key = api_key
-        """dict to store API key(s)
-        """
-        self.api_key_prefix = {}
-        if api_key_prefix:
-            self.api_key_prefix = api_key_prefix
-        """dict to store API prefix (e.g. Bearer)
-        """
-        self.refresh_api_key_hook = None
-        """function hook to refresh API key if expired
-        """
-        self.username = username
-        """Username for HTTP basic authentication
-        """
-        self.password = password
-        """Password for HTTP basic authentication
-        """
         self.discard_unknown_keys = discard_unknown_keys
         self.disabled_client_side_validations = disabled_client_side_validations
 {{#if hasHttpSignatureMethods}}
         if signing_info is not None:
-            signing_info.host = host
+            signing_info.api_host = api_host
         self.signing_info = signing_info
         """The HTTP signing configuration
         """
@@ -333,7 +266,7 @@ conf = {{{packageName}}}.Configuration(
         if name == "signing_info" and value is not None:
             # Ensure the host paramater from signing info is the same as
             # Configuration.host.
-            value.host = self.host
+            value.api_host = self.api_host
 {{/if}}
 
     @classmethod
@@ -446,38 +379,6 @@ conf = {{{packageName}}}.Configuration(
         self.__logger_format = value
         self.logger_formatter = logging.Formatter(self.__logger_format)
 
-    def get_api_key_with_prefix(self, identifier, alias=None):
-        """Gets API key (with prefix if set).
-
-        :param identifier: The identifier of apiKey.
-        :param alias: The alternative identifier of apiKey.
-        :return: The token for api key authentication.
-        """
-        if self.refresh_api_key_hook is not None:
-            self.refresh_api_key_hook(self)
-        key = self.api_key.get(identifier, self.api_key.get(alias) if alias is not None else None)
-        if key:
-            prefix = self.api_key_prefix.get(identifier)
-            if prefix:
-                return "%s %s" % (prefix, key)
-            else:
-                return key
-
-    def get_basic_auth_token(self):
-        """Gets HTTP basic authentication header (string).
-
-        :return: The token for basic HTTP authentication.
-        """
-        username = ""
-        if self.username is not None:
-            username = self.username
-        password = ""
-        if self.password is not None:
-            password = self.password
-        return urllib3.util.make_headers(
-            basic_auth=username + ':' + password
-        ).get('authorization')
-
     def auth_settings(self):
         """Gets Auth Settings dict for api client.
 
@@ -485,18 +386,6 @@ conf = {{{packageName}}}.Configuration(
         """
         auth = {}
 {{#each authMethods}}
-{{#if isApiKey}}
-        if '{{name}}' in self.api_key{{#each vendorExtensions.x-auth-id-alias}} or '{{.}}' in self.api_key{{/each}}:
-            auth['{{name}}'] = {
-                'type': 'api_key',
-                'in': {{#if isKeyInCookie}}'cookie'{{/if}}{{#if isKeyInHeader}}'header'{{/if}}{{#if isKeyInQuery}}'query'{{/if}},
-                'key': '{{keyParamName}}',
-                'value': self.get_api_key_with_prefix(
-                    '{{name}}',{{#each vendorExtensions.x-auth-id-alias}}
-                    alias='{{.}}',{{/each}}
-                ),
-            }
-{{/if}}
 {{#if isBasic}}
   {{#if isBasicBasic}}
         if self.username is not None and self.password is not None:
@@ -628,12 +517,22 @@ conf = {{{packageName}}}.Configuration(
         return url
 
     @property
-    def host(self):
+    def api_scheme(self):
+        """Return connection is https or http."""
+        return self._scheme
+
+    @api_scheme.setter
+    def api_scheme(self, value):
+        """Update connection scheme (https or http)."""
+        self._scheme = value
+
+    @property
+    def api_host(self):
         """Return generated host."""
         return self.get_host_from_settings(self.server_index, variables=self.server_variables)
 
-    @host.setter
-    def host(self, value):
+    @api_host.setter
+    def api_host(self, value):
         """Fix base path."""
         self._base_path = value
         self.server_index = None

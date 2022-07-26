@@ -59,11 +59,6 @@ Class | Method | HTTP request | Description
 {{#if @last}} Authentication schemes defined for the API:{{/if}}
 ## {{{name}}}
 
-{{#if isApiKey}}
-- **Type**: API key
-- **API key parameter name**: {{{keyParamName}}}
-- **Location**: {{#if isKeyInQuery}}URL query string{{/if}}{{#if isKeyInHeader}}HTTP header{{/if}}
-{{/if}}
 {{#if isBasic}}
 {{#if isBasicBasic}}
 - **Type**: HTTP basic authentication
