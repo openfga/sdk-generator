@@ -92,6 +92,9 @@ build-client-dotnet:
 	make run-in-docker sdk_language=dotnet image=mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet format ./OpenFga.Sdk.sln'"
 
 ### Python
+.PHONY: tag-client-python
+tag-client-python: test-client-python
+	make utils-tag-client sdk_language=python
 
 .PHONY: test-client-python
 test-client-python: build-client-python
