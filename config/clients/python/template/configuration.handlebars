@@ -11,7 +11,8 @@ import sys
 import urllib3
 
 from http import client as http_client
-from {{packageName}}.exceptions import ApiValueError
+from urllib.parse import urlparse
+from {{packageName}}.exceptions import ApiTypeError, ApiValueError
 
 
 JSON_SCHEMA_VALIDATION_KEYWORDS = {
@@ -129,7 +130,7 @@ conf = {{{packageName}}}.Configuration(
         """Constructor
         """
         self._scheme = api_scheme
-        self._base_path = "{{{basePath}}}" if api_host is None else api_host
+        self._base_path = api_host
         self._store_id = store_id
         """Default Base url
         """
@@ -515,6 +516,30 @@ conf = {{{packageName}}}.Configuration(
             url = url.replace("{" + variable_name + "}", used_value)
 
         return url
+
+    def is_valid(self):
+        """
+        Verify the configuration is valid.
+        Note that we are only doing basic validation to ensure input is sane.
+        """
+        if self.api_host is None or self.api_host == '':
+            raise ApiTypeError('api_host is required but not configured.')
+        if self.api_scheme is None or self.api_scheme == '':
+            raise ApiTypeError('api_scheme is required but not configured.')
+        combined_url = self.api_scheme + '://' + self.api_host
+        parsed_url = None
+        try:
+            parsed_url = urlparse(combined_url)
+        except:
+            raise ApiValueError('Either api_scheme `{}` or api_host `{}` is invalid'.format(self.api_scheme, self.api_host))
+        if (parsed_url.scheme != 'http' and parsed_url.scheme != 'https'):
+            raise ApiValueError('api_scheme `{}` must be either `http` or `https`'.format(self.api_scheme))
+        if (parsed_url.netloc == ''):
+            raise ApiValueError('api_host `{}` is invalid'.format(self.api_host))
+        if (parsed_url.path != ''):
+            raise ApiValueError('api_host `{}` is not expected to have path specified'.format(self.api_scheme))
+        if (parsed_url.query != ''):
+            raise ApiValueError('api_host `{}` is not expected to have query specified'.format(self.api_scheme))
 
     @property
     def api_scheme(self):

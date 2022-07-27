@@ -1255,6 +1255,11 @@ class Api:
                 'store_id is required but not configured'
             )
 
+    def _verify_configuration(self):
+        """
+        Verify the configuration specified
+        """
+        self.api_client.configuration.is_valid()
 
     def get_host(
         self,

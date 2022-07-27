@@ -12,6 +12,7 @@ from pprint import pprint
 
 from {{packageName}}.api import open_fga_api
 from {{packageName}}.{{apiPackage}}.{{classFilename}} import {{classname}}  # noqa: E501
+from {{packageName}}.exceptions import ApiTypeError, ApiValueError
 from {{packageName}}.model.assertion import Assertion
 from {{packageName}}.model.authorization_model import AuthorizationModel
 from {{packageName}}.model.check_response import CheckResponse
@@ -40,6 +41,7 @@ from {{packageName}}.model.userset import Userset
 from {{packageName}}.model.userset_tree import UsersetTree
 from {{packageName}}.model.usersets import Usersets
 from {{packageName}}.model.write_authorization_model_response import WriteAuthorizationModelResponse
+
 
 store_id='d12345abc'
 
@@ -867,6 +869,150 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
                 stream=False,
                 timeout=None
             )
+
+    def test_default_scheme(self):
+        """
+        Ensure default scheme is https
+        """
+        configuration = {{packageName}}.Configuration(
+            api_host='localhost'
+        )
+        self.assertEqual(configuration.api_scheme, 'https')
+
+    def test_host_port(self):
+        """
+        Ensure host has port will not raise error
+        """
+        configuration = {{packageName}}.Configuration(
+            api_host='localhost:3000'
+        )
+        self.assertEqual(configuration.api_host, 'localhost:3000')
+
+    def test_configuration_missing_host(self):
+        """
+        Test whether ApiTypeError is raised if configuration does not have host specified
+        """
+        configuration = {{packageName}}.Configuration(
+            api_scheme='http'
+        )
+        self.assertRaises(ApiTypeError, configuration.is_valid)
+
+    def test_configuration_missing_scheme(self):
+        """
+        Test whether ApiTypeError is raised if configuration does not have scheme specified
+        """
+        configuration = {{packageName}}.Configuration(
+            api_host='localhost'
+        )
+        configuration.api_scheme = None
+        self.assertRaises(ApiTypeError, configuration.is_valid)
+
+    def test_configuration_bad_scheme(self):
+        """
+        Test whether ApiValueError is raised if scheme is bad
+        """
+        configuration = {{packageName}}.Configuration(
+            api_host='localhost',
+            api_scheme='foo'
+        )
+        self.assertRaises(ApiValueError, configuration.is_valid)
+
+    def test_configuration_bad_host(self):
+        """
+        Test whether ApiValueError is raised if host is bad
+        """
+        configuration = {{packageName}}.Configuration(
+            api_host='/',
+            api_scheme='foo'
+        )
+        self.assertRaises(ApiValueError, configuration.is_valid)
+
+    def test_configuration_has_path(self):
+        """
+        Test whether ApiValueError is raised if host has path
+        """
+        configuration = {{packageName}}.Configuration(
+            api_host='localhost/mypath',
+            api_scheme='http'
+        )
+        self.assertRaises(ApiValueError, configuration.is_valid)
+
+    def test_configuration_has_query(self):
+        """
+        Test whether ApiValueError is raised if host has query
+        """
+        configuration = {{packageName}}.Configuration(
+            api_host='localhost?mypath=foo',
+            api_scheme='http'
+        )
+        self.assertRaises(ApiValueError, configuration.is_valid)
+
+    @patch.object(openfga_sdk.api_client.ApiClient, 'request')
+    def test_bad_configuration_read_authorization_model(self, mock_request):
+        """
+        Test whether ApiTypeError is raised for API (reading authorization models)
+        with configuration is having incorrect API scheme
+        """
+        response_body = '{}'
+        mock_request.return_value = mock_response(response_body, 200)
+        configuration = {{packageName}}.Configuration(
+            api_scheme = 'bad',
+            api_host = "api.fga.example",
+        )
+        configuration.store_id = 'xyz123'
+        # Enter a context with an instance of the API client
+        with openfga_sdk.ApiClient(configuration) as api_client:
+            # Create an instance of the API class
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+
+            # example passing only required values which don't have defaults set
+            path_params = {
+            }
+            query_params = {
+                "page_size": 1,
+                "continuation_token": "abcdefg"
+            }
+
+            # expects ApiTypeError to be thrown because api_scheme is bad
+            with self.assertRaises(ApiValueError):
+                api_instance.read_authorization_models(
+                    path_params=path_params,
+                    query_params=query_params,
+                )
+
+
+    @patch.object(openfga_sdk.api_client.ApiClient, 'request')
+    def test_configuration_missing_storeid(self, mock_request):
+        """
+        Test whether ApiTypeError is raised for API (reading authorization models)
+        required store ID but configuration is missing store ID
+        """
+        response_body = '{}'
+        mock_request.return_value = mock_response(response_body, 200)
+        configuration = {{packageName}}.Configuration(
+            api_scheme = 'http',
+            api_host = "api.fga.example",
+        )
+        # Notice the store_id is not set
+        # Enter a context with an instance of the API client
+        with openfga_sdk.ApiClient(configuration) as api_client:
+            # Create an instance of the API class
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+
+            # example passing only required values which don't have defaults set
+            path_params = {
+            }
+            query_params = {
+                "page_size": 1,
+                "continuation_token": "abcdefg"
+            }
+
+            # expects ApiTypeError to be thrown because store_id is not specified
+            with self.assertRaises(ApiTypeError):
+                api_instance.read_authorization_models(
+                    path_params=path_params,
+                    query_params=query_params,
+                )
 
 {{/with}}
 

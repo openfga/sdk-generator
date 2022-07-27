@@ -456,6 +456,7 @@ class {{operationIdCamelCase}}(api_client.Api):
         self._verify_typed_dict_inputs(RequestCookieParams, cookie_params)
     {{/if}}
     {{#each pathParams}}
+        self._verify_configuration()
     {{#if @first}}
         self._verify_store_id()
     {{/if}}
