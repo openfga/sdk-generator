@@ -1,0 +1,11 @@
+{{#with apiInfo}}
+{{#each apis}}
+{{#with operations}}
+{{#each operation}}
+#### {{operationId}}
+{{> api_doc_example }}
+
+{{/each}}
+{{/with}}
+{{/each}}
+{{/with}}

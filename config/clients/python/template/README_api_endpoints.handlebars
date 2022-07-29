@@ -1,0 +1,8 @@
+## Documentation for API Endpoints
+
+All URIs are relative to *api.fga.example*
+
+Class | Method | HTTP request | Description
+------------ | ------------- | ------------- | -------------
+{{#with apiInfo}}{{#each apis}}{{#with operations}}{{#each operation}}*{{classname}}* | [**{{operationId}}**]({{apiDocPath}}{{classname}}.md#{{operationIdLowerCase}}) | **{{httpMethod}}** {{path}} | {{#if summary}}{{summary}}{{/if}}
+{{/each}}{{/with}}{{/each}}{{/with}}

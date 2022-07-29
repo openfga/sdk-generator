@@ -1,6 +1,7 @@
 .vscode
 .idea
 .env
+.dccache
 docs/openapi/*.json
 
 .DS_Store

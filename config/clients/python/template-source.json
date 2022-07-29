@@ -1,0 +1,7 @@
+{
+  "repo": "https://github.com/OpenAPITools/openapi-generator",
+  "branch": "master",
+  "commit": "33ec914e6af0e9d44ccb31796444effe5a670646",
+  "url": "https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator/src/main/resources/python-experimental",
+  "docs": "https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/python-experimental.md"
+}

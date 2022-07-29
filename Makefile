@@ -6,6 +6,7 @@ GO_DOCKER_TAG = 1
 DOTNET_DOCKER_TAG = 6.0
 GOLINT_DOCKER_TAG = v1.46
 BUSYBOX_DOCKER_TAG = 1.34
+PYTHON_DOCKER_TAG = 3.10
 # Other config
 CONFIG_DIR = ${PWD}/config
 CLIENTS_OUTPUT_DIR = ${PWD}/clients
@@ -30,10 +31,10 @@ test: test-all-clients
 build: build-all-clients
 
 .PHONY: test-all-clients
-test-all-clients: test-client-js test-client-go test-client-dotnet
+test-all-clients: test-client-js test-client-go test-client-dotnet test-client-python
 
 .PHONY: build-all-clients
-build-all-clients: build-client-js build-client-go build-client-dotnet
+build-all-clients: build-client-js build-client-go build-client-dotnet build-client-python
 
 ### JavaScript
 .PHONY: tag-client-js
@@ -89,6 +90,28 @@ build-client-dotnet:
 	# For some reason the first round of formatting fails with an error - running it again produces the correct result
 	make run-in-docker sdk_language=dotnet image=mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet format ./OpenFga.Sdk.sln'" || true
 	make run-in-docker sdk_language=dotnet image=mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet format ./OpenFga.Sdk.sln'"
+
+### Python
+.PHONY: tag-client-python
+tag-client-python: test-client-python
+	make utils-tag-client sdk_language=python
+
+.PHONY: test-client-python
+test-client-python: build-client-python
+	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install urllib3 certifi python-dateutil frozendict mock; python -m unittest test/*'"
+
+.PHONY: build-client-python
+build-client-python:
+	make build-client sdk_language=python tmpdir=${TMP_DIR}
+	# Update so that Python dictionary is defined correctly
+	sed -i -e "s|\"key\": |key=|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md
+	sed -i -e "s|from openfga_sdk.model.tuple_keys import TupleKeys|from openfga_sdk.model.tuple_key import TupleKey\nfrom openfga_sdk.model.tuple_keys import TupleKeys|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md
+	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md-e
+	sed -i -e "s|\"key\": |key=|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
+	sed -i -e "s|from openfga_sdk.model.tuple_keys import TupleKeys|from openfga_sdk.model.tuple_key import TupleKey\nfrom openfga_sdk.model.tuple_keys import TupleKeys|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
+	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md-e
+	# Need to ignore E402 (import order) to avoid circular dependency
+	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install autopep8; autopep8 --in-place --ignore E402 --recursive openfga_sdk; autopep8 --in-place --recursive test'"
 
 .PHONY: run-in-docker
 run-in-docker:

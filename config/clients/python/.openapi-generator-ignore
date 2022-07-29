@@ -1,0 +1,7 @@
+git_push.sh
+test/*
+!test/__init__.py
+!test/test_open_fga_api.py
+.gitlab-ci.yml
+.travis.yml
+tox.ini
