@@ -85,6 +85,14 @@ with {{{packageName}}}.ApiClient(configuration) as api_client:
 {{/if}}
     except {{{packageName}}}.ApiException as e:
         print("Exception when calling {{classname}}->{{operationId}}: %s\n" % e)
+        if isinstance(e.parsed_body, ValidationErrorMessageResponse):
+            print("Error is ValidationErrorMessageResponse")
+        elif isinstance(e.parsed_body, PathUnknownErrorMessageResponse):
+            print("Error is ValidationErrorMessageResponse")
+        elif isinstance(e.parsed_body, InternalErrorMessageResponse):
+            print("Error is ValidationErrorMessageResponse")
+        else:
+            print("Error type is unknown")
 {{/if}}
 {{#if optionalParams}}
 
@@ -149,6 +157,14 @@ with {{{packageName}}}.ApiClient(configuration) as api_client:
 {{/if}}
     except {{{packageName}}}.ApiException as e:
         print("Exception when calling {{classname}}->{{operationId}}: %s\n" % e)
+        if isinstance(e.parsed_body, ValidationErrorMessageResponse):
+            print("Error is ValidationErrorMessageResponse")
+        elif isinstance(e.parsed_body, PathUnknownErrorMessageResponse):
+            print("Error is ValidationErrorMessageResponse")
+        elif isinstance(e.parsed_body, InternalErrorMessageResponse):
+            print("Error is ValidationErrorMessageResponse")
+        else:
+            print("Error type is unknown")
 {{/if}}
 {{#unless requiredParams}}
 {{#unless optionalParams}}
@@ -164,6 +180,14 @@ with {{{packageName}}}.ApiClient(configuration) as api_client:
 {{/if}}
     except {{{packageName}}}.ApiException as e:
         print("Exception when calling {{classname}}->{{operationId}}: %s\n" % e)
+        if isinstance(e.parsed_body, ValidationErrorMessageResponse):
+            print("Error is ValidationErrorMessageResponse")
+        elif isinstance(e.parsed_body, PathUnknownErrorMessageResponse):
+            print("Error is ValidationErrorMessageResponse")
+        elif isinstance(e.parsed_body, InternalErrorMessageResponse):
+            print("Error is ValidationErrorMessageResponse")
+        else:
+            print("Error type is unknown")
 {{/unless}}
 {{/unless}}
 ```

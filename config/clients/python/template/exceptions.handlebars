@@ -96,12 +96,14 @@ class ApiException(OpenApiException):
         if api_response:
             self.status = api_response.response.status
             self.reason = api_response.response.reason
+            self.parsed_body = api_response.body
             self.body = api_response.response.data
             self.headers = api_response.response.getheaders()
         else:
             self.status = status
             self.reason = reason
             self.body = None
+            self.parsed_body = None
             self.headers = None
 
     def __str__(self):

@@ -18,13 +18,18 @@ from {{packageName}}.model.authorization_model import AuthorizationModel
 from {{packageName}}.model.check_response import CheckResponse
 from {{packageName}}.model.create_store_request import CreateStoreRequest
 from {{packageName}}.model.create_store_response import CreateStoreResponse
+from {{packageName}}.model.error_code import ErrorCode
 from {{packageName}}.model.expand_response import ExpandResponse
 from {{packageName}}.model.get_store_response import GetStoreResponse
+from {{packageName}}.model.internal_error_code import InternalErrorCode
+from {{packageName}}.model.internal_error_message_response import InternalErrorMessageResponse
 from {{packageName}}.model.leaf import Leaf
 from {{packageName}}.model.list_stores_response import ListStoresResponse
 from {{packageName}}.model.model_tuple import ModelTuple
 from {{packageName}}.model.node import Node
+from {{packageName}}.model.not_found_error_code import NotFoundErrorCode
 from {{packageName}}.model.object_relation import ObjectRelation
+from {{packageName}}.model.path_unknown_error_message_response import PathUnknownErrorMessageResponse
 from {{packageName}}.model.read_assertions_response import ReadAssertionsResponse
 from {{packageName}}.model.read_authorization_model_response import ReadAuthorizationModelResponse
 from {{packageName}}.model.read_authorization_models_response import ReadAuthorizationModelsResponse
@@ -40,8 +45,8 @@ from {{packageName}}.model.users import Users
 from {{packageName}}.model.userset import Userset
 from {{packageName}}.model.userset_tree import UsersetTree
 from {{packageName}}.model.usersets import Usersets
+from {{packageName}}.model.validation_error_message_response import ValidationErrorMessageResponse
 from {{packageName}}.model.write_authorization_model_response import WriteAuthorizationModelResponse
-
 
 store_id='d12345abc'
 
@@ -980,7 +985,6 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
                     query_params=query_params,
                 )
 
-
     @patch.object(openfga_sdk.api_client.ApiClient, 'request')
     def test_configuration_missing_storeid(self, mock_request):
         """
@@ -1013,6 +1017,111 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
                     path_params=path_params,
                     query_params=query_params,
                 )
+
+    @patch.object(openfga_sdk.api_client.ApiClient, 'request')
+    def test_400_error(self, mock_request):
+        """
+        Test to ensure 400 errors are handled properly
+        """
+        response_body = '''
+{
+  "code": "validation_error",
+  "message": "Generic validation error"
+}
+        '''
+        mock_request.return_value = mock_response(response_body, 400)
+
+        configuration = self.configuration
+        configuration.store_id = store_id
+        with {{packageName}}.ApiClient(self.configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            path_params = {}
+            body = dict(
+                tuple_key=TupleKey(
+                    object="document:2021-budget",
+                    relation="reader",
+                    user="anne",
+                ),
+            )
+            with self.assertRaises(openfga_sdk.ApiException) as api_exception:
+                api_instance.check(
+                    path_params=path_params,
+                    body=body,
+                )
+            self.assertEqual(api_exception.exception.status, 400)
+            self.assertIsInstance(api_exception.exception.parsed_body, ValidationErrorMessageResponse)
+            self.assertEqual(api_exception.exception.parsed_body.code, ErrorCode("validation_error"))
+            self.assertEqual(api_exception.exception.parsed_body.message, "Generic validation error")
+
+    @patch.object(openfga_sdk.api_client.ApiClient, 'request')
+    def test_404_error(self, mock_request):
+        """
+        Test to ensure 404 errors are handled properly
+        """
+        response_body = '''
+{
+  "code": "undefined_endpoint",
+  "message": "Endpoint not enabled"
+}
+        '''
+        mock_request.return_value = mock_response(response_body, 404)
+
+        configuration = self.configuration
+        configuration.store_id = store_id
+        with {{packageName}}.ApiClient(self.configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            path_params = {}
+            body = dict(
+                tuple_key=TupleKey(
+                    object="document:2021-budget",
+                    relation="reader",
+                    user="anne",
+                ),
+            )
+            with self.assertRaises(openfga_sdk.ApiException) as api_exception:
+                api_instance.check(
+                    path_params=path_params,
+                    body=body,
+                )
+            self.assertEqual(api_exception.exception.status, 404)
+            self.assertIsInstance(api_exception.exception.parsed_body, PathUnknownErrorMessageResponse)
+            self.assertEqual(api_exception.exception.parsed_body.code, NotFoundErrorCode("undefined_endpoint"))
+            self.assertEqual(api_exception.exception.parsed_body.message, "Endpoint not enabled")
+
+    @patch.object(openfga_sdk.api_client.ApiClient, 'request')
+    def test_500_error(self, mock_request):
+        """
+        Test to ensure 500 errors are handled properly
+        """
+        response_body = '''
+{
+  "code": "internal_error",
+  "message": "Internal Server Error"
+}
+        '''
+        mock_request.return_value = mock_response(response_body, 500)
+
+        configuration = self.configuration
+        configuration.store_id = store_id
+        with {{packageName}}.ApiClient(self.configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            path_params = {}
+            body = dict(
+                tuple_key=TupleKey(
+                    object="document:2021-budget",
+                    relation="reader",
+                    user="anne",
+                ),
+            )
+            with self.assertRaises(openfga_sdk.ApiException) as api_exception:
+                api_instance.check(
+                    path_params=path_params,
+                    body=body,
+                )
+            self.assertEqual(api_exception.exception.status, 500)
+            self.assertIsInstance(api_exception.exception.parsed_body, InternalErrorMessageResponse)
+            self.assertEqual(api_exception.exception.parsed_body.code, InternalErrorCode("internal_error"))
+            self.assertEqual(api_exception.exception.parsed_body.message, "Internal Server Error")
 
 {{/with}}
 
