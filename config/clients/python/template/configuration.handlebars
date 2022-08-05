@@ -31,6 +31,7 @@ class Configuration(object):
     :param api_scheme: Whether connection is 'https' or 'http'. Default as 'https'
     :param api_host: Base url
     :param store_id: ID of store for API
+    :param credentials: Configuration for obtaining authentication credential
     :param discard_unknown_keys: Boolean value indicating whether to discard
       unknown properties. A server may send a response that includes additional
       properties that are not known by the client in the following scenarios:
@@ -119,6 +120,7 @@ conf = {{{packageName}}}.Configuration(
 
     def __init__(self, api_scheme="https", api_host=None,
                  store_id=None,
+                 credentials=None,
                  discard_unknown_keys=False,
                  disabled_client_side_validations="",
 {{#if hasHttpSignatureMethods}}
@@ -132,6 +134,7 @@ conf = {{{packageName}}}.Configuration(
         self._scheme = api_scheme
         self._base_path = api_host
         self._store_id = store_id
+        self._credentials = credentials
         """Default Base url
         """
         self.server_index = 0 if server_index is None and api_host is None else server_index
@@ -540,6 +543,8 @@ conf = {{{packageName}}}.Configuration(
             raise ApiValueError('api_host `{}` is not expected to have path specified'.format(self.api_scheme))
         if (parsed_url.query != ''):
             raise ApiValueError('api_host `{}` is not expected to have query specified'.format(self.api_scheme))
+        if self._credentials is not None:
+            self._credentials.validate_credentials_config()
 
     @property
     def api_scheme(self):
@@ -571,3 +576,15 @@ conf = {{{packageName}}}.Configuration(
     def store_id(self, value):
         """Update store id."""
         self._store_id = value
+
+    @property
+    def credentials(self):
+        """
+        Return configured credentials
+        """
+        return self._credentials
+
+    @credentials.setter
+    def credentials(self, value):
+        """Update credentials"""
+        self._credentials = value

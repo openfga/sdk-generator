@@ -1,4 +1,4 @@
-request_{{#if isQueryParam}}query{{/if}}{{#if isPathParam}}path{{/if}}{{#if isHeaderParam}}header{{/if}}{{#if isCookieParam}}cookie{{/if}}_{{paramName}} = api_client.{{#if isQueryParam}}Query{{/if}}{{#if isPathParam}}Path{{/if}}{{#if isHeaderParam}}Header{{/if}}{{#if isCookieParam}}Cookie{{/if}}Parameter(
+request_{{#if isQueryParam}}query{{/if}}{{#if isPathParam}}path{{/if}}{{#if isHeaderParam}}header{{/if}}{{#if isCookieParam}}cookie{{/if}}_{{paramName}} = api_client_infra.{{#if isQueryParam}}Query{{/if}}{{#if isPathParam}}Path{{/if}}{{#if isHeaderParam}}Header{{/if}}{{#if isCookieParam}}Cookie{{/if}}Parameter(
     name="{{baseName}}",
 {{#if style}}
     style=api_client.ParameterStyle.{{style}},

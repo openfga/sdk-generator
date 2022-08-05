@@ -120,6 +120,36 @@ class ApiException(OpenApiException):
         return error_message
 
 
+class AuthenticationError(OpenApiException):
+
+    def __init__(self, status=None, reason=None, api_response: '{{packageName}}.api_client.ApiResponse' = None):
+        if api_response:
+            self.status = api_response.response.status
+            self.reason = api_response.response.reason
+            self.parsed_body = api_response.body
+            self.body = api_response.response.data
+            self.headers = api_response.response.getheaders()
+        else:
+            self.status = status
+            self.reason = reason
+            self.body = None
+            self.parsed_body = None
+            self.headers = None
+
+    def __str__(self):
+        """Custom error messages for exception"""
+        error_message = "({0})\n"\
+                        "Reason: {1}\n".format(self.status, self.reason)
+        if self.headers:
+            error_message += "HTTP response headers: {0}\n".format(
+                self.headers)
+
+        if self.body:
+            error_message += "HTTP response body: {0}\n".format(self.body)
+
+        return error_message
+
+
 def render_path(path_to_item):
     """Returns a string representation of a path"""
     result = ""
