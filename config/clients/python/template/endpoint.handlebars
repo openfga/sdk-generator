@@ -14,7 +14,7 @@ from urllib3._collections import HTTPHeaderDict
 {{/or}}
 {{/with}}
 
-from {{packageName}} import api_client, api_client_infra, exceptions
+from {{packageName}} import api_client, api_client_inner, exceptions
 {{> model_templates/imports_schema_types }}
 {{> model_templates/imports_schemas }}
 
@@ -287,9 +287,9 @@ ResponseHeadersFor{{code}} = typing.TypedDict(
 
 @dataclass
 {{#if isDefault}}
-class ApiResponseForDefault(api_client_infra.ApiResponse):
+class ApiResponseForDefault(api_client_inner.ApiResponse):
 {{else}}
-class ApiResponseFor{{code}}(api_client_infra.ApiResponse):
+class ApiResponseFor{{code}}(api_client_inner.ApiResponse):
 {{/if}}
     response: urllib3.HTTPResponse
 {{#and responseHeaders content}}
@@ -341,17 +341,17 @@ class ApiResponseFor{{code}}(api_client_infra.ApiResponse):
 
 
 {{#if isDefault}}
-_response_for_default = api_client_infra.OpenApiResponse(
+_response_for_default = api_client_inner.OpenApiResponse(
     response_cls=ApiResponseForDefault,
 {{else}}
-_response_for_{{code}} = api_client_infra.OpenApiResponse(
+_response_for_{{code}} = api_client_inner.OpenApiResponse(
     response_cls=ApiResponseFor{{code}},
 {{/if}}
 {{#each content}}
 {{#if @first}}
     content={
 {{/if}}
-        '{{{@key}}}': api_client_infra.MediaType({{#if this.schema}}
+        '{{{@key}}}': api_client_inner.MediaType({{#if this.schema}}
             schema={{this.schema.baseName}}{{/if}}),
 {{#if @last}}
     },
@@ -433,7 +433,7 @@ class {{operationIdCamelCase}}(api_client.Api):
             {{/if}}
         {{/if}}
     {{/each}}
-        api_client_infra.ApiResponseWithoutDeserialization
+        api_client_inner.ApiResponseWithoutDeserialization
     ]:
         """
     {{#if summary}}
@@ -559,9 +559,6 @@ class {{operationIdCamelCase}}(api_client.Api):
             fields=_fields,
             body=_body,
     {{/if}}
-    {{#if hasAuthMethods}}
-            auth_settings=_auth,
-    {{/if}}
     {{#if servers}}
             host=host,
     {{/if}}
@@ -570,7 +567,7 @@ class {{operationIdCamelCase}}(api_client.Api):
         )
 
         if skip_deserialization:
-            api_response = api_client_infra.ApiResponseWithoutDeserialization(response=response)
+            api_response = api_client_inner.ApiResponseWithoutDeserialization(response=response)
         else:
             response_for_status = _status_code_to_response.get(str(response.status))
             if response_for_status:
@@ -581,9 +578,9 @@ class {{operationIdCamelCase}}(api_client.Api):
                 if default_response:
                     api_response = default_response.deserialize(response, self.api_client.configuration)
                 else:
-                    api_response = api_client_infra.ApiResponseWithoutDeserialization(response=response)
+                    api_response = api_client_inner.ApiResponseWithoutDeserialization(response=response)
                 {{else}}
-                api_response = api_client_infra.ApiResponseWithoutDeserialization(response=response)
+                api_response = api_client_inner.ApiResponseWithoutDeserialization(response=response)
                 {{/if}}
 
         if not 200 <= response.status <= 299:

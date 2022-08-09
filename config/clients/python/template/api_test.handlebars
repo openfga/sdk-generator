@@ -4,15 +4,13 @@
 
 import unittest
 from unittest.mock import ANY
-from mock import patch, Mock
+from mock import patch
 
 import {{packageName}}
 import urllib3
-from pprint import pprint
 
 from {{packageName}}.api import open_fga_api
 from {{packageName}}.credentials import Credentials, CredentialConfiguration
-from {{packageName}}.{{apiPackage}}.{{classFilename}} import {{classname}}  # noqa: E501
 from {{packageName}}.exceptions import ApiTypeError, ApiValueError
 from {{packageName}}.model.assertion import Assertion
 from {{packageName}}.model.authorization_model import AuthorizationModel
@@ -26,7 +24,6 @@ from {{packageName}}.model.internal_error_code import InternalErrorCode
 from {{packageName}}.model.internal_error_message_response import InternalErrorMessageResponse
 from {{packageName}}.model.leaf import Leaf
 from {{packageName}}.model.list_stores_response import ListStoresResponse
-from {{packageName}}.model.model_tuple import ModelTuple
 from {{packageName}}.model.node import Node
 from {{packageName}}.model.not_found_error_code import NotFoundErrorCode
 from {{packageName}}.model.object_relation import ObjectRelation
@@ -70,7 +67,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
     def setUp(self):
         self.configuration = {{packageName}}.Configuration(
             api_scheme = 'http',
-            api_host = "api.fga.example",
+            api_host = "api.{{sampleApiDomain}}",
         )
 
     def tearDown(self):
@@ -91,9 +88,8 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
 
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(self.configuration) as api_client:
+        with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
-            path_params = {}
             body = dict(
                 tuple_key=TupleKey(
                     object="document:2021-budget",
@@ -102,7 +98,8 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
                 ),
             )
             api_response = api_instance.check(
-                path_params=path_params,
+                # Notice here the path_param is omitted and we should still expect
+                # correct path being generated
                 body=body,
             )
             self.assertIsInstance(api_response.body, CheckResponse)
@@ -110,7 +107,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
             # Make sure the API was called with the right data
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores/d12345abc/check',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc/check',
                 headers=ANY,
                 fields=ANY,
                 body=b'{"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"anne"}}',
@@ -133,9 +130,8 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
         mock_request.return_value = mock_response(response_body, 201)
 
         configuration = self.configuration
-        with {{packageName}}.ApiClient(self.configuration) as api_client:
+        with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
-            path_params = {}
             body = CreateStoreRequest(
                 name="test-store",
             )
@@ -146,7 +142,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
             self.assertEqual(api_response.body.id, '01YCP46JKYM8FJCQ37NMBYHE5X')
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores',
+                'http://api.{{sampleApiDomain}}/stores',
                 headers=ANY,
                 fields=ANY,
                 body=b'{"name":"test-store"}',
@@ -164,15 +160,15 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
         mock_request.return_value = mock_response(response_body, 201)
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(self.configuration) as api_client:
+        with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             path_params = {}
-            api_response = api_instance.delete_store(
+            api_instance.delete_store(
                 path_params=path_params,
             )
             mock_request.assert_called_once_with(
                 'DELETE',
-                'http://api.fga.example/stores/d12345abc',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc',
                 headers=ANY,
                 fields=ANY,
                 body=ANY,
@@ -192,7 +188,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(self.configuration) as api_client:
+        with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             path_params = {}
             body = dict(
@@ -213,7 +209,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
             self.assertEqual(api_response.body, expected_response)
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores/d12345abc/expand',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc/expand',
                 headers=ANY,
                 fields=ANY,
                 body=b'{"tuple_key":{"object":"document:budget","relation":"reader"}}',
@@ -237,7 +233,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(self.configuration) as api_client:
+        with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             path_params = {}
             # Get a store
@@ -249,7 +245,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
             self.assertEqual(api_response.body.name, 'test_store')
             mock_request.assert_called_once_with(
                 'GET',
-                'http://api.fga.example/stores/d12345abc',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc',
                 headers=ANY,
                 fields=ANY,
                 body=None,
@@ -286,7 +282,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
             '''
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
-        with {{packageName}}.ApiClient(self.configuration) as api_client:
+        with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             query_params = {
                 'page_size': 1,
@@ -318,7 +314,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
             self.assertEqual(api_response.body.stores, stores)
             mock_request.assert_called_once_with(
                 'GET',
-                'http://api.fga.example/stores?page_size=1&continuation_token=continuation_token_example',
+                'http://api.{{sampleApiDomain}}/stores?page_size=1&continuation_token=continuation_token_example',
                 headers=ANY,
                 fields=ANY,
                 body=None,
@@ -373,7 +369,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
             self.assertEqual(api_response.body.tuples, expected_data)
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores/d12345abc/read',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc/read',
                 headers=ANY,
                 fields=ANY,
                 body=b'{"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"anne"},"authorization_model_id":"01G5JAVJ41T49E9TT3SKVS7X1J","page_size":50,"continuation_token":"eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="}',
@@ -426,7 +422,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
             self.assertEqual(api_response.body.assertions, (assertion,))
             mock_request.assert_called_once_with(
                 'GET',
-                'http://api.fga.example/stores/d12345abc/assertions/01G5JAVJ41T49E9TT3SKVS7X1J',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc/assertions/01G5JAVJ41T49E9TT3SKVS7X1J',
                 headers=ANY,
                 fields=ANY,
                 body=None,
@@ -515,7 +511,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
             self.assertEqual(api_response.body.authorization_model, authorization_model)
             mock_request.assert_called_once_with(
                 'GET',
-                'http://api.fga.example/stores/d12345abc/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J',
                 headers=ANY,
                 fields=ANY,
                 body=None,
@@ -531,7 +527,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
         """
         response_body = '''
 {
-  "authorization_models": [ 
+  "authorization_models": [
   {
     "id": "01G5JAVJ41T49E9TT3SKVS7X1J",
     "type_definitions": [
@@ -612,7 +608,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
                 "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==")
             mock_request.assert_called_once_with(
                 'GET',
-                'http://api.fga.example/stores/d12345abc/authorization-models?page_size=1&continuation_token=abcdefg',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc/authorization-models?page_size=1&continuation_token=abcdefg',
                 headers=ANY,
                 fields=ANY,
                 body=None,
@@ -674,7 +670,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
             self.assertEqual(api_response.body, read_changes)
             mock_request.assert_called_once_with(
                 'GET',
-                'http://api.fga.example/stores/d12345abc/changes?type=document&page_size=1&continuation_token=abcdefg',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc/changes?type=document&page_size=1&continuation_token=abcdefg',
                 headers=ANY,
                 fields=ANY,
                 body=None,
@@ -712,13 +708,13 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
                 ),
                 authorization_model_id="01G5JAVJ41T49E9TT3SKVS7X1J",
             )
-            api_response = api_instance.write(
+            api_instance.write(
                 path_params=path_params,
                 body=body,
             )
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores/d12345abc/write',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc/write',
                 headers=ANY,
                 fields=ANY,
                 body=b'{"writes":{"tuple_keys":[{"object":"document:2021-budget","relation":"reader","user":"anne"}]},"authorization_model_id":"01G5JAVJ41T49E9TT3SKVS7X1J"}',
@@ -756,13 +752,13 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
                 ),
                 authorization_model_id="01G5JAVJ41T49E9TT3SKVS7X1J",
             )
-            api_response = api_instance.write(
+            api_instance.write(
                 path_params=path_params,
                 body=body,
             )
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores/d12345abc/write',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc/write',
                 headers=ANY,
                 fields=ANY,
                 body=b'{"deletes":{"tuple_keys":[{"object":"document:2021-budget","relation":"reader","user":"anne"}]},"authorization_model_id":"01G5JAVJ41T49E9TT3SKVS7X1J"}',
@@ -802,13 +798,13 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
                 ],
             )
             # Upsert assertions for an authorization model ID
-            api_response = api_instance.write_assertions(
+            api_instance.write_assertions(
                 path_params=path_params,
                 body=body,
             )
             mock_request.assert_called_once_with(
                 'PUT',
-                'http://api.fga.example/stores/d12345abc/assertions/xyz0123',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc/assertions/xyz0123',
                 headers=ANY,
                 fields=ANY,
                 body=b'{"assertions":[{"expectation":true,"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"anne"}}]}',
@@ -868,7 +864,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
             self.assertEqual(api_response.body, expected_response)
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores/d12345abc/authorization-models',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc/authorization-models',
                 headers=ANY,
                 fields=ANY,
                 body=b'{"type_definitions":[{"type":"document","relations":{"writer":{"this":{}},"reader":{"union":{"child":[{"this":{}},{"computedUserset":{"object":"","relation":"writer"}}]}}}}]}',
@@ -963,7 +959,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = {{packageName}}.Configuration(
             api_scheme = 'bad',
-            api_host = "api.fga.example",
+            api_host = "api.{{sampleApiDomain}}",
         )
         configuration.store_id = 'xyz123'
         # Enter a context with an instance of the API client
@@ -996,7 +992,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = {{packageName}}.Configuration(
             api_scheme = 'http',
-            api_host = "api.fga.example",
+            api_host = "api.{{sampleApiDomain}}",
         )
         # Notice the store_id is not set
         # Enter a context with an instance of the API client
@@ -1034,7 +1030,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
 
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(self.configuration) as api_client:
+        with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             path_params = {}
             body = dict(
@@ -1069,7 +1065,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
 
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(self.configuration) as api_client:
+        with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             path_params = {}
             body = dict(
@@ -1104,7 +1100,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
 
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(self.configuration) as api_client:
+        with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             path_params = {}
             body = dict(
@@ -1138,7 +1134,7 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         configuration.credentials = Credentials(method='api_token', configuration=CredentialConfiguration(api_token='TOKEN1'))
-        with {{packageName}}.ApiClient(self.configuration) as api_client:
+        with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             path_params = {}
             body = dict(
@@ -1155,10 +1151,94 @@ class {{#with operations}}Test{{classname}}(unittest.TestCase):
             self.assertIsInstance(api_response.body, CheckResponse)
             self.assertTrue(api_response.body.allowed)
             # Make sure the API was called with the right data
-            expectedHeader = urllib3.response.HTTPHeaderDict({'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'openfga-sdk (python) {{packageVersion}}', 'Authorization': 'Bearer TOKEN1'})
+            expectedHeader = urllib3.response.HTTPHeaderDict({'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'openfga-sdk /{{packageVersion}}', 'Authorization': 'Bearer TOKEN1'})
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores/d12345abc/check',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc/check',
+                headers=expectedHeader,
+                fields=ANY,
+                body=b'{"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"anne"}}',
+                stream=False,
+                timeout=None
+            )
+
+    @patch.object({{packageName}}.api_client.ApiClient, 'request')
+    def test_check_custom_user_agent(self, mock_request):
+        """Test case for custom user agent
+
+        Check whether non default user agent can be used
+        """
+
+        # First, mock the response
+        response_body = '{"allowed": true}'
+        mock_request.return_value = mock_response(response_body, 200)
+
+        configuration = self.configuration
+        configuration.store_id = store_id
+        with {{packageName}}.ApiClient(configuration) as api_client:
+            api_client.user_agent = "custom agent"
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            path_params = {}
+            body = dict(
+                tuple_key=TupleKey(
+                    object="document:2021-budget",
+                    relation="reader",
+                    user="anne",
+                ),
+            )
+            api_response = api_instance.check(
+                path_params=path_params,
+                body=body,
+            )
+            self.assertIsInstance(api_response.body, CheckResponse)
+            self.assertTrue(api_response.body.allowed)
+            # Make sure the API was called with the right data
+            expectedHeader = urllib3.response.HTTPHeaderDict({'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'custom agent'})
+            mock_request.assert_called_once_with(
+                'POST',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc/check',
+                headers=expectedHeader,
+                fields=ANY,
+                body=b'{"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"anne"}}',
+                stream=False,
+                timeout=None
+            )
+
+    @patch.object({{packageName}}.api_client.ApiClient, 'request')
+    def test_check_custom_header(self, mock_request):
+        """Test case for custom header
+
+        Check whether custom header can be added
+        """
+
+        # First, mock the response
+        response_body = '{"allowed": true}'
+        mock_request.return_value = mock_response(response_body, 200)
+
+        configuration = self.configuration
+        configuration.store_id = store_id
+        with {{packageName}}.ApiClient(configuration) as api_client:
+            api_client.set_default_header("Custom Header", "custom value")
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            path_params = {}
+            body = dict(
+                tuple_key=TupleKey(
+                    object="document:2021-budget",
+                    relation="reader",
+                    user="anne",
+                ),
+            )
+            api_response = api_instance.check(
+                path_params=path_params,
+                body=body,
+            )
+            self.assertIsInstance(api_response.body, CheckResponse)
+            self.assertTrue(api_response.body.allowed)
+            # Make sure the API was called with the right data
+            expectedHeader = urllib3.response.HTTPHeaderDict({'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'openfga-sdk /{{packageVersion}}', 'Custom Header': 'custom value'})
+            mock_request.assert_called_once_with(
+                'POST',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc/check',
                 headers=expectedHeader,
                 fields=ANY,
                 body=b'{"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"anne"}}',

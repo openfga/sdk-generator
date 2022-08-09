@@ -179,10 +179,7 @@ class ParameterSerializerBase:
             value_pair_equals = '=' if named_parameter_expansion else ''
             if not explode:
                 return (
-                    next(prefix_separator_iterator) +
-                    var_name_piece +
-                    value_pair_equals +
-                    prefix_separator_iterator.item_separator.join(item_values)
+                    next(prefix_separator_iterator) + var_name_piece + value_pair_equals + prefix_separator_iterator.item_separator.join(item_values)
                 )
             # exploded
             return next(prefix_separator_iterator) + next(prefix_separator_iterator).join(

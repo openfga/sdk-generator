@@ -14,7 +14,6 @@
   "gitUserId": "openfga",
   "userAgent": "openfga-sdk {sdkId}/{packageVersion}",
   "supportInfo": "https://discord.gg/8naAwJfWN6",
-  "basePath": "api.fga.example",
   "docsUrl": "https://openfga.dev/docs",
   "apiDocsUrl": "https://openfga.dev/api",
   "websiteUrl": "https://openfga.dev",

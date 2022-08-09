@@ -13,22 +13,15 @@ VERSION = "{{packageVersion}}"
 #
 # prerequisite: setuptools
 # http://pypi.python.org/pypi/setuptools
+#
+# Note that only Python 3+ is supported
 
 REQUIRES = [
-  "urllib3 >= 1.15",
-  "certifi",
-  "python-dateutil",
-  "frozendict >= 2.0.3",
-{{#if asyncio}}
-  "aiohttp >= 3.0.0",
-{{/if}}
-{{#if tornado}}
-  "tornado>=4.2,<5",
-{{/if}}
-{{#if hasHttpSignatureMethods}}
-  "pem>=19.3.0",
-  "pycryptodome>=3.9.0",
-{{/if}}
+  "certifi >= 2022.6.15",
+  "frozendict >= 2.3.4",
+  "python_dateutil >= 2.8.2",
+  "setuptools >= 63.4.2",
+  "urllib3 >= 1.26.11",
 ]
 
 setup(
@@ -38,6 +31,15 @@ setup(
     author="{{#if infoName}}{{infoName}}{{/if}}",
     author_email="{{#if infoEmail}}{{infoEmail}}{{/if}}",
     url="https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}",
+    classifiers=[
+      'Development Status :: 5 - Production',
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: Apache Software License',
+      'Programming Language :: Python :: 3.9',
+      'Programming Language :: Python :: 3.10',
+      'Programming Language :: Python :: 3.11',
+      'Programming Language :: Python :: 3.12',
+    ],
     keywords=[{{#each packageTags}}"{{this}}"{{#unless @last}}, {{/unless}}{{/each}}],
     python_requires="{{{generatorLanguageVersion}}}",
     install_requires=REQUIRES,

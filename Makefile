@@ -98,7 +98,9 @@ tag-client-python: test-client-python
 
 .PHONY: test-client-python
 test-client-python: build-client-python
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install urllib3 certifi python-dateutil frozendict mock; python -m unittest test/*'"
+	# Need to ignore F401 (unused module), E402 (import not at top of module), E501 (line too long) and W504 (line break after binary operator)
+	# due to limitations of autopep8 as well as generator. 
+	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; python -m unittest test/*; python -m flake8 --ignore F401,E402,E501,W504 openfga_sdk; python -m flake8 --ignore E501 test'"
 
 .PHONY: build-client-python
 build-client-python:
@@ -110,6 +112,9 @@ build-client-python:
 	sed -i -e "s|\"key\": |key=|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
 	sed -i -e "s|from openfga_sdk.model.tuple_keys import TupleKeys|from openfga_sdk.model.tuple_key import TupleKey\nfrom openfga_sdk.model.tuple_keys import TupleKeys|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
 	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md-e
+	# The return value is falsely marked as not found
+	sed -i -e "s|-> 'relations':|-> 'relations': # noqa: F821|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/model/type_definition.py
+	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/model/type_definition.py-e
 	# Need to ignore E402 (import order) to avoid circular dependency
 	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install autopep8; autopep8 --in-place --ignore E402 --recursive openfga_sdk; autopep8 --in-place --recursive test'"
 

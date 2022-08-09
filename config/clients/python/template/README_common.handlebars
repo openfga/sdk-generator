@@ -4,58 +4,7 @@
 
 {{>README_models}}
 
-
-## Documentation For Authorization
-
-{{#unless authMethods}}
- All endpoints do not require authorization.
-{{/unless}}
-{{#each authMethods}}
-{{#if @last}} Authentication schemes defined for the API:{{/if}}
-## {{{name}}}
-
-{{#if isBasic}}
-{{#if isBasicBasic}}
-- **Type**: HTTP basic authentication
-{{/if}}
-{{#if isBasicBearer}}
-- **Type**: Bearer authentication{{#if bearerFormat}} ({{{bearerFormat}}}){{/if}}
-{{/if}}
-{{#if isHttpSignature}}
-- **Type**: HTTP signature authentication
-{{/if}}
-{{/if}}
-{{#if isOAuth}}
-- **Type**: OAuth
-- **Flow**: {{{flow}}}
-- **Authorization URL**: {{{authorizationUrl}}}
-- **Scopes**: {{#unless scopes}}N/A{{/unless}}
-{{#each scopes}} - **{{{scope}}}**: {{{description}}}
-{{/each}}
-{{/if}}
-
-{{/each}}
-
 ## Author
 
 {{#with apiInfo}}{{#each apis}}{{#unless hasMore}}{{#if infoEmail}}{{infoEmail}}{{/if}}
 {{/unless}}{{/each}}{{/with}}
-
-## Notes for Large OpenAPI documents
-If the OpenAPI document is large, imports in {{{packageName}}}.apis and {{{packageName}}}.models may fail with a
-RecursionError indicating the maximum recursion limit has been exceeded. In that case, there are a couple of solutions:
-
-Solution 1:
-Use specific imports for apis and models like:
-- `from {{{packageName}}}.{{apiPackage}}.default_api import DefaultApi`
-- `from {{{packageName}}}.{{modelPackage}}.pet import Pet`
-
-Solution 1:
-Before importing the package, adjust the maximum recursion limit as shown below:
-```
-import sys
-sys.setrecursionlimit(1500)
-import {{{packageName}}}
-from {{{packageName}}}.apis import *
-from {{{packageName}}}.models import *
-```

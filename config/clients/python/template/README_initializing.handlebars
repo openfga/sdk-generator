@@ -10,7 +10,7 @@ from {{packageName}}.api import open_fga_api
 
 configuration = {{packageName}}.Configuration(
     scheme = 'https',
-    host = 'api.fga.example'
+    host = 'api.{{sampleApiDomain}}'
 )
 
 # Enter a context with an instance of the API client
@@ -30,8 +30,8 @@ from {{packageName}}.api import open_fga_api
 
 configuration = openfga_sdk.Configuration(
     scheme = 'https',
-    host = 'api.fga.example',
-	store_id = 'YOUR_STORE_ID'
+    host = 'api.{{sampleApiDomain}}',
+    store_id = 'YOUR_STORE_ID'
 )
 
 # Enter a context with an instance of the API client
@@ -49,7 +49,7 @@ from {{packageName}}.api import open_fga_api
 
 configuration = openfga_sdk.Configuration(
     scheme = 'https',
-    host = 'api.fga.example'
+    host = 'api.{{sampleApiDomain}}'
 )
 
 configuration.store_id = 'YOUR_STORE_ID'
@@ -63,7 +63,7 @@ with {{packageName}}.ApiClient(configuration) as api_client:
 
 #### Authentication via API Token ####
 
-To configure the SDK API client without authentication via API TOKEN, we can initialize the api client by specifying the scheme, host and credentials.
+To configure the SDK API client with authentication via API TOKEN, we can initialize the api client by specifying the scheme, host and credentials.
 
 ```python
 import {{packageName}}
@@ -73,8 +73,8 @@ from {{packageName}}.credentials import Credentials, CredentialConfiguration
 credentials = Credentials(method='api_token', configuration=CredentialConfiguration(api_token='TOKEN1'))
 configuration = {{packageName}}.Configuration(
     scheme = 'https',
-    host = 'api.fga.example',
-	credentials = credentials
+    host = 'api.{{sampleApiDomain}}',
+    credentials = credentials
 )
 
 # Enter a context with an instance of the API client
