@@ -204,14 +204,14 @@ jobs:
           GIT_USER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
 
       # Commented out for now until we publish the SDK
-      #- name: Clone the existing SDK
-      #  run: ./scripts/clone_sdk.sh
-      #  env:
-      #    GITHUB_ORG_ID: ${{ secrets.DOTNET_SDK_GITHUB_ORG_ID }}
-      #    GITHUB_REPO_ID: ${{ secrets.DOTNET_SDK_GITHUB_REPO_ID }}
-      #    SSH_KEY: ${{ secrets.DOTNET_SDK_SSH_KEY }}
-      #    SDK_PATH: clients/fga-python-sdk
-      #    KNOWN_HOSTS: ${{secrets.KNOWN_HOSTS}}
+      - name: Clone the existing SDK
+        run: ./scripts/clone_sdk.sh
+        env:
+          GITHUB_ORG_ID: ${{ secrets.DOTNET_SDK_GITHUB_ORG_ID }}
+          GITHUB_REPO_ID: ${{ secrets.DOTNET_SDK_GITHUB_REPO_ID }}
+          SSH_KEY: ${{ secrets.DOTNET_SDK_SSH_KEY }}
+          SDK_PATH: clients/fga-python-sdk
+          KNOWN_HOSTS: ${{secrets.KNOWN_HOSTS}}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
