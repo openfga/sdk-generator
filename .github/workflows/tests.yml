@@ -224,7 +224,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: clients/fga-python-sdk/src/OpenFga.Sdk/ --sarif-file-output=snyk-python.sarif
+          args: clients/fga-python-sdk --sarif-file-output=snyk-python.sarif
 
       - name: Install FOSSA CLI
         run: |-
