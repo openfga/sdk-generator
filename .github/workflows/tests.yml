@@ -197,6 +197,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Specify python version
+        uses: actions/setup-python@v4 
+        with:
+          python-version: '3.10' 
+
       - name: Setup git
         run: ./scripts/setup_git.sh
         env:
@@ -219,9 +224,14 @@ jobs:
       - name: Run All Tests
         run: |-
           make test-client-python
+
+      - name: Install SDK to prepare for Snyk
+        run: |-
+          pip install -r clients/fga-python-sdk/requirements.txt
+          pip show urllib3
           python -m venv clients/fga-python-sdk
           source clients/fga-python-sdk/bin/activate
-          pip install -r clients/fga-python-sdk/requirements.txt
+          pip install -e clients/fga-python-sdk
           pip show urllib3
 
       - name: Run Snyk to check for vulnerabilities
@@ -229,7 +239,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: clients/fga-python-sdk --sarif-file-output=snyk-python.sarif
+          args: clients/fga-python-sdk --command=python3 --sarif-file-output=snyk-python.sarif
 
       - name: Install FOSSA CLI
         run: |-
@@ -238,7 +248,7 @@ jobs:
           curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh -b ~/.local/bin | bash
 
       - name: Run FOSSA scan and upload build data
-        working-directory: clients/fga-python-sdk/openfga_sdk
+        working-directory: clients/fga-python-sdk
         env:
           FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
         run: |-
