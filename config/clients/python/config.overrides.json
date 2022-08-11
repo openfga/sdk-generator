@@ -8,6 +8,8 @@
   "files": {
     ".github/workflows/main.yaml": {
     },
+    ".snyk": {
+    },
     "credentials.handlebars": {
       "destinationFilename": "openfga_sdk/credentials.py",
       "templateType": "SupportingFiles"
