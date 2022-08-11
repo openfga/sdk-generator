@@ -233,14 +233,22 @@ jobs:
           source clients/fga-python-sdk/bin/activate
           pip install -e clients/fga-python-sdk
           pip show urllib3
+  
+      - name: Install Snyk CLI
+        run: |-
+          mkdir -p ~/.local/bin
+          export PATH=$PATH:$HOME/.local/bin
+          curl https://static.snyk.io/cli/latest/snyk-linux -o ~/.local/bin/snyk
+          chmod +x ~/.local/bin/snyk
 
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/python@master
+        working-directory: clients/fga-python-sdk
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: clients/fga-python-sdk --command=python3 --sarif-file-output=snyk-python.sarif
-
+        run: |-
+          export PATH=$PATH:$HOME/.local/bin
+          snyk test
+        
       - name: Install FOSSA CLI
         run: |-
           mkdir -p ~/.local/bin
