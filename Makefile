@@ -13,6 +13,9 @@ CLIENTS_OUTPUT_DIR = ${PWD}/clients
 DOCS_CACHE_DIR = ${PWD}/docs/openapi
 TMP_DIR = $(shell mktemp -d "$${TMPDIR:-/tmp}/tmp.XXXXX")
 dotnet_package_version = $(shell cat ./clients/fga-dotnet-sdk/VERSION.txt)
+CURRENT_UID := $(shell id -u)
+CURRENT_GID := $(shell id -g)
+
 
 dotnet_publish_api_key=
 
@@ -106,15 +109,15 @@ test-client-python: build-client-python
 build-client-python:
 	make build-client sdk_language=python tmpdir=${TMP_DIR}
 	# Update so that Python dictionary is defined correctly
-	#sed -i -e "s|\"key\": |key=|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaAp*.md
-	#sed -i -e "s|from openfga_sdk.model.tuple_keys import TupleKeys|from openfga_sdk.model.tuple_key import TupleKey\nfrom openfga_sdk.model.tuple_keys import TupleKeys|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaAp*.md
-	#rm -rf ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md-e
-	#sed -i -e "s|\"key\": |key=|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	#sed -i -e "s|from openfga_sdk.model.tuple_keys import TupleKeys|from openfga_sdk.model.tuple_key import TupleKey\nfrom openfga_sdk.model.tuple_keys import TupleKeys|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	#rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md-e
+	sed -i -e "s|\"key\": |key=|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
+	sed -i -e "s|from openfga_sdk.model.tuple_keys import TupleKeys|from openfga_sdk.model.tuple_key import TupleKey\nfrom openfga_sdk.model.tuple_keys import TupleKeys|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
+	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md-e
+	sed -i -e "s|\"key\": |key=|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md
+	sed -i -e "s|from openfga_sdk.model.tuple_keys import TupleKeys|from openfga_sdk.model.tuple_key import TupleKey\nfrom openfga_sdk.model.tuple_keys import TupleKeys|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md
+	rm -rf ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.mdd-e
 	# The return value is falsely marked as not found
-	#sed -i '' -e "s|-> 'relations':|-> 'relations': # noqa: F821|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/model/type_definition.py
-	#rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/model/type_definition.py-e
+	sed -i -e "s|-> 'relations':|-> 'relations': # noqa: F821|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/model/type_definition.py
+	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/model/type_definition.py-e
 	# Need to ignore E402 (import order) to avoid circular dependency
 	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install autopep8; autopep8 --in-place --ignore E402 --recursive openfga_sdk; autopep8 --in-place --recursive test'"
 
@@ -154,6 +157,7 @@ build-client: build-openapi
 
 	# Generate the SDK
 	docker run --rm \
+		-u ${CURRENT_UID}:${CURRENT_GID} \
 		-v ${PWD}/docs:/docs \
 		-v ${CLIENTS_OUTPUT_DIR}:/clients \
 		-v ${tmpdir}:/config \

@@ -217,10 +217,15 @@ jobs:
         uses: docker/setup-buildx-action@v1
 
       - name: Run All Tests
-        run: make test-client-python
+        run: |-
+          make test-client-python
+          python -m venv clients/fga-python-sdk
+          source clients/fga-python-sdk/bin/activate
+          pip install -r clients/fga-python-sdk/requirements.txt
+          pip show urllib3
 
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/python-3.8@master
+        uses: snyk/actions/python@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -233,7 +238,7 @@ jobs:
           curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh -b ~/.local/bin | bash
 
       - name: Run FOSSA scan and upload build data
-        working-directory: clients/fga-python-sdk
+        working-directory: clients/fga-python-sdk/openfga_sdk
         env:
           FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
         run: |-
