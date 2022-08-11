@@ -226,13 +226,14 @@ jobs:
           make test-client-python
 
       - name: Install SDK to prepare for Snyk
+        working-directory: clients/fga-python-sdk
         run: |-
-          pip install -r clients/fga-python-sdk/requirements.txt
-          pip show urllib3
-          python -m venv clients/fga-python-sdk
-          source clients/fga-python-sdk/bin/activate
-          pip install -e clients/fga-python-sdk
-          pip show urllib3
+          pip install -r requirements.txt
+          #pip show urllib3
+          #python -m venv clients/fga-python-sdk
+          #source clients/fga-python-sdk/bin/activate
+          #pip install -e clients/fga-python-sdk
+          #pip show urllib3
   
       - name: Install Snyk CLI
         run: |-
@@ -261,6 +262,7 @@ jobs:
           FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
         run: |-
           export PATH=$PATH:$HOME/.local/bin
+          fossa analyze
           fossa test
 
       # Commented out for now until SDK is published
