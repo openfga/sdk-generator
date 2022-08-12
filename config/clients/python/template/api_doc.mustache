@@ -11,7 +11,7 @@ Method | HTTP request | Description
 {{#operations}}
 {{#operation}}
 # **{{{operationId}}}**
-> {{#returnType}}{{{.}}} {{/returnType}}{{{operationId}}}({{#requiredParams}}{{^defaultValue}}{{paramName}}{{^-last}}, {{/-last}}{{/defaultValue}}{{/requiredParams}})
+> {{#returnType}}{{{.}}} {{/returnType}}{{{operationId}}}({{#requiredParams}}{{^-first}}{{^defaultValue}}{{paramName}}{{^-last}}, {{/-last}}{{/defaultValue}}{{/-first}}{{/requiredParams}})
 
 {{{summary}}}{{#notes}}
 
