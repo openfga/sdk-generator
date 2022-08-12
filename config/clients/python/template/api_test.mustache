@@ -1,0 +1,160 @@
+{{>partial_header}}
+
+import unittest
+from unittest.mock import ANY
+from mock import patch
+import urllib3
+
+import {{packageName}}
+from {{apiPackage}}.{{classFilename}} import {{classname}}  # noqa: E501
+from {{packageName}}.api import open_fga_api
+from {{packageName}}.credentials import Credentials, CredentialConfiguration
+from {{packageName}}.exceptions import ApiTypeError, ApiValueError
+from {{packageName}}.model.assertion import Assertion
+from {{packageName}}.model.authorization_model import AuthorizationModel
+from {{packageName}}.model.check_request import CheckRequest
+from {{packageName}}.model.check_response import CheckResponse
+from {{packageName}}.model.create_store_request import CreateStoreRequest
+from {{packageName}}.model.create_store_response import CreateStoreResponse
+from {{packageName}}.model.error_code import ErrorCode
+from {{packageName}}.model.expand_response import ExpandResponse
+from {{packageName}}.model.get_store_response import GetStoreResponse
+from {{packageName}}.model.internal_error_code import InternalErrorCode
+from {{packageName}}.model.internal_error_message_response import InternalErrorMessageResponse
+from {{packageName}}.model.leaf import Leaf
+from {{packageName}}.model.list_stores_response import ListStoresResponse
+from {{packageName}}.model.node import Node
+from {{packageName}}.model.not_found_error_code import NotFoundErrorCode
+from {{packageName}}.model.object_relation import ObjectRelation
+from {{packageName}}.model.path_unknown_error_message_response import PathUnknownErrorMessageResponse
+from {{packageName}}.model.read_assertions_response import ReadAssertionsResponse
+from {{packageName}}.model.read_authorization_model_response import ReadAuthorizationModelResponse
+from {{packageName}}.model.read_authorization_models_response import ReadAuthorizationModelsResponse
+from {{packageName}}.model.read_changes_response import ReadChangesResponse
+from {{packageName}}.model.read_response import ReadResponse
+from {{packageName}}.model.store import Store
+from {{packageName}}.model.tuple_change import TupleChange
+from {{packageName}}.model.tuple_key import TupleKey
+from {{packageName}}.model.tuple_keys import TupleKeys
+from {{packageName}}.model.type_definition import TypeDefinition
+from {{packageName}}.model.type_definitions import TypeDefinitions
+from {{packageName}}.model.users import Users
+from {{packageName}}.model.userset import Userset
+from {{packageName}}.model.userset_tree import UsersetTree
+from {{packageName}}.model.usersets import Usersets
+from {{packageName}}.model.validation_error_message_response import ValidationErrorMessageResponse
+from {{packageName}}.model.write_authorization_model_response import WriteAuthorizationModelResponse
+
+
+store_id='d12345abc'
+
+# Helper function to construct mock response
+def mock_response(body, status):
+    headers = urllib3.response.HTTPHeaderDict({
+        'content-type': 'application/json'
+    })
+    return urllib3.HTTPResponse(
+        body.encode('utf-8'),
+        headers,
+        status,
+        preload_content=False
+    )
+
+
+class {{#operations}}Test{{classname}}(unittest.TestCase):
+    """{{classname}} unit test stubs"""
+
+    def setUp(self):
+        self.configuration = {{packageName}}.Configuration(
+            api_scheme = 'http',
+            api_host = "api.{{sampleApiDomain}}",
+        )
+
+    def tearDown(self):
+        pass
+
+
+{{! We will need to define each test individually instead of via the generator to allow better control of what we are testing}}
+
+    @patch.object({{packageName}}.api_client.ApiClient, 'request')
+    def test_check(self, mock_request):
+        """Test case for check
+
+        Check whether a user is authorized to access an object  # noqa: E501
+        """
+
+        # First, mock the response
+        response_body = '{"allowed": true, "resolution": "1234"}'
+        mock_request.return_value = mock_response(response_body, 200)
+
+        configuration = self.configuration
+        configuration.store_id = store_id
+        with {{packageName}}.ApiClient(configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            body = CheckRequest(
+                tuple_key=TupleKey(
+                    object="document:2021-budget",
+                    relation="reader",
+                    user="anne",
+                ),
+            )
+            api_response = api_instance.check(
+                # Notice here the path_param is omitted and we should still expect
+                # correct path being generated
+                body=body,
+            )
+            self.assertIsInstance(api_response, CheckResponse)
+            self.assertTrue(api_response.allowed)
+            # Make sure the API was called with the right data
+            mock_request.assert_called_once_with(
+                'POST',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc/check',
+                headers=ANY,
+                query_params=[],
+                post_params=[],
+                body={"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"anne"}},
+                _preload_content=ANY,
+                _request_timeout=None
+            )
+
+    @patch.object({{packageName}}.api_client.ApiClient, 'request')
+    def test_create_store(self, mock_request):
+        """Test case for create_store
+
+        Create a store  # noqa: E501
+        """
+        response_body = '''{
+            "id": "01YCP46JKYM8FJCQ37NMBYHE5X",
+            "name": "test_store",
+            "created_at": "2022-07-25T17:41:26.607Z",
+            "updated_at": "2022-07-25T17:41:26.607Z"}
+            '''
+        mock_request.return_value = mock_response(response_body, 201)
+
+        configuration = self.configuration
+        with {{packageName}}.ApiClient(configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            body = CreateStoreRequest(
+                name="test-store",
+            )
+            api_response = api_instance.create_store(
+                body=body,
+            )
+            self.assertIsInstance(api_response, CreateStoreResponse)
+            self.assertEqual(api_response.id, '01YCP46JKYM8FJCQ37NMBYHE5X')
+            mock_request.assert_called_once_with(
+                'POST',
+                'http://api.{{sampleApiDomain}}/stores',
+                headers=ANY,
+                query_params=[],
+                post_params=[],
+                body={"name":"test-store"},
+                _preload_content=ANY,
+                _request_timeout=None
+            )
+
+
+{{/operations}}
+
+if __name__ == '__main__':
+    unittest.main()
