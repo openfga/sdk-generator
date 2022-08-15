@@ -1,11 +1,11 @@
 # Main config
 OPEN_API_URL = https://raw.githubusercontent.com/openfga/api/main/docs/openapiv2/apidocs.swagger.json
-OPENAPI_GENERATOR_CLI_DOCKER_TAG = v6.0.0
+OPENAPI_GENERATOR_CLI_DOCKER_TAG = v6.0.1
 NODE_DOCKER_TAG = 16-alpine
 GO_DOCKER_TAG = 1
 DOTNET_DOCKER_TAG = 6.0
-GOLINT_DOCKER_TAG = v1.46
-BUSYBOX_DOCKER_TAG = 1.34
+GOLINT_DOCKER_TAG = v1.48
+BUSYBOX_DOCKER_TAG = 1.34.1
 # Other config
 CONFIG_DIR = ${PWD}/config
 CLIENTS_OUTPUT_DIR = ${PWD}/clients
