@@ -15,7 +15,7 @@
   "userAgent": "openfga-sdk {sdkId}/{packageVersion}",
   "supportInfo": "https://discord.gg/8naAwJfWN6",
   "docsUrl": "https://openfga.dev/docs",
-  "apiDocsUrl": "https://openfga.dev/api",
+  "apiDocsUrl": "https://openfga.dev/api/service",
   "websiteUrl": "https://openfga.dev",
   "copyrightNotice": "Copyright (c) 2022 OpenFGA <contact@openfga.com> (https://openfga.dev)",
   "redditUrl": null,

@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.0.2
+
+### [0.0.2](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.0.1...v0.0.2) (2022-08-15)
+
+Support for [ListObject API]](https://openfga.dev/api/service#/Relationship%20Queries/ListObjects)
+
+You call the API and can expect to be returned the list of object ids from a particular type that the user has a certain access to.
+
+For example, to find the list of objects that Anne can read:
+
+```csharp
+var body = new ListObjectsRequest{
+    AuthorizationModelId = "01GAHCE4YVKPQEKZQHT2R89MQV",
+    User = "anne",
+    Relation = "can_read",
+    Type = "document",
+    ContextualTuples = new ContextualTupleKeys() {
+        TupleKeys = new List<TupleKey> {
+            new("folder:product", "editor", "anne"),
+            new("document:roadmap", "parent", "folder:product")
+        }
+    }
+};
+var response = await {{appCamelCaseName}}Api.ListObjects(body);
+
+// response.ObjectIds = ["roadmap"]
+```
+
 ## v0.0.1
 
 ### [0.0.1](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/releases/tag/v0.0.1) (2022-06-17)

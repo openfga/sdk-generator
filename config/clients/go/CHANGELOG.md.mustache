@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.0.2
+
+### [0.0.2](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.0.1...v0.0.2) (2022-08-15)
+
+Support for [ListObject API]](https://openfga.dev/api/service#/Relationship%20Queries/ListObjects)
+
+You call the API and can expect to be returned the list of object ids from a particular type that the user has a certain access to.
+
+For example, to find the list of objects that Anne can read:
+
+```golang
+body := {{packageName}}.ListObjectsRequest{
+    AuthorizationModelId: PtrString(""),
+    User:                 PtrString("anne"),
+    Relation:             PtrString("can_view"),
+    Type:                 PtrString("document"),
+}
+data, response, err := apiClient.{{appShortName}}Api.ListObjects(context.Background()).Body(body).Execute()
+
+// response.object_ids = ["roadmap"]
+```
+
 ## v0.0.1
 
 ### [0.0.1](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/releases/tag/v0.0.1) (2022-06-16)

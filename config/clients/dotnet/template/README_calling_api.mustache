@@ -201,3 +201,25 @@ var response = await {{appCamelCaseName}}Api.ReadChanges(type, pageSize, continu
 //   { tuple_key: { user, relation, object }, operation: "delete", timestamp: ... }
 // ]
 ```
+
+#### Expand
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/ListObjects)
+
+```csharp
+var body = new ListObjectsRequest{
+    AuthorizationModelId = "01GAHCE4YVKPQEKZQHT2R89MQV",
+    User = "anne",
+    Relation = "can_read",
+    Type = "document",
+    ContextualTuples = new ContextualTupleKeys() {
+        TupleKeys = new List<TupleKey> {
+            new("folder:product", "editor", "anne"),
+            new("document:roadmap", "parent", "folder:product")
+        }
+    }
+};
+var response = await {{appCamelCaseName}}Api.ListObjects(body);
+
+// response.ObjectIds = ["roadmap"]
+```
