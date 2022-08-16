@@ -231,3 +231,32 @@ const response = await {{appCamelCaseName}}.readChanges(type, pageSize, continua
 //   { tuple_key: { user, relation, object }, operation: "delete", timestamp: ... }
 // ]
 ```
+
+#### List Objects
+
+> Requires a client initialized with a storeId
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/ListObjects)
+
+```javascript
+const response = await openFgaApi.listObjects({
+  authorization_model_id: "01GAHCE4YVKPQEKZQHT2R89MQV",
+  user: "anne",
+  relation: "can_read",
+  type: "document",
+  contextual_tuples: {
+    tuple_keys:
+      [{
+        user: "anne",
+        relation: "editor",
+        object: "folder:product"
+      }, {
+        user: "folder:product",
+        relation: "parent",
+        object: "document:roadmap"
+      }]
+  }
+});
+
+// response.object_ids = ["roadmap"]
+```

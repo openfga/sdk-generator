@@ -268,3 +268,35 @@ data, response, err := apiClient.{{appShortName}}Api.ReadChanges(context.Backgro
 //   { tuple_key: { user, relation, object }, operation: "delete", timestamp: ... }
 // ]
 ```
+
+#### List Objects
+
+> Requires a client initialized with a storeId
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/ListObjects)
+
+```golang
+body := {{packageName}}.ListObjectsRequest{
+    AuthorizationModelId: PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+    User:                 PtrString("anne"),
+    Relation:             PtrString("can_read"),
+    Type:                 PtrString("document"),
+    ContextualTuples: &ContextualTupleKeys{
+{{=<% %>=}}
+        TupleKeys: []TupleKey{{
+            User:     PtrString("anne"),
+            Relation: PtrString("editor"),
+            Object:   PtrString("folder:product"),
+        }, {
+            User:     PtrString("folder:product"),
+            Relation: PtrString("parent"),
+            Object:   PtrString("document:roadmap"),
+        }},
+<%={{ }}=%>
+    },
+}
+
+data, response, err := apiClient.{{appShortName}}Api.ListObjects(context.Background()).Body(body).Execute()
+
+// response.object_ids = ["roadmap"]
+```
