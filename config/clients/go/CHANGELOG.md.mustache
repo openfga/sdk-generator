@@ -4,11 +4,11 @@
 
 ### [0.0.2](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.0.1...v0.0.2) (2022-08-15)
 
-Support for [ListObject API]](https://openfga.dev/api/service#/Relationship%20Queries/ListObjects)
+Support for [ListObjects API]](https://openfga.dev/api/service#/Relationship%20Queries/ListObjects)
 
-You call the API and can expect to be returned the list of object ids from a particular type that the user has a certain access to.
+You call the API and receive the list of object ids from a particular type that the user has a certain relation with.
 
-For example, to find the list of objects that Anne can read:
+For example, to find the list of documents that Anne can read:
 
 ```golang
 body := {{packageName}}.ListObjectsRequest{
