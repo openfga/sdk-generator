@@ -17,25 +17,24 @@ VERSION = "{{packageVersion}}"
 REQUIRES = [
   "urllib3 >= 1.25.3",
   "python-dateutil",
-{{#asyncio}}
-  "aiohttp >= 3.0.0",
-{{/asyncio}}
-{{#tornado}}
-  "tornado>=4.2,<5",
-{{/tornado}}
-{{#hasHttpSignatureMethods}}
-  "pem>=19.3.0",
-  "pycryptodome>=3.9.0",
-{{/hasHttpSignatureMethods}}
 ]
 
 setup(
     name=NAME,
     version=VERSION,
     description="{{appName}}",
-    author="{{infoName}}{{^infoName}}OpenAPI Generator community{{/infoName}}",
-    author_email="{{infoEmail}}{{^infoEmail}}team@openapitools.org{{/infoEmail}}",
-    url="{{packageUrl}}",
+    author="{{infoName}}",
+    author_email="{{infoEmail}}",
+    url="https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}",
+    classifiers=[
+      'Development Status :: 5 - Production',
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: Apache Software License',
+      'Programming Language :: Python :: 3.9',
+      'Programming Language :: Python :: 3.10',
+      'Programming Language :: Python :: 3.11',
+      'Programming Language :: Python :: 3.12',
+    ],
     keywords=["OpenAPI", "OpenAPI-Generator", "{{{appName}}}"],
     python_requires="{{{generatorLanguageVersion}}}",
     install_requires=REQUIRES,

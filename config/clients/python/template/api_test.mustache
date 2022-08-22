@@ -24,6 +24,8 @@ from {{packageName}}.model.get_store_response import GetStoreResponse
 from {{packageName}}.model.internal_error_code import InternalErrorCode
 from {{packageName}}.model.internal_error_message_response import InternalErrorMessageResponse
 from {{packageName}}.model.leaf import Leaf
+from {{packageName}}.model.list_objects_request import ListObjectsRequest
+from {{packageName}}.model.list_objects_response import ListObjectsResponse
 from {{packageName}}.model.list_stores_response import ListStoresResponse
 from {{packageName}}.model.node import Node
 from {{packageName}}.model.not_found_error_code import NotFoundErrorCode
@@ -259,7 +261,43 @@ class {{#operations}}Test{{classname}}(unittest.TestCase):
                 _request_timeout=None
             )
 
-    # ATQ: TODO add test for list_objects
+    @patch.object({{packageName}}.api_client.ApiClient, 'request')
+    def test_list_objects(self, mock_request):
+        """Test case for list_objects
+
+        List objects  # noqa: E501
+        """
+        response_body = '''
+{
+  "object_ids": [
+    "abcd1234"
+  ]
+}
+            '''
+        mock_request.return_value = mock_response(response_body, 200)
+        configuration = self.configuration
+        configuration.store_id = store_id
+        with {{packageName}}.ApiClient(configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            body = ListObjectsRequest(
+                authorization_model_id="01G5JAVJ41T49E9TT3SKVS7X1J",
+                type="document",
+                relation="reader",
+                user="anne",
+            )
+            # Get all stores
+            api_response = api_instance.list_objects(body)
+            self.assertIsInstance(api_response, ListObjectsResponse)
+            mock_request.assert_called_once_with(
+                'POST',
+                'http://api.{{sampleApiDomain}}/stores/d12345abc/list-objects',
+                headers=ANY,
+                query_params=[],
+                post_params=[],
+                body={'authorization_model_id': '01G5JAVJ41T49E9TT3SKVS7X1J', 'type': 'document', 'relation': 'reader', 'user': 'anne'},
+                _preload_content=ANY,
+                _request_timeout=None
+            )
 
     @patch.object({{packageName}}.api_client.ApiClient, 'request')
     def test_list_stores(self, mock_request):
@@ -327,7 +365,6 @@ class {{#operations}}Test{{classname}}(unittest.TestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-
 
     @patch.object(openfga_sdk.api_client.ApiClient, 'request')
     def test_read(self, mock_request):
