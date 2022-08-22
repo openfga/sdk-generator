@@ -112,7 +112,9 @@ tag-client-python: test-client-python
 test-client-python: build-client-python
 	# Need to ignore F401 (unused module), E402 (import not at top of module), E501 (line too long) and W504 (line break after binary operator)
 	# due to limitations of autopep8 as well as generator.
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; python -m unittest test/*; python -m flake8 --ignore F401,E402,E501,W504 openfga_sdk; python -m flake8 --ignore E501 test'"
+	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; python -m unittest test/*'"
+	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; python -m flake8 --ignore F401,E402,E501,W504 openfga_sdk'"
+	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; python -m flake8 --ignore E501 test'"
 
 .PHONY: build-client-python
 build-client-python:
