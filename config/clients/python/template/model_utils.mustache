@@ -344,7 +344,7 @@ class OpenApiModel(object):
         if cls._composed_schemas.get('allOf') and oneof_anyof_child:
             # Validate that we can make self because when we make the
             # new_cls it will not include the allOf validations in self
-            self_inst = cls._from_openapi_data(*args, **kwargs)
+            cls._from_openapi_data(*args, **kwargs)
 
         new_inst = new_cls._new_from_openapi_data(*args, **kwargs)
         return new_inst
@@ -526,9 +526,7 @@ def check_allowed_values(allowed_values, input_variable_path, input_values):
             are checking to see if they are in allowed_values
     """
     these_allowed_values = list(allowed_values[input_variable_path].values())
-    if (isinstance(input_values, list)
-            and not set(input_values).issubset(
-                set(these_allowed_values))):
+    if (isinstance(input_values, list) and not set(input_values).issubset(set(these_allowed_values))):
         invalid_values = ", ".join(
             map(str, set(input_values) - set(these_allowed_values))),
         raise ApiValueError(
@@ -539,9 +537,7 @@ def check_allowed_values(allowed_values, input_variable_path, input_values):
                 ", ".join(map(str, these_allowed_values))
             )
         )
-    elif (isinstance(input_values, dict)
-            and not set(
-                input_values.keys()).issubset(set(these_allowed_values))):
+    elif (isinstance(input_values, dict) and not set(input_values.keys()).issubset(set(these_allowed_values))):
         invalid_values = ", ".join(
             map(str, set(input_values.keys()) - set(these_allowed_values)))
         raise ApiValueError(
@@ -552,8 +548,7 @@ def check_allowed_values(allowed_values, input_variable_path, input_values):
                 ", ".join(map(str, these_allowed_values))
             )
         )
-    elif (not isinstance(input_values, (list, dict))
-            and input_values not in these_allowed_values):
+    elif (not isinstance(input_values, (list, dict)) and input_values not in these_allowed_values):
         raise ApiValueError(
             "Invalid value for `%s` (%s), must be one of %s" %
             (
@@ -741,14 +736,11 @@ def order_response_types(required_types):
             return COERCION_INDEX_BY_TYPE[list]
         elif isinstance(class_or_instance, dict):
             return COERCION_INDEX_BY_TYPE[dict]
-        elif (inspect.isclass(class_or_instance)
-                and issubclass(class_or_instance, ModelComposed)):
+        elif (inspect.isclass(class_or_instance) and issubclass(class_or_instance, ModelComposed)):
             return COERCION_INDEX_BY_TYPE[ModelComposed]
-        elif (inspect.isclass(class_or_instance)
-                and issubclass(class_or_instance, ModelNormal)):
+        elif (inspect.isclass(class_or_instance) and issubclass(class_or_instance, ModelNormal)):
             return COERCION_INDEX_BY_TYPE[ModelNormal]
-        elif (inspect.isclass(class_or_instance)
-                and issubclass(class_or_instance, ModelSimple)):
+        elif (inspect.isclass(class_or_instance) and issubclass(class_or_instance, ModelSimple)):
             return COERCION_INDEX_BY_TYPE[ModelSimple]
         elif class_or_instance in COERCION_INDEX_BY_TYPE:
             return COERCION_INDEX_BY_TYPE[class_or_instance]
@@ -1258,9 +1250,7 @@ def validate_and_convert_types(input_value, required_types_mixed, path_to_item,
     input_class_simple = get_simple_class(input_value)
     valid_type = is_valid_type(input_class_simple, valid_classes)
     if not valid_type:
-        if (configuration
-                or (input_class_simple == dict
-                    and dict not in valid_classes)):
+        if (configuration or (input_class_simple == dict and dict not in valid_classes)):
             # if input_value is not valid_type try to convert it
             converted_instance = attempt_convert_item(
                 input_value,

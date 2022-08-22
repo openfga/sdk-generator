@@ -16,6 +16,10 @@
     "credentials_test.mustache": {
       "destinationFilename": "test/test_credentials.py",
       "templateType": "SupportingFiles"
+    },
+    "exceptions_specific.mustache": {
+      "destinationFilename": "openfga_sdk/exceptions_specific.py",
+      "templateType": "SupportingFiles"
     }
   }
 }

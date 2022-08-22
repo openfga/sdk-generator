@@ -633,7 +633,7 @@ class ApiClient(object):
         if self.configuration.credentials is not None:
             added_headers = self.configuration.credentials.get_authentication_header(self.rest_client)
             for key, value in added_headers.items():
-                headers.add(key, value)
+                headers[key] = value
 
         if not auth_settings:
             return
