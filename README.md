@@ -163,6 +163,9 @@ Note: Semgrep will be automatically enabled - there is nothing you need to do fo
 | `DOTNET_SDK_GITHUB_ORG_ID`  | The GitHub org for the SDK             |
 | `DOTNET_SDK_GITHUB_REPO_ID` | The GitHub repo id for the SDK         |
 | `DOTNET_SDK_SSH_KEY`        | The SSH private deploy key for the SDK |
+| `PYTHON_SDK_GITHUB_ORG_ID`  | The GitHub org for the SDK             |
+| `PYTHON_SDK_GITHUB_REPO_ID` | The GitHub repo id for the SDK         |
+| `PYTHON_SDK_SSH_KEY`        | The SSH private deploy key for the SDK |
 
 The following keys are also available but should be considered deprecated. Automated release is disabled due to the complexity of generating relevant commit messages when using a generator.
 
@@ -186,7 +189,7 @@ In addition, we ask that the SDKs:
 
 * be generated from the [openapiv2 swagger document](https://github.com/openfga/api/blob/main/docs/openapiv2/apidocs.swagger.json) using the sdk-generator.
 
-* have roughly the same consistent interface for configuration, such as [JS](https://github.com/openfga/js-sdk), [GoLang](https://github.com/openfga/go-sdk) and [.NET](https://github.com/openfga/dotnet-sdk) SDKs.
+* have roughly the same consistent interface for configuration, such as [JS](https://github.com/openfga/js-sdk), [GoLang](https://github.com/openfga/go-sdk), [.NET](https://github.com/openfga/dotnet-sdk) and [Python](https://github.com/openfga/python-sdk) SDKs.
 
 * support the same features with other existing SDKs.
 
