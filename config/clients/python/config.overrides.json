@@ -20,6 +20,10 @@
     "exceptions_specific.mustache": {
       "destinationFilename": "openfga_sdk/exceptions_specific.py",
       "templateType": "SupportingFiles"
+    },
+    "model_utils_test.mustache": {
+      "destinationFilename": "test/test_model_utils.py",
+      "templateType": "SupportingFiles"
     }
   }
 }
