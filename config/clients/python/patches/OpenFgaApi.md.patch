@@ -1,0 +1,52 @@
+--- OpenFgaApi.md	2022-08-24 15:36:22.000000000 -0400
++++ OpenFgaApi.md.changes	2022-08-24 16:27:28.000000000 -0400
+@@ -126,7 +126,7 @@
+ [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+ 
+ # **create_store**
+-> CreateStoreResponse create_store()
++> CreateStoreResponse create_store(body)
+ 
+ Create a store
+ 
+@@ -148,12 +148,10 @@
+ # To configure the configuration
+ # host is mandatory
+ # api_scheme is optional and default to https
+-# store_id is mandatory
+ # See configuration.py for a list of all supported configuration parameters.
+ configuration = openfga_sdk.Configuration(
+     scheme = "https",
+     api_host = "http://localhost",
+-    store_id = 'YOUR_STORE_ID',
+ )
+ 
+ 
+@@ -162,7 +160,6 @@
+ configuration = openfga_sdk.Configuration(
+     scheme = "https",
+     host = "api.fga.example",
+-    store_id = 'YOUR_STORE_ID',
+     credentials = credentials
+ )
+ 
+@@ -174,7 +171,10 @@
+     # example passing only required values which don't have defaults set
+     try:
+         # Create a store
+-        api_response = api_instance.create_store()
++        body = CreateStoreRequest(
++            name = "my-store-name",
++        )
++        api_response = api_instance.create_store(body)
+         pprint(api_response)
+     except openfga_sdk.ApiException as e:
+         print("Exception when calling OpenFgaApi->create_store: %s\n" % e)
+@@ -185,6 +185,7 @@
+ 
+ Name | Type | Description  | Notes
+ ------------- | ------------- | ------------- | -------------
++ **body** | [**CreateStoreRequest**](CreateStoreRequest.md)|  |
+ 
+ ### Return type
+ 

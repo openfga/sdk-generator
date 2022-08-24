@@ -13,10 +13,6 @@ with {{{packageName}}}.ApiClient(configuration) as api_client:
 {{/hasAuthMethods}}
 {{^hasAuthMethods}}
 {{#requiredParams}}
-{{#-first}}
-# For this endpoint, configuration requires store_id to be configured
-configuration.store_id = 'YOUR_STORE_ID'
-{{/-first}}
 {{/requiredParams}}
 with {{{packageName}}}.ApiClient(configuration) as api_client:
 {{/hasAuthMethods}}
