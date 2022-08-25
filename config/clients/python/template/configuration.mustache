@@ -62,10 +62,6 @@ class Configuration(object):
       disabled. This can be useful to troubleshoot data validation problem, such as
       when the OpenAPI document validation rules do not match the actual API data
       received by the server.
-{{#hasHttpSignatureMethods}}
-    :param signing_info: Configuration parameters for the HTTP signature security scheme.
-        Must be an instance of {{{packageName}}}.signing.HttpSigningConfiguration
-{{/hasHttpSignatureMethods}}
     :param server_index: Index to servers configuration.
     :param server_variables: Mapping with string values to replace variables in
       templated server configuration. The validation of enums is performed for
@@ -77,90 +73,6 @@ class Configuration(object):
       The validation of enums is performed for variables with defined enum values before.
     :param ssl_ca_cert: str - the path to a file of concatenated CA certificates
       in PEM format
-
-{{#hasAuthMethods}}
-    :Example:
-{{#hasApiKeyMethods}}
-
-    API Key Authentication Example.
-    Given the following security scheme in the OpenAPI specification:
-      components:
-        securitySchemes:
-          cookieAuth:         # name for the security scheme
-            type: apiKey
-            in: cookie
-            name: JSESSIONID  # cookie name
-
-    You can programmatically set the cookie:
-
-conf = {{{packageName}}}.Configuration(
-    api_key={'cookieAuth': 'abc123'}
-    api_key_prefix={'cookieAuth': 'JSESSIONID'}
-)
-
-    The following cookie will be added to the HTTP request:
-       Cookie: JSESSIONID abc123
-{{/hasApiKeyMethods}}
-{{#hasHttpBasicMethods}}
-
-    HTTP Basic Authentication Example.
-    Given the following security scheme in the OpenAPI specification:
-      components:
-        securitySchemes:
-          http_basic_auth:
-            type: http
-            scheme: basic
-
-    Configure API client with HTTP basic authentication:
-
-conf = {{{packageName}}}.Configuration(
-    username='the-user',
-    password='the-password',
-)
-
-{{/hasHttpBasicMethods}}
-{{#hasHttpSignatureMethods}}
-
-    HTTP Signature Authentication Example.
-    Given the following security scheme in the OpenAPI specification:
-      components:
-        securitySchemes:
-          http_basic_auth:
-            type: http
-            scheme: signature
-
-    Configure API client with HTTP signature authentication. Use the 'hs2019' signature scheme,
-    sign the HTTP requests with the RSA-SSA-PSS signature algorithm, and set the expiration time
-    of the signature to 5 minutes after the signature has been created.
-    Note you can use the constants defined in the {{{packageName}}}.signing module, and you can
-    also specify arbitrary HTTP headers to be included in the HTTP signature, except for the
-    'Authorization' header, which is used to carry the signature.
-
-    One may be tempted to sign all headers by default, but in practice it rarely works.
-    This is because explicit proxies, transparent proxies, TLS termination endpoints or
-    load balancers may add/modify/remove headers. Include the HTTP headers that you know
-    are not going to be modified in transit.
-
-conf = {{{packageName}}}.Configuration(
-    signing_info = {{{packageName}}}.signing.HttpSigningConfiguration(
-        key_id =                 'my-key-id',
-        private_key_path =       'rsa.pem',
-        signing_scheme =         {{{packageName}}}.signing.SCHEME_HS2019,
-        signing_algorithm =      {{{packageName}}}.signing.ALGORITHM_RSASSA_PSS,
-        signed_headers =         [{{{packageName}}}.signing.HEADER_REQUEST_TARGET,
-                                    {{{packageName}}}.signing.HEADER_CREATED,
-                                    {{{packageName}}}.signing.HEADER_EXPIRES,
-                                    {{{packageName}}}.signing.HEADER_HOST,
-                                    {{{packageName}}}.signing.HEADER_DATE,
-                                    {{{packageName}}}.signing.HEADER_DIGEST,
-                                    'Content-Type',
-                                    'User-Agent'
-                                    ],
-        signature_max_validity = datetime.timedelta(minutes=5)
-    )
-)
-{{/hasHttpSignatureMethods}}
-{{/hasAuthMethods}}
     """
 
     _default = None
@@ -173,9 +85,6 @@ conf = {{{packageName}}}.Configuration(
                  username=None, password=None,
                  discard_unknown_keys=False,
                  disabled_client_side_validations="",
-{{#hasHttpSignatureMethods}}
-                 signing_info=None,
-{{/hasHttpSignatureMethods}}
                  server_index=None, server_variables=None,
                  server_operation_index=None, server_operation_variables=None,
                  ssl_ca_cert=None,
@@ -222,13 +131,6 @@ conf = {{{packageName}}}.Configuration(
         """
         self.discard_unknown_keys = discard_unknown_keys
         self.disabled_client_side_validations = disabled_client_side_validations
-{{#hasHttpSignatureMethods}}
-        if signing_info is not None:
-            signing_info.host = host
-        self.signing_info = signing_info
-        """The HTTP signing configuration
-        """
-{{/hasHttpSignatureMethods}}
         self.logger = {}
         """Logging Settings
         """
@@ -328,12 +230,6 @@ conf = {{{packageName}}}.Configuration(
                     raise ApiValueError(
                         "Invalid keyword: '{0}''".format(v))
             self._disabled_client_side_validations = s
-{{#hasHttpSignatureMethods}}
-        if name == "signing_info" and value is not None:
-            # Ensure the host parameter from signing info is the same as
-            # Configuration.host.
-            value.host = self.host
-{{/hasHttpSignatureMethods}}
 
     @classmethod
     def set_default(cls, default):
@@ -483,61 +379,6 @@ conf = {{{packageName}}}.Configuration(
         :return: The Auth Settings information dict.
         """
         auth = {}
-{{#authMethods}}
-{{#isApiKey}}
-        if '{{name}}' in self.api_key{{#vendorExtensions.x-auth-id-alias}} or '{{.}}' in self.api_key{{/vendorExtensions.x-auth-id-alias}}:
-            auth['{{name}}'] = {
-                'type': 'api_key',
-                'in': {{#isKeyInCookie}}'cookie'{{/isKeyInCookie}}{{#isKeyInHeader}}'header'{{/isKeyInHeader}}{{#isKeyInQuery}}'query'{{/isKeyInQuery}},
-                'key': '{{keyParamName}}',
-                'value': self.get_api_key_with_prefix(
-                    '{{name}}',{{#vendorExtensions.x-auth-id-alias}}
-                    alias='{{.}}',{{/vendorExtensions.x-auth-id-alias}}
-                ),
-            }
-{{/isApiKey}}
-{{#isBasic}}
-  {{#isBasicBasic}}
-        if self.username is not None and self.password is not None:
-            auth['{{name}}'] = {
-                'type': 'basic',
-                'in': 'header',
-                'key': 'Authorization',
-                'value': self.get_basic_auth_token()
-            }
-  {{/isBasicBasic}}
-  {{#isBasicBearer}}
-        if self.access_token is not None:
-            auth['{{name}}'] = {
-                'type': 'bearer',
-                'in': 'header',
-                {{#bearerFormat}}
-                'format': '{{{.}}}',
-                {{/bearerFormat}}
-                'key': 'Authorization',
-                'value': 'Bearer ' + self.access_token
-            }
-  {{/isBasicBearer}}
-  {{#isHttpSignature}}
-        if self.signing_info is not None:
-            auth['{{name}}'] = {
-                'type': 'http-signature',
-                'in': 'header',
-                'key': 'Authorization',
-                'value': None  # Signature headers are calculated for every HTTP request
-            }
-  {{/isHttpSignature}}
-{{/isBasic}}
-{{#isOAuth}}
-        if self.access_token is not None:
-            auth['{{name}}'] = {
-                'type': 'oauth2',
-                'in': 'header',
-                'key': 'Authorization',
-                'value': 'Bearer ' + self.access_token
-            }
-{{/isOAuth}}
-{{/authMethods}}
         return auth
 
     def to_debug_report(self):

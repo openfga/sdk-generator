@@ -119,26 +119,6 @@ test-client-python: build-client-python
 .PHONY: build-client-python
 build-client-python:
 	make build-client sdk_language=python tmpdir=${TMP_DIR}
-	# Update so that Python dictionary is defined correctly
-	sed -i -e "s|\"key\": |key=|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	sed -i -e "s|from openfga_sdk.model.tuple_keys import TupleKeys|from openfga_sdk.model.tuple_key import TupleKey\nfrom openfga_sdk.model.tuple_keys import TupleKeys|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	# Rename README's subsection from auto-generated value
-	sed -i -e "s|#### list_stores|#### List Stores|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	sed -i -e "s|#### create_store|#### Create Store|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	sed -i -e "s|#### get_store|#### Get Store|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	sed -i -e "s|#### delete_store|#### Delete Store|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	sed -i -e "s|#### write_authorization_model|#### Write Authorization Model|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	sed -i -e "s|#### read_authorization_models|#### Read Authorization Model IDs|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	sed -i -e "s|#### read_authorization_model|#### Read a Single Authorization Model|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	sed -i -e "s|#### check|#### Check|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	sed -i -e "s|#### write_assertions|#### Write Assertions|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	sed -i -e "s|#### write|#### Write Tuples\n#### Delete Tuples|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	sed -i -e "s|#### expand|#### Expand|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	sed -i -e "s|#### read_assertions|#### Read Assertions|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	sed -i -e "s|#### read_changes|#### Read Changes (Watch)|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	sed -i -e "s|#### read|#### Read Tuples|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	sed -i -e "s|#### list_objects|#### List Objects|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md
-	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/README.md-e
 	sed -i -e "s|\"key\": |key=|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md
 	sed -i -e "s|from openfga_sdk.model.tuple_keys import TupleKeys|from openfga_sdk.model.tuple_key import TupleKey\nfrom openfga_sdk.model.tuple_keys import TupleKeys|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md
 	rm -rf ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md-e
@@ -150,7 +130,6 @@ build-client-python:
 	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/api/open_fga_api.py-e
 	# Need to apply patch to override create_store documentation
 	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/docs/OpenFgaApi.md /config/clients/python/patches/OpenFgaApi.md.patch'"
-	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/README.md /config/clients/python/patches/README.md.patch'"
 	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/openfga_sdk/api/open_fga_api.py /config/clients/python/patches/open_fga_api.py.patch'"
 
 	# Need to ignore E402 (import order) to avoid circular dependency

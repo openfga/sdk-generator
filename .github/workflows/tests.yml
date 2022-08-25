@@ -208,13 +208,12 @@ jobs:
           GIT_USER_NAME: ${{ secrets.GIT_USER_NAME }}
           GIT_USER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
 
-      # Commented out for now until we publish the SDK
       - name: Clone the existing SDK
         run: ./scripts/clone_sdk.sh
         env:
-          GITHUB_ORG_ID: ${{ secrets.DOTNET_SDK_GITHUB_ORG_ID }}
-          GITHUB_REPO_ID: ${{ secrets.DOTNET_SDK_GITHUB_REPO_ID }}
-          SSH_KEY: ${{ secrets.DOTNET_SDK_SSH_KEY }}
+          GITHUB_ORG_ID: ${{ secrets.PYTHON_SDK_GITHUB_ORG_ID }}
+          GITHUB_REPO_ID: ${{ secrets.PYTHON_SDK_GITHUB_REPO_ID }}
+          SSH_KEY: ${{ secrets.PYTHON_SDK_SSH_KEY }}
           SDK_PATH: clients/fga-python-sdk
           KNOWN_HOSTS: ${{secrets.KNOWN_HOSTS}}
 
@@ -260,13 +259,12 @@ jobs:
           fossa analyze
           fossa test
 
-      # Commented out for now until SDK is published
-      #- name: Check for SDK changes
-      #  run: ./scripts/commit_push_changes.sh
-      #  env:
-      #    SDK_PATH: clients/fga-python-sdk
-      #    DRY_RUN: 1
-      #    TAGGING_DISABLE: 1
-      #    GITHUB_ORG_ID: ${{ secrets.PYTHON_SDK_GITHUB_ORG_ID }}
-      #    GITHUB_REPO_ID: ${{ secrets.PYTHON_SDK_GITHUB_REPO_ID }}
-      #    SSH_KEY: ${{ secrets.PYTHON_SDK_SSH_KEY }}
+      - name: Check for SDK changes
+        run: ./scripts/commit_push_changes.sh
+        env:
+          SDK_PATH: clients/fga-python-sdk
+          DRY_RUN: 1
+          TAGGING_DISABLE: 1
+          GITHUB_ORG_ID: ${{ secrets.PYTHON_SDK_GITHUB_ORG_ID }}
+          GITHUB_REPO_ID: ${{ secrets.PYTHON_SDK_GITHUB_REPO_ID }}
+          SSH_KEY: ${{ secrets.PYTHON_SDK_SSH_KEY }}
