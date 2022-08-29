@@ -288,6 +288,7 @@ class {{#operations}}Test{{classname}}(unittest.TestCase):
             # Get all stores
             api_response = api_instance.list_objects(body)
             self.assertIsInstance(api_response, ListObjectsResponse)
+            self.assertEqual(api_response.object_ids, ['abcd1234'])
             mock_request.assert_called_once_with(
                 'POST',
                 'http://api.{{sampleApiDomain}}/stores/d12345abc/list-objects',

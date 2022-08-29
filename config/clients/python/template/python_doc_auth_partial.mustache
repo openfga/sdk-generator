@@ -9,7 +9,7 @@
 # See configuration.py for a list of all supported configuration parameters.
 configuration = {{{packageName}}}.Configuration(
     scheme = "https",
-    api_host = "{{{basePath}}}",
+    api_host = "api.{{{sampleApiDomain}}}",
 {{#requiredParams}}
 {{#-first}}
     store_id = 'YOUR_STORE_ID',
@@ -18,11 +18,11 @@ configuration = {{{packageName}}}.Configuration(
 )
 
 
-# In the case authenticate via API TOKEN
+# When authenticating via the API TOKEN method
 credentials = Credentials(method='api_token', configuration=CredentialConfiguration(api_token='TOKEN1'))
 configuration = {{{packageName}}}.Configuration(
     scheme = "https",
-    host = "api.{{{sampleApiDomain}}}",
+    api_host = "api.{{{sampleApiDomain}}}",
 {{#requiredParams}}
 {{#-first}}
     store_id = 'YOUR_STORE_ID',

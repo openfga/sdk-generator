@@ -125,10 +125,7 @@ build-client-python:
 	# The return value is falsely marked as not found
 	sed -i -e "s|-> 'relations':|-> 'relations': # noqa: F821|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/model/type_definition.py
 	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/model/type_definition.py-e
-	# The body 
-	sed -i -e "s|kwargs\['body'\] = self.create_store_endpoint._get_store_id()||g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/api/open_fga_api.py
-	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/api/open_fga_api.py-e
-	# Need to apply patch to override create_store documentation
+	# Need to apply patch to override create_store documentation and body
 	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/docs/OpenFgaApi.md /config/clients/python/patches/OpenFgaApi.md.patch'"
 	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/openfga_sdk/api/open_fga_api.py /config/clients/python/patches/open_fga_api.py.patch'"
 

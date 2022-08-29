@@ -85,6 +85,10 @@ jobs:
             python -m pip install -r test-requirements.txt
       - name: Test
         run: python -m unittest test/*
+      - name: Flake8 on SDK
+        run: python -m flake8 --ignore F401,E402,E501,W504 openfga_sdk
+      - name: Flake8 on unit test
+        run: python -m flake8 --ignore E501 test
 
   create-release:
     runs-on: ubuntu-latest

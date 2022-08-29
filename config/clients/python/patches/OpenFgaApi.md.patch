@@ -17,7 +17,7 @@
  # See configuration.py for a list of all supported configuration parameters.
  configuration = openfga_sdk.Configuration(
      scheme = "https",
-     api_host = "http://localhost",
+     api_host = "api.fga.example",
 -    store_id = 'YOUR_STORE_ID',
  )
  
@@ -25,7 +25,7 @@
 @@ -162,7 +160,6 @@
  configuration = openfga_sdk.Configuration(
      scheme = "https",
-     host = "api.fga.example",
+     api_host = "api.fga.example",
 -    store_id = 'YOUR_STORE_ID',
      credentials = credentials
  )
