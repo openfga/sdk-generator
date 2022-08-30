@@ -9,8 +9,8 @@ import {{packageName}}
 from {{packageName}}.api import open_fga_api
 
 configuration = {{packageName}}.Configuration(
-    scheme = 'https',
-    host = 'api.{{sampleApiDomain}}'
+    api_scheme = 'https',
+    api_host = 'api.{{sampleApiDomain}}'
 )
 
 # Enter a context with an instance of the API client
@@ -29,8 +29,8 @@ import {{packageName}}
 from {{packageName}}.api import open_fga_api
 
 configuration = openfga_sdk.Configuration(
-    scheme = 'https',
-    host = 'api.{{sampleApiDomain}}',
+    api_scheme = 'https',
+    api_host = 'api.{{sampleApiDomain}}',
     store_id = 'YOUR_STORE_ID'
 )
 
@@ -48,8 +48,8 @@ import {{packageName}}
 from {{packageName}}.api import open_fga_api
 
 configuration = openfga_sdk.Configuration(
-    scheme = 'https',
-    host = 'api.{{sampleApiDomain}}'
+    api_scheme = 'https',
+    api_host = 'api.{{sampleApiDomain}}'
 )
 
 configuration.store_id = 'YOUR_STORE_ID'
@@ -72,8 +72,8 @@ from {{packageName}}.credentials import Credentials, CredentialConfiguration
 
 credentials = Credentials(method='api_token', configuration=CredentialConfiguration(api_token='TOKEN1'))
 configuration = {{packageName}}.Configuration(
-    scheme = 'https',
-    host = 'api.{{sampleApiDomain}}',
+    api_scheme = 'https',
+    api_host = 'api.{{sampleApiDomain}}',
     credentials = credentials
 )
 
