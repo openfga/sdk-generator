@@ -3,36 +3,18 @@
 [API Documentation]({{apiDocsUrl}}/docs/api#/Stores/ListStores)
 
 ```python
-import os
-import openfga_sdk
-from openfga_sdk.api import open_fga_api
-from openfga_sdk.model.list_stores_response import ListStoresResponse
-from openfga_sdk.model.validation_error_message_response import ValidationErrorMessageResponse
-from openfga_sdk.model.path_unknown_error_message_response import PathUnknownErrorMessageResponse
-from openfga_sdk.model.internal_error_message_response import InternalErrorMessageResponse
-from pprint import pprint
-# To configure the configuration
-# api_host is mandatory
-# api_scheme is optional and default to https
-# See configuration.py for a list of all supported configuration parameters.
 configuration = openfga_sdk.Configuration(
     api_scheme = os.environ.get({{appUpperCaseName}}_API_SCHEME),
     api_host = os.environ.get({{appUpperCaseName}}_API_HOST),
 )
 
-# Enter a context with an instance of the API client
-with openfga_sdk.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
+# Create an instance of the API class
+api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
 
-    # example passing without optional values
-    try:
-        # Get all stores
-        response = api_instance.list_stores()
-		# response = ListStoreResponse(...)
-        # response.stores = [Store({"id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z"})]
-    except openfga_sdk.ApiException as e:
-        print("Exception when calling OpenFgaApi->list_stores: %s\n" % e)
+# Get all stores
+response = api_instance.list_stores()
+# response = ListStoreResponse(...)
+# response.stores = [Store({"id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z"})]
 
 ```
 
@@ -41,38 +23,20 @@ with openfga_sdk.ApiClient(configuration) as api_client:
 [API Documentation]({{apiDocsUrl}}/docs/api#/Stores/CreateStore)
 
 ```python
-import os
-import openfga_sdk
-from openfga_sdk.api import open_fga_api
-from openfga_sdk.model.create_store_request import CreateStoreRequest
-from openfga_sdk.model.validation_error_message_response import ValidationErrorMessageResponse
-from openfga_sdk.model.create_store_response import CreateStoreResponse
-from openfga_sdk.model.path_unknown_error_message_response import PathUnknownErrorMessageResponse
-from openfga_sdk.model.internal_error_message_response import InternalErrorMessageResponse
-from pprint import pprint
-# To configure the configuration
-# api_host is mandatory
-# api_scheme is optional and default to https
-# See configuration.py for a list of all supported configuration parameters.
 configuration = openfga_sdk.Configuration(
     api_scheme = os.environ.get({{appUpperCaseName}}_API_SCHEME),
     api_host = os.environ.get({{appUpperCaseName}}_API_HOST),
 )
 
-# Enter a context with an instance of the API client
-with openfga_sdk.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
+# Create an instance of the API class
+api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
 
-    try:
-        # Create a store
-        body = CreateStoreRequest(
-            name = "FGA Demo Store",
-        )
-        response = api_instance.create_store(body)
-        # response.id = "01FQH7V8BEG3GPQW93KTRFR8JB"
-    except openfga_sdk.ApiException as e:
-        print("Exception when calling OpenFgaApi->create_store: %s\n" % e)
+# Create a store
+body = CreateStoreRequest(
+    name = "FGA Demo Store",
+)
+response = api_instance.create_store(body)
+# response.id = "01FQH7V8BEG3GPQW93KTRFR8JB"
 ```
 
 
@@ -83,36 +47,18 @@ with openfga_sdk.ApiClient(configuration) as api_client:
 > Requires a client initialized with a storeId
 
 ```python
-import os
-import openfga_sdk
-from openfga_sdk.api import open_fga_api
-from openfga_sdk.model.get_store_response import GetStoreResponse
-from openfga_sdk.model.validation_error_message_response import ValidationErrorMessageResponse
-from openfga_sdk.model.path_unknown_error_message_response import PathUnknownErrorMessageResponse
-from openfga_sdk.model.internal_error_message_response import InternalErrorMessageResponse
-from pprint import pprint
-# To configure the configuration
-# api_host is mandatory
-# api_scheme is optional and default to https
-# store_id is mandatory
-# See configuration.py for a list of all supported configuration parameters.
 configuration = openfga_sdk.Configuration(
     api_scheme = os.environ.get({{appUpperCaseName}}_API_SCHEME),
     api_host = os.environ.get({{appUpperCaseName}}_API_HOST),
     store_id = os.environ.get({{appUpperCaseName}}_STORE_ID),
 )
 
-# Enter a context with an instance of the API client
-with openfga_sdk.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
+# Create an instance of the API class
+api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
 
-    try:
-        # Get a store
-        response = api_instance.get_store()
-        # response = Store({"id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z"})
-    except openfga_sdk.ApiException as e:
-        print("Exception when calling OpenFgaApi->get_store: %s\n" % e)
+# Get a store
+response = api_instance.get_store()
+# response = Store({"id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z"})
 ```
 
 
@@ -123,34 +69,17 @@ with openfga_sdk.ApiClient(configuration) as api_client:
 > Requires a client initialized with a storeId
 
 ```python
-import os
-import openfga_sdk
-from openfga_sdk.api import open_fga_api
-from openfga_sdk.model.validation_error_message_response import ValidationErrorMessageResponse
-from openfga_sdk.model.path_unknown_error_message_response import PathUnknownErrorMessageResponse
-from openfga_sdk.model.internal_error_message_response import InternalErrorMessageResponse
-from pprint import pprint
-# To configure the configuration
-# api_host is mandatory
-# api_scheme is optional and default to https
-# store_id is mandatory
-# See configuration.py for a list of all supported configuration parameters.
 configuration = openfga_sdk.Configuration(
     api_scheme = os.environ.get({{appUpperCaseName}}_API_SCHEME),
     api_host = os.environ.get({{appUpperCaseName}}_API_HOST),
     store_id = os.environ.get({{appUpperCaseName}}_STORE_ID),
 )
 
-# Enter a context with an instance of the API client
-with openfga_sdk.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
+# Create an instance of the API class
+api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
 
-    try:
-        # Delete a store
-        api_instance.delete_store()
-    except openfga_sdk.ApiException as e:
-        print("Exception when calling OpenFgaApi->delete_store: %s\n" % e)
+# Delete a store
+api_instance.delete_store()
 ```
 
 #### Write Authorization Model
@@ -164,66 +93,41 @@ with openfga_sdk.ApiClient(configuration) as api_client:
 > Learn more about [the {{appName}} configuration language]({{docsUrl}}/configuration-language).
 
 ```python
-import os
-import openfga_sdk
-from openfga_sdk.api import open_fga_api
-from openfga_sdk.model.write_authorization_model_response import WriteAuthorizationModelResponse
-from openfga_sdk.model.type_definition import TypeDefinition
-from openfga_sdk.model.type_definitions import TypeDefinitions
-from openfga_sdk.model.userset import Userset
-from openfga_sdk.model.usersets import Usersets
-from openfga_sdk.model.object_relaton import ObjectRelation
-from openfga_sdk.model.tuple_to_userset import TupleToUserset
-from openfga_sdk.model.difference import Difference
-from openfga_sdk.model.validation_error_message_response import ValidationErrorMessageResponse
-from openfga_sdk.model.path_unknown_error_message_response import PathUnknownErrorMessageResponse
-from openfga_sdk.model.internal_error_message_response import InternalErrorMessageResponse
-from pprint import pprint
-# To configure the configuration
-# api_host is mandatory
-# api_scheme is optional and default to https
-# store_id is mandatory
-# See configuration.py for a list of all supported configuration parameters.
 configuration = openfga_sdk.Configuration(
     api_scheme = os.environ.get({{appUpperCaseName}}_API_SCHEME),
     api_host = os.environ.get({{appUpperCaseName}}_API_HOST),
     store_id = os.environ.get({{appUpperCaseName}}_STORE_ID),
 )
 
-# Enter a context with an instance of the API client
-with openfga_sdk.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
-    type_definitions = TypeDefinitions(
-        type_definitions=[
-            TypeDefinition(
-                type="document",
-                relations=dict(
-                    writer=Userset(
-                        this=dict(),
+# Create an instance of the API class
+api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+type_definitions = TypeDefinitions(
+    type_definitions=[
+        TypeDefinition(
+            type="document",
+            relations=dict(
+                writer=Userset(
+                    this=dict(),
+                ),
+                viewer=Userset(
+                    union=Usersets(
+                        child=[
+                            Userset(this=dict()),
+                            Userset(computed_userset=ObjectRelation(
+                                object="",
+                                relation="writer",
+                            )),
+                        ],
                     ),
-                    viewer=Userset(
-                        union=Usersets(
-                            child=[
-                                Userset(this=dict()),
-                                Userset(computed_userset=ObjectRelation(
-                                    object="",
-                                    relation="writer",
-                                )),
-                            ],
-                        ),
-                    ),
-                )
-            ),
-        ],
-    )
+                ),
+            )
+        ),
+    ],
+)
 
-    try:
-        # Create a new authorization model
-        response = api_instance.write_authorization_model(type_definitions)
-        # response.id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"
-    except openfga_sdk.ApiException as e:
-        print("Exception when calling OpenFgaApi->write_authorization_model: %s\n" % e)
+# Create a new authorization model
+response = api_instance.write_authorization_model(type_definitions)
+# response.id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"
 ```
 
 
@@ -232,37 +136,19 @@ with openfga_sdk.ApiClient(configuration) as api_client:
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
 
 ```python
-import os
-import openfga_sdk
-from openfga_sdk.api import open_fga_api
-from openfga_sdk.model.validation_error_message_response import ValidationErrorMessageResponse
-from openfga_sdk.model.read_authorization_model_response import ReadAuthorizationModelResponse
-from openfga_sdk.model.path_unknown_error_message_response import PathUnknownErrorMessageResponse
-from openfga_sdk.model.internal_error_message_response import InternalErrorMessageResponse
-from pprint import pprint
-# To configure the configuration
-# api_host is mandatory
-# api_scheme is optional and default to https
-# store_id is mandatory
-# See configuration.py for a list of all supported configuration parameters.
 configuration = openfga_sdk.Configuration(
     api_scheme = os.environ.get({{appUpperCaseName}}_API_SCHEME),
     api_host = os.environ.get({{appUpperCaseName}}_API_HOST),
     store_id = os.environ.get({{appUpperCaseName}}_STORE_ID),
 )
 
-# Enter a context with an instance of the API client
-with openfga_sdk.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
-    id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw" #  Assuming `1uHxCSuTP0VKPYSnkq1pbb1jeZw` is an id of an existing model
+# Create an instance of the API class
+api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw" #  Assuming `1uHxCSuTP0VKPYSnkq1pbb1jeZw` is an id of an existing model
 
-    try:
-        # Return a particular version of an authorization model
-        response = api_instance.read_authorization_model(id)
-        # response.authorization_model =  AuthorizationModel(id='1uHxCSuTP0VKPYSnkq1pbb1jeZw', type_definitions=type_definitions[...])
-    except openfga_sdk.ApiException as e:
-        print("Exception when calling OpenFgaApi->read_authorization_model: %s\n" % e)
+# Return a particular version of an authorization model
+response = api_instance.read_authorization_model(id)
+# response.authorization_model =  AuthorizationModel(id='1uHxCSuTP0VKPYSnkq1pbb1jeZw', type_definitions=type_definitions[...])
 ```
 
 #### Read Authorization Model IDs
@@ -270,38 +156,18 @@ with openfga_sdk.ApiClient(configuration) as api_client:
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModels)
 
 ```python
-import os
-import openfga_sdk
-from openfga_sdk.api import open_fga_api
-from openfga_sdk.model.validation_error_message_response import ValidationErrorMessageResponse
-from openfga_sdk.model.read_authorization_models_response import ReadAuthorizationModelsResponse
-from openfga_sdk.model.path_unknown_error_message_response import PathUnknownErrorMessageResponse
-from openfga_sdk.model.internal_error_message_response import InternalErrorMessageResponse
-from pprint import pprint
-# To configure the configuration
-# api_host is mandatory
-# api_scheme is optional and default to https
-# store_id is mandatory
-# See configuration.py for a list of all supported configuration parameters.
 configuration = openfga_sdk.Configuration(
     api_scheme = os.environ.get({{appUpperCaseName}}_API_SCHEME),
     api_host = os.environ.get({{appUpperCaseName}}_API_HOST),
     store_id = os.environ.get({{appUpperCaseName}}_STORE_ID),
 )
 
-# Enter a context with an instance of the API client
-with openfga_sdk.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
+# Create an instance of the API class
+api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
 
-    # example passing without optional values
-    try:
-        # Return all the authorization models for a particular store
-        response = api_instance.read_authorization_models()
-        response.authorization_models = [AuthorizationModel(id='1uHxCSuTP0VKPYSnkq1pbb1jeZw', type_definitions=type_definitions[...], AuthorizationModel(id='GtQpMohWezFmIbyXxVEocOCxxgq', type_definitions=type_definitions[...])]
-    except openfga_sdk.ApiException as e:
-        print("Exception when calling OpenFgaApi->read_authorization_models: %s\n" % e)
-
+# Return all the authorization models for a particular store
+response = api_instance.read_authorization_models()
+# response.authorization_models = [AuthorizationModel(id='1uHxCSuTP0VKPYSnkq1pbb1jeZw', type_definitions=type_definitions[...], AuthorizationModel(id='GtQpMohWezFmIbyXxVEocOCxxgq', type_definitions=type_definitions[...])]
 ```
 
 
@@ -310,44 +176,25 @@ with openfga_sdk.ApiClient(configuration) as api_client:
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Check)
 
 ```python
-import os
-import openfga_sdk
-from openfga_sdk.api import open_fga_api
-from openfga_sdk.model.validation_error_message_response import ValidationErrorMessageResponse
-from openfga_sdk.model.check_response import CheckResponse
-from openfga_sdk.model.path_unknown_error_message_response import PathUnknownErrorMessageResponse
-from openfga_sdk.model.internal_error_message_response import InternalErrorMessageResponse
-from openfga_sdk.model.check_request import CheckRequest
-from openfga_sdk.model.tuple_key import TupleKey
-from pprint import pprint
-# To configure the configuration
-# api_host is mandatory
-# api_scheme is optional and default to https
-# See configuration.py for a list of all supported configuration parameters.
 configuration = openfga_sdk.Configuration(
     api_scheme = os.environ.get({{appUpperCaseName}}_API_SCHEME),
     api_host = os.environ.get({{appUpperCaseName}}_API_HOST),
     store_id = os.environ.get({{appUpperCaseName}}_STORE_ID),
 )
 
-# Enter a context with an instance of the API client
-with openfga_sdk.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
-    body = CheckRequest(
-        tuple_key=TupleKey(
-            user="81684243-9356-4421-8fbf-a4f8d36aa31b",
-            relation="admin",
-            object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
-        ),
-    ) # CheckRequest | 
+# Create an instance of the API class
+api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+body = CheckRequest(
+    tuple_key=TupleKey(
+        user="81684243-9356-4421-8fbf-a4f8d36aa31b",
+        relation="admin",
+        object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+    ),
+)
 
-    try:
-        # Check whether a user is authorized to access an object
-        response = api_instance.check(body)
-        # response.allowed = True
-    except openfga_sdk.ApiException as e:
-        print("Exception when calling OpenFgaApi->check: %s\n" % e)
+# Check whether a user is authorized to access an object
+response = api_instance.check(body)
+# response.allowed = True
 ```
 
 
@@ -356,48 +203,28 @@ with openfga_sdk.ApiClient(configuration) as api_client:
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
 
 ```python
-import os
-import openfga_sdk
-from openfga_sdk.api import open_fga_api
-from openfga_sdk.model.validation_error_message_response import ValidationErrorMessageResponse
-from openfga_sdk.model.path_unknown_error_message_response import PathUnknownErrorMessageResponse
-from openfga_sdk.model.write_request import WriteRequest
-from openfga_sdk.model.internal_error_message_response import InternalErrorMessageResponse
-from openfga_sdk.model.tuple_key import TupleKey
-from openfga_sdk.model.tuple_keys import TupleKeys
-from pprint import pprint
-# To configure the configuration
-# api_host is mandatory
-# api_scheme is optional and default to https
-# store_id is mandatory
-# See configuration.py for a list of all supported configuration parameters.
 configuration = openfga_sdk.Configuration(
     api_scheme = os.environ.get({{appUpperCaseName}}_API_SCHEME),
     api_host = os.environ.get({{appUpperCaseName}}_API_HOST),
     store_id = os.environ.get({{appUpperCaseName}}_STORE_ID),
 )
 
-# Enter a context with an instance of the API client
-with openfga_sdk.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
-    body = WriteRequest(
-        writes=TupleKeys(
-            tuple_keys=[
-                TupleKey(
-                    user="81684243-9356-4421-8fbf-a4f8d36aa31b",
-                    relation="admin",
-                    object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
-                ),
-            ],
-        ),
-    )
+# Create an instance of the API class
+api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+body = WriteRequest(
+    writes=TupleKeys(
+        tuple_keys=[
+            TupleKey(
+                user="81684243-9356-4421-8fbf-a4f8d36aa31b",
+                relation="admin",
+                object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+            ),
+        ],
+    ),
+)
 
-    try:
-        # Add tuples from the store
-        response = api_instance.write(body)
-    except openfga_sdk.ApiException as e:
-        print("Exception when calling OpenFgaApi->write: %s\n" % e)
+# Add tuples from the store
+response = api_instance.write(body)
 ```
 
 #### Delete Tuples
@@ -405,48 +232,28 @@ with openfga_sdk.ApiClient(configuration) as api_client:
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
 
 ```python
-import os
-import openfga_sdk
-from openfga_sdk.api import open_fga_api
-from openfga_sdk.model.validation_error_message_response import ValidationErrorMessageResponse
-from openfga_sdk.model.path_unknown_error_message_response import PathUnknownErrorMessageResponse
-from openfga_sdk.model.write_request import WriteRequest
-from openfga_sdk.model.internal_error_message_response import InternalErrorMessageResponse
-from openfga_sdk.model.tuple_key import TupleKey
-from openfga_sdk.model.tuple_keys import TupleKeys
-from pprint import pprint
-# To configure the configuration
-# api_host is mandatory
-# api_scheme is optional and default to https
-# store_id is mandatory
-# See configuration.py for a list of all supported configuration parameters.
 configuration = openfga_sdk.Configuration(
     api_scheme = os.environ.get({{appUpperCaseName}}_API_SCHEME),
     api_host = os.environ.get({{appUpperCaseName}}_API_HOST),
     store_id = os.environ.get({{appUpperCaseName}}_STORE_ID),
 )
 
-# Enter a context with an instance of the API client
-with openfga_sdk.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
-    body = WriteRequest(
-        deletes=TupleKeys(
-            tuple_keys=[
-                TupleKey(
-                    user="81684243-9356-4421-8fbf-a4f8d36aa31b",
-                    relation="reader",
-                    object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
-                ),
-            ],
-        ),
-    ) 
+# Create an instance of the API class
+api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+body = WriteRequest(
+    deletes=TupleKeys(
+        tuple_keys=[
+            TupleKey(
+                user="81684243-9356-4421-8fbf-a4f8d36aa31b",
+                relation="reader",
+                object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+            ),
+        ],
+    ),
+) 
 
-    try:
-        # Delete tuples from the store
-        response = api_instance.write(body)
-    except openfga_sdk.ApiException as e:
-        print("Exception when calling OpenFgaApi->write: %s\n" % e)
+# Delete tuples from the store
+response = api_instance.write(body)
 ```
 
 #### Expand
@@ -454,44 +261,24 @@ with openfga_sdk.ApiClient(configuration) as api_client:
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Expand)
 
 ```python
-import os
-import openfga_sdk
-from openfga_sdk.api import open_fga_api
-from openfga_sdk.model.expand_request import ExpandRequest
-from openfga_sdk.model.tuple_key import TupleKey
-from openfga_sdk.model.validation_error_message_response import ValidationErrorMessageResponse
-from openfga_sdk.model.path_unknown_error_message_response import PathUnknownErrorMessageResponse
-from openfga_sdk.model.internal_error_message_response import InternalErrorMessageResponse
-from openfga_sdk.model.expand_response import ExpandResponse
-from pprint import pprint
-# To configure the configuration
-# api_host is mandatory
-# api_scheme is optional and default to https
-# store_id is mandatory
-# See configuration.py for a list of all supported configuration parameters.
 configuration = openfga_sdk.Configuration(
     api_scheme = os.environ.get({{appUpperCaseName}}_API_SCHEME),
     api_host = os.environ.get({{appUpperCaseName}}_API_HOST),
     store_id = os.environ.get({{appUpperCaseName}}_STORE_ID),
 )
 
-# Enter a context with an instance of the API client
-with openfga_sdk.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
-    body = ExpandRequest(
-        tuple_key=TupleKey(
-            relation="admin",
-            object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
-        ),
-    )
+# Create an instance of the API class
+api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+body = ExpandRequest(
+    tuple_key=TupleKey(
+        relation="admin",
+        object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+    ),
+)
 
-    try:
-        # Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason about and debug a certain relationship
-        response = api_instance.expand(body)
-        # response = ExpandResponse({"tree": UsersetTree({"root": Node({"name": "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin", "leaf": Leaf({"users": Users({"users": ["anne", "beth"]})})})})})
-    except openfga_sdk.ApiException as e:
-        print("Exception when calling OpenFgaApi->expand: %s\n" % e)
+# Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason about and debug a certain relationship
+response = api_instance.expand(body)
+# response = ExpandResponse({"tree": UsersetTree({"root": Node({"name": "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin", "leaf": Leaf({"users": Users({"users": ["anne", "beth"]})})})})})
 ```
 
 #### Read Changes
@@ -499,71 +286,50 @@ with openfga_sdk.ApiClient(configuration) as api_client:
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Read)
 
 ```python
-import os
-import openfga_sdk
-from openfga_sdk.api import open_fga_api
-from openfga_sdk.model.read_response import ReadResponse
-from openfga_sdk.model.validation_error_message_response import ValidationErrorMessageResponse
-from openfga_sdk.model.path_unknown_error_message_response import PathUnknownErrorMessageResponse
-from openfga_sdk.model.internal_error_message_response import InternalErrorMessageResponse
-from openfga_sdk.model.read_request import ReadRequest
-from openfga_sdk.model.tuple_key import TupleKey
-from pprint import pprint
-# To configure the configuration
-# api_host is mandatory
-# api_scheme is optional and default to https
-# store_id is mandatory
-# See configuration.py for a list of all supported configuration parameters.
 configuration = openfga_sdk.Configuration(
     api_scheme = os.environ.get({{appUpperCaseName}}_API_SCHEME),
     api_host = os.environ.get({{appUpperCaseName}}_API_HOST),
     store_id = os.environ.get({{appUpperCaseName}}_STORE_ID),
 )
 
-# Enter a context with an instance of the API client
-with openfga_sdk.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
+# Create an instance of the API class
+api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
 
-    # Find if a relationship tuple stating that a certain user is an admin on a certain workspace
-    body = ReadRequest(
-        tuple_key=TupleKey(
-            user="81684243-9356-4421-8fbf-a4f8d36aa31b",
-            relation="admin",
-            object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
-        ),
-    ) 
+# Find if a relationship tuple stating that a certain user is an admin on a certain workspace
+body = ReadRequest(
+    tuple_key=TupleKey(
+        user="81684243-9356-4421-8fbf-a4f8d36aa31b",
+        relation="admin",
+        object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+    ),
+) 
 
-    # Find all relationship tuples where a certain user has a relationship as any relation to a certain workspace
-    body = ReadRequest(
-        tuple_key=TupleKey(
-            user="81684243-9356-4421-8fbf-a4f8d36aa31b",
-            object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
-        ),
-    ) 
+# Find all relationship tuples where a certain user has a relationship as any relation to a certain workspace
+body = ReadRequest(
+    tuple_key=TupleKey(
+        user="81684243-9356-4421-8fbf-a4f8d36aa31b",
+        object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+    ),
+) 
 
-    # Find all relationship tuples where a certain user is an admin on any workspace
-    body = ReadRequest(
-        tuple_key=TupleKey(
-            user="81684243-9356-4421-8fbf-a4f8d36aa31b",
-            relation="admin",
-            object="workspace:",
-        ),
-    )
+# Find all relationship tuples where a certain user is an admin on any workspace
+body = ReadRequest(
+    tuple_key=TupleKey(
+        user="81684243-9356-4421-8fbf-a4f8d36aa31b",
+        relation="admin",
+        object="workspace:",
+    ),
+)
 
-    # Find all relationship tuples where any user has a relationship as any relation with a particular workspace
-    body = ReadRequest(
-        tuple_key=TupleKey(
-            object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
-        ),
-    )
+# Find all relationship tuples where any user has a relationship as any relation with a particular workspace
+body = ReadRequest(
+    tuple_key=TupleKey(
+        object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+    ),
+)
 
-    try:
-        # Get tuples from the store that matches a query, without following userset rewrite rules
-        response = api_instance.read(body)
-        # response = ReadResponse({"tuples": [Tuple({"key": TupleKey({"user":"...","relation":"...","object":"..."}), "timestamp": datetime.fromisoformat("...") })]})
-    except openfga_sdk.ApiException as e:
-        print("Exception when calling OpenFgaApi->read: %s\n" % e)
+response = api_instance.read(body)
+# response = ReadResponse({"tuples": [Tuple({"key": TupleKey({"user":"...","relation":"...","object":"..."}), "timestamp": datetime.fromisoformat("...") })]})
 ```
 
 #### Read Changes (Watch)
@@ -571,19 +337,6 @@ with openfga_sdk.ApiClient(configuration) as api_client:
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/ReadChanges)
 
 ```python
-import os
-import openfga_sdk
-from openfga_sdk.api import open_fga_api
-from openfga_sdk.model.validation_error_message_response import ValidationErrorMessageResponse
-from openfga_sdk.model.read_changes_response import ReadChangesResponse
-from openfga_sdk.model.path_unknown_error_message_response import PathUnknownErrorMessageResponse
-from openfga_sdk.model.internal_error_message_response import InternalErrorMessageResponse
-from pprint import pprint
-# To configure the configuration
-# api_host is mandatory
-# api_scheme is optional and default to https
-# store_id is mandatory
-# See configuration.py for a list of all supported configuration parameters.
 configuration = openfga_sdk.Configuration(
     api_scheme = os.environ.get({{appUpperCaseName}}_API_SCHEME),
     api_host = os.environ.get({{appUpperCaseName}}_API_HOST),
@@ -591,21 +344,16 @@ configuration = openfga_sdk.Configuration(
 )
 
 
-# Enter a context with an instance of the API client
-with openfga_sdk.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
-    type = "workspace"
-    page_size = 25
-    continuation_token = "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
+# Create an instance of the API class
+api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+type = "workspace"
+page_size = 25
+continuation_token = "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
 
-    try:
-        # Return a list of all the tuple changes
-        response = api_instance.read_changes(type=type, page_size=page_size, continuation_token=continuation_token)
-        # response.continuation_token = ...
-        # response.changes = [TupleChange(tuple_key=TupleKey(object="...",relation="...",user="..."),operation=TupleOperation("TUPLE_OPERATION_WRITE"),timestamp=datetime.fromisoformat("..."))]
-    except openfga_sdk.ApiException as e:
-        print("Exception when calling OpenFgaApi->read_changes: %s\n" % e)
+# Return a list of all the tuple changes
+response = api_instance.read_changes(type=type, page_size=page_size, continuation_token=continuation_token)
+# response.continuation_token = ...
+# response.changes = [TupleChange(tuple_key=TupleKey(object="...",relation="...",user="..."),operation=TupleOperation("TUPLE_OPERATION_WRITE"),timestamp=datetime.fromisoformat("..."))]
 ```
 
 #### List Objects
@@ -613,56 +361,36 @@ with openfga_sdk.ApiClient(configuration) as api_client:
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/ListObjects)
 
 ```python
-import os
-import openfga_sdk
-from openfga_sdk.api import open_fga_api
-from openfga_sdk.model.list_objects_response import ListObjectsResponse
-from openfga_sdk.model.validation_error_message_response import ValidationErrorMessageResponse
-from openfga_sdk.model.list_objects_request import ListObjectsRequest
-from openfga_sdk.model.path_unknown_error_message_response import PathUnknownErrorMessageResponse
-from openfga_sdk.model.internal_error_message_response import InternalErrorMessageResponse
-from pprint import pprint
-# To configure the configuration
-# api_host is mandatory
-# api_scheme is optional and default to https
-# store_id is mandatory
-# See configuration.py for a list of all supported configuration parameters.
 configuration = openfga_sdk.Configuration(
     api_scheme = os.environ.get({{appUpperCaseName}}_API_SCHEME),
     api_host = os.environ.get({{appUpperCaseName}}_API_HOST),
     store_id = os.environ.get({{appUpperCaseName}}_STORE_ID),
 )
 
+# Create an instance of the API class
+api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+body = ListObjectsRequest(
+    authorization_model_id="01GAHCE4YVKPQEKZQHT2R89MQV",
+    user="anne",
+    relation="can_read",
+    type="document",
+    contextual_tuples=ContextualTupleKeys( # optional
+        tuple_keys=[
+            TupleKey(
+                user="anne",
+                relation="editor",
+                object="folder:product",
+            ),
+            TupleKey(
+                user="folder:product",
+                relation="parent",
+                object="document:roadmap",
+            ),
+        ],
+    ),
+)
 
-# Enter a context with an instance of the API client
-with openfga_sdk.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
-    body = ListObjectsRequest(
-        authorization_model_id="01GAHCE4YVKPQEKZQHT2R89MQV",
-        user="anne",
-        relation="can_read",
-        type="document",
-        contextual_tuples=ContextualTupleKeys( # optional
-            tuple_keys=[
-                TupleKey(
-                    user="anne",
-                    relation="editor",
-                    object="folder:product",
-                ),
-                TupleKey(
-                    user="folder:product",
-                    relation="parent",
-                    object="document:roadmap",
-                ),
-            ],
-        ),
-    )
-
-    try:
-        # ListObjects lists all of the object ids for objects of the provided type that the given user has a specific relation with.
-        response = api_instance.list_objects(body)
-        # response.object_ids = ["roadmap"]
-    except openfga_sdk.ApiException as e:
-        print("Exception when calling OpenFgaApi->list_objects: %s\n" % e)
+# ListObjects lists all of the object ids for objects of the provided type that the given user has a specific relation with.
+response = api_instance.list_objects(body)
+# response.object_ids = ["roadmap"]
 ```
