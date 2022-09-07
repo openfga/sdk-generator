@@ -1,6 +1,51 @@
 # OpenFGA Client SDK Generator
 
-## Requirements
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
+[![Discord Server](https://img.shields.io/discord/759188666072825867?color=7289da&logo=discord "Discord Server")](https://discord.com/channels/759188666072825867/930524706854031421)
+[![Twitter](https://img.shields.io/twitter/follow/openfga?color=%23179CF0&logo=twitter&style=flat-square "@openfga on Twitter")](https://twitter.com/openfga)
+
+This is the main generator responsible for generating the OpenFGA SDKs from the [OpenFGA OpenAPIv2 Document](https://github.com/openfga/api/blob/main/docs/openapiv2/apidocs.swagger.json).
+
+## Table of Contents
+
+- [About OpenFGA](#about)
+- [Resources](#resources)
+- [Currently Supported SDKs](#currently-supported-sdks)
+- [Getting Started](#getting-started)
+  - [Requirements](#requirements)
+  - [Usage](#usage)
+  - [Adding a New SDK](#adding-a-new-sdk)
+  - [Uploading the SDK](#uploading-the-sdk)
+  - [Publishing the SDK](#publishingopen-sourcing-the-sdk)
+- [Contributing](#contributing)
+- [License](#license)
+
+## About
+
+[OpenFGA](https://openfga.dev) is an open source Fine-Grained Authorization solution inspired by [Google's Zanzibar paper](https://research.google/pubs/pub48190/). It was created by the FGA team at [Auth0](https://auth0.com) based on [Auth0 Fine-Grained Authorization (FGA)](https://fga.dev), available under [a permissive license (Apache-2)](https://github.com/openfga/rfcs/blob/main/LICENSE) and welcomes community contributions.
+
+OpenFGA is designed to make it easy for application builders to model their permission layer, and to add and integrate fine-grained authorization into their applications. OpenFGA’s design is optimized for reliability and low latency at a high scale.
+
+## Resources
+
+- [OpenFGA Documentation](https://openfga.dev/docs)
+- [OpenFGA API Documentation](https://openfga.dev/api/service)
+- [Twitter](https://twitter.com/openfga)
+- [OpenFGA Discord Community](https://discord.gg/8naAwJfWN6)
+- [Zanzibar Academy](https://zanzibar.academy)
+- [Google's Zanzibar Paper (2019)](https://research.google/pubs/pub48190/)
+
+## Currently Supported SDKs
+
+| Language   | GitHub                                                      | Package Manager                                                    |
+|------------|-------------------------------------------------------------|--------------------------------------------------------------------|
+| Javascript | [openfga/js-sdk](https://github.com/openfga/js-sdk)         | [@openfga/sdk](https://www.npmjs.com/package/@auth0/fga) on npm    |
+| Go         | [openfga/go-sdk](https://github.com/openfga/go-sdk)         | -                                                                  |
+| .NET       | [openfga/dotnet-sdk](https://github.com/openfga/dotnet-sdk) | [OpenFga.Sdk](https://www.nuget.org/packages/OpenFga.Sdk) on nuget |
+
+## Getting Started
+
+### Requirements
 1. Git
 2. Docker
 3. Make (Optional, but makes things much easier)
@@ -8,7 +53,7 @@
 5. Bash
 6. sed
 
-## Usage
+### Usage
 
 1. Clone this repo:
 
@@ -29,9 +74,9 @@ git clone git@github.com:openfga/dotnet-sdk.git clients/fga-dotnet-sdk
 make
 ```
 
-## Adding a new SDK
+### Adding a new SDK
 
-### Using the setup script
+#### Using the setup script
 There is a helpful script to setup a new SDK
 
 ```shell
@@ -43,7 +88,7 @@ make setup-new-sdk
 3. Then in will initialize all the files, you will need to add the configuration specific to that sdk
 4. Now you can run `make build-client-${SDK_ID}` to generate the SDK
 
-### Manually
+#### Manually
 
 1. Create config dir in: `config/clients/{lang}/`. It should include:
    * `CHANGELOG.md`: To be updated as new releases are generated
@@ -86,14 +131,14 @@ test-client-{{LANG}}: build-client-{{LANG}}
 test-all-clients: test-client-js test-client-go ...  test-client-{{LANG}}
 ```
 
-## Uploading the SDK
+### Uploading the SDK
 
 Once the SDK is ready, you need to:
 * Create a repo under the [openfga](https://github.com/openfga) github org. Call it: `${SDK_ID}-sdk`
 * Add it to the generator's test and deploy actions
 * Add any necessary secrets to the generator's repo on github (and document them in the readme)
 
-## Publishing/Open Sourcing the SDK
+### Publishing/Open Sourcing the SDK
 
 Once the SDK is ready, you need to:
 1. Setup Snyk, and ensure no security issues are present
@@ -102,7 +147,7 @@ Once the SDK is ready, you need to:
 
 Note: Semgrep will be automatically enabled - there is nothing you need to do for that.
 
-## GitHub Action Secrets
+### GitHub Action Secrets
 
 | Key                         | Comment                                |
 |-----------------------------|----------------------------------------|
@@ -152,3 +197,13 @@ In addition, we ask that the SDKs:
 * have building & publishing automated through GitHub actions.
 
 * be created and modified through pull requests to this sdk-generator repository instead of individual repositories. Most of the code will be in mustache files that will end up generating the resulting SDK for the appropriate language.
+
+## Author
+
+[OpenFGA](https://github.com/openfga)
+
+## License
+
+This project is licensed under the Apache-2.0 license. See the [LICENSE](https://github.com/openfga/sdk-generator/blob/main/LICENSE) file for more info.
+
+The template files in this repo are based on the original files from [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator).
