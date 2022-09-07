@@ -17,6 +17,15 @@ dotnet_publish_api_key=
 
 all: test-all-clients
 
+## Refresh Docker Images
+pull-docker-images:
+	docker pull openapitools/openapi-generator-cli:${OPENAPI_GENERATOR_CLI_DOCKER_TAG}
+	docker pull node:${NODE_DOCKER_TAG}
+	docker pull golang:${GO_DOCKER_TAG}
+	docker pull golangci/golangci-lint:${GOLINT_DOCKER_TAG}
+	docker pull mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG}
+	docker pull busybox:${BUSYBOX_DOCKER_TAG}
+
 ## Publishing
 publish-client-dotnet: build-client-dotnet
 	## See: https://docs.microsoft.com/en-us/nuget/quickstart/create-and-publish-a-package-using-the-dotnet-cli
@@ -62,13 +71,14 @@ tag-client-go: test-client-go
 .PHONY: test-client-go
 test-client-go: build-client-go
 	make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'go test'"
+	make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'go install golang.org/x/vuln/cmd/govulncheck@latest; govulncheck ./...;'"
 	make run-in-docker sdk_language=go image=golangci/golangci-lint:${GOLINT_DOCKER_TAG} command="golangci-lint run -v --skip-files=oauth2/"
 
 .PHONY: build-client-go
 build-client-go:
 	make build-client sdk_language=go tmpdir=${TMP_DIR}
 	make run-in-docker sdk_language=go image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/api_open_fga.go /config/clients/go/patches/add-missing-first-param.patch'"
-	make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'go mod tidy ; go fmt'"
+	make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'go fmt'"
 
 ### .NET
 .PHONY: tag-client-dotnet
