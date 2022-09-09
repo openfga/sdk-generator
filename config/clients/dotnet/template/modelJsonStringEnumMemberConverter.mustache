@@ -5,12 +5,18 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations;
 
+/// <summary>
+/// Helper class to serialize / deserialize enum member to/from JSON
+/// </summary>
 public class JsonStringEnumMemberConverter<EnumTemplate> : JsonConverter<EnumTemplate> where EnumTemplate : struct, System.Enum
   {
 
     private readonly Dictionary<EnumTemplate, string> _enumToString = new Dictionary<EnumTemplate, string>();
     private readonly Dictionary<string, EnumTemplate> _stringToEnum = new Dictionary<string, EnumTemplate>();
 
+    /// <summary>
+    /// Parsing and converting enum member	
+	/// </summary>
     public JsonStringEnumMemberConverter()
     {
       var type = typeof(EnumTemplate);
@@ -37,11 +43,17 @@ public class JsonStringEnumMemberConverter<EnumTemplate> : JsonConverter<EnumTem
       }
     }
 
+    /// <summary>
+    /// Overwrite write function to provide enum value to string
+	/// </summary>
     public override void Write(Utf8JsonWriter writer, EnumTemplate value, JsonSerializerOptions options)
     {
       writer.WriteStringValue(_enumToString[value]);
     }
 
+    /// <summary>
+    /// Overwrite read function to convert string back to enum value
+	/// </summary>
     public override EnumTemplate Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
       var stringValue = reader.GetString();
