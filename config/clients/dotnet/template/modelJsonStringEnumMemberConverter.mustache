@@ -1,0 +1,52 @@
+{{>partial_header}}
+
+using System.Runtime.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations;
+
+public class JsonStringEnumMemberConverter<EnumTemplate> : JsonConverter<EnumTemplate> where EnumTemplate : struct, System.Enum
+  {
+
+    private readonly Dictionary<EnumTemplate, string> _enumToString = new Dictionary<EnumTemplate, string>();
+    private readonly Dictionary<string, EnumTemplate> _stringToEnum = new Dictionary<string, EnumTemplate>();
+
+    public JsonStringEnumMemberConverter()
+    {
+      var type = typeof(EnumTemplate);
+      var values = System.Enum.GetValues<EnumTemplate>();
+
+      foreach (var value in values)
+      {
+        var enumMember = type.GetMember(value.ToString())[0];
+        var attr = enumMember.GetCustomAttributes(typeof(EnumMemberAttribute), false)
+          .Cast<EnumMemberAttribute>()
+          .FirstOrDefault();
+
+        _stringToEnum.Add(value.ToString(), value);
+
+        if (attr?.Value != null)
+        {
+          _stringToEnum.Add(attr.Value, value);
+		  _enumToString.Add(value, attr.Value);
+        }
+		else
+        {
+          _enumToString.Add(value, value.ToString());
+        }
+      }
+    }
+
+    public override void Write(Utf8JsonWriter writer, EnumTemplate value, JsonSerializerOptions options)
+    {
+      writer.WriteStringValue(_enumToString[value]);
+    }
+
+    public override EnumTemplate Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+      var stringValue = reader.GetString();
+
+      return ((_stringToEnum.TryGetValue(stringValue, out var enumValue)) ? enumValue : default);
+    }
+
+  }
