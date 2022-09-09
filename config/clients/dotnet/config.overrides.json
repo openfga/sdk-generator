@@ -116,6 +116,10 @@
       "destinationFilename": "src/OpenFga.Sdk.Test/Models/ModelTests.cs",
       "templateType": "SupportingFiles"
     },
+    "modelJsonStringEnumMemberConverter.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Model/JsonStringEnumMemberConverter.cs",
+      "templateType": "SupportingFiles"
+    },
     ".fossa.yml.mustache": {
       "destinationFilename": ".fossa.yml",
       "templateType": "SupportingFiles"
