@@ -8,7 +8,7 @@
     {{#enumVars}}
     {{#-first}}
     {{#isString}}
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter<{{datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}}>))]
     {{/isString}}
     {{/-first}}
     {{/enumVars}}
