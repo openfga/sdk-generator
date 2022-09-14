@@ -1,0 +1,32 @@
+# To configure the configuration
+# host is mandatory
+# api_scheme is optional and default to https
+{{#requiredParams}}
+{{#-first}}
+# store_id is mandatory
+{{/-first}}
+{{/requiredParams}} 
+# See configuration.py for a list of all supported configuration parameters.
+configuration = {{{packageName}}}.Configuration(
+    scheme = "https",
+    api_host = "api.{{{sampleApiDomain}}}",
+{{#requiredParams}}
+{{#-first}}
+    store_id = 'YOUR_STORE_ID',
+{{/-first}}
+{{/requiredParams}} 
+)
+
+
+# When authenticating via the API TOKEN method
+credentials = Credentials(method='api_token', configuration=CredentialConfiguration(api_token='TOKEN1'))
+configuration = {{{packageName}}}.Configuration(
+    scheme = "https",
+    api_host = "api.{{{sampleApiDomain}}}",
+{{#requiredParams}}
+{{#-first}}
+    store_id = 'YOUR_STORE_ID',
+{{/-first}}
+{{/requiredParams}} 
+    credentials = credentials
+)
