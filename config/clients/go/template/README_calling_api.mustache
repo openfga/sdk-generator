@@ -82,10 +82,10 @@ if err != nil {
 > Learn more about [the {{appName}} configuration language]({{docsUrl}}/configuration-language).
 
 ```golang
-body  := {{packageName}}.TypeDefinitions{TypeDefinitions: &[]{{packageName}}.TypeDefinition{
+body  := {{packageName}}.WriteAuthorizationModelRequest{TypeDefinitions: &[]{{packageName}}.TypeDefinition{
 	{
 		Type: "repo",
-		Relations: map[string]{{packageName}}.Userset{
+		Relations: &map[string]{{packageName}}.Userset{
 			"writer": {This: &map[string]interface{}{}},
 			"reader": {Union: &{{packageName}}.Usersets{
 				Child: &[]{{packageName}}.Userset{

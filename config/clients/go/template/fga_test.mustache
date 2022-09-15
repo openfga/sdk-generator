@@ -443,10 +443,10 @@ func Test{{appShortName}}Api(t *testing.T) {
 			RequestPath:    "authorization-models",
 		}
 {{=<% %>=}}
-		requestBody := TypeDefinitions{
+		requestBody := WriteAuthorizationModelRequest{
 			TypeDefinitions: &[]TypeDefinition{{
 				Type: "github-repo",
-				Relations: map[string]Userset{
+				Relations: &map[string]Userset{
 					"repo_writer": {
 						This: &map[string]interface{}{},
 					},
@@ -480,7 +480,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 				return resp, nil
 			},
 		)
-		got, response, err := apiClient.{{appShortName}}Api.WriteAuthorizationModel(context.Background()).TypeDefinitions(requestBody).Execute()
+		got, response, err := apiClient.{{appShortName}}Api.WriteAuthorizationModel(context.Background()).Body(requestBody).Execute()
 		if err != nil {
 			t.Fatalf("%v", err)
 		}
