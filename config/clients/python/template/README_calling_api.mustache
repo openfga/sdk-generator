@@ -9,13 +9,15 @@ configuration = openfga_sdk.Configuration(
 )
 
 # Create an instance of the API class
-api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+client = openfga_sdk.ApiClient(configuration)
+api_instance = open_fga_api.OpenFgaApi()
 
 # Get all stores
-response = api_instance.list_stores()
+response = await api_instance.list_stores()
 # response = ListStoreResponse(...)
 # response.stores = [Store({"id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z"})]
 
+await api_client.close()
 ```
 
 #### Create Store
@@ -29,14 +31,16 @@ configuration = openfga_sdk.Configuration(
 )
 
 # Create an instance of the API class
-api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+client = openfga_sdk.ApiClient(configuration)
+api_instance = open_fga_api.OpenFgaApi()
 
 # Create a store
 body = CreateStoreRequest(
     name = "FGA Demo Store",
 )
-response = api_instance.create_store(body)
+response = await api_instance.create_store(body)
 # response.id = "01FQH7V8BEG3GPQW93KTRFR8JB"
+await api_client.close()
 ```
 
 
@@ -54,11 +58,13 @@ configuration = openfga_sdk.Configuration(
 )
 
 # Create an instance of the API class
-api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+client = openfga_sdk.ApiClient(configuration)
+api_instance = open_fga_api.OpenFgaApi()
 
 # Get a store
-response = api_instance.get_store()
+response = await api_instance.get_store()
 # response = Store({"id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z"})
+await api_client.close()
 ```
 
 
@@ -76,10 +82,12 @@ configuration = openfga_sdk.Configuration(
 )
 
 # Create an instance of the API class
-api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+client = openfga_sdk.ApiClient(configuration)
+api_instance = open_fga_api.OpenFgaApi()
 
 # Delete a store
-api_instance.delete_store()
+await api_instance.delete_store()
+await api_client.close()
 ```
 
 #### Write Authorization Model
@@ -100,7 +108,8 @@ configuration = openfga_sdk.Configuration(
 )
 
 # Create an instance of the API class
-api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+client = openfga_sdk.ApiClient(configuration)
+api_instance = open_fga_api.OpenFgaApi()
 type_definitions = TypeDefinitions(
     type_definitions=[
         TypeDefinition(
@@ -126,8 +135,9 @@ type_definitions = TypeDefinitions(
 )
 
 # Create a new authorization model
-response = api_instance.write_authorization_model(type_definitions)
+response = await api_instance.write_authorization_model(type_definitions)
 # response.id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"
+await api_client.close()
 ```
 
 
@@ -143,12 +153,14 @@ configuration = openfga_sdk.Configuration(
 )
 
 # Create an instance of the API class
-api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+client = openfga_sdk.ApiClient(configuration)
+api_instance = open_fga_api.OpenFgaApi()
 id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw" #  Assuming `1uHxCSuTP0VKPYSnkq1pbb1jeZw` is an id of an existing model
 
 # Return a particular version of an authorization model
-response = api_instance.read_authorization_model(id)
+response = await api_instance.read_authorization_model(id)
 # response.authorization_model =  AuthorizationModel(id='1uHxCSuTP0VKPYSnkq1pbb1jeZw', type_definitions=type_definitions[...])
+await api_client.close()
 ```
 
 #### Read Authorization Model IDs
@@ -163,11 +175,13 @@ configuration = openfga_sdk.Configuration(
 )
 
 # Create an instance of the API class
-api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+client = openfga_sdk.ApiClient(configuration)
+api_instance = open_fga_api.OpenFgaApi()
 
 # Return all the authorization models for a particular store
-response = api_instance.read_authorization_models()
+response = await api_instance.read_authorization_models()
 # response.authorization_models = [AuthorizationModel(id='1uHxCSuTP0VKPYSnkq1pbb1jeZw', type_definitions=type_definitions[...], AuthorizationModel(id='GtQpMohWezFmIbyXxVEocOCxxgq', type_definitions=type_definitions[...])]
+await api_client.close()
 ```
 
 
@@ -183,7 +197,8 @@ configuration = openfga_sdk.Configuration(
 )
 
 # Create an instance of the API class
-api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+client = openfga_sdk.ApiClient(configuration)
+api_instance = open_fga_api.OpenFgaApi()
 body = CheckRequest(
     tuple_key=TupleKey(
         user="81684243-9356-4421-8fbf-a4f8d36aa31b",
@@ -193,8 +208,9 @@ body = CheckRequest(
 )
 
 # Check whether a user is authorized to access an object
-response = api_instance.check(body)
+response = await api_instance.check(body)
 # response.allowed = True
+await api_client.close()
 ```
 
 
@@ -210,7 +226,8 @@ configuration = openfga_sdk.Configuration(
 )
 
 # Create an instance of the API class
-api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+client = openfga_sdk.ApiClient(configuration)
+api_instance = open_fga_api.OpenFgaApi()
 body = WriteRequest(
     writes=TupleKeys(
         tuple_keys=[
@@ -224,7 +241,8 @@ body = WriteRequest(
 )
 
 # Add tuples from the store
-response = api_instance.write(body)
+response = await api_instance.write(body)
+await api_client.close()
 ```
 
 #### Delete Tuples
@@ -239,7 +257,8 @@ configuration = openfga_sdk.Configuration(
 )
 
 # Create an instance of the API class
-api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+client = openfga_sdk.ApiClient(configuration)
+api_instance = open_fga_api.OpenFgaApi()
 body = WriteRequest(
     deletes=TupleKeys(
         tuple_keys=[
@@ -253,7 +272,8 @@ body = WriteRequest(
 ) 
 
 # Delete tuples from the store
-response = api_instance.write(body)
+response = await api_instance.write(body)
+await api_client.close()
 ```
 
 #### Expand
@@ -268,7 +288,8 @@ configuration = openfga_sdk.Configuration(
 )
 
 # Create an instance of the API class
-api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+client = openfga_sdk.ApiClient(configuration)
+api_instance = open_fga_api.OpenFgaApi()
 body = ExpandRequest(
     tuple_key=TupleKey(
         relation="admin",
@@ -277,8 +298,9 @@ body = ExpandRequest(
 )
 
 # Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason about and debug a certain relationship
-response = api_instance.expand(body)
+response = await api_instance.expand(body)
 # response = ExpandResponse({"tree": UsersetTree({"root": Node({"name": "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin", "leaf": Leaf({"users": Users({"users": ["anne", "beth"]})})})})})
+await api_client.close()
 ```
 
 #### Read Changes
@@ -293,7 +315,8 @@ configuration = openfga_sdk.Configuration(
 )
 
 # Create an instance of the API class
-api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+client = openfga_sdk.ApiClient(configuration)
+api_instance = open_fga_api.OpenFgaApi()
 
 # Find if a relationship tuple stating that a certain user is an admin on a certain workspace
 body = ReadRequest(
@@ -328,8 +351,9 @@ body = ReadRequest(
     ),
 )
 
-response = api_instance.read(body)
+response = await api_instance.read(body)
 # response = ReadResponse({"tuples": [Tuple({"key": TupleKey({"user":"...","relation":"...","object":"..."}), "timestamp": datetime.fromisoformat("...") })]})
+await api_client.close()
 ```
 
 #### Read Changes (Watch)
@@ -345,15 +369,17 @@ configuration = openfga_sdk.Configuration(
 
 
 # Create an instance of the API class
-api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+client = openfga_sdk.ApiClient(configuration)
+api_instance = open_fga_api.OpenFgaApi()
 type = "workspace"
 page_size = 25
 continuation_token = "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
 
 # Return a list of all the tuple changes
-response = api_instance.read_changes(type=type, page_size=page_size, continuation_token=continuation_token)
+response = await api_instance.read_changes(type=type, page_size=page_size, continuation_token=continuation_token)
 # response.continuation_token = ...
 # response.changes = [TupleChange(tuple_key=TupleKey(object="...",relation="...",user="..."),operation=TupleOperation("TUPLE_OPERATION_WRITE"),timestamp=datetime.fromisoformat("..."))]
+await api_client.close()
 ```
 
 #### List Objects
@@ -368,7 +394,8 @@ configuration = openfga_sdk.Configuration(
 )
 
 # Create an instance of the API class
-api_instance = open_fga_api.OpenFgaApi(openfga_sdk.ApiClient(configuration))
+client = openfga_sdk.ApiClient(configuration)
+api_instance = open_fga_api.OpenFgaApi()
 body = ListObjectsRequest(
     authorization_model_id="01GAHCE4YVKPQEKZQHT2R89MQV",
     user="anne",
@@ -391,6 +418,7 @@ body = ListObjectsRequest(
 )
 
 # ListObjects lists all of the object ids for objects of the provided type that the given user has a specific relation with.
-response = api_instance.list_objects(body)
+response = await api_instance.list_objects(body)
 # response.object_ids = ["roadmap"]
+await api_client.close()
 ```

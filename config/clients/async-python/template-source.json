@@ -1,7 +1,0 @@
-{
-  "repo": "https://github.com/OpenAPITools/openapi-generator",
-  "branch": "master",
-  "commit": "fea42b547ed61dcfdfc479cab6f68a601ec5adde",
-  "url": "https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator/src/main/resources/python-legacy",
-  "docs": "https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/python-legacy.md"
-}

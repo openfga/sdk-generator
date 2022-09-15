@@ -1,23 +1,13 @@
 ```python
 import time
 import {{{packageName}}}
-from {{apiPackage}} import {{classFilename}}
-{{#imports}}
-{{{.}}}
-{{/imports}}
+from {{{packageName}}}.rest import ApiException
 from pprint import pprint
 {{> python_doc_auth_partial}}
 # Enter a context with an instance of the API client
-{{#hasAuthMethods}}
-with {{{packageName}}}.ApiClient(configuration) as api_client:
-{{/hasAuthMethods}}
-{{^hasAuthMethods}}
-{{#requiredParams}}
-{{/requiredParams}}
-with {{{packageName}}}.ApiClient(configuration) as api_client:
-{{/hasAuthMethods}}
+{{#asyncio}}async {{/asyncio}}with {{{packageName}}}.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = {{classFilename}}.{{{classname}}}(api_client)
+    api_instance = {{{packageName}}}.{{{classname}}}(api_client)
 {{#requiredParams}}
 {{^defaultValue}}
 {{^-first}}
@@ -28,53 +18,13 @@ with {{{packageName}}}.ApiClient(configuration) as api_client:
 {{#optionalParams}}
     {{paramName}} = {{{example}}} # {{{dataType}}} | {{{description}}}{{^required}} (optional){{/required}}{{#defaultValue}} if omitted the server will use the default value of {{{.}}}{{/defaultValue}}
 {{/optionalParams}}
-{{#requiredParams}}
-{{#-last}}
 
-    # example passing only required values which don't have defaults set
     try:
-{{#summary}}
-        # {{{.}}}
-{{/summary}}
-        {{#returnType}}api_response = {{/returnType}}api_instance.{{{operationId}}}({{#requiredParams}}{{^-first}}{{^defaultValue}}{{paramName}}{{^-last}}, {{/-last}}{{/defaultValue}}{{/-first}}{{/requiredParams}})
-{{#returnType}}
-        pprint(api_response)
-{{/returnType}}
-    except {{{packageName}}}.ApiException as e:
+    {{#summary}}    # {{{.}}}
+    {{/summary}}
+        {{#returnType}}api_response = {{/returnType}}{{#asyncio}}await {{/asyncio}}api_instance.api_instance.{{{operationId}}}({{#allParams}}{{#required}}{{^-first}}{{paramName}}{{^-last}}, {{/-last}}{{/-first}}{{/required}}{{^required}}{{paramName}}={{paramName}}{{^-last}}, {{/-last}}{{/required}}{{/allParams}}){{#returnType}}
+        pprint(api_response){{/returnType}}
+    except ApiException as e:
         print("Exception when calling {{classname}}->{{operationId}}: %s\n" % e)
-{{/-last}}
-{{/requiredParams}}
-{{#optionalParams}}
-{{#-last}}
-
-    # example passing only required values which don't have defaults set
-    # and optional values
-    try:
-{{#summary}}
-        # {{{.}}}
-{{/summary}}
-        {{#returnType}}api_response = {{/returnType}}api_instance.{{{operationId}}}({{#requiredParams}}{{^-first}}{{^defaultValue}}{{paramName}}, {{/defaultValue}}{{/-first}}{{/requiredParams}}{{#optionalParams}}{{paramName}}={{paramName}}{{^-last}}, {{/-last}}{{/optionalParams}})
-{{#returnType}}
-        pprint(api_response)
-{{/returnType}}
-    except {{{packageName}}}.ApiException as e:
-        print("Exception when calling {{classname}}->{{operationId}}: %s\n" % e)
-{{/-last}}
-{{/optionalParams}}
-{{^requiredParams}}
-{{^optionalParams}}
-
-    # example, this endpoint has no required or optional parameters
-    try:
-{{#summary}}
-        # {{{.}}}
-{{/summary}}
-        {{#returnType}}api_response = {{/returnType}}api_instance.{{{operationId}}}()
-{{#returnType}}
-        pprint(api_response)
-{{/returnType}}
-    except {{{packageName}}}.ApiException as e:
-        print("Exception when calling {{classname}}->{{operationId}}: %s\n" % e)
-{{/optionalParams}}
-{{/requiredParams}}
+    {{#asyncio}}await {{/asyncio}}api_client.close()
 ```

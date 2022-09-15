@@ -191,7 +191,7 @@ jobs:
           GITHUB_REPO_ID: ${{ secrets.DOTNET_SDK_GITHUB_REPO_ID }}
           SSH_KEY: ${{ secrets.DOTNET_SDK_SSH_KEY }}
 
-  build-and-test-async-python-sdk:
+  build-and-test-python-sdk:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -214,7 +214,7 @@ jobs:
           GITHUB_ORG_ID: ${{ secrets.PYTHON_SDK_GITHUB_ORG_ID }}
           GITHUB_REPO_ID: ${{ secrets.PYTHON_SDK_GITHUB_REPO_ID }}
           SSH_KEY: ${{ secrets.PYTHON_SDK_SSH_KEY }}
-          SDK_PATH: clients/fga-async-python-sdk
+          SDK_PATH: clients/fga-python-sdk
           KNOWN_HOSTS: ${{secrets.KNOWN_HOSTS}}
 
       - name: Set up Docker Buildx
@@ -222,10 +222,10 @@ jobs:
 
       - name: Run All Tests
         run: |-
-          make test-client-async-python
+          make test-client-python
 
       - name: Install SDK to prepare for Snyk
-        working-directory: clients/fga-async-python-sdk
+        working-directory: clients/fga-python-sdk
         run: |-
           pip install -r requirements.txt
 
@@ -237,7 +237,7 @@ jobs:
           chmod +x ~/.local/bin/snyk
 
       - name: Run Snyk to check for vulnerabilities
-        working-directory: clients/fga-async-python-sdk
+        working-directory: clients/fga-python-sdk
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |-
@@ -251,7 +251,7 @@ jobs:
           curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh -b ~/.local/bin | bash
 
       - name: Run FOSSA scan and upload build data
-        working-directory: clients/fga-async-python-sdk
+        working-directory: clients/fga-python-sdk
         env:
           FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
         run: |-
@@ -262,7 +262,7 @@ jobs:
       - name: Check for SDK changes
         run: ./scripts/commit_push_changes.sh
         env:
-          SDK_PATH: clients/fga-async-python-sdk
+          SDK_PATH: clients/fga-python-sdk
           DRY_RUN: 1
           TAGGING_DISABLE: 1
           GITHUB_ORG_ID: ${{ secrets.PYTHON_SDK_GITHUB_ORG_ID }}

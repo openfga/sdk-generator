@@ -1,3 +1,5 @@
+# coding: utf-8
+
 {{>partial_header}}
 
 from setuptools import setup, find_packages  # noqa: H301
@@ -12,36 +14,30 @@ VERSION = "{{packageVersion}}"
 # python setup.py install
 #
 # prerequisite: setuptools
-# https://pypi.python.org/pypi/setuptools
+# http://pypi.python.org/pypi/setuptools
 
-REQUIRES = [
-  "urllib3 >= 1.25.3",
-  "python-dateutil",
-]
+REQUIRES = ["urllib3 >= 1.25.3", "six >= 1.10", "python-dateutil"]
+{{#asyncio}}
+REQUIRES.append("aiohttp >= 3.0.0")
+{{/asyncio}}
+{{#tornado}}
+REQUIRES.append("tornado>=4.2,<5")
+{{/tornado}}
 
 setup(
     name=NAME,
     version=VERSION,
     description="{{appName}}",
-    author="{{infoName}}",
-    author_email="{{infoEmail}}",
-    url="https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}",
-    classifiers=[
-      'Development Status :: 5 - Production',
-      'Intended Audience :: Developers',
-      'License :: OSI Approved :: Apache Software License',
-      'Programming Language :: Python :: 3.9',
-      'Programming Language :: Python :: 3.10',
-      'Programming Language :: Python :: 3.11',
-      'Programming Language :: Python :: 3.12',
-    ],
+    author="{{infoName}}{{^infoName}}OpenAPI Generator community{{/infoName}}",
+    author_email="{{infoEmail}}{{^infoEmail}}team@openapitools.org{{/infoEmail}}",
+    url="{{packageUrl}}",
     keywords=["OpenAPI", "OpenAPI-Generator", "{{{appName}}}"],
-    python_requires="{{{generatorLanguageVersion}}}",
     install_requires=REQUIRES,
     packages=find_packages(exclude=["test", "tests"]),
     include_package_data=True,
     {{#licenseInfo}}license="{{.}}",
-    {{/licenseInfo}}long_description="""\
+    {{/licenseInfo}}long_description_content_type='text/markdown',
+    long_description="""\
     {{appDescription}}  # noqa: E501
     """
 )
