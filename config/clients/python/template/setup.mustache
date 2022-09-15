@@ -16,29 +16,36 @@ VERSION = "{{packageVersion}}"
 # prerequisite: setuptools
 # http://pypi.python.org/pypi/setuptools
 
-REQUIRES = ["urllib3 >= 1.25.3", "six >= 1.10", "python-dateutil"]
+REQUIRES = ["urllib3 >= 1.26.11", "six >= 1.10", "python-dateutil >= 2.8.2"]
 {{#asyncio}}
-REQUIRES.append("aiohttp >= 3.0.0")
+REQUIRES.append("aiohttp >= 3.8.1")
 {{/asyncio}}
-{{#tornado}}
-REQUIRES.append("tornado>=4.2,<5")
-{{/tornado}}
 
 setup(
     name=NAME,
     version=VERSION,
-    description="{{appName}}",
-    author="{{infoName}}{{^infoName}}OpenAPI Generator community{{/infoName}}",
-    author_email="{{infoEmail}}{{^infoEmail}}team@openapitools.org{{/infoEmail}}",
-    url="{{packageUrl}}",
-    keywords=["OpenAPI", "OpenAPI-Generator", "{{{appName}}}"],
+    description="{{appDescription}}",
+    author="{{author}} ({{websiteUrl}})",
+    author_email="{{infoEmail}}",
+    url="https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}",
+    classifiers=[
+      'Development Status :: 5 - Production',
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: Apache Software License',
+      'Programming Language :: Python :: 3.9',
+      'Programming Language :: Python :: 3.10',
+      'Programming Language :: Python :: 3.11',
+      'Programming Language :: Python :: 3.12',
+    ],
+    keywords=["FGA", "fine-grained authorization", "Zanzibar", "{{{appName}}}"],
     install_requires=REQUIRES,
+    python_requires='>=3.9',
     packages=find_packages(exclude=["test", "tests"]),
     include_package_data=True,
-    {{#licenseInfo}}license="{{.}}",
-    {{/licenseInfo}}long_description_content_type='text/markdown',
+    {{#licenseId}}license="{{.}}",
+    {{/licenseId}}long_description_content_type='text/markdown',
     long_description="""\
-    {{appDescription}}  # noqa: E501
+    {{>README_project_introduction}}
     """
 )
 {{/-last}}
