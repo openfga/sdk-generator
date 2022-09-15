@@ -115,7 +115,7 @@ async def write_authorization_model():
     # Create an instance of the API class
     api_client = openfga_sdk.ApiClient(configuration)
     api_instance = open_fga_api.OpenFgaApi(api_client)
-    type_definitions = TypeDefinitions(
+    type_definitions = WriteAuthorizationModelRequest(
         type_definitions=[
             TypeDefinition(
                 type="document",
