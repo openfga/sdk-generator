@@ -51,7 +51,9 @@ tag-client-js: test-client-js
 
 .PHONY: test-client-js
 test-client-js: build-client-js
-	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm test ; npm audit ; npm run lint'"
+	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm test'"
+	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm audit'"
+	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm run lint'"
 
 .PHONY: build-client-js
 build-client-js:
