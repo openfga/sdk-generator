@@ -589,7 +589,7 @@ namespace {{testPackageName}}.Api {
                     }))
                 }
             };
-            var body = new TypeDefinitions(new List<TypeDefinition>() { new("repo", relations) });
+            var body = new WriteAuthorizationModelRequest(new List<TypeDefinition>() { new("repo", relations) });
             var mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
 
             mockHandler.Protected()
