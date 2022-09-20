@@ -138,7 +138,7 @@ fmt.Printf("%s", (*data.AuthorizationModelIds)[0]) // 1uHxCSuTP0VKPYSnkq1pbb1jeZ
 ```golang
 body := {{packageName}}.CheckRequest{
 	TupleKey: &{{packageName}}.TupleKey{
-		User: {{packageName}}.PtrString("81684243-9356-4421-8fbf-a4f8d36aa31b"),
+		User: {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
 		Relation: {{packageName}}.PtrString("admin"),
 		Object: {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
 	},
@@ -160,7 +160,7 @@ body := {{packageName}}.WriteRequest{
 	Writes: &{{packageName}}.TupleKeys{
 		TupleKeys: []{{packageName}}.TupleKey{
 			{
-				User: {{packageName}}.PtrString("81684243-9356-4421-8fbf-a4f8d36aa31b"),
+				User: {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
 				Relation: {{packageName}}.PtrString("admin"),
 				Object: {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
 			},
@@ -180,7 +180,7 @@ body := {{packageName}}.WriteRequest{
 	Deletes: &{{packageName}}.TupleKeys{
 		TupleKeys: []{{packageName}}.TupleKey{
 			{
-				User: {{packageName}}.PtrString("81684243-9356-4421-8fbf-a4f8d36aa31b"),
+				User: {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
 				Relation: {{packageName}}.PtrString("admin"),
 				Object: {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
 			},
@@ -204,7 +204,7 @@ body := {{packageName}}.ExpandRequest{
 }
 data, response, err := apiClient.{{appShortName}}Api.Expand(context.Background()).Body(body).Execute()
 
-// data = {"tree":{"root":{"name":"workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin","leaf":{"users":{"users":["anne","beth"]}}}}} // JSON
+// data = {"tree":{"root":{"name":"workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b","user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]}}}}} // JSON
 ```
 
 #### Read Changes
@@ -215,7 +215,7 @@ data, response, err := apiClient.{{appShortName}}Api.Expand(context.Background()
 // Find if a relationship tuple stating that a certain user is an admin on a certain workspace
 body := {{packageName}}.ReadRequest{
     TupleKey: &{{packageName}}.TupleKey{
-        User:     {{packageName}}.PtrString("81684243-9356-4421-8fbf-a4f8d36aa31b"),
+        User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
         Relation: {{packageName}}.PtrString("admin"),
         Object:   {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
     },
@@ -224,7 +224,7 @@ body := {{packageName}}.ReadRequest{
 // Find all relationship tuples where a certain user has a relationship as any relation to a certain workspace
 body := {{packageName}}.ReadRequest{
     TupleKey: &{{packageName}}.TupleKey{
-        User:     {{packageName}}.PtrString("81684243-9356-4421-8fbf-a4f8d36aa31b"),
+        User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
         Object:   {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
     },
 }
@@ -232,7 +232,7 @@ body := {{packageName}}.ReadRequest{
 // Find all relationship tuples where a certain user is an admin on any workspace
 body := {{packageName}}.ReadRequest{
     TupleKey: &{{packageName}}.TupleKey{
-        User:     {{packageName}}.PtrString("81684243-9356-4421-8fbf-a4f8d36aa31b"),
+        User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
         Relation: {{packageName}}.PtrString("admin"),
         Object:   {{packageName}}.PtrString("workspace:"),
     },
@@ -278,13 +278,13 @@ data, response, err := apiClient.{{appShortName}}Api.ReadChanges(context.Backgro
 ```golang
 body := {{packageName}}.ListObjectsRequest{
     AuthorizationModelId: PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
-    User:                 PtrString("anne"),
+    User:                 PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
     Relation:             PtrString("can_read"),
     Type:                 PtrString("document"),
     ContextualTuples: &ContextualTupleKeys{
 {{=<% %>=}}
         TupleKeys: []TupleKey{{
-            User:     PtrString("anne"),
+            User:     PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
             Relation: PtrString("editor"),
             Object:   PtrString("folder:product"),
         }, {
