@@ -111,7 +111,7 @@ const { authorization_model_ids: authorizationModelIds } = await {{appCamelCaseN
 ```javascript
 const result = await {{appCamelCaseName}}.check({
   tuple_key: {
-    user: "81684243-9356-4421-8fbf-a4f8d36aa31b",
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     relation: "admin",
     object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
   },
@@ -129,7 +129,7 @@ const result = await {{appCamelCaseName}}.check({
 ```javascript
 await {{appCamelCaseName}}.write({
   writes: {
-    tuple_keys: [{ user: "anne", relation: "viewer", object: "document:roadmap" }],
+    tuple_keys: [{ user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b", relation: "viewer", object: "document:roadmap" }],
   },
 });
 
@@ -144,7 +144,7 @@ await {{appCamelCaseName}}.write({
 ```javascript
 await {{appCamelCaseName}}.write({
   deletes: {
-    tuple_keys: [{ user: "anne", relation: "viewer", object: "document:roadmap" }],
+    tuple_keys: [{ user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b", relation: "viewer", object: "document:roadmap" }],
   },
 });
 
@@ -164,7 +164,7 @@ const { tree } = await {{appCamelCaseName}}.expand({
   },
 });
 
-// tree  = { root: { name: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin", leaf: { users: { users: ["anne", "beth"] } } } }
+// tree  = { root: { name: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin", leaf: { users: { users: ["user:81684243-9356-4421-8fbf-a4f8d36aa31b", "user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"] } } } }
 ```
 
 #### Read Tuples
@@ -177,7 +177,7 @@ const { tree } = await {{appCamelCaseName}}.expand({
 // Find if a relationship tuple stating that a certain user is an admin on a certain workspace
 const body = {
   tuple_key: {
-    user: "81684243-9356-4421-8fbf-a4f8d36aa31b",
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     relation: "admin",
     object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
   },
@@ -186,7 +186,7 @@ const body = {
 // Find all relationship tuples where a certain user has a relationship as any relation to a certain workspace
 const body = {
   tuple_key: {
-    user: "81684243-9356-4421-8fbf-a4f8d36aa31b",
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
   },
 };
@@ -194,7 +194,7 @@ const body = {
 // Find all relationship tuples where a certain user is an admin on any workspace
 const body = {
   tuple_key: {
-    user: "81684243-9356-4421-8fbf-a4f8d36aa31b",
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     relation: "admin",
     object: "workspace:",
   },
@@ -241,13 +241,13 @@ const response = await {{appCamelCaseName}}.readChanges(type, pageSize, continua
 ```javascript
 const response = await openFgaApi.listObjects({
   authorization_model_id: "01GAHCE4YVKPQEKZQHT2R89MQV",
-  user: "anne",
+  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
   relation: "can_read",
   type: "document",
   contextual_tuples: {
     tuple_keys:
       [{
-        user: "anne",
+        user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
         relation: "editor",
         object: "folder:product"
       }, {
