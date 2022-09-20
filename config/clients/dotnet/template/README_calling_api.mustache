@@ -115,7 +115,7 @@ var response = await {{appCamelCaseName}}Api.ReadAuthorizationModels();
 
 ```csharp
 var body =
-    new CheckRequest(tupleKey: new TupleKey("document:project-roadmap", "editor", "anne"));
+    new CheckRequest(tupleKey: new TupleKey("document:project-roadmap", "editor", "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
 var response = await {{appCamelCaseName}}Api.Check(body);
 // response.Allowed = true
 ```
@@ -126,7 +126,7 @@ var response = await {{appCamelCaseName}}Api.Check(body);
 
 ```csharp
 var body = new WriteRequest(new TupleKeys(new List<TupleKey>
-    {new("document:project-roadmap", "editor", "anne")}));
+    {new("document:project-roadmap", "editor", "user:81684243-9356-4421-8fbf-a4f8d36aa31b")}));
 var response = await {{appCamelCaseName}}Api.Write(body);
 ```
 
@@ -136,7 +136,7 @@ var response = await {{appCamelCaseName}}Api.Write(body);
 
 ```csharp
 var body = new WriteRequest(new TupleKeys(new List<TupleKey> { }),
-    new TupleKeys(new List<TupleKey> {new("document:project-roadmap", "editor", "anne")}));
+    new TupleKeys(new List<TupleKey> {new("document:project-roadmap", "editor", "user:81684243-9356-4421-8fbf-a4f8d36aa31b")}));
 var response = await {{appCamelCaseName}}Api.Write(body);
 ```
 
@@ -148,7 +148,7 @@ var response = await {{appCamelCaseName}}Api.Write(body);
 var body = new ExpandRequest(new TupleKey("document:project-roadmap", "editor"));
 var response = await {{appCamelCaseName}}Api.Expand(body);
 
-// response.Tree.Root = {"name":"workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin","leaf":{"users":{"users":["anne","beth"]}}}
+// response.Tree.Root = {"name":"workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b","user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]}}}
 ```
 
 #### Read Changes
@@ -160,24 +160,24 @@ var response = await {{appCamelCaseName}}Api.Expand(body);
 var body = new ReadRequest(new TupleKey(
     _object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
     relation: "admin",
-    user: "81684243-9356-4421-8fbf-a4f8d36aa31b"));
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
 
 // Find all relationship tuples where a certain user has a relationship as any relation to a certain workspace
 var body = new ReadRequest(new TupleKey(
     _object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
-    user: "81684243-9356-4421-8fbf-a4f8d36aa31b"));
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
 
 // Find all relationship tuples where a certain user is an admin on any workspace
 var body = new ReadRequest(new TupleKey(
     _object: "workspace:",
     relation: "admin",
-    user: "81684243-9356-4421-8fbf-a4f8d36aa31b"));
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
 
 // Find all relationship tuples where any user has a relationship as any relation with a particular workspace
 var body = new ReadRequest(new TupleKey(
     _object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"));
 
-var body = new ReadRequest(new TupleKey("document:project-roadmap", "editor", "anne"));
+var body = new ReadRequest(new TupleKey("document:project-roadmap", "editor", "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
 var response = await {{appCamelCaseName}}Api.Read(body);
 
 // In all the above situations, the response will be of the form:
@@ -214,7 +214,7 @@ var body = new ListObjectsRequest{
     Type = "document",
     ContextualTuples = new ContextualTupleKeys() {
         TupleKeys = new List<TupleKey> {
-            new("folder:product", "editor", "anne"),
+            new("folder:product", "editor", "user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
             new("document:roadmap", "parent", "folder:product")
         }
     }
