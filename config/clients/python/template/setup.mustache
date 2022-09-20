@@ -37,7 +37,7 @@ setup(
       'Programming Language :: Python :: 3.11',
       'Programming Language :: Python :: 3.12',
     ],
-    keywords=["FGA", "fine-grained authorization", "Zanzibar", "{{{appName}}}"],
+    keywords=[{{#packageTags}}"{{.}}"{{^-last}}, {{/-last}}{{/packageTags}}],
     install_requires=REQUIRES,
     python_requires='>=3.9',
     packages=find_packages(exclude=["test", "tests"]),

@@ -106,7 +106,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 tuple_key=TupleKey(
                     object="document:2021-budget",
                     relation="reader",
-                    user="anne",
+                    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 ),
             )
             api_response = await api_instance.check(
@@ -122,7 +122,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 query_params=[],
                 post_params=[],
                 body={"tuple_key": {"object": "document:2021-budget",
-                                    "relation": "reader", "user": "anne"}},
+                                    "relation": "reader", "user": "user:81684243-9356-4421-8fbf-a4f8d36aa31b"}},
                 _preload_content=ANY,
                 _request_timeout=None
             )
@@ -196,7 +196,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason about and debug a certain relationship  # noqa: E501
         """
         response_body = '''{
-            "tree": {"root": {"name": "document:budget#reader", "leaf": {"users": {"users": ["anne"]}}}}}
+            "tree": {"root": {"name": "document:budget#reader", "leaf": {"users": {"users": ["user:81684243-9356-4421-8fbf-a4f8d36aa31b"]}}}}}
             '''
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
@@ -213,7 +213,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 body=body,
             )
             self.assertIsInstance(api_response, ExpandResponse)
-            curUsers = Users(users=["anne"])
+            curUsers = Users(users=["user:81684243-9356-4421-8fbf-a4f8d36aa31b"])
             leaf = Leaf(users=curUsers)
             node = Node(name="document:budget#reader", leaf=leaf)
             userTree = UsersetTree(node)
@@ -286,7 +286,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 authorization_model_id="01G5JAVJ41T49E9TT3SKVS7X1J",
                 type="document",
                 relation="reader",
-                user="anne",
+                user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             )
             # Get all stores
             api_response = await api_instance.list_objects(body)
@@ -299,7 +299,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 query_params=[],
                 post_params=[],
                 body={'authorization_model_id': '01G5JAVJ41T49E9TT3SKVS7X1J',
-                      'type': 'document', 'relation': 'reader', 'user': 'anne'},
+                      'type': 'document', 'relation': 'reader', 'user': 'user:81684243-9356-4421-8fbf-a4f8d36aa31b'},
                 _preload_content=ANY,
                 _request_timeout=None
             )
@@ -383,7 +383,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
   "tuples": [
     {
       "key": {
-        "user": "anne",
+        "user": "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
         "relation": "reader",
         "object": "document:2021-budget"
       },
@@ -401,7 +401,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 tuple_key=TupleKey(
                     object="document:2021-budget",
                     relation="reader",
-                    user="anne",
+                    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 ),
                 authorization_model_id="01G5JAVJ41T49E9TT3SKVS7X1J",
                 page_size=50,
@@ -411,7 +411,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 body=body,
             )
             self.assertIsInstance(api_response, ReadResponse)
-            key = TupleKey(user="anne",relation="reader",object="document:2021-budget")
+            key = TupleKey(user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",relation="reader",object="document:2021-budget")
             timestamp = datetime.fromisoformat("2021-10-06T15:32:11.128+00:00")
             expected_data = ReadResponse(tuples=[Tuple(key=key, timestamp=timestamp)])
             self.assertEqual(api_response, expected_data)
@@ -421,7 +421,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 headers=ANY,
                 query_params=[],
                 post_params=[],
-                body={"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"anne"},"authorization_model_id":"01G5JAVJ41T49E9TT3SKVS7X1J","page_size":50,"continuation_token":"eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="},
+                body={"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b"},"authorization_model_id":"01G5JAVJ41T49E9TT3SKVS7X1J","page_size":50,"continuation_token":"eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="},
                 _preload_content=ANY,
                 _request_timeout=None
             )
@@ -440,7 +440,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
       "tuple_key": {
         "object": "document:2021-budget",
         "relation": "reader",
-        "user": "anne"
+        "user": "user:81684243-9356-4421-8fbf-a4f8d36aa31b"
       },
       "expectation": true
     }
@@ -461,7 +461,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 tuple_key=TupleKey(
                     object="document:2021-budget",
                     relation="reader",
-                    user="anne",
+                    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 ),
                 expectation=True,
             )
@@ -572,7 +572,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
       "tuple_key": {
         "object": "document:2021-budget",
         "relation": "reader",
-        "user": "anne"
+        "user": "user:81684243-9356-4421-8fbf-a4f8d36aa31b"
       },
       "operation": "TUPLE_OPERATION_WRITE",
       "timestamp": "2022-07-26T15:55:55.809Z"
@@ -597,7 +597,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             )
             self.assertIsInstance(api_response, ReadChangesResponse)
             changes = TupleChange(
-                tuple_key=TupleKey(object="document:2021-budget",relation="reader",user="anne"),
+                tuple_key=TupleKey(object="document:2021-budget",relation="reader",user="user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
                 operation=TupleOperation.WRITE,
                 timestamp=datetime.fromisoformat("2022-07-26T15:55:55.809+00:00"))
             read_changes = ReadChangesResponse(
@@ -636,7 +636,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                         TupleKey(
                             object="document:2021-budget",
                             relation="reader",
-                            user="anne",
+                            user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                         )
                     ],
                 ),
@@ -651,7 +651,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 headers=ANY,
                 query_params=[],
                 post_params=[],
-                body={"writes":{"tuple_keys":[{"object":"document:2021-budget","relation":"reader","user":"anne"}]},"authorization_model_id":"01G5JAVJ41T49E9TT3SKVS7X1J"},
+                body={"writes":{"tuple_keys":[{"object":"document:2021-budget","relation":"reader","user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b"}]},"authorization_model_id":"01G5JAVJ41T49E9TT3SKVS7X1J"},
                 _preload_content=ANY,
                 _request_timeout=None
             )
@@ -679,7 +679,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                         TupleKey(
                             object="document:2021-budget",
                             relation="reader",
-                            user="anne",
+                            user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                         )
                     ],
                 ),
@@ -694,7 +694,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 headers=ANY,
                 query_params=[],
                 post_params=[],
-                body={"deletes":{"tuple_keys":[{"object":"document:2021-budget","relation":"reader","user":"anne"}]},"authorization_model_id":"01G5JAVJ41T49E9TT3SKVS7X1J"},
+                body={"deletes":{"tuple_keys":[{"object":"document:2021-budget","relation":"reader","user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b"}]},"authorization_model_id":"01G5JAVJ41T49E9TT3SKVS7X1J"},
                 _preload_content=ANY,
                 _request_timeout=None
             )
@@ -721,7 +721,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                         tuple_key=TupleKey(
                             object="document:2021-budget",
                             relation="reader",
-                            user="anne",
+                            user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                         ),
                         expectation=True,
                     )
@@ -738,7 +738,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 headers=ANY,
                 query_params=[],
                 post_params=[],
-                body={"assertions":[{"expectation":True,"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"anne"}}]},
+                body={"assertions":[{"expectation":True,"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b"}}]},
                 _preload_content=ANY,
                 _request_timeout=None
             )
@@ -943,7 +943,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 tuple_key=TupleKey(
                     object="document:2021-budget",
                     relation="reader",
-                    user="anne",
+                    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 ),
             )
             with self.assertRaises(ValidationException) as api_exception:
@@ -976,7 +976,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 tuple_key=TupleKey(
                     object="document:2021-budget",
                     relation="reader",
-                    user="anne",
+                    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 ),
             )
             with self.assertRaises(NotFoundException) as api_exception:
@@ -1008,7 +1008,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 tuple_key=TupleKey(
                     object="document:2021-budget",
                     relation="reader",
-                    user="anne",
+                    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 ),
             )
             with self.assertRaises(ServiceException) as api_exception:
@@ -1039,7 +1039,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 tuple_key=TupleKey(
                     object="document:2021-budget",
                     relation="reader",
-                    user="anne",
+                    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 ),
             )
             api_response = await api_instance.check(
@@ -1055,7 +1055,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 headers=expectedHeader,
                 query_params=[],
                 post_params=[],
-                body={"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"anne"}},
+                body={"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b"}},
                 _preload_content=ANY,
                 _request_timeout=None
             )
@@ -1080,7 +1080,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 tuple_key=TupleKey(
                     object="document:2021-budget",
                     relation="reader",
-                    user="anne",
+                    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 ),
             )
             api_response = await api_instance.check(
@@ -1096,7 +1096,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 headers=expectedHeader,
                 query_params=[],
                 post_params=[],
-                body={"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"anne"}},
+                body={"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b"}},
                 _preload_content=ANY,
                 _request_timeout=None
             )

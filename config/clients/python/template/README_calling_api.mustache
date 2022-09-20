@@ -209,7 +209,7 @@ async def check():
     api_instance = open_fga_api.OpenFgaApi(api_client)
     body = CheckRequest(
         tuple_key=TupleKey(
-            user="81684243-9356-4421-8fbf-a4f8d36aa31b",
+            user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             relation="admin",
             object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
         ),
@@ -241,7 +241,7 @@ async def write():
         writes=TupleKeys(
             tuple_keys=[
                 TupleKey(
-                    user="81684243-9356-4421-8fbf-a4f8d36aa31b",
+                    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                     relation="admin",
                     object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
                 ),
@@ -273,7 +273,7 @@ async def delete():
         deletes=TupleKeys(
             tuple_keys=[
                 TupleKey(
-                    user="81684243-9356-4421-8fbf-a4f8d36aa31b",
+                    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                     relation="reader",
                     object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
                 ),
@@ -309,7 +309,7 @@ async def expand():
     )
 
     response = await api_instance.expand(body)
-    # response = ExpandResponse({"tree": UsersetTree({"root": Node({"name": "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin", "leaf": Leaf({"users": Users({"users": ["anne", "beth"]})})})})})
+    # response = ExpandResponse({"tree": UsersetTree({"root": Node({"name": "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin", "leaf": Leaf({"users": Users({"users": ["user:81684243-9356-4421-8fbf-a4f8d36aa31b", "user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]})})})})})
     await api_client.close()
 ```
 
@@ -332,7 +332,7 @@ async def read():
     # Find if a relationship tuple stating that a certain user is an admin on a certain workspace
     body = ReadRequest(
         tuple_key=TupleKey(
-            user="81684243-9356-4421-8fbf-a4f8d36aa31b",
+            user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             relation="admin",
             object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
         ),
@@ -341,7 +341,7 @@ async def read():
     # Find all relationship tuples where a certain user has a relationship as any relation to a certain workspace
     body = ReadRequest(
         tuple_key=TupleKey(
-            user="81684243-9356-4421-8fbf-a4f8d36aa31b",
+            user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             object="workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
         ),
     ) 
@@ -349,7 +349,7 @@ async def read():
     # Find all relationship tuples where a certain user is an admin on any workspace
     body = ReadRequest(
         tuple_key=TupleKey(
-            user="81684243-9356-4421-8fbf-a4f8d36aa31b",
+            user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             relation="admin",
             object="workspace:",
         ),
@@ -412,13 +412,13 @@ async def list_objects():
     api_instance = open_fga_api.OpenFgaApi(api_client)
     body = ListObjectsRequest(
         authorization_model_id="01GAHCE4YVKPQEKZQHT2R89MQV",
-        user="anne",
+        user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
         relation="can_read",
         type="document",
         contextual_tuples=ContextualTupleKeys( # optional
             tuple_keys=[
                 TupleKey(
-                    user="anne",
+                    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                     relation="editor",
                     object="folder:product",
                 ),
