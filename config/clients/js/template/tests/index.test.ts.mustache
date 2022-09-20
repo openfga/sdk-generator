@@ -21,8 +21,8 @@ import {
   ReadResponse,
   TupleKey,
   TupleOperation,
-  TypeDefinitions,
   UserConfigurationParams,
+  WriteAuthorizationModelRequest,
 } from "../index";
 import { CallResult } from "../common";
 import { GetDefaultRetryParams } from "../configuration";
@@ -135,7 +135,7 @@ const nocks = {
   },
   writeAuthorizationModel: (
     storeId: string,
-    configurations: TypeDefinitions,
+    configurations: WriteAuthorizationModelRequest,
     basePath = defaultConfiguration.getBasePath(),
   ) => {
     return nock(basePath)
