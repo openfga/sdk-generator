@@ -13,10 +13,11 @@ configuration = {{packageName}}.Configuration(
     api_host = 'api.{{sampleApiDomain}}'
 )
 
-# Enter a context with an instance of the API client
-with {{packageName}}.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
+async def api_setup():
+    # Enter a context with an instance of the API client
+    async with {{packageName}}.ApiClient(configuration) as api_client:
+        # Create an instance of the API class
+        api_instance = open_fga_api.OpenFgaApi(api_client)
 
 ```
 
@@ -34,10 +35,11 @@ configuration = openfga_sdk.Configuration(
     store_id = 'YOUR_STORE_ID'
 )
 
-# Enter a context with an instance of the API client
-with openfga_sdk.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
+async def api_setup():
+    # Enter a context with an instance of the API client
+    async with openfga_sdk.ApiClient(configuration) as api_client:
+        # Create an instance of the API class
+        api_instance = open_fga_api.OpenFgaApi(api_client)
 
 ```
 
@@ -52,12 +54,13 @@ configuration = openfga_sdk.Configuration(
     api_host = 'api.{{sampleApiDomain}}'
 )
 
-configuration.store_id = 'YOUR_STORE_ID'
+async def api_setup():
+    configuration.store_id = 'YOUR_STORE_ID'
 
-# Enter a context with an instance of the API client
-with {{packageName}}.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
+    # Enter a context with an instance of the API client
+    async with {{packageName}}.ApiClient(configuration) as api_client:
+        # Create an instance of the API class
+        api_instance = open_fga_api.OpenFgaApi(api_client)
 
 ```
 
@@ -77,9 +80,10 @@ configuration = {{packageName}}.Configuration(
     credentials = credentials
 )
 
-# Enter a context with an instance of the API client
-with {{packageName}}.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = open_fga_api.OpenFgaApi(api_client)
+async def api_setup():
+    # Enter a context with an instance of the API client
+    async with {{packageName}}.ApiClient(configuration) as api_client:
+        # Create an instance of the API class
+        api_instance = open_fga_api.OpenFgaApi(api_client)
 
 ```

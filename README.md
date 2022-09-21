@@ -8,17 +8,23 @@ This is the main generator responsible for generating the OpenFGA SDKs from the 
 
 ## Table of Contents
 
-- [About OpenFGA](#about)
-- [Resources](#resources)
-- [Currently Supported SDKs](#currently-supported-sdks)
-- [Getting Started](#getting-started)
-  - [Requirements](#requirements)
-  - [Usage](#usage)
-  - [Adding a New SDK](#adding-a-new-sdk)
-  - [Uploading the SDK](#uploading-the-sdk)
-  - [Publishing the SDK](#publishingopen-sourcing-the-sdk)
-- [Contributing](#contributing)
-- [License](#license)
+- [OpenFGA Client SDK Generator](#openfga-client-sdk-generator)
+  - [Table of Contents](#table-of-contents)
+  - [About](#about)
+  - [Resources](#resources)
+  - [Currently Supported SDKs](#currently-supported-sdks)
+  - [Getting Started](#getting-started)
+    - [Requirements](#requirements)
+    - [Usage](#usage)
+    - [Adding a new SDK](#adding-a-new-sdk)
+      - [Using the setup script](#using-the-setup-script)
+      - [Manually](#manually)
+    - [Uploading the SDK](#uploading-the-sdk)
+    - [Publishing/Open Sourcing the SDK](#publishingopen-sourcing-the-sdk)
+    - [GitHub Action Secrets](#github-action-secrets)
+  - [Contributing](#contributing)
+  - [Author](#author)
+  - [License](#license)
 
 ## About
 
@@ -42,6 +48,7 @@ OpenFGA is designed to make it easy for application builders to model their perm
 | Javascript | [openfga/js-sdk](https://github.com/openfga/js-sdk)         | [@openfga/sdk](https://www.npmjs.com/package/@auth0/fga) on npm    |
 | Go         | [openfga/go-sdk](https://github.com/openfga/go-sdk)         | -                                                                  |
 | .NET       | [openfga/dotnet-sdk](https://github.com/openfga/dotnet-sdk) | [OpenFga.Sdk](https://www.nuget.org/packages/OpenFga.Sdk) on nuget |
+| PYTHON     | [openfga/python](https://github.com/openfga/python-sdk)     | [openfga-sdk](https://pypi.org/project/openfga-sdk) on PyPI        |
 
 ## Getting Started
 
@@ -67,6 +74,7 @@ git clone git@github.com:openfga/sdk-generator.git
 git clone git@github.com:openfga/go-sdk.git clients/fga-go-sdk
 git clone git@github.com:openfga/js-sdk.git clients/fga-js-sdk
 git clone git@github.com:openfga/dotnet-sdk.git clients/fga-dotnet-sdk
+git clone git@github.com:openfga/python-sdk.git clients/fga-python-sdk
 ```
 
 3. Build and test the client sdks

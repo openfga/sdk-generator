@@ -108,29 +108,19 @@ build-client-dotnet:
 tag-client-python: test-client-python
 	make utils-tag-client sdk_language=python
 
-.PHONY: test-client-python
-test-client-python: build-client-python
-	# Need to ignore F401 (unused module), E402 (import not at top of module), E501 (line too long) and W504 (line break after binary operator)
-	# due to limitations of autopep8 as well as generator.
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; python -m unittest test/*'"
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; python -m flake8 --ignore F401,E402,E501,W504 openfga_sdk'"
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; python -m flake8 --ignore E501 test'"
-
 .PHONY: build-client-python
 build-client-python:
-	make build-client sdk_language=python tmpdir=${TMP_DIR}
-	sed -i -e "s|\"key\": |key=|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md
-	sed -i -e "s|from openfga_sdk.model.tuple_keys import TupleKeys|from openfga_sdk.model.tuple_key import TupleKey\nfrom openfga_sdk.model.tuple_keys import TupleKeys|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md
-	rm -rf ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/docs/OpenFgaApi.md-e
-	# The return value is falsely marked as not found
-	sed -i -e "s|-> 'relations':|-> 'relations': # noqa: F821|g" ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/model/type_definition.py
-	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/model/type_definition.py-e
-	# Need to apply patch to override create_store documentation and body
-	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/docs/OpenFgaApi.md /config/clients/python/patches/OpenFgaApi.md.patch'"
+	make build-client sdk_language=python tmpdir=${TMP_DIR} library="--library asyncio"
 	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/openfga_sdk/api/open_fga_api.py /config/clients/python/patches/open_fga_api.py.patch'"
-
-	# Need to ignore E402 (import order) to avoid circular dependency
+	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/docs/OpenFgaApi.md /config/clients/python/patches/OpenFgaApi.md.patch'"
 	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install autopep8; autopep8 --in-place --ignore E402 --recursive openfga_sdk; autopep8 --in-place --recursive test'"
+
+.PHONY: test-client-python
+test-client-python: build-client-python
+	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; python -m unittest test/*'"
+	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; python -m flake8 --ignore F401,E402,E501,W504 openfga_sdk'"
+	# Need to ignore E402 (import order) to avoid circular dependency
+	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; python -m flake8 --ignore E501 test'"
 
 .PHONY: run-in-docker
 run-in-docker:
@@ -176,6 +166,7 @@ build-client: build-openapi
 		openapitools/openapi-generator-cli:${OPENAPI_GENERATOR_CLI_DOCKER_TAG} generate \
 		-i /docs/openapi/openfga.openapiv2.json \
 		--http-user-agent='openfga-sdk (${sdk_language}) {packageVersion}' \
+		${library} \
 		-o /clients/fga-${sdk_language}-sdk \
 		-c /config/config.json \
 		-g `cat ./config/clients/${sdk_language}/generator.txt`

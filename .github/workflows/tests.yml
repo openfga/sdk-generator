@@ -195,12 +195,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Specify python version
-        uses: actions/setup-python@v4 
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.10' 
+          python-version: '3.10'
 
       - name: Setup git
         run: ./scripts/setup_git.sh
@@ -228,7 +228,7 @@ jobs:
         working-directory: clients/fga-python-sdk
         run: |-
           pip install -r requirements.txt
-  
+
       - name: Install Snyk CLI
         run: |-
           mkdir -p ~/.local/bin
@@ -243,7 +243,7 @@ jobs:
         run: |-
           export PATH=$PATH:$HOME/.local/bin
           snyk test
-        
+
       - name: Install FOSSA CLI
         run: |-
           mkdir -p ~/.local/bin

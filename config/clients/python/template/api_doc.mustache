@@ -19,25 +19,6 @@ Method | HTTP request | Description
 
 ### Example
 
-{{#hasAuthMethods}}
-{{#authMethods}}
-{{#isBasic}}
-{{#isBasicBasic}}
-* Basic Authentication ({{name}}):
-{{/isBasicBasic}}
-{{#isBasicBearer}}
-* Bearer{{#bearerFormat}} ({{{.}}}){{/bearerFormat}} Authentication ({{name}}):
-{{/isBasicBearer}}
-{{/isBasic}}
-{{#isApiKey}}
-* Api Key Authentication ({{name}}):
-{{/isApiKey }}
-{{#isOAuth}}
-* OAuth Authentication ({{name}}):
-{{/isOAuth }}
-{{/authMethods}}
-{{/hasAuthMethods}}
-
 {{> api_doc_example }}
 
 ### Parameters
@@ -63,9 +44,7 @@ Name | Type | Description  | Notes
  - **Accept**: {{#produces}}{{{mediaType}}}{{^-last}}, {{/-last}}{{/produces}}{{^produces}}Not defined{{/produces}}
 
 {{#responses.0}}
-
 ### HTTP response details
-
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 {{#responses}}
