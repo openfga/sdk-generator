@@ -171,6 +171,11 @@ class AuthenticationError(ApiException):
     def __init__(self, status=None, reason=None, http_resp=None):
         super(AuthenticationError, self).__init__(status, reason, http_resp)
 
+class RateLimitExceededError(ApiException):
+
+    def __init__(self, status=None, reason=None, http_resp=None):
+        super(RateLimitExceededError, self).__init__(status, reason, http_resp)
+
 
 def render_path(path_to_item):
     """Returns a string representation of a path"""

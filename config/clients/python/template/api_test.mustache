@@ -14,7 +14,7 @@ import {{packageName}}
 from {{packageName}} import rest
 from {{packageName}}.api import open_fga_api
 from {{packageName}}.credentials import Credentials, CredentialConfiguration
-from {{packageName}}.exceptions import ApiTypeError, ApiValueError, NotFoundException, ServiceException, ValidationException
+from {{packageName}}.exceptions import ApiTypeError, ApiValueError, NotFoundException, RateLimitExceededError, ServiceException, ValidationException
 from {{packageName}}.models.assertion import Assertion
 from {{packageName}}.models.authorization_model import AuthorizationModel
 from {{packageName}}.models.check_request import CheckRequest
@@ -986,6 +986,78 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             self.assertIsInstance(api_exception.exception.parsed_exception, PathUnknownErrorMessageResponse)
             self.assertEqual(api_exception.exception.parsed_exception.code, NotFoundErrorCode.UNDEFINED_ENDPOINT)
             self.assertEqual(api_exception.exception.parsed_exception.message, "Endpoint not enabled")
+
+    @patch.object(rest.RESTClientObject, 'request')
+    async def test_429_error_no_retry(self, mock_request):
+        """
+        Test to ensure 429 errors are handled properly.
+        For this case, there is no retry configured
+        """
+        response_body = '''
+{
+  "code": "rate_limit_exceeded",
+  "message": "Rate Limit exceeded"
+}
+        '''
+        mock_request.side_effect = RateLimitExceededError(http_resp=http_mock_response(response_body, 429))
+
+        retry = {{packageName}}.configuration.RetryParams(0, 10)
+        configuration = self.configuration
+        configuration.store_id = store_id
+        configuration.retry_params = retry
+        async with {{packageName}}.ApiClient(configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            body = CheckRequest(
+                tuple_key=TupleKey(
+                    object="document:2021-budget",
+                    relation="reader",
+                    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                ),
+            )
+            with self.assertRaises(RateLimitExceededError) as api_exception:
+                await api_instance.check(
+                    body=body,
+                )
+            self.assertIsInstance(api_exception.exception, RateLimitExceededError)
+            mock_request.assert_called()
+            self.assertEqual(mock_request.call_count, 1)
+
+    @patch.object(rest.RESTClientObject, 'request')
+    async def test_429_error_first_error(self, mock_request):
+        """
+        Test to ensure 429 errors are handled properly.
+        For this case, retry is configured and only the first time has error
+        """
+        response_body = '{"allowed": true, "resolution": "1234"}'
+        error_response_body = '''
+{
+  "code": "rate_limit_exceeded",
+  "message": "Rate Limit exceeded"
+}
+        '''
+        mock_request.side_effect = [RateLimitExceededError(http_resp=http_mock_response(error_response_body, 429)), mock_response(response_body, 200)]
+
+        retry = {{packageName}}.configuration.RetryParams(1, 10)
+        configuration = self.configuration
+        configuration.store_id = store_id
+        configuration.retry_params = retry
+        async with {{packageName}}.ApiClient(configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            body = CheckRequest(
+                tuple_key=TupleKey(
+                    object="document:2021-budget",
+                    relation="reader",
+                    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                ),
+            )
+            api_response = await api_instance.check(
+                body=body,
+            )
+            self.assertIsInstance(api_response, CheckResponse)
+            self.assertTrue(api_response.allowed)
+            mock_request.assert_called()
+            self.assertEqual(mock_request.call_count, 2)
+
 
     @patch.object(rest.RESTClientObject, 'request')
     async def test_500_error(self, mock_request):
