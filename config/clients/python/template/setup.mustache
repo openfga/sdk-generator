@@ -1,0 +1,53 @@
+# coding: utf-8
+
+{{>partial_header}}
+
+from setuptools import setup, find_packages  # noqa: H301
+
+NAME = "{{{projectName}}}"
+VERSION = "{{packageVersion}}"
+{{#apiInfo}}
+{{#apis}}
+{{#-last}}
+# To install the library, run the following
+#
+# python setup.py install
+#
+# prerequisite: setuptools
+# http://pypi.python.org/pypi/setuptools
+
+REQUIRES = ["urllib3 >= 1.26.11", "six >= 1.10", "python-dateutil >= 2.8.2"]
+{{#asyncio}}
+REQUIRES.append("aiohttp >= 3.8.1")
+{{/asyncio}}
+
+setup(
+    name=NAME,
+    version=VERSION,
+    description="{{appDescription}}",
+    author="{{author}} ({{websiteUrl}})",
+    author_email="{{infoEmail}}",
+    url="https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}",
+    classifiers=[
+      'Development Status :: 5 - Production',
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: Apache Software License',
+      'Programming Language :: Python :: 3.9',
+      'Programming Language :: Python :: 3.10',
+      'Programming Language :: Python :: 3.11',
+      'Programming Language :: Python :: 3.12',
+    ],
+    keywords=[{{#packageTags}}"{{.}}"{{^-last}}, {{/-last}}{{/packageTags}}],
+    install_requires=REQUIRES,
+    python_requires='>=3.9',
+    packages=find_packages(exclude=["test", "tests"]),
+    include_package_data=True,
+    {{#licenseId}}license="{{.}}",
+    {{/licenseId}}long_description_content_type='text/markdown',
+    long_description="""\
+    {{>README_project_introduction}}
+    """
+)
+{{/-last}}
+{{/apis}}
+{{/apiInfo}}

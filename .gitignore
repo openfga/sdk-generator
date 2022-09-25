@@ -4,5 +4,6 @@
 docs/openapi/*.json
 
 .DS_Store
+.dccache
 
 clients/**/*

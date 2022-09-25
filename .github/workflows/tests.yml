@@ -190,3 +190,81 @@ jobs:
           GITHUB_ORG_ID: ${{ secrets.DOTNET_SDK_GITHUB_ORG_ID }}
           GITHUB_REPO_ID: ${{ secrets.DOTNET_SDK_GITHUB_REPO_ID }}
           SSH_KEY: ${{ secrets.DOTNET_SDK_SSH_KEY }}
+
+  build-and-test-python-sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Specify python version
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Setup git
+        run: ./scripts/setup_git.sh
+        env:
+          GIT_USER_NAME: ${{ secrets.GIT_USER_NAME }}
+          GIT_USER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
+
+      - name: Clone the existing SDK
+        run: ./scripts/clone_sdk.sh
+        env:
+          GITHUB_ORG_ID: ${{ secrets.PYTHON_SDK_GITHUB_ORG_ID }}
+          GITHUB_REPO_ID: ${{ secrets.PYTHON_SDK_GITHUB_REPO_ID }}
+          SSH_KEY: ${{ secrets.PYTHON_SDK_SSH_KEY }}
+          SDK_PATH: clients/fga-python-sdk
+          KNOWN_HOSTS: ${{secrets.KNOWN_HOSTS}}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Run All Tests
+        run: |-
+          make test-client-python
+
+      - name: Install SDK to prepare for Snyk
+        working-directory: clients/fga-python-sdk
+        run: |-
+          pip install -r requirements.txt
+
+      - name: Install Snyk CLI
+        run: |-
+          mkdir -p ~/.local/bin
+          export PATH=$PATH:$HOME/.local/bin
+          curl https://static.snyk.io/cli/latest/snyk-linux -o ~/.local/bin/snyk
+          chmod +x ~/.local/bin/snyk
+
+      - name: Run Snyk to check for vulnerabilities
+        working-directory: clients/fga-python-sdk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |-
+          export PATH=$PATH:$HOME/.local/bin
+          snyk test
+
+      - name: Install FOSSA CLI
+        run: |-
+          mkdir -p ~/.local/bin
+          export PATH=$PATH:$HOME/.local/bin
+          curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh -b ~/.local/bin | bash
+
+      - name: Run FOSSA scan and upload build data
+        working-directory: clients/fga-python-sdk
+        env:
+          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
+        run: |-
+          export PATH=$PATH:$HOME/.local/bin
+          fossa analyze
+          fossa test
+
+      - name: Check for SDK changes
+        run: ./scripts/commit_push_changes.sh
+        env:
+          SDK_PATH: clients/fga-python-sdk
+          DRY_RUN: 1
+          TAGGING_DISABLE: 1
+          GITHUB_ORG_ID: ${{ secrets.PYTHON_SDK_GITHUB_ORG_ID }}
+          GITHUB_REPO_ID: ${{ secrets.PYTHON_SDK_GITHUB_REPO_ID }}
+          SSH_KEY: ${{ secrets.PYTHON_SDK_SSH_KEY }}

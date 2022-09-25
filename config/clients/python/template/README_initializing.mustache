@@ -1,0 +1,89 @@
+#### No Authentication ####
+
+##### Without Store ID #####
+
+To configure the SDK API client without store ID, we can initialize the api client by specifying the scheme and host.
+
+```python
+import {{packageName}}
+from {{packageName}}.api import open_fga_api
+
+configuration = {{packageName}}.Configuration(
+    api_scheme = 'https',
+    api_host = 'api.{{sampleApiDomain}}'
+)
+
+async def api_setup():
+    # Enter a context with an instance of the API client
+    async with {{packageName}}.ApiClient(configuration) as api_client:
+        # Create an instance of the API class
+        api_instance = open_fga_api.OpenFgaApi(api_client)
+
+```
+
+##### With Store ID #####
+
+To configure the SDK API client store ID, we can initialize the api client by specifying the scheme, host and store_id.
+
+```python
+import {{packageName}}
+from {{packageName}}.api import open_fga_api
+
+configuration = openfga_sdk.Configuration(
+    api_scheme = 'https',
+    api_host = 'api.{{sampleApiDomain}}',
+    store_id = 'YOUR_STORE_ID'
+)
+
+async def api_setup():
+    # Enter a context with an instance of the API client
+    async with openfga_sdk.ApiClient(configuration) as api_client:
+        # Create an instance of the API class
+        api_instance = open_fga_api.OpenFgaApi(api_client)
+
+```
+
+Another possibility is to use the existing configuration and add store id in its configuration
+
+```python
+import {{packageName}}
+from {{packageName}}.api import open_fga_api
+
+configuration = openfga_sdk.Configuration(
+    api_scheme = 'https',
+    api_host = 'api.{{sampleApiDomain}}'
+)
+
+async def api_setup():
+    configuration.store_id = 'YOUR_STORE_ID'
+
+    # Enter a context with an instance of the API client
+    async with {{packageName}}.ApiClient(configuration) as api_client:
+        # Create an instance of the API class
+        api_instance = open_fga_api.OpenFgaApi(api_client)
+
+```
+
+#### Authentication via API Token ####
+
+To configure the SDK API client with authentication via API TOKEN, we can initialize the api client by specifying the scheme, host and credentials.
+
+```python
+import {{packageName}}
+from {{packageName}}.api import open_fga_api
+from {{packageName}}.credentials import Credentials, CredentialConfiguration
+
+credentials = Credentials(method='api_token', configuration=CredentialConfiguration(api_token='TOKEN1'))
+configuration = {{packageName}}.Configuration(
+    api_scheme = 'https',
+    api_host = 'api.{{sampleApiDomain}}',
+    credentials = credentials
+)
+
+async def api_setup():
+    # Enter a context with an instance of the API client
+    async with {{packageName}}.ApiClient(configuration) as api_client:
+        # Create an instance of the API class
+        api_instance = open_fga_api.OpenFgaApi(api_client)
+
+```
