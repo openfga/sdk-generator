@@ -143,7 +143,7 @@ class ApiClient(object):
     {{#asyncio}}async {{/asyncio}}def __call_api(
             self, resource_path, method, path_params=None,
             query_params=None, header_params=None, body=None, post_params=None,
-            files=None, response_types_map=None, auth_settings=None,
+            response_types_map=None, auth_settings=None,
             _return_http_data_only=None, collection_formats=None,
             _preload_content=True, _request_timeout=None, _host=None,
             _request_auth=None):
@@ -180,12 +180,11 @@ class ApiClient(object):
                                                      collection_formats)
 
         # post parameters
-        if post_params or files:
+        if post_params:
             post_params = post_params if post_params else []
             post_params = self.sanitize_for_serialization(post_params)
             post_params = self.parameters_to_tuples(post_params,
                                                     collection_formats)
-            post_params.extend(self.files_parameters(files))
 
         # auth setting
         {{#asyncio}}await {{/asyncio}}self.update_params_for_auth(
@@ -325,10 +324,6 @@ class ApiClient(object):
 
         :return: deserialized object.
         """
-        # handle file downloading
-        # save response body into a tmp file and return the instance
-        if response_type == "file":
-            return self.__deserialize_file(response)
 
         # fetch data from response object
         try:
@@ -399,8 +394,7 @@ class ApiClient(object):
             for `application/x-www-form-urlencoded`, `multipart/form-data`.
         :param auth_settings list: Auth Settings names for the request.
         :param response: Response data type.
-        :param files dict: key -> filename, value -> filepath,
-            for `multipart/form-data`.
+        :param files dict: it will not be used
         :param async_req bool: execute request asynchronously
         :param _return_http_data_only: response data without head status code
                                        and headers
@@ -427,7 +421,7 @@ class ApiClient(object):
         if not async_req:
             return {{#asyncio}}await({{/asyncio}}self.__call_api(resource_path, method,
                                    path_params, query_params, header_params,
-                                   body, post_params, files,
+                                   body, post_params,
                                    response_types_map, auth_settings,
                                    _return_http_data_only, collection_formats,
                                    _preload_content, _request_timeout, _host,
@@ -437,7 +431,7 @@ class ApiClient(object):
                                                        method, path_params,
                                                        query_params,
                                                        header_params, body,
-                                                       post_params, files,
+                                                       post_params,
                                                        response_types_map,
                                                        auth_settings,
                                                        _return_http_data_only,
@@ -535,30 +529,6 @@ class ApiClient(object):
                 new_params.append((k, v))
         return new_params
 
-    def files_parameters(self, files=None):
-        """Builds form parameters.
-
-        :param files: File parameters.
-        :return: Form parameters with files.
-        """
-        params = []
-
-        if files:
-            for k, v in six.iteritems(files):
-                if not v:
-                    continue
-                file_names = v if type(v) is list else [v]
-                for n in file_names:
-                    with open(n, 'rb') as f:
-                        filename = os.path.basename(f.name)
-                        filedata = f.read()
-                        mimetype = (mimetypes.guess_type(filename)[0] or
-                                    'application/octet-stream')
-                        params.append(
-                            tuple([k, tuple([filename, filedata, mimetype])]))
-
-        return params
-
     def select_header_accept(self, accepts):
         """Returns `Accept` based on an array of accepts provided.
 
@@ -642,30 +612,6 @@ class ApiClient(object):
             raise ApiValueError(
                 'Authentication token must be in `query` or `header`'
             )
-
-    def __deserialize_file(self, response):
-        """Deserializes body to file
-
-        Saves response body into a file in a temporary folder,
-        using the filename from the `Content-Disposition` header if provided.
-
-        :param response:  RESTResponse.
-        :return: file path.
-        """
-        fd, path = tempfile.mkstemp(dir=self.configuration.temp_folder_path)
-        os.close(fd)
-        os.remove(path)
-
-        content_disposition = response.getheader("Content-Disposition")
-        if content_disposition:
-            filename = re.search(r'filename=[\'"]?([^\'"\s]+)[\'"]?',
-                                 content_disposition).group(1)
-            path = os.path.join(os.path.dirname(path), filename)
-
-        with open(path, "wb") as f:
-            f.write(response.data)
-
-        return path
 
     def __deserialize_primitive(self, data, klass):
         """Deserializes string to primitive type.
