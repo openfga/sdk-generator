@@ -20,7 +20,7 @@ class OpenApiException(Exception):
     """The base exception class for all OpenAPIExceptions"""
 
 
-class ApiTypeError(OpenApiException, TypeError):
+class FgaValidationException(OpenApiException, TypeError):
     def __init__(self, msg, path_to_item=None, valid_classes=None,
                  key_type=None):
         """ Raises an exception for TypeErrors
@@ -46,7 +46,7 @@ class ApiTypeError(OpenApiException, TypeError):
         full_msg = msg
         if path_to_item:
             full_msg = "{0} at {1}".format(msg, render_path(path_to_item))
-        super(ApiTypeError, self).__init__(full_msg)
+        super(FgaValidationException, self).__init__(full_msg)
 
 
 class ApiValueError(OpenApiException, ValueError):

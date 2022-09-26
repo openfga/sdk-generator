@@ -14,7 +14,7 @@ import {{packageName}}
 from {{packageName}} import rest
 from {{packageName}}.api import open_fga_api
 from {{packageName}}.credentials import Credentials, CredentialConfiguration
-from {{packageName}}.exceptions import ApiTypeError, ApiValueError, NotFoundException, RateLimitExceededError, ServiceException, ValidationException, FGA_REQUEST_ID
+from {{packageName}}.exceptions import FgaValidationException, ApiValueError, NotFoundException, RateLimitExceededError, ServiceException, ValidationException, FGA_REQUEST_ID
 from {{packageName}}.models.assertion import Assertion
 from {{packageName}}.models.authorization_model import AuthorizationModel
 from {{packageName}}.models.check_request import CheckRequest
@@ -823,22 +823,22 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
 
     def test_configuration_missing_host(self):
         """
-        Test whether ApiTypeError is raised if configuration does not have host specified
+        Test whether FgaValidationException is raised if configuration does not have host specified
         """
         configuration = {{packageName}}.Configuration(
             api_scheme='http'
         )
-        self.assertRaises(ApiTypeError, configuration.is_valid)
+        self.assertRaises(FgaValidationException, configuration.is_valid)
 
     def test_configuration_missing_scheme(self):
         """
-        Test whether ApiTypeError is raised if configuration does not have scheme specified
+        Test whether FgaValidationException is raised if configuration does not have scheme specified
         """
         configuration = {{packageName}}.Configuration(
             api_host='localhost'
         )
         configuration.api_scheme = None
-        self.assertRaises(ApiTypeError, configuration.is_valid)
+        self.assertRaises(FgaValidationException, configuration.is_valid)
 
     def test_configuration_bad_scheme(self):
         """
@@ -882,7 +882,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
 
     async def test_bad_configuration_read_authorization_model(self):
         """
-        Test whether ApiTypeError is raised for API (reading authorization models)
+        Test whether FgaValidationException is raised for API (reading authorization models)
         with configuration is having incorrect API scheme
         """
         configuration = {{packageName}}.Configuration(
@@ -895,7 +895,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
-            # expects ApiTypeError to be thrown because api_scheme is bad
+            # expects FgaValidationException to be thrown because api_scheme is bad
             with self.assertRaises(ApiValueError):
                 await api_instance.read_authorization_models(
                     page_size= 1,
@@ -904,7 +904,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
 
     async def test_configuration_missing_storeid(self):
         """
-        Test whether ApiTypeError is raised for API (reading authorization models)
+        Test whether FgaValidationException is raised for API (reading authorization models)
         required store ID but configuration is missing store ID
         """
         configuration = {{packageName}}.Configuration(
@@ -917,8 +917,8 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
-            # expects ApiTypeError to be thrown because store_id is not specified
-            with self.assertRaises(ApiTypeError):
+            # expects FgaValidationException to be thrown because store_id is not specified
+            with self.assertRaises(FgaValidationException):
                 await api_instance.read_authorization_models(
                     page_size= 1,
                     continuation_token= "abcdefg"

@@ -13,7 +13,7 @@ import urllib3
 import six
 from six.moves import http_client as httplib
 from urllib.parse import urlparse
-from {{packageName}}.exceptions import ApiTypeError, ApiValueError
+from {{packageName}}.exceptions import FgaValidationException, ApiValueError
 
 
 JSON_SCHEMA_VALIDATION_KEYWORDS = {
@@ -523,9 +523,9 @@ class Configuration(object):
         Note that we are only doing basic validation to ensure input is sane.
         """
         if self.api_host is None or self.api_host == '':
-            raise ApiTypeError('api_host is required but not configured.')
+            raise FgaValidationException('api_host is required but not configured.')
         if self.api_scheme is None or self.api_scheme == '':
-            raise ApiTypeError('api_scheme is required but not configured.')
+            raise FgaValidationException('api_scheme is required but not configured.')
         combined_url = self.api_scheme + '://' + self.api_host
         parsed_url = None
         try:
