@@ -26,7 +26,7 @@ import tornado.gen
 from {{packageName}}.configuration import Configuration
 import {{modelPackage}}
 from {{packageName}} import rest
-from {{packageName}}.exceptions import ApiValueError, ApiException, ApiTypeError, RateLimitExceededError
+from {{packageName}}.exceptions import ApiValueError, ApiException, FgaValidationException, RateLimitExceededError
 
 
 def random_time(loop_count, min_wait_in_ms):
@@ -709,11 +709,11 @@ class ApiClient(object):
         """
         Verify that the store id has been configured and not empty string.
         It will return the store ID.
-        Otherwise, raise ApiTypeError
+        Otherwise, raise FgaValidationException
         """
         configuration = self.configuration
         if configuration.store_id is None or configuration.store_id == '':
-            raise ApiTypeError(
+            raise FgaValidationException(
                 'store_id is required but not configured'
             )
         return configuration.store_id
