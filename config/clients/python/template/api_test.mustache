@@ -14,7 +14,7 @@ import {{packageName}}
 from {{packageName}} import rest
 from {{packageName}}.api import open_fga_api
 from {{packageName}}.credentials import Credentials, CredentialConfiguration
-from {{packageName}}.exceptions import FgaValidationException, ApiValueError, NotFoundException, RateLimitExceededError, ServiceException, ValidationException
+from {{packageName}}.exceptions import FgaValidationException, ApiValueError, NotFoundException, RateLimitExceededError, ServiceException, ValidationException, FGA_REQUEST_ID
 from {{packageName}}.models.assertion import Assertion
 from {{packageName}}.models.authorization_model import AuthorizationModel
 from {{packageName}}.models.check_request import CheckRequest
@@ -58,11 +58,13 @@ from {{packageName}}.models.write_authorization_model_response import WriteAutho
 from {{packageName}}.models.write_request import WriteRequest
 
 store_id = 'd12345abc'
+request_id = 'x1y2z3'
 
 # Helper function to construct mock response
 def http_mock_response(body, status):
     headers = urllib3.response.HTTPHeaderDict({
-        'content-type': 'application/json'
+        'content-type': 'application/json',
+        'Fga-Request-Id': request_id
     })
     return urllib3.HTTPResponse(
         body.encode('utf-8'),
@@ -953,6 +955,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             self.assertIsInstance(api_exception.exception.parsed_exception, ValidationErrorMessageResponse)
             self.assertEqual(api_exception.exception.parsed_exception.code, ErrorCode.VALIDATION_ERROR)
             self.assertEqual(api_exception.exception.parsed_exception.message, "Generic validation error")
+            self.assertEqual(api_exception.exception.header.get(FGA_REQUEST_ID), request_id)
 
 
     @patch.object(rest.RESTClientObject, 'request')

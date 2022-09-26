@@ -5,6 +5,17 @@
 import six
 
 
+# Specifc FGA header to be parsed
+X_RATELIMIT_LIMIT = 'x-ratelimit-limit'
+X_RATELIMIT_REMAINING = 'x_ratelimit_remaining'
+X_RATELIMIT_RESET = 'x_ratelimit_reset'
+FGA_REQUEST_ID = 'fga-request-id' 
+FGA_QUERY_DURATION_MS = 'fga-query-duration-ms'
+OPENFGA_AUTHORIZATION_MODEL_ID = 'openfga_authorization_model_id'
+RESPONSE_HEADERS_TO_KEEP = [X_RATELIMIT_LIMIT, X_RATELIMIT_REMAINING, X_RATELIMIT_RESET,
+    FGA_REQUEST_ID, FGA_QUERY_DURATION_MS, OPENFGA_AUTHORIZATION_MODEL_ID]
+
+
 class OpenApiException(Exception):
     """The base exception class for all OpenAPIExceptions"""
 
@@ -100,11 +111,16 @@ class ApiException(OpenApiException):
             self.reason = http_resp.reason
             self.body = http_resp.data
             self._parsed_exception = None
+            normalized_headers = dict((k.lower(), v) for k, v in http_resp.getheaders().items())
+            self.header = dict()
+            for key in RESPONSE_HEADERS_TO_KEEP:
+                self.header[key] = normalized_headers.get(key)
         else:
             self.status = status
             self.reason = reason
             self.body = None
             self._parsed_exception = None
+            self.header = dict()
 
     def __str__(self):
         """Custom error messages for exception"""
