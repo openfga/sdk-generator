@@ -2,6 +2,7 @@
 .idea
 .env
 docs/openapi/*.json
+docs/openapi/*.json-e
 
 .DS_Store
 .dccache
