@@ -211,7 +211,7 @@
         {{#deprecated}}
         [Obsolete]
         {{/deprecated}}
-        public {{{dataType}}} {{name}} { get; {{#isReadOnly}}private {{/isReadOnly}}set; }
+        public {{{dataType}}}{{^required}}?{{/required}} {{name}} { get; {{#isReadOnly}}private {{/isReadOnly}}set; }
 
         {{#isReadOnly}}
         /// <summary>
