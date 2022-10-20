@@ -52,6 +52,8 @@ touch "${CONFIG_PATH}/template/README_calling_api.mustache"
 touch "${CONFIG_PATH}/template/README_api_endpoints.mustache"
 touch "${CONFIG_PATH}/template/README_models.mustache"
 touch "${CONFIG_PATH}/template/README_license_disclaimer.mustache"
+touch "${CONFIG_PATH}/template/README_custom_badges.mustache"
+touch "${CONFIG_PATH}/template/gitignore_custom.mustache"
 
 echo " - Done"
 printf "Task 1: Done\n\n"
