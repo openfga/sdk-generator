@@ -21,6 +21,13 @@ REQUIRES = ["urllib3 >= 1.26.11", "six >= 1.10", "python-dateutil >= 2.8.2"]
 REQUIRES.append("aiohttp >= 3.8.1")
 {{/asyncio}}
 
+from setuptools import setup
+
+# read the contents of your README file
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
+
 setup(
     name=NAME,
     version=VERSION,
@@ -44,9 +51,7 @@ setup(
     include_package_data=True,
     {{#licenseId}}license="{{.}}",
     {{/licenseId}}long_description_content_type='text/markdown',
-    long_description="""\
-{{>README_project_introduction}}
-    """
+    long_description=long_description
 )
 {{/-last}}
 {{/apis}}
