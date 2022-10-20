@@ -13,6 +13,7 @@
   "packageVersion": "0.1.1",
   "licenseUrl": "https://github.com/openfga/dotnet-sdk/blob/main/LICENSE",
   "fossaComplianceReportId": "4b3a7481-7918-4779-b4ff-b42e5c273517",
+  "fossaComplianceNoticeId": "4f86f6fe-5122-49d9-b8f6-73454ddaeb96",
   "termsOfService": "",
   "caseInsensitiveResponseHeaders": true,
   "disallowAdditionalPropertiesIfNotPresent": false,

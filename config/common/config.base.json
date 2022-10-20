@@ -17,7 +17,7 @@
   "docsUrl": "https://openfga.dev/docs",
   "apiDocsUrl": "https://openfga.dev/api/service",
   "websiteUrl": "https://openfga.dev",
-  "copyrightNotice": "Copyright (c) 2022 OpenFGA <contact@openfga.com> (https://openfga.dev)",
+  "copyrightNotice": "Copyright (c) 2022 the OpenFGA contributors <contact@openfga.dev> (https://openfga.dev)",
   "redditUrl": null,
   "licenseId": "Apache-2.0",
   "licenseBadgeId": "Apache_2.0",
@@ -37,6 +37,10 @@
     "zanzibar"
   ],
   "files": {
+    "gitignore.mustache": {
+      "destinationFilename": ".gitignore",
+      "templateType": "SupportingFiles"
+    },
     "CHANGELOG.md.mustache": {
       "destinationFilename": "CHANGELOG.md",
       "templateType": "SupportingFiles"
@@ -77,8 +81,11 @@
       "destinationFilename": ".github/PULL_REQUEST_TEMPLATE.md",
       "templateType": "SupportingFiles"
     },
-    ".github/workflows/semgrep.yaml": {},
-    "NOTICE.txt": {}
+    "NOTICE.mustache": {
+      "destinationFilename": "NOTICE.txt",
+      "templateType": "SupportingFiles"
+    },
+    ".github/workflows/semgrep.yaml": {}
   },
   "defaultMaxRetry": 3,
   "defaultMinWaitInMs": 100
