@@ -191,8 +191,11 @@ get-openapi-doc:
 update-fossa-reports:
 	make update-fossa-report-js
 	make update-fossa-report-go
-	#make update-fossa-report-dotnet
 	make update-fossa-report-python
+	# We do not have any production dependencies for .NET
+	# FOSSA does not have a complete picture of the testing dependencies for .NET (we exclude them)
+	# The current notice is more complete than what FOSSA would currently provide
+	#make update-fossa-report-dotnet
 
 .PHONY: update-fossa-report-js
 update-fossa-report-js:
