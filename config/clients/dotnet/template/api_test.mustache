@@ -142,6 +142,56 @@ namespace {{testPackageName}}.Api {
         }
 
         /// <summary>
+        /// Test that the authorization header is being sent
+        /// </summary>
+        [Fact]
+        public async Task ApiTokenSentInHeader() {
+            var mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+            var config = new Configuration.Configuration() {
+                StoreId = _storeId,
+                ApiHost = _host,
+                Credentials = new Credentials() {
+                    Method = CredentialsMethod.ApiToken,
+                    Config = new CredentialsConfig() {
+                        ApiToken = "some-token"
+                    }
+                }
+            };
+
+            mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.Is<HttpRequestMessage>(req =>
+                        req.RequestUri.ToString()
+                            .StartsWith($"{config.BasePath}/stores/{config.StoreId}/authorization-models") &&
+                        req.Method == HttpMethod.Get &&
+                        req.Headers.Contains("Authorization")),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync(new HttpResponseMessage() {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = Utils.CreateJsonStringContent(
+                            new ReadAuthorizationModelsResponse() { AuthorizationModels = { } }),
+                });
+
+            var httpClient = new HttpClient(mockHandler.Object);
+            var openFgaApi = new OpenFgaApi(config, httpClient);
+
+            var response = await openFgaApi.ReadAuthorizationModels(null, null);
+
+            mockHandler.Protected().Verify(
+                "SendAsync",
+                Times.Exactly(1),
+                ItExpr.Is<HttpRequestMessage>(req =>
+                    req.RequestUri.ToString()
+                        .StartsWith($"{config.BasePath}/stores/{config.StoreId}/authorization-models") &&
+                    req.Method == HttpMethod.Get &&
+                    req.Headers.Contains("Authorization")),
+                ItExpr.IsAny<CancellationToken>()
+            );
+        }
+
+        /// <summary>
         /// Test that providing no client id, secret, api token issuer or api audience when they are required should error
         /// </summary>
         [Fact]
@@ -267,7 +317,8 @@ namespace {{testPackageName}}.Api {
                     ItExpr.Is<HttpRequestMessage>(req =>
                         req.RequestUri.ToString()
                             .StartsWith($"{config.BasePath}/stores/{config.StoreId}/authorization-models") &&
-                        req.Method == HttpMethod.Get),
+                        req.Method == HttpMethod.Get &&
+                        req.Headers.Contains("Authorization")),
                     ItExpr.IsAny<CancellationToken>()
                 )
                 .ReturnsAsync(new HttpResponseMessage() {
@@ -294,7 +345,8 @@ namespace {{testPackageName}}.Api {
                 Times.Exactly(1),
                 ItExpr.Is<HttpRequestMessage>(req =>
                     req.RequestUri.ToString().StartsWith($"{config.BasePath}/stores/{config.StoreId}/authorization-models") &&
-                    req.Method == HttpMethod.Get),
+                    req.Method == HttpMethod.Get &&
+                    req.Headers.Contains("Authorization")),
                 ItExpr.IsAny<CancellationToken>()
             );
             mockHandler.Protected().Verify(
