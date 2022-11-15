@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -158,14 +159,17 @@ namespace {{testPackageName}}.Api {
                 }
             };
 
+            var readAuthorizationModelsMockExpression = ItExpr.Is<HttpRequestMessage>(req =>
+                req.RequestUri.ToString()
+                    .StartsWith($"{config.BasePath}/stores/{config.StoreId}/authorization-models") &&
+                req.Method == HttpMethod.Get &&
+                req.Headers.Contains("Authorization") &&
+                req.Headers.Authorization.Equals(new AuthenticationHeaderValue("Bearer", "some-token")));
+
             mockHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
-                    ItExpr.Is<HttpRequestMessage>(req =>
-                        req.RequestUri.ToString()
-                            .StartsWith($"{config.BasePath}/stores/{config.StoreId}/authorization-models") &&
-                        req.Method == HttpMethod.Get &&
-                        req.Headers.Contains("Authorization")),
+                    readAuthorizationModelsMockExpression,
                     ItExpr.IsAny<CancellationToken>()
                 )
                 .ReturnsAsync(new HttpResponseMessage() {
@@ -175,18 +179,14 @@ namespace {{testPackageName}}.Api {
                 });
 
             var httpClient = new HttpClient(mockHandler.Object);
-            var openFgaApi = new OpenFgaApi(config, httpClient);
+            var {{appCamelCaseName}} = new {{classname}}(config, httpClient);
 
-            var response = await openFgaApi.ReadAuthorizationModels(null, null);
+            var response = await {{appCamelCaseName}}.ReadAuthorizationModels(null, null);
 
             mockHandler.Protected().Verify(
                 "SendAsync",
                 Times.Exactly(1),
-                ItExpr.Is<HttpRequestMessage>(req =>
-                    req.RequestUri.ToString()
-                        .StartsWith($"{config.BasePath}/stores/{config.StoreId}/authorization-models") &&
-                    req.Method == HttpMethod.Get &&
-                    req.Headers.Contains("Authorization")),
+                readAuthorizationModelsMockExpression,
                 ItExpr.IsAny<CancellationToken>()
             );
         }
@@ -311,14 +311,16 @@ namespace {{testPackageName}}.Api {
                     }),
                 });
 
+            var readAuthorizationModelsMockExpression = ItExpr.Is<HttpRequestMessage>(req =>
+                req.RequestUri.ToString()
+                    .StartsWith($"{config.BasePath}/stores/{config.StoreId}/authorization-models") &&
+                req.Method == HttpMethod.Get &&
+                req.Headers.Contains("Authorization") &&
+                req.Headers.Authorization.Equals(new AuthenticationHeaderValue("Bearer", "some-token")));
             mockHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
-                    ItExpr.Is<HttpRequestMessage>(req =>
-                        req.RequestUri.ToString()
-                            .StartsWith($"{config.BasePath}/stores/{config.StoreId}/authorization-models") &&
-                        req.Method == HttpMethod.Get &&
-                        req.Headers.Contains("Authorization")),
+                    readAuthorizationModelsMockExpression,
                     ItExpr.IsAny<CancellationToken>()
                 )
                 .ReturnsAsync(new HttpResponseMessage() {
@@ -343,10 +345,7 @@ namespace {{testPackageName}}.Api {
             mockHandler.Protected().Verify(
                 "SendAsync",
                 Times.Exactly(1),
-                ItExpr.Is<HttpRequestMessage>(req =>
-                    req.RequestUri.ToString().StartsWith($"{config.BasePath}/stores/{config.StoreId}/authorization-models") &&
-                    req.Method == HttpMethod.Get &&
-                    req.Headers.Contains("Authorization")),
+                readAuthorizationModelsMockExpression,
                 ItExpr.IsAny<CancellationToken>()
             );
             mockHandler.Protected().Verify(
