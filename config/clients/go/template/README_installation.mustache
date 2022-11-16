@@ -10,7 +10,7 @@ In your code, import the module and use it:
 import "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
 
 func Main() {
-	configuration, err := {{#lambda.lowercase}}{{appShortName}}{{/lambda.lowercase}}.NewConfiguration({{#lambda.lowercase}}{{appShortName}}{{/lambda.lowercase}}.UserConfiguration{})
+	configuration, err := {{#lambda.lowercase}}{{appShortName}}{{/lambda.lowercase}}.NewConfiguration({{#lambda.lowercase}}{{appShortName}}{{/lambda.lowercase}}.Configuration{})
 }
 ```
 
