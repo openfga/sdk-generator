@@ -32,7 +32,7 @@ if err != nil {
 
 apiClient := {{packageName}}.NewAPIClient(configuration)
 
-store, _, err := apiClient.{{appShortName}}Api.CreateStore(context.Background()).Body(CreateStoreRequest{Name: PtrString("FGA Demo")}).Execute()
+store, _, err := apiClient.{{appShortName}}Api.CreateStore(context.Background()).Body(CreateStoreRequest{Name: "FGA Demo"}).Execute()
 if err != nil {
     // handle error
 }
@@ -82,7 +82,7 @@ if err != nil {
 > Learn more about [the {{appName}} configuration language]({{docsUrl}}/configuration-language).
 
 ```golang
-body  := {{packageName}}.WriteAuthorizationModelRequest{TypeDefinitions: &[]{{packageName}}.TypeDefinition{
+body  := {{packageName}}.WriteAuthorizationModelRequest{TypeDefinitions: []{{packageName}}.TypeDefinition{
 	{
 		Type: "repo",
 		Relations: &map[string]{{packageName}}.Userset{
@@ -137,7 +137,7 @@ fmt.Printf("%s", (*data.AuthorizationModelIds)[0]) // 1uHxCSuTP0VKPYSnkq1pbb1jeZ
 
 ```golang
 body := {{packageName}}.CheckRequest{
-	TupleKey: &{{packageName}}.TupleKey{
+	TupleKey: {{packageName}}.TupleKey{
 		User: {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
 		Relation: {{packageName}}.PtrString("admin"),
 		Object: {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
@@ -197,7 +197,7 @@ _, response, err := apiClient.{{appShortName}}Api.Write(context.Background()).Bo
 
 ```golang
 body := {{packageName}}.ExpandRequest{
-	TupleKey: &{{packageName}}.TupleKey{
+	TupleKey: {{packageName}}.TupleKey{
 		Relation: {{packageName}}.PtrString("admin"),
 		Object: {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
 	},
@@ -214,7 +214,7 @@ data, response, err := apiClient.{{appShortName}}Api.Expand(context.Background()
 ```golang
 // Find if a relationship tuple stating that a certain user is an admin on a certain workspace
 body := {{packageName}}.ReadRequest{
-    TupleKey: &{{packageName}}.TupleKey{
+    TupleKey: {{packageName}}.TupleKey{
         User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
         Relation: {{packageName}}.PtrString("admin"),
         Object:   {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
@@ -223,7 +223,7 @@ body := {{packageName}}.ReadRequest{
 
 // Find all relationship tuples where a certain user has a relationship as any relation to a certain workspace
 body := {{packageName}}.ReadRequest{
-    TupleKey: &{{packageName}}.TupleKey{
+    TupleKey: {{packageName}}.TupleKey{
         User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
         Object:   {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
     },
@@ -231,7 +231,7 @@ body := {{packageName}}.ReadRequest{
 
 // Find all relationship tuples where a certain user is an admin on any workspace
 body := {{packageName}}.ReadRequest{
-    TupleKey: &{{packageName}}.TupleKey{
+    TupleKey: {{packageName}}.TupleKey{
         User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
         Relation: {{packageName}}.PtrString("admin"),
         Object:   {{packageName}}.PtrString("workspace:"),
@@ -240,7 +240,7 @@ body := {{packageName}}.ReadRequest{
 
 // Find all relationship tuples where any user has a relationship as any relation with a particular workspace
 body := {{packageName}}.ReadRequest{
-    TupleKey: &{{packageName}}.TupleKey{
+    TupleKey: {{packageName}}.TupleKey{
         Object:   {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
     },
 }
@@ -278,9 +278,9 @@ data, response, err := apiClient.{{appShortName}}Api.ReadChanges(context.Backgro
 ```golang
 body := {{packageName}}.ListObjectsRequest{
     AuthorizationModelId: PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
-    User:                 PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-    Relation:             PtrString("can_read"),
-    Type:                 PtrString("document"),
+    User:                 "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation:             "can_read",
+    Type:                 "document",
     ContextualTuples: &ContextualTupleKeys{
 {{=<% %>=}}
         TupleKeys: []TupleKey{{
