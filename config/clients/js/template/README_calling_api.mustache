@@ -57,6 +57,8 @@ await {{appCamelCaseName}}.deleteStore();
 ```javascript
 const { authorization_model_id: id } = await {{appCamelCaseName}}.writeAuthorizationModel({
   type_definitions: [{
+      type: "user",
+    }, {
     type: "document",
     relations: {
       "writer": { "this": {} },
@@ -66,7 +68,7 @@ const { authorization_model_id: id } = await {{appCamelCaseName}}.writeAuthoriza
             { "this": {} },
             { "computedUserset": {
                "object": "",
-              "relation": "viewer" }
+              "relation": "writer" }
             }
           ]
         }
@@ -112,8 +114,8 @@ const { authorization_model_ids: authorizationModelIds } = await {{appCamelCaseN
 const result = await {{appCamelCaseName}}.check({
   tuple_key: {
     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-    relation: "admin",
-    object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+    relation: "viewer",
+    object: "document:roadmap",
   },
 });
 
@@ -159,12 +161,12 @@ await {{appCamelCaseName}}.write({
 ```javascript
 const { tree } = await {{appCamelCaseName}}.expand({
   tuple_key: {
-    relation: "admin",
-    object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+    relation: "viewer",
+    object: "document:roadmap",
   },
 });
 
-// tree  = { root: { name: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin", leaf: { users: { users: ["user:81684243-9356-4421-8fbf-a4f8d36aa31b", "user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"] } } } }
+// tree  = { root: { name: "document:roadmap#viewer", leaf: { users: { users: ["user:81684243-9356-4421-8fbf-a4f8d36aa31b", "user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"] } } } }
 ```
 
 #### Read Tuples
@@ -174,36 +176,36 @@ const { tree } = await {{appCamelCaseName}}.expand({
 > Requires a client initialized with a storeId
 
 ```javascript
-// Find if a relationship tuple stating that a certain user is an admin on a certain workspace
+// Find if a relationship tuple stating that a certain user is a viewer of a certain document
 const body = {
   tuple_key: {
     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-    relation: "admin",
-    object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+    relation: "viewer",
+    object: "document:roadmap",
   },
 };
 
-// Find all relationship tuples where a certain user has a relationship as any relation to a certain workspace
+// Find all relationship tuples where a certain user has a relationship as any relation to a certain document
 const body = {
   tuple_key: {
     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-    object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+    object: "document:roadmap",
   },
 };
 
-// Find all relationship tuples where a certain user is an admin on any workspace
+// Find all relationship tuples where a certain user is a viewer of any document
 const body = {
   tuple_key: {
     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-    relation: "admin",
-    object: "workspace:",
+    relation: "viewer",
+    object: "document:",
   },
 };
 
-// Find all relationship tuples where any user has a relationship as any relation with a particular workspace
+// Find all relationship tuples where any user has a relationship as any relation with a particular document
 const body = {
   tuple_key: {
-    object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+    object: "document:roadmap",
   },
 };
 
@@ -220,15 +222,15 @@ const { tuples } = await {{appCamelCaseName}}.read(body);
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/ReadChanges)
 
 ```javascript
-const type = 'workspace';
+const type = 'document';
 const pageSize = 25;
 const continuationToken = 'eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==';
 const response = await {{appCamelCaseName}}.readChanges(type, pageSize, continuationToken);
 
 // response.continuation_token = ...
 // response.changes = [
-//   { tuple_key: { user, relation, object }, operation: "write", timestamp: ... },
-//   { tuple_key: { user, relation, object }, operation: "delete", timestamp: ... }
+//   { tuple_key: { user, relation, object }, operation: "writer", timestamp: ... },
+//   { tuple_key: { user, relation, object }, operation: "viewer", timestamp: ... }
 // ]
 ```
 
@@ -239,23 +241,11 @@ const response = await {{appCamelCaseName}}.readChanges(type, pageSize, continua
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/ListObjects)
 
 ```javascript
-const response = await openFgaApi.listObjects({
+const response = await {{appCamelCaseName}}.listObjects({
   authorization_model_id: "01GAHCE4YVKPQEKZQHT2R89MQV",
   user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-  relation: "can_read",
+  relation: "viewer",
   type: "document",
-  contextual_tuples: {
-    tuple_keys:
-      [{
-        user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-        relation: "editor",
-        object: "folder:product"
-      }, {
-        user: "folder:product",
-        relation: "parent",
-        object: "document:roadmap"
-      }]
-  }
 });
 
 // response.object_ids = ["roadmap"]

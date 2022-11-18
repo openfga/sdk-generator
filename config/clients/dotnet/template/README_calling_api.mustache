@@ -72,16 +72,20 @@ var store = await {{appCamelCaseName}}Api.DeleteStore();
 > Learn more about [the {{appName}} configuration language]({{docsUrl}}/configuration-language).
 
 ```csharp
-var relations = new Dictionary<string, Userset>()
+var documentRelations = new Dictionary<string, Userset>()
 {
     {"writer", new Userset(_this: new object())},
     {
-        "reader",
+        "viewer",
         new Userset(union: new Usersets(new List<Userset>()
             {new(new object(), new ObjectRelation("", "writer"))}))
     }
 };
-var body = new WriteAuthorizationModelRequest(new List<TypeDefinition>() {new("repo", relations)});
+var userRelations = new Dictionary<string, Userset>()
+{
+};
+
+var body = new WriteAuthorizationModelRequest(new List<TypeDefinition>() {new("document", documentRelations), new("user", userRelations)});
 var response = await {{appCamelCaseName}}Api.WriteAuthorizationModel(body);
 
 // response.AuthorizationModelId = 1uHxCSuTP0VKPYSnkq1pbb1jeZw
@@ -96,7 +100,7 @@ string authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"; // Assuming `1uHxCS
 var response = await {{appCamelCaseName}}Api.ReadAuthorizationModel(authorizationModelId);
 
 // response.AuthorizationModel.Id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"
-// response.AuthorizationModel.TypeDefinitions = [{ "type": "repo", "relations": { ... } }]
+// response.AuthorizationModel.TypeDefinitions = [{ "type": "document", "relations": { ... } }, { "type": "user", "relations": { ... }}]
 ```
 
 #### Read Authorization Model IDs
@@ -115,7 +119,7 @@ var response = await {{appCamelCaseName}}Api.ReadAuthorizationModels();
 
 ```csharp
 var body =
-    new CheckRequest(tupleKey: new TupleKey("document:project-roadmap", "editor", "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
+    new CheckRequest(tupleKey: new TupleKey("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
 var response = await {{appCamelCaseName}}Api.Check(body);
 // response.Allowed = true
 ```
@@ -126,7 +130,7 @@ var response = await {{appCamelCaseName}}Api.Check(body);
 
 ```csharp
 var body = new WriteRequest(new TupleKeys(new List<TupleKey>
-    {new("document:project-roadmap", "editor", "user:81684243-9356-4421-8fbf-a4f8d36aa31b")}));
+    {new("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b")}));
 var response = await {{appCamelCaseName}}Api.Write(body);
 ```
 
@@ -136,7 +140,7 @@ var response = await {{appCamelCaseName}}Api.Write(body);
 
 ```csharp
 var body = new WriteRequest(new TupleKeys(new List<TupleKey> { }),
-    new TupleKeys(new List<TupleKey> {new("document:project-roadmap", "editor", "user:81684243-9356-4421-8fbf-a4f8d36aa31b")}));
+    new TupleKeys(new List<TupleKey> {new("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b")}));
 var response = await {{appCamelCaseName}}Api.Write(body);
 ```
 
@@ -145,10 +149,10 @@ var response = await {{appCamelCaseName}}Api.Write(body);
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Expand)
 
 ```csharp
-var body = new ExpandRequest(new TupleKey("document:project-roadmap", "editor"));
+var body = new ExpandRequest(new TupleKey("document:roadmap", "viewer"));
 var response = await {{appCamelCaseName}}Api.Expand(body);
 
-// response.Tree.Root = {"name":"workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b","user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]}}}
+// response.Tree.Root = {"name":"document:roadmap#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b","user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]}}}
 ```
 
 #### Read Changes
@@ -156,28 +160,27 @@ var response = await {{appCamelCaseName}}Api.Expand(body);
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Read)
 
 ```csharp
-// Find if a relationship tuple stating that a certain user is an admin on a certain workspace
+// Find if a relationship tuple stating that a certain user is a viewer of a certain document
 var body = new ReadRequest(new TupleKey(
-    _object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
-    relation: "admin",
+    _object: "document:roadmap",
+    relation: "viewer",
     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
 
-// Find all relationship tuples where a certain user has a relationship as any relation to a certain workspace
+// Find all relationship tuples where a certain user has a relationship as any relation to a certain document
 var body = new ReadRequest(new TupleKey(
-    _object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6",
+    _object: "document:roadmap",
     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
 
-// Find all relationship tuples where a certain user is an admin on any workspace
+// Find all relationship tuples where a certain user is a viewer of any document
 var body = new ReadRequest(new TupleKey(
-    _object: "workspace:",
-    relation: "admin",
+    _object: "document:",
+    relation: "viewer",
     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
 
-// Find all relationship tuples where any user has a relationship as any relation with a particular workspace
+// Find all relationship tuples where any user has a relationship as any relation with a particular document
 var body = new ReadRequest(new TupleKey(
-    _object: "workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"));
+    _object: "document:roadmap"));
 
-var body = new ReadRequest(new TupleKey("document:project-roadmap", "editor", "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
 var response = await {{appCamelCaseName}}Api.Read(body);
 
 // In all the above situations, the response will be of the form:
@@ -189,7 +192,7 @@ var response = await {{appCamelCaseName}}Api.Read(body);
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/ReadChanges)
 
 ```csharp
-var type = 'workspace';
+var type = 'document';
 var pageSize = 25;
 var continuationToken = 'eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==';
 
@@ -197,8 +200,8 @@ var response = await {{appCamelCaseName}}Api.ReadChanges(type, pageSize, continu
 
 // response.continuation_token = ...
 // response.changes = [
-//   { tuple_key: { user, relation, object }, operation: "write", timestamp: ... },
-//   { tuple_key: { user, relation, object }, operation: "delete", timestamp: ... }
+//   { tuple_key: { user, relation, object }, operation: "writer", timestamp: ... },
+//   { tuple_key: { user, relation, object }, operation: "viewer", timestamp: ... }
 // ]
 ```
 
@@ -208,16 +211,9 @@ var response = await {{appCamelCaseName}}Api.ReadChanges(type, pageSize, continu
 
 ```csharp
 var body = new ListObjectsRequest{
-    AuthorizationModelId = "01GAHCE4YVKPQEKZQHT2R89MQV",
-    User = "anne",
-    Relation = "can_read",
-    Type = "document",
-    ContextualTuples = new ContextualTupleKeys() {
-        TupleKeys = new List<TupleKey> {
-            new("folder:product", "editor", "user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-            new("document:roadmap", "parent", "folder:product")
-        }
-    }
+    User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation = "viewer",
+    Type = "document"
 };
 var response = await {{appCamelCaseName}}Api.ListObjects(body);
 
