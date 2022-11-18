@@ -1,8 +1,6 @@
-diff --git a/src/OpenFga.Sdk/Api/OpenFgaApi.cs b/src/OpenFga.Sdk/Api/OpenFgaApi.cs
-index ecbcecc..6f718ce 100644
---- a/src/OpenFga.Sdk/Api/OpenFgaApi.cs
-+++ b/src/OpenFga.Sdk/Api/OpenFgaApi.cs
-@@ -93,9 +93,10 @@ public class OpenFgaApi : IDisposable {
+--- clients/fga-dotnet-sdk/src/OpenFga.Sdk/Api/OpenFgaApi.cs	2022-11-18 13:11:05.000000000 -0500
++++ OpenFgaApi.cs	2022-11-18 13:12:35.000000000 -0500
+@@ -76,9 +76,10 @@
      /// Create a store Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.
      /// </summary>
      /// <exception cref="OpenFga.Sdk.Exceptions.ApiException">Thrown when fails to make API call</exception>
@@ -12,11 +10,10 @@ index ecbcecc..6f718ce 100644
 -    public async Task<CreateStoreResponse> CreateStore(CancellationToken cancellationToken = default) {
 +    public async Task<CreateStoreResponse> CreateStore(CreateStoreRequest body, CancellationToken cancellationToken = default) {
          var pathParams = new Dictionary<string, string> {};
-
-         var queryParams = new Dictionary<string, string>();
  
-@@ -187,10 +188,11 @@ public class OpenFgaApi : IDisposable {
-     /// Get all stores Returns a paginated list of OpenFGA stores.
+         var queryParams = new Dictionary<string, string>();
+@@ -216,10 +217,11 @@
+     /// List all stores Returns a paginated list of OpenFGA stores.
      /// </summary>
      /// <exception cref="OpenFga.Sdk.Exceptions.ApiException">Thrown when fails to make API call</exception>
 +    /// <param name="pageSize"> (optional)</param>
@@ -26,5 +23,5 @@ index ecbcecc..6f718ce 100644
 -    public async Task<ListStoresResponse> ListStores(string? continuationToken = default(string?), CancellationToken cancellationToken = default) {
 +    public async Task<ListStoresResponse> ListStores(int? pageSize = default(int?), string? continuationToken = default(string?), CancellationToken cancellationToken = default) {
          var pathParams = new Dictionary<string, string> {};
-
+ 
          var queryParams = new Dictionary<string, string>();

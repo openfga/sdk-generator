@@ -444,7 +444,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 		}
 {{=<% %>=}}
 		requestBody := WriteAuthorizationModelRequest{
-			TypeDefinitions: &[]TypeDefinition{{
+			TypeDefinitions: []TypeDefinition{{
 				Type: "github-repo",
 				Relations: &map[string]Userset{
 					"repo_writer": {
@@ -549,7 +549,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 			RequestPath:    "check",
 		}
 		requestBody := CheckRequest{
-			TupleKey: &TupleKey{
+			TupleKey: TupleKey{
 				User:     PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
 				Relation: PtrString("viewer"),
 				Object:   PtrString("document:roadmap"),
@@ -694,7 +694,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 		}
 
 		requestBody := ExpandRequest{
-			TupleKey: &TupleKey{
+			TupleKey: TupleKey{
 				Relation: PtrString("viewer"),
 				Object:   PtrString("document:roadmap"),
 			},
@@ -741,7 +741,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 		}
 
 		requestBody := ReadRequest{
-			TupleKey: &TupleKey{
+			TupleKey: TupleKey{
 				User:     PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
 				Relation: PtrString("viewer"),
 				Object:   PtrString("document:roadmap"),
@@ -842,9 +842,9 @@ func Test{{appShortName}}Api(t *testing.T) {
 
         requestBody := ListObjectsRequest{
             AuthorizationModelId: PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
-            User:                 PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-            Relation:             PtrString("can_read"),
-            Type:                 PtrString("document"),
+            User:                 "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+            Relation:             "can_read",
+            Type:                 "document",
             ContextualTuples: &ContextualTupleKeys{
 {{=<% %>=}}
                 TupleKeys: []TupleKey{{
@@ -906,7 +906,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 			RequestPath:    "check",
 		}
 		requestBody := CheckRequest{
-			TupleKey: &TupleKey{
+			TupleKey: TupleKey{
 				User:     PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
 				Relation: PtrString("viewer"),
 				Object:   PtrString("document:roadmap"),
@@ -969,7 +969,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 			RequestPath:    "check",
 		}
 		requestBody := CheckRequest{
-			TupleKey: &TupleKey{
+			TupleKey: TupleKey{
 				User:     PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
 				Relation: PtrString("viewer"),
 				Object:   PtrString("document:roadmap"),
@@ -1025,7 +1025,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 			RequestPath:    "check",
 		}
 		requestBody := CheckRequest{
-			TupleKey: &TupleKey{
+			TupleKey: TupleKey{
 				User:     PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
 				Relation: PtrString("viewer"),
 				Object:   PtrString("document:roadmap"),
@@ -1088,7 +1088,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 			RequestPath:    "check",
 		}
 		requestBody := CheckRequest{
-			TupleKey: &TupleKey{
+			TupleKey: TupleKey{
 				User:     PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
 				Relation: PtrString("viewer"),
 				Object:   PtrString("document:roadmap"),
@@ -1159,7 +1159,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 			RequestPath:    "check",
 		}
 		requestBody := CheckRequest{
-			TupleKey: &TupleKey{
+			TupleKey: TupleKey{
 				User:     PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
 				Relation: PtrString("viewer"),
 				Object:   PtrString("document:roadmap"),
@@ -1221,7 +1221,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 			RequestPath:    "check",
 		}
 		requestBody := CheckRequest{
-			TupleKey: &TupleKey{
+			TupleKey: TupleKey{
 				User:     PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
 				Relation: PtrString("viewer"),
 				Object:   PtrString("document:roadmap"),
