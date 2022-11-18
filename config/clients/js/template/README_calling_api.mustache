@@ -246,6 +246,14 @@ const response = await {{appCamelCaseName}}.listObjects({
   user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
   relation: "viewer",
   type: "document",
+  contextual_tuples: {
+    tuple_keys:
+      [{
+        user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        relation: "writer",
+        object: "document:budget"
+      }]
+  }
 });
 
 // response.object_ids = ["roadmap"]

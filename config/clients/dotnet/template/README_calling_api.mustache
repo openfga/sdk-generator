@@ -213,7 +213,12 @@ var response = await {{appCamelCaseName}}Api.ReadChanges(type, pageSize, continu
 var body = new ListObjectsRequest{
     User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     Relation = "viewer",
-    Type = "document"
+    Type = "document",
+    ContextualTuples = new ContextualTupleKeys() {
+        TupleKeys = new List<TupleKey> {
+            new("document:budget", "writer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b")
+        }
+    }
 };
 var response = await {{appCamelCaseName}}Api.ListObjects(body);
 

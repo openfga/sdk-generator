@@ -32,7 +32,7 @@ if err != nil {
 
 apiClient := {{packageName}}.NewAPIClient(configuration)
 
-store, _, err := apiClient.{{appShortName}}Api.CreateStore(context.Background()).Body(openfga.CreateStoreRequest{Name: "FGA Demo"}).Execute()
+store, _, err := apiClient.{{appShortName}}Api.CreateStore(context.Background()).Body({{packageName}}.CreateStoreRequest{Name: "FGA Demo"}).Execute()
 if err != nil {
     // handle error
 }
@@ -283,6 +283,15 @@ body := {{packageName}}.ListObjectsRequest{
     User:                 "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     Relation:             "viewer",
     Type:                 "document",
+	ContextualTuples: &ContextualTupleKeys{
+{{=<% %>=}}
+        TupleKeys: []TupleKey{{
+            User:     PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
+            Relation: PtrString("writer"),
+            Object:   PtrString("document:budget"),
+        }},
+<%={{ }}=%>
+    },
 }
 
 data, response, err := apiClient.{{appShortName}}Api.ListObjects(context.Background()).Body(body).Execute()

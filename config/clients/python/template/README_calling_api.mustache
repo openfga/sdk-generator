@@ -417,6 +417,15 @@ async def list_objects():
         user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
         relation="viewer",
         type="document",
+        contextual_tuples=ContextualTupleKeys( # optional
+            tuple_keys=[
+                TupleKey(
+                    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                    relation="writer",
+                    object="document:budget",
+                ),
+            ],
+        ),
     )
 
     response = await api_instance.list_objects(body)
