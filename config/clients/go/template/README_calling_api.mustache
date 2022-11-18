@@ -32,7 +32,7 @@ if err != nil {
 
 apiClient := {{packageName}}.NewAPIClient(configuration)
 
-store, _, err := apiClient.{{appShortName}}Api.CreateStore(context.Background()).Body(CreateStoreRequest{Name: "FGA Demo"}).Execute()
+store, _, err := apiClient.{{appShortName}}Api.CreateStore(context.Background()).Body({{packageName}}.CreateStoreRequest{Name: "FGA Demo"}).Execute()
 if err != nil {
     // handle error
 }
@@ -67,7 +67,7 @@ if err != nil {
 > Requires a client initialized with a storeId
 
 ```golang
-_, _, err := apiClient.{{appShortName}}Api.DeleteStore(context.Background()).Execute()
+_, err := apiClient.{{appShortName}}Api.DeleteStore(context.Background()).Execute()
 if err != nil {
     // handle error
 }
@@ -84,10 +84,13 @@ if err != nil {
 ```golang
 body  := {{packageName}}.WriteAuthorizationModelRequest{TypeDefinitions: []{{packageName}}.TypeDefinition{
 	{
-		Type: "repo",
+		Type: "user",
+	},
+	{
+		Type: "document",
 		Relations: &map[string]{{packageName}}.Userset{
 			"writer": {This: &map[string]interface{}{}},
-			"reader": {Union: &{{packageName}}.Usersets{
+			"viewer": {Union: &{{packageName}}.Usersets{
 				Child: &[]{{packageName}}.Userset{
 					{This: &map[string]interface{}{}},
 					{ComputedUserset: &{{packageName}}.ObjectRelation{
@@ -112,7 +115,7 @@ fmt.Printf("%s", data.AuthorizationModelId) // 1uHxCSuTP0VKPYSnkq1pbb1jeZw
 // Assuming `1uHxCSuTP0VKPYSnkq1pbb1jeZw` is an id of a single model
 data, response, err := apiClient.{{appShortName}}Api.ReadAuthorizationModel(context.Background(), "1uHxCSuTP0VKPYSnkq1pbb1jeZw").Execute()
 
-// data = {"authorization_model":{"id":"1uHxCSuTP0VKPYSnkq1pbb1jeZw","type_definitions":[{"type":"repo","relations":{"writer":{"this":{}},"reader":{ ... }}}]}} // JSON
+// data = {"authorization_model":{"id":"1uHxCSuTP0VKPYSnkq1pbb1jeZw","type_definitions":[{"type":"document","relations":{"writer":{"this":{}},"viewer":{ ... }}},{"type":"user"}]}} // JSON
 
 fmt.Printf("%s", data.AuthorizationModel.Id) // 1uHxCSuTP0VKPYSnkq1pbb1jeZw
 ```
@@ -139,8 +142,8 @@ fmt.Printf("%s", (*data.AuthorizationModelIds)[0]) // 1uHxCSuTP0VKPYSnkq1pbb1jeZ
 body := {{packageName}}.CheckRequest{
 	TupleKey: {{packageName}}.TupleKey{
 		User: {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-		Relation: {{packageName}}.PtrString("admin"),
-		Object: {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
+		Relation: {{packageName}}.PtrString("viewer"),
+		Object: {{packageName}}.PtrString("document:roadmap"),
 	},
 }
 data, response, err := apiClient.{{appShortName}}Api.Check(context.Background()).Body(body).Execute()
@@ -161,8 +164,8 @@ body := {{packageName}}.WriteRequest{
 		TupleKeys: []{{packageName}}.TupleKey{
 			{
 				User: {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-				Relation: {{packageName}}.PtrString("admin"),
-				Object: {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
+				Relation: {{packageName}}.PtrString("viewer"),
+				Object: {{packageName}}.PtrString("document:roadmap"),
 			},
 		},
 	},
@@ -181,8 +184,8 @@ body := {{packageName}}.WriteRequest{
 		TupleKeys: []{{packageName}}.TupleKey{
 			{
 				User: {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-				Relation: {{packageName}}.PtrString("admin"),
-				Object: {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
+				Relation: {{packageName}}.PtrString("viewer"),
+				Object: {{packageName}}.PtrString("document:roadmap"),
 			},
 		},
 	},
@@ -198,13 +201,13 @@ _, response, err := apiClient.{{appShortName}}Api.Write(context.Background()).Bo
 ```golang
 body := {{packageName}}.ExpandRequest{
 	TupleKey: {{packageName}}.TupleKey{
-		Relation: {{packageName}}.PtrString("admin"),
-		Object: {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
+		Relation: {{packageName}}.PtrString("viewer"),
+		Object: {{packageName}}.PtrString("document:roadmap"),
 	},
 }
 data, response, err := apiClient.{{appShortName}}Api.Expand(context.Background()).Body(body).Execute()
 
-// data = {"tree":{"root":{"name":"workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6#admin","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b","user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]}}}}} // JSON
+// data = {"tree":{"root":{"name":"document:roadmap#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b","user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]}}}}} // JSON
 ```
 
 #### Read Changes
@@ -212,36 +215,36 @@ data, response, err := apiClient.{{appShortName}}Api.Expand(context.Background()
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Read)
 
 ```golang
-// Find if a relationship tuple stating that a certain user is an admin on a certain workspace
+// Find if a relationship tuple stating that a certain user is a viewer of a certain document
 body := {{packageName}}.ReadRequest{
     TupleKey: {{packageName}}.TupleKey{
         User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-        Relation: {{packageName}}.PtrString("admin"),
-        Object:   {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
+        Relation: {{packageName}}.PtrString("viewer"),
+        Object:   {{packageName}}.PtrString("document:roadmap"),
     },
 }
 
-// Find all relationship tuples where a certain user has a relationship as any relation to a certain workspace
+// Find all relationship tuples where a certain user has a relationship as any relation to a certain document
 body := {{packageName}}.ReadRequest{
     TupleKey: {{packageName}}.TupleKey{
         User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-        Object:   {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
+        Object:   {{packageName}}.PtrString("document:roadmap"),
     },
 }
 
-// Find all relationship tuples where a certain user is an admin on any workspace
+// Find all relationship tuples where a certain user is a viewer of any document
 body := {{packageName}}.ReadRequest{
     TupleKey: {{packageName}}.TupleKey{
         User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-        Relation: {{packageName}}.PtrString("admin"),
-        Object:   {{packageName}}.PtrString("workspace:"),
+        Relation: {{packageName}}.PtrString("viewer"),
+        Object:   {{packageName}}.PtrString("document:"),
     },
 }
 
-// Find all relationship tuples where any user has a relationship as any relation with a particular workspace
+// Find all relationship tuples where any user has a relationship as any relation with a particular document
 body := {{packageName}}.ReadRequest{
     TupleKey: {{packageName}}.TupleKey{
-        Object:   {{packageName}}.PtrString("workspace:675bcac4-ad38-4fb1-a19a-94a5648c91d6"),
+        Object:   {{packageName}}.PtrString("document:roadmap"),
     },
 }
 
@@ -257,15 +260,15 @@ data, response, err := apiClient.{{appShortName}}Api.Read(context.Background()).
 
 ```golang
 data, response, err := apiClient.{{appShortName}}Api.ReadChanges(context.Background()).
-    Type_("workspace").
+    Type_("document").
     PageSize(25).
     ContinuationToken("eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==").
     Execute()
 
 // response.continuation_token = ...
 // response.changes = [
-//   { tuple_key: { user, relation, object }, operation: "write", timestamp: ... },
-//   { tuple_key: { user, relation, object }, operation: "delete", timestamp: ... }
+//   { tuple_key: { user, relation, object }, operation: "writer", timestamp: ... },
+//   { tuple_key: { user, relation, object }, operation: "viewer", timestamp: ... }
 // ]
 ```
 
@@ -277,20 +280,15 @@ data, response, err := apiClient.{{appShortName}}Api.ReadChanges(context.Backgro
 
 ```golang
 body := {{packageName}}.ListObjectsRequest{
-    AuthorizationModelId: PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
     User:                 "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-    Relation:             "can_read",
+    Relation:             "viewer",
     Type:                 "document",
-    ContextualTuples: &ContextualTupleKeys{
+	ContextualTuples: &ContextualTupleKeys{
 {{=<% %>=}}
         TupleKeys: []TupleKey{{
             User:     PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-            Relation: PtrString("editor"),
-            Object:   PtrString("folder:product"),
-        }, {
-            User:     PtrString("folder:product"),
-            Relation: PtrString("parent"),
-            Object:   PtrString("document:roadmap"),
+            Relation: PtrString("writer"),
+            Object:   PtrString("document:budget"),
         }},
 <%={{ }}=%>
     },
