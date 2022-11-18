@@ -30,9 +30,10 @@ mkdir -p "${CONFIG_PATH}"
 
 printf "Task 1.1: Initialize files"
 echo "${GENERATOR}" > "${CONFIG_PATH}/generator.txt"
-touch "${CONFIG_PATH}/CHANGELOG.md"
+touch "${CONFIG_PATH}/CHANGELOG.md.mustache"
 CONFIG_OVERRIDES=$(cat <<EOF
 {
+  "sdkId": "${SDK_ID}",
   "gitRepoId": "${SDK_ID}-sdk",
   "packageName": "CHANGE_ME",
   "packageVersion": "0.0.1",
