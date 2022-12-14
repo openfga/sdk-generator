@@ -117,6 +117,7 @@ const result = await {{appCamelCaseName}}.check({
     relation: "viewer",
     object: "document:roadmap",
   },
+  authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
 });
 
 // result = { allowed: true, resolution: "" }
@@ -133,6 +134,7 @@ await {{appCamelCaseName}}.write({
   writes: {
     tuple_keys: [{ user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b", relation: "viewer", object: "document:roadmap" }],
   },
+  authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
 });
 
 ```
@@ -148,6 +150,7 @@ await {{appCamelCaseName}}.write({
   deletes: {
     tuple_keys: [{ user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b", relation: "viewer", object: "document:roadmap" }],
   },
+  authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
 });
 
 ```
@@ -164,6 +167,7 @@ const { tree } = await {{appCamelCaseName}}.expand({
     relation: "viewer",
     object: "document:roadmap",
   },
+  authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
 });
 
 // tree  = { root: { name: "document:roadmap#viewer", leaf: { users: { users: ["user:81684243-9356-4421-8fbf-a4f8d36aa31b", "user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"] } } } }

@@ -397,7 +397,7 @@ namespace {{testPackageName}}.Api {
 
             var {{appCamelCaseName}}Api = new {{classname}}(_config, httpClient);
 
-            var body = new CheckRequest(new TupleKey("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
+            var body = new CheckRequest{TupleKey = new TupleKey("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b"), AuthorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"};
 
             Task<CheckResponse> BadRequestError() => {{appCamelCaseName}}Api.Check(body);
             var error = await Assert.ThrowsAsync<FgaApiValidationError>(BadRequestError);
@@ -740,7 +740,7 @@ namespace {{testPackageName}}.Api {
             var httpClient = new HttpClient(mockHandler.Object);
             var {{appCamelCaseName}}Api = new {{classname}}(_config, httpClient);
 
-            var body = new CheckRequest(new TupleKey("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
+            var body = new CheckRequest{TupleKey = new TupleKey("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b"), AuthorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"};
             var response = await {{appCamelCaseName}}Api.Check(body);
 
             mockHandler.Protected().Verify(
@@ -778,8 +778,8 @@ namespace {{testPackageName}}.Api {
             var httpClient = new HttpClient(mockHandler.Object);
             var {{appCamelCaseName}}Api = new {{classname}}(_config, httpClient);
 
-            var body = new WriteRequest(
-                new TupleKeys(new List<TupleKey> { new("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b") }));
+            var body = new WriteRequest{
+                Writes = new TupleKeys(new List<TupleKey> { new("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b") }), AuthorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"};
             var response = await {{appCamelCaseName}}Api.Write(body);
 
             mockHandler.Protected().Verify(
@@ -814,8 +814,8 @@ namespace {{testPackageName}}.Api {
             var httpClient = new HttpClient(mockHandler.Object);
             var {{appCamelCaseName}}Api = new {{classname}}(_config, httpClient);
 
-            var body = new WriteRequest(new TupleKeys(new List<TupleKey> { }),
-                new TupleKeys(new List<TupleKey> { new("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b") }));
+            var body = new WriteRequest{
+                Deletes = new TupleKeys(new List<TupleKey> { new("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b") }), AuthorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"};
             var response = await {{appCamelCaseName}}Api.Write(body);
 
             mockHandler.Protected().Verify(
@@ -891,7 +891,7 @@ namespace {{testPackageName}}.Api {
             var httpClient = new HttpClient(mockHandler.Object);
             var {{appCamelCaseName}}Api = new {{classname}}(_config, httpClient);
 
-            var body = new ExpandRequest(new TupleKey(_object: "document:roadmap", relation: "viewer"));
+            var body = new ExpandRequest{TupleKey = new TupleKey(_object: "document:roadmap", relation: "viewer"), AuthorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"};
             var response = await {{appCamelCaseName}}Api.Expand(body);
 
             mockHandler.Protected().Verify(
@@ -1047,7 +1047,7 @@ namespace {{testPackageName}}.Api {
             var httpClient = new HttpClient(mockHandler.Object);
             var {{appCamelCaseName}}Api = new {{classname}}(_config, httpClient);
 
-            var body = new ReadRequest(new TupleKey("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
+            var body = new ReadRequest{TupleKey = new TupleKey("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b")};
             var response = await {{appCamelCaseName}}Api.Read(body);
 
             mockHandler.Protected().Verify(
