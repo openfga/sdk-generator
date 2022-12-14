@@ -853,7 +853,7 @@ describe("{{appShortName}} SDK", function () {
 
     describe("listObjects", () => {
       it("should call the api and return the response", async () => {
-        const mockedResponse = { object_ids: ["roadmap"] };
+        const mockedResponse = { objects: ["document:roadmap"] };
         const scope = nocks.listObjects(baseConfig.storeId!, mockedResponse);
 
         expect(scope.isDone()).toBe(false);
@@ -877,8 +877,8 @@ describe("{{appShortName}} SDK", function () {
         });
 
         expect(scope.isDone()).toBe(true);
-        expect(response.object_ids).toHaveLength(mockedResponse.object_ids.length);
-        expect(response.object_ids).toEqual(expect.arrayContaining(mockedResponse.object_ids));
+        expect(response.objects).toHaveLength(mockedResponse.objects.length);
+        expect(response.objects).toEqual(expect.arrayContaining(mockedResponse.objects));
       });
     });
   });
