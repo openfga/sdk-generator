@@ -274,8 +274,8 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         """
         response_body = '''
 {
-  "object_ids": [
-    "abcd1234"
+  "objects": [
+    "document:abcd1234"
   ]
 }
             '''
@@ -293,7 +293,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             # Get all stores
             api_response = await api_instance.list_objects(body)
             self.assertIsInstance(api_response, ListObjectsResponse)
-            self.assertEqual(api_response.object_ids, ['abcd1234'])
+            self.assertEqual(api_response.objects, ['document:abcd1234'])
             mock_request.assert_called_once_with(
                 'POST',
                 'http://api.{{sampleApiDomain}}/stores/d12345abc/list-objects',
