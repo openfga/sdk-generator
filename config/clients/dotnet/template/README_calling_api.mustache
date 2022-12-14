@@ -119,7 +119,7 @@ var response = await {{appCamelCaseName}}Api.ReadAuthorizationModels();
 
 ```csharp
 var body =
-    new CheckRequest(tupleKey: new TupleKey("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
+    new CheckRequest{tupleKey: new TupleKey("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b"), AuthorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"};
 var response = await {{appCamelCaseName}}Api.Check(body);
 // response.Allowed = true
 ```
@@ -129,8 +129,8 @@ var response = await {{appCamelCaseName}}Api.Check(body);
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
 
 ```csharp
-var body = new WriteRequest(new TupleKeys(new List<TupleKey>
-    {new("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b")}));
+var body = new WriteRequest{Writes = new TupleKeys(new List<TupleKey>
+    {new("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b")}), AuthorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"};
 var response = await {{appCamelCaseName}}Api.Write(body);
 ```
 
@@ -139,8 +139,8 @@ var response = await {{appCamelCaseName}}Api.Write(body);
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
 
 ```csharp
-var body = new WriteRequest(new TupleKeys(new List<TupleKey> { }),
-    new TupleKeys(new List<TupleKey> {new("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b")}));
+var body = new WriteRequest{Deletes = new TupleKeys(new List<TupleKey>
+    {new("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b")}), AuthorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"};
 var response = await {{appCamelCaseName}}Api.Write(body);
 ```
 
@@ -149,7 +149,7 @@ var response = await {{appCamelCaseName}}Api.Write(body);
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Expand)
 
 ```csharp
-var body = new ExpandRequest(new TupleKey("document:roadmap", "viewer"));
+var body = new ExpandRequest{TupleKey = new TupleKey("document:roadmap", "viewer"), AuthorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"};
 var response = await {{appCamelCaseName}}Api.Expand(body);
 
 // response.Tree.Root = {"name":"document:roadmap#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b","user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]}}}
@@ -164,7 +164,7 @@ var response = await {{appCamelCaseName}}Api.Expand(body);
 var body = new ReadRequest(new TupleKey(
     _object: "document:roadmap",
     relation: "viewer",
-    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b");
 
 // Find all relationship tuples where a certain user has a relationship as any relation to a certain document
 var body = new ReadRequest(new TupleKey(
@@ -211,6 +211,7 @@ var response = await {{appCamelCaseName}}Api.ReadChanges(type, pageSize, continu
 
 ```csharp
 var body = new ListObjectsRequest{
+    AuthorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
     User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     Relation = "viewer",
     Type = "document",

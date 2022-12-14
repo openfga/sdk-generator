@@ -216,6 +216,7 @@ async def check():
             relation="viewer",
             object="document:roadmap",
         ),
+        authorization_model_id="1uHxCSuTP0VKPYSnkq1pbb1jeZw",
     )
 
     response = await api_instance.check(body)
@@ -250,6 +251,7 @@ async def write():
                 ),
             ],
         ),
+        authorization_model_id="1uHxCSuTP0VKPYSnkq1pbb1jeZw",
     )
 
     response = await api_instance.write(body)
@@ -282,6 +284,7 @@ async def delete():
                 ),
             ],
         ),
+        authorization_model_id="1uHxCSuTP0VKPYSnkq1pbb1jeZw",
     ) 
 
     response = await api_instance.write(body)
@@ -309,6 +312,7 @@ async def expand():
             relation="viewer",
             object="document:roadmap",
         ),
+        authorization_model_id="1uHxCSuTP0VKPYSnkq1pbb1jeZw",
     )
 
     response = await api_instance.expand(body)
@@ -414,6 +418,7 @@ async def list_objects():
     api_client = openfga_sdk.ApiClient(configuration)
     api_instance = open_fga_api.OpenFgaApi(api_client)
     body = ListObjectsRequest(
+        authorization_model_id="1uHxCSuTP0VKPYSnkq1pbb1jeZw",
         user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
         relation="viewer",
         type="document",

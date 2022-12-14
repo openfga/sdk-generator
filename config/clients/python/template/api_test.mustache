@@ -110,6 +110,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                     relation="reader",
                     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 ),
+                authorization_model_id="1uHxCSuTP0VKPYSnkq1pbb1jeZw",
             )
             api_response = await api_instance.check(
                 body=body,
@@ -124,7 +125,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 query_params=[],
                 post_params=[],
                 body={"tuple_key": {"object": "document:2021-budget",
-                                    "relation": "reader", "user": "user:81684243-9356-4421-8fbf-a4f8d36aa31b"}},
+                                    "relation": "reader", "user": "user:81684243-9356-4421-8fbf-a4f8d36aa31b"}, "authorization_model_id": "1uHxCSuTP0VKPYSnkq1pbb1jeZw"},
                 _preload_content=ANY,
                 _request_timeout=None
             )
@@ -210,6 +211,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                     object="document:budget",
                     relation="reader",
                 ),
+                authorization_model_id="1uHxCSuTP0VKPYSnkq1pbb1jeZw",
             )
             api_response = await api_instance.expand(
                 body=body,
@@ -227,7 +229,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 headers=ANY,
                 query_params=[],
                 post_params=[],
-                body={"tuple_key": {"object": "document:budget", "relation": "reader"}},
+                body={"tuple_key": {"object": "document:budget", "relation": "reader"}, "authorization_model_id": "1uHxCSuTP0VKPYSnkq1pbb1jeZw"},
                 _preload_content=ANY,
                 _request_timeout=None
             )

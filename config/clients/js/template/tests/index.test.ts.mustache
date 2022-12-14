@@ -490,7 +490,7 @@ describe("{{appShortName}} SDK", function () {
       });
 
       it("should return allowed", async () => {
-        const result = await {{appCamelCaseName}}Api.check({ tuple_key: tupleKey }, {});
+        const result = await {{appCamelCaseName}}Api.check({ tuple_key: tupleKey, authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw"}, {});
 
         expect(result.allowed).toBe(true);
       });
@@ -721,6 +721,7 @@ describe("{{appShortName}} SDK", function () {
         expect(scope.isDone()).toBe(false);
         const data = await {{appCamelCaseName}}Api.write({
           writes: { tuple_keys: [tuple] },
+          authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
         });
 
         expect(scope.isDone()).toBe(true);
@@ -740,6 +741,7 @@ describe("{{appShortName}} SDK", function () {
         expect(scope.isDone()).toBe(false);
         const data = await {{appCamelCaseName}}Api.write({
           deletes: { tuple_keys: [tuple] },
+          authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
         });
 
         expect(scope.isDone()).toBe(true);
@@ -757,7 +759,7 @@ describe("{{appShortName}} SDK", function () {
         const scope = nocks.expand(baseConfig.storeId!, tuple);
 
         expect(scope.isDone()).toBe(false);
-        const data = await {{appCamelCaseName}}Api.expand({ tuple_key: tuple });
+        const data = await {{appCamelCaseName}}Api.expand({ tuple_key: tuple, authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw"});
 
         expect(scope.isDone()).toBe(true);
         expect(data).toMatchObject({});

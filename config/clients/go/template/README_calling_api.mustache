@@ -145,6 +145,7 @@ body := {{packageName}}.CheckRequest{
 		Relation: {{packageName}}.PtrString("viewer"),
 		Object: {{packageName}}.PtrString("document:roadmap"),
 	},
+	AuthorizationModelId: {{packageName}}.PtrString("1uHxCSuTP0VKPYSnkq1pbb1jeZw"),
 }
 data, response, err := apiClient.{{appShortName}}Api.Check(context.Background()).Body(body).Execute()
 
@@ -169,6 +170,7 @@ body := {{packageName}}.WriteRequest{
 			},
 		},
 	},
+	AuthorizationModelId: {{packageName}}.PtrString("1uHxCSuTP0VKPYSnkq1pbb1jeZw"),
 }
 _, response, err := apiClient.{{appShortName}}Api.Write(context.Background()).Body(body).Execute()
 
@@ -189,6 +191,7 @@ body := {{packageName}}.WriteRequest{
 			},
 		},
 	},
+	AuthorizationModelId: {{packageName}}.PtrString("1uHxCSuTP0VKPYSnkq1pbb1jeZw"),
 }
 _, response, err := apiClient.{{appShortName}}Api.Write(context.Background()).Body(body).Execute()
 
@@ -204,6 +207,7 @@ body := {{packageName}}.ExpandRequest{
 		Relation: {{packageName}}.PtrString("viewer"),
 		Object: {{packageName}}.PtrString("document:roadmap"),
 	},
+	AuthorizationModelId: {{packageName}}.PtrString("1uHxCSuTP0VKPYSnkq1pbb1jeZw"),
 }
 data, response, err := apiClient.{{appShortName}}Api.Expand(context.Background()).Body(body).Execute()
 
@@ -280,6 +284,7 @@ data, response, err := apiClient.{{appShortName}}Api.ReadChanges(context.Backgro
 
 ```golang
 body := {{packageName}}.ListObjectsRequest{
+	AuthorizationModelId: {{packageName}}.PtrString("1uHxCSuTP0VKPYSnkq1pbb1jeZw"),
     User:                 "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     Relation:             "viewer",
     Type:                 "document",
