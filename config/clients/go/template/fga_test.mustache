@@ -741,7 +741,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 		}
 
 		requestBody := ReadRequest{
-			TupleKey: TupleKey{
+			TupleKey: &TupleKey{
 				User:     PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
 				Relation: PtrString("viewer"),
 				Object:   PtrString("document:roadmap"),
@@ -834,7 +834,7 @@ func Test{{appShortName}}Api(t *testing.T) {
     t.Run("ListObjects", func(t *testing.T) {
         test := TestDefinition{
             Name:           "ListObjects",
-            JsonResponse:   `{"object_ids":["roadmap"]}`,
+            JsonResponse:   `{"objects":["document:roadmap"]}`,
             ResponseStatus: 200,
             Method:         "POST",
             RequestPath:    "list-objects",
@@ -892,7 +892,7 @@ func Test{{appShortName}}Api(t *testing.T) {
             t.Fatalf("%v", err)
         }
 
-        if len(*got.ObjectIds) != len(*expectedResponse.ObjectIds) {
+        if len(*got.Objects) != len(*expectedResponse.Objects) || (*got.Objects)[0] != (*expectedResponse.Objects)[0] {
             t.Fatalf("{{appShortName}}%v().Execute() = %v, want %v", test.Name, string(responseJson), test.JsonResponse)
         }
     })
