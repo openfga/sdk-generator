@@ -181,6 +181,9 @@ var body = new ReadRequest(new TupleKey(
 var body = new ReadRequest(new TupleKey(
     _object: "document:roadmap"));
 
+// Read all stored relationship tuples
+body := ReadRequest()
+
 var response = await {{appCamelCaseName}}Api.Read(body);
 
 // In all the above situations, the response will be of the form:
@@ -223,5 +226,5 @@ var body = new ListObjectsRequest{
 };
 var response = await {{appCamelCaseName}}Api.ListObjects(body);
 
-// response.ObjectIds = ["roadmap"]
+// response.Objects = ["document:roadmap"]
 ```

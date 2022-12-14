@@ -213,6 +213,9 @@ const body = {
   },
 };
 
+// Read all stored relationship tuples
+body := {};
+
 const { tuples } = await {{appCamelCaseName}}.read(body);
 
 // In all the above situations, the response will be of the form:
@@ -260,5 +263,5 @@ const response = await {{appCamelCaseName}}.listObjects({
   }
 });
 
-// response.object_ids = ["roadmap"]
+// response.objects = ["document:roadmap"]
 ```
