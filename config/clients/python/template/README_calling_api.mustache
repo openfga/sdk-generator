@@ -369,6 +369,9 @@ async def read():
         ),
     )
 
+    // Read all stored relationship tuples
+    body := ReadRequest()
+
     response = await api_instance.read(body)
     # response = ReadResponse({"tuples": [Tuple({"key": TupleKey({"user":"...","relation":"...","object":"..."}), "timestamp": datetime.fromisoformat("...") })]})
     await api_client.close()
@@ -434,6 +437,6 @@ async def list_objects():
     )
 
     response = await api_instance.list_objects(body)
-    # response.object_ids = ["roadmap"]
+    # response.objects = ["document:roadmap"]
     await api_client.close()
 ```
