@@ -239,3 +239,12 @@ shellcheck:
 .PHONY: setup-new-sdk
 setup-new-sdk:
 	./scripts/setup_new_sdk.sh
+
+.PHONY: build-client-java-resteasy
+build-client-java-resteasy:
+	make build-client sdk_language=java-resteasy tmpdir=${TMP_DIR}
+	# ... any other custom build steps ...
+
+.PHONY: test-client-java-resteasy
+test-client-java-resteasy: build-client-java-resteasy
+	# ... any custom test code ...

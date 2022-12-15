@@ -1,0 +1,8 @@
+NOTICE.txt
+git_push.sh
+gradle*
+build.sbt
+build.gradle
+.travis.yml
+.fossa.yml
+settings.gradle
