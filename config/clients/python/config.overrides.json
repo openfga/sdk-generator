@@ -8,6 +8,7 @@
   "fossaComplianceNoticeId": "90bbcda0-c2a6-4f00-8d24-7082521be2ce",
   "infoName": "OpenFGA",
   "infoEmail": "community@openfga.dev",
+  "docPrefix": "https://github.com/openfga/python-sdk/blob/main/",
   "files": {
     ".github/workflows/main.yaml": {
     },
