@@ -43,12 +43,13 @@ OpenFGA is designed to make it easy for application builders to model their perm
 
 ## Currently Supported SDKs
 
-| Language   | GitHub                                                      | Package Manager                                                    |
-|------------|-------------------------------------------------------------|--------------------------------------------------------------------|
-| Javascript | [openfga/js-sdk](https://github.com/openfga/js-sdk)         | [@openfga/sdk](https://www.npmjs.com/package/@auth0/fga) on npm    |
-| Go         | [openfga/go-sdk](https://github.com/openfga/go-sdk)         | -                                                                  |
-| .NET       | [openfga/dotnet-sdk](https://github.com/openfga/dotnet-sdk) | [OpenFga.Sdk](https://www.nuget.org/packages/OpenFga.Sdk) on nuget |
-| PYTHON     | [openfga/python](https://github.com/openfga/python-sdk)     | [openfga-sdk](https://pypi.org/project/openfga-sdk) on PyPI        |
+| Language   | GitHub                                                      | Package Manager                                                           |
+|------------|-------------------------------------------------------------|---------------------------------------------------------------------------|
+| Javascript | [openfga/js-sdk](https://github.com/openfga/js-sdk)         | [@openfga/sdk](https://www.npmjs.com/package/@auth0/fga) on npm           |
+| Go         | [openfga/go-sdk](https://github.com/openfga/go-sdk)         | -                                                                         |
+| .NET       | [openfga/dotnet-sdk](https://github.com/openfga/dotnet-sdk) | [OpenFga.Sdk](https://www.nuget.org/packages/OpenFga.Sdk) on nuget        |
+| PYTHON     | [openfga/python](https://github.com/openfga/python-sdk)     | [openfga-sdk](https://pypi.org/project/openfga-sdk) on PyPI               |
+| PYTHON     | [openfga/python](https://github.com/openfga/python-sdk)     | [kotlin-sdk](https://central.sonatype.dev/namespace/dev.openfga) on Maven |
 
 ## Getting Started
 
@@ -75,6 +76,7 @@ git clone git@github.com:openfga/go-sdk.git clients/fga-go-sdk
 git clone git@github.com:openfga/js-sdk.git clients/fga-js-sdk
 git clone git@github.com:openfga/dotnet-sdk.git clients/fga-dotnet-sdk
 git clone git@github.com:openfga/python-sdk.git clients/fga-python-sdk
+git clone git@github.com:openfga/kotlin-sdk.git clients/fga-kotlin-sdk
 ```
 
 3. Build and test the client sdks
@@ -174,6 +176,9 @@ Note: Semgrep will be automatically enabled - there is nothing you need to do fo
 | `PYTHON_SDK_GITHUB_ORG_ID`  | The GitHub org for the SDK             |
 | `PYTHON_SDK_GITHUB_REPO_ID` | The GitHub repo id for the SDK         |
 | `PYTHON_SDK_SSH_KEY`        | The SSH private deploy key for the SDK |
+| `KOTLIN_SDK_GITHUB_REPO_ID` | The GitHub repo id for the SDK         |
+| `KOTLIN_SDK_SSH_KEY`        | The SSH private deploy key for the SDK |
+
 
 The following keys are also available but should be considered deprecated. Automated release is disabled due to the complexity of generating relevant commit messages when using a generator.
 
@@ -189,6 +194,8 @@ The following keys are also available but should be considered deprecated. Autom
 | `NPM_TOKEN`                  | The token of the user pushing to npm                                  |
 | `DOTNET_SDK_DRY_RUN`         | Whether to show git diff and exit without pushing changes for the SDK |
 | `DOTNET_SDK_TAGGING_DISABLE` | Whether to disable tagging and publishing for the SDK                 |
+| `KOTLIN_SDK_DRY_RUN`         | Whether to show git diff and exit without pushing changes for the SDK |
+| `KOTLIN_SDK_TAGGING_DISABLE` | Whether to disable tagging and publishing for the SDK                 |
 
 ## Contributing
 Please review the [Contributing Guidelines](https://github.com/openfga/.github/blob/main/CONTRIBUTING.md) before sending a PR or opening an issue.

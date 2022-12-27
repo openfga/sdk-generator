@@ -239,3 +239,12 @@ shellcheck:
 .PHONY: setup-new-sdk
 setup-new-sdk:
 	./scripts/setup_new_sdk.sh
+
+.PHONY: build-client-kotlin
+build-client-kotlin:
+	make build-client sdk_language=kotlin tmpdir=${TMP_DIR}
+	# ... any other custom build steps ...
+
+.PHONY: test-client-kotlin
+test-client-kotlin: build-client-kotlin
+	# ... any custom test code ...
