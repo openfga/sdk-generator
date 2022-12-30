@@ -1,0 +1,466 @@
+#### List Stores
+
+[API Documentation](https://openfga.dev/api/service/docs/api#/Stores/ListStores)
+
+```kotlin
+import dev.openfga.kotlin.client.apis.OpenFgaApi
+import org.springframework.beans.factory.annotation.Value
+
+// Ensuring you have an application.properties file with
+// dev.openfga.kotlin.client.storeID=<STOREID>
+// dev.openfga.kotlin.client.baseUrl=<BASEURL>
+
+// Create an instance of the API
+private val api: OpenFgaApi = OpenFgaApi()
+
+val response = api.listStores(pageSize = 20, continuationToken = null)
+
+response.stores?.forEach { print{it.name} }
+```
+
+#### Create Store
+
+[API Documentation](https://openfga.dev/api/service/docs/api#/Stores/CreateStore)
+
+```kotlin
+import dev.openfga.kotlin.client.apis.OpenFgaApi
+import dev.openfga.kotlin.client.models.CreateStoreRequest
+
+// Ensuring you have an application.properties file with
+// dev.openfga.kotlin.client.baseUrl=<BASEURL>
+
+// Create an instance of the API
+private val api: OpenFgaApi = OpenFgaApi()
+
+val response = api.createStore(CreateStoreRequest(
+name = "FGA Demo Store"
+))
+
+print(response.id)
+```
+
+
+#### Get Store
+
+[API Documentation](https://openfga.dev/api/service/docs/api#/Stores/GetStore)
+
+```kotlin
+import dev.openfga.kotlin.client.apis.OpenFgaApi
+import org.springframework.beans.factory.annotation.Value
+
+// Ensuring you have an application.properties file with
+// dev.openfga.kotlin.client.storeID=<STOREID>
+// dev.openfga.kotlin.client.baseUrl=<BASEURL>
+
+// Get StoreID from Properties
+@Value("\${dev.openfga.kotlin.client.storeId}")
+lateinit var storeId: String
+
+// Create an instance of the API
+private val api: OpenFgaApi = OpenFgaApi()
+
+val response = api.getStore(storeId=storeId)
+
+print(response.id)
+```
+
+#### Delete Store
+
+[API Documentation](https://openfga.dev/api/service/docs/api#/Stores/DeleteStore)
+
+> Requires a client initialized with a storeId
+
+```kotlin
+import dev.openfga.kotlin.client.apis.OpenFgaApi
+import org.springframework.beans.factory.annotation.Value
+
+// Ensuring you have an application.properties file with
+// dev.openfga.kotlin.client.storeID=<STOREID>
+// dev.openfga.kotlin.client.baseUrl=<BASEURL>
+
+// Get StoreID from Properties
+@Value("\${dev.openfga.kotlin.client.storeId}")
+lateinit var storeId: String
+
+// Create an instance of the API
+private val api: OpenFgaApi = OpenFgaApi()
+
+val response = api.deleteStore(storeId=storeId)
+```
+
+#### Write Authorization Model
+
+[API Documentation](https://openfga.dev/api/service#/Authorization%20Models/WriteAuthorizationModel)
+
+> Requires a client initialized with a storeId
+
+> Note: To learn how to build your authorization model, check the Docs at https://openfga.dev/docs.
+
+> Learn more about [the OpenFGA configuration language](https://openfga.dev/docs/configuration-language).
+
+```kotlin
+import dev.openfga.kotlin.client.apis.OpenFgaApi
+import dev.openfga.kotlin.client.models.*
+import org.springframework.beans.factory.annotation.Value
+
+// Ensuring you have an application.properties file with
+// dev.openfga.kotlin.client.storeID=<STOREID>
+// dev.openfga.kotlin.client.baseUrl=<BASEURL>
+
+// Get StoreID from Properties
+@Value("\${dev.openfga.kotlin.client.storeId}")
+lateinit var storeId: String
+
+// Create an instance of the API
+private val api: OpenFgaApi = OpenFgaApi()
+
+val response = api.writeAuthorizationModel(
+    storeId=storeId,
+    body = WriteAuthorizationModelRequest(
+        typeDefinitions = listOf(TypeDefinition(
+            type = "Document",
+            relations = mapOf(
+                "writer" to Userset(),
+                "viewer" to Userset(
+                    union = Usersets(
+                        child = listOf(
+                            Userset(),
+                            Userset(computedUserset = ObjectRelation(
+                                `object` = "",
+                                relation = "writer"
+                            ))
+                        )
+                    )
+                )
+            )
+        ))
+    )
+)
+
+println(response.authorizationModelId)
+```
+
+
+#### Read a Single Authorization Model
+
+[API Documentation](https://openfga.dev/api/service#/Authorization%20Models/ReadAuthorizationModel)
+
+```kotlin
+import dev.openfga.kotlin.client.apis.OpenFgaApi
+import dev.openfga.kotlin.client.models.*
+import org.springframework.beans.factory.annotation.Value
+
+// Ensuring you have an application.properties file with
+// dev.openfga.kotlin.client.storeID=<STOREID>
+// dev.openfga.kotlin.client.baseUrl=<BASEURL>
+
+// Get StoreID from Properties
+@Value("\${dev.openfga.kotlin.client.storeId}")
+lateinit var storeId: String
+
+// Create an instance of the API
+private val api: OpenFgaApi = OpenFgaApi()
+
+val response = api.readAuthorizationModel(
+    storeId=storeId,
+    id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw" //  Assuming `1uHxCSuTP0VKPYSnkq1pbb1jeZw` is an id of an existing model
+)
+
+println(response.authorizationModel?.schemaVersion)
+```
+
+#### Read Authorization Model IDs
+
+[API Documentation](https://openfga.dev/api/service#/Authorization%20Models/ReadAuthorizationModels)
+
+```kotlin
+import dev.openfga.kotlin.client.apis.OpenFgaApi
+import dev.openfga.kotlin.client.models.*
+import org.springframework.beans.factory.annotation.Value
+
+// Ensuring you have an application.properties file with
+// dev.openfga.kotlin.client.storeID=<STOREID>
+// dev.openfga.kotlin.client.baseUrl=<BASEURL>
+
+// Get StoreID from Properties
+@Value("\${dev.openfga.kotlin.client.storeId}")
+lateinit var storeId: String
+
+// Create an instance of the API
+private val api: OpenFgaApi = OpenFgaApi()
+
+val response = api.readAuthorizationModels(
+    storeId=storeId,
+)
+```
+
+
+#### Check
+
+[API Documentation](https://openfga.dev/api/service#/Relationship%20Queries/Check)
+
+```kotlin
+import dev.openfga.kotlin.client.apis.OpenFgaApi
+import dev.openfga.kotlin.client.models.*
+import org.springframework.beans.factory.annotation.Value
+
+// Ensuring you have an application.properties file with
+// dev.openfga.kotlin.client.storeID=<STOREID>
+// dev.openfga.kotlin.client.baseUrl=<BASEURL>
+
+// Get StoreID from Properties
+@Value("\${dev.openfga.kotlin.client.storeId}")
+lateinit var storeId: String
+
+// Create an instance of the API
+private val api: OpenFgaApi = OpenFgaApi()
+
+val response = api.check(
+    storeId=storeId,
+    body= CheckRequest(
+        tupleKey=TupleKey(
+            user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+            relation="viewer",
+            `object`="document:roadmap",
+        ),
+        authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"
+    )
+)
+
+println(response.allowed)
+```
+
+
+#### Write Tuples
+
+[API Documentation](https://openfga.dev/api/service#/Relationship%20Tuples/Write)
+
+```kotlin
+import dev.openfga.kotlin.client.apis.OpenFgaApi
+import dev.openfga.kotlin.client.models.*
+import org.springframework.beans.factory.annotation.Value
+
+// Ensuring you have an application.properties file with
+// dev.openfga.kotlin.client.storeID=<STOREID>
+// dev.openfga.kotlin.client.baseUrl=<BASEURL>
+
+// Get StoreID from Properties
+@Value("\${dev.openfga.kotlin.client.storeId}")
+lateinit var storeId: String
+
+// Create an instance of the API
+private val api: OpenFgaApi = OpenFgaApi()
+
+val response = api.write(
+    storeId=storeId,
+    body= WriteRequest(
+        writes= TupleKeys(
+            tupleKeys = listOf(TupleKey(
+                user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                relation="viewer",
+                `object`="document:roadmap",
+            )),
+        ),
+        authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"
+    )
+)
+```
+
+#### Delete Tuples
+
+[API Documentation](https://openfga.dev/api/service#/Relationship%20Tuples/Write)
+
+```kotlin
+import dev.openfga.kotlin.client.apis.OpenFgaApi
+import dev.openfga.kotlin.client.models.*
+import org.springframework.beans.factory.annotation.Value
+
+// Ensuring you have an application.properties file with
+// dev.openfga.kotlin.client.storeID=<STOREID>
+// dev.openfga.kotlin.client.baseUrl=<BASEURL>
+
+// Get StoreID from Properties
+@Value("\${dev.openfga.kotlin.client.storeId}")
+lateinit var storeId: String
+
+// Create an instance of the API
+private val api: OpenFgaApi = OpenFgaApi()
+
+val response = api.write(
+    storeId=storeId,
+    body = WriteRequest(
+        deletes = TupleKeys(
+            tupleKeys = listOf(TupleKey(
+                user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                relation="viewer",
+                `object`="document:roadmap",
+            )),
+        ),
+        authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"
+    )
+)
+```
+
+#### Expand
+
+[API Documentation](https://openfga.dev/api/service#/Relationship%20Queries/Expand)
+
+```kotlin
+import dev.openfga.kotlin.client.apis.OpenFgaApi
+import dev.openfga.kotlin.client.models.*
+import org.springframework.beans.factory.annotation.Value
+
+// Ensuring you have an application.properties file with
+// dev.openfga.kotlin.client.storeID=<STOREID>
+// dev.openfga.kotlin.client.baseUrl=<BASEURL>
+
+// Get StoreID from Properties
+@Value("\${dev.openfga.kotlin.client.storeId}")
+lateinit var storeId: String
+
+// Create an instance of the API
+private val api: OpenFgaApi = OpenFgaApi()
+
+val response = api.expand(
+    storeId=storeId,
+    body= ExpandRequest(
+        tupleKey=TupleKey(
+            relation="viewer",
+            `object`="document:roadmap",
+        ),
+        authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"
+    )
+)
+```
+
+#### Read Changes
+
+[API Documentation](https://openfga.dev/api/service#/Relationship%20Tuples/Read)
+
+```kotlin
+import dev.openfga.kotlin.client.apis.OpenFgaApi
+import dev.openfga.kotlin.client.models.*
+import org.springframework.beans.factory.annotation.Value
+
+// Ensuring you have an application.properties file with
+// dev.openfga.kotlin.client.storeID=<STOREID>
+// dev.openfga.kotlin.client.baseUrl=<BASEURL>
+
+// Get StoreID from Properties
+@Value("\${dev.openfga.kotlin.client.storeId}")
+lateinit var storeId: String
+
+// Create an instance of the API
+private val api: OpenFgaApi = OpenFgaApi()
+
+
+// Find if a relationship tuple stating that a certain user is a viewer of certain document
+var body = ReadRequest(
+    pageSize = 25,
+    tupleKey = TupleKey(
+        user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        relation="viewer",
+        `object`="document:roadmap",
+    )
+)
+
+// Find all relationship tuples where a certain user has a relationship as any relation to a certain document
+var body = ReadRequest(
+    pageSize = 25,
+    tupleKey = TupleKey(
+        user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        `object`="document:roadmap",
+    )
+)
+
+// Find all relationship tuples where a certain user is a viewer of any document
+var body = ReadRequest(
+    pageSize = 25,
+    tupleKey = TupleKey(
+        user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        relation="viewer",
+        `object`="document:",
+    )
+)
+
+// Find all relationship tuples where any user has a relationship as any relation with a particular document
+var body = ReadRequest(
+    pageSize = 25,
+    tupleKey = TupleKey(
+        `object`="document:roadmap",
+    )
+)
+
+// Read all stored relationship tuples
+var body = ReadRequest()
+
+val response = api.read(storeId=StoreId, body=body)
+```
+
+#### Read Changes (Watch)
+
+[API Documentation](https://openfga.dev/api/service#/Relationship%20Tuples/ReadChanges)
+
+```kotlin
+import dev.openfga.kotlin.client.apis.OpenFgaApi
+import dev.openfga.kotlin.client.models.*
+import org.springframework.beans.factory.annotation.Value
+
+// Ensuring you have an application.properties file with
+// dev.openfga.kotlin.client.storeID=<STOREID>
+// dev.openfga.kotlin.client.baseUrl=<BASEURL>
+
+// Get StoreID from Properties
+@Value("\${dev.openfga.kotlin.client.storeId}")
+lateinit var storeId: String
+
+// Create an instance of the API
+private val api: OpenFgaApi = OpenFgaApi()
+
+val response = api.readChanges(
+    storeId = storeId,
+    type = "document",
+    pageSize = 25
+)
+```
+
+#### List Objects
+
+[API Documentation](https://openfga.dev/api/service#/Relationship%20Queries/ListObjects)
+
+```kotlin
+import dev.openfga.kotlin.client.apis.OpenFgaApi
+import dev.openfga.kotlin.client.models.*
+import org.springframework.beans.factory.annotation.Value
+
+// Ensuring you have an application.properties file with
+// dev.openfga.kotlin.client.storeID=<STOREID>
+// dev.openfga.kotlin.client.baseUrl=<BASEURL>
+
+// Get StoreID from Properties
+@Value("\${dev.openfga.kotlin.client.storeId}")
+lateinit var storeId: String
+
+// Create an instance of the API
+private val api: OpenFgaApi = OpenFgaApi()
+
+val response = api.listObjects(
+    storeId = storeId,
+    body = ListObjectsRequest(
+        type = "document",
+        authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
+        user = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        relation = "viewer",
+        contextualTuples = ContextualTupleKeys(
+            // optional
+            tupleKeys = listOf<TupleKey>(
+                TupleKey(
+                    user = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                    relation = "writer",
+                    `object` = "document:budget",
+                ),
+            ),
+        ),
+    )
+)
+```

@@ -1,8 +1,8 @@
 {
   "sdkId": "fga-kotlin-sdk",
   "gitRepoId": "fga-kotlin-sdk",
-  "packageName": "dev.openfga.kotlin.client",
-  "groupId": "dev.openfga",
+  "packageName": "io.ozee.openfga.client",
+  "groupId": "io.ozee",
   "idea": true,
   "packageVersion": "0.0.1",
   "packageDescription": "kotlin SDK for OpenFGA",
