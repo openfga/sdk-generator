@@ -83,6 +83,20 @@ build-client-go:
 	make run-in-docker sdk_language=go image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/api_open_fga.go /config/clients/go/patches/add-missing-first-param.patch'"
 	make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'go fmt'"
 
+### Kotlin (Java)
+.PHONY: tag-client-kotlin
+tag-client-kotlin: test-client-kotlin
+	make utils-tag-client sdk_language=kotlin
+
+.PHONY: build-client-kotlin
+build-client-kotlin:
+	make build-client sdk_language=kotlin tmpdir=${TMP_DIR}
+
+
+.PHONY: test-client-kotlin
+test-client-kotlin: build-client-kotlin
+	echo "No OOTB Kotlin Generated Tests"
+
 ### .NET
 .PHONY: tag-client-dotnet
 tag-client-dotnet: test-client-dotnet
@@ -240,11 +254,3 @@ shellcheck:
 setup-new-sdk:
 	./scripts/setup_new_sdk.sh
 
-.PHONY: build-client-kotlin
-build-client-kotlin:
-	make build-client sdk_language=kotlin tmpdir=${TMP_DIR}
-	# ... any other custom build steps ...
-
-.PHONY: test-client-kotlin
-test-client-kotlin: build-client-kotlin
-	# ... any custom test code ...
