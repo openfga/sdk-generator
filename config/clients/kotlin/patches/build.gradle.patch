@@ -1,0 +1,36 @@
+Subject: [PATCH] Adding Gradle Deployment Code
+---
+Index: build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/build.gradle b/build.gradle
+--- a/build.gradle	(revision 422bb4589dbdf2ee265311ac98aea1736e6119de)
++++ b/build.gradle	(date 1672464888042)
+@@ -12,6 +12,7 @@
+     }
+ }
+
++apply plugin: 'maven-publish'
+ apply plugin: 'kotlin'
+ apply plugin: 'idea'
+
+@@ -38,3 +39,16 @@
+     implementation "com.squareup.okhttp3:okhttp:4.9.1"
+     testImplementation "io.kotlintest:kotlintest-runner-junit5:3.4.2"
+ }
++
++publishing {
++    repositories {
++        maven {
++            name = "GitHubPackages"
++            url = "https://maven.pkg.github.com/ozee-io/fga-kotlin-sdk"
++            credentials {
++                username = System.getenv("GITHUB_ACTOR")
++                password = System.getenv("GITHUB_TOKEN")
++            }
++        }
++    }
++}
+\ No newline at end of file
