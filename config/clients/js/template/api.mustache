@@ -14,18 +14,19 @@ import {
     PromiseResult
 } from './common';
 import { Configuration } from './configuration';
+import { Credentials } from "./credentials";
 import { assertParamExists } from './validation';
-
-// default maximum number of retry
-const cDefaultMaxRetry = {{{defaultMaxRetry}}};
-// default minimum wait period in retry - but will backoff exponentially
-const cDefaultMinWaitMs = {{{defaultMinWaitInMs}}};
 
 import {
 {{#models}}
   {{#model}}{{classname}},{{/model}}
 {{/models}}
-} from './apiModel'
+} from './apiModel';
+
+// default maximum number of retry
+const cDefaultMaxRetry = {{{defaultMaxRetry}}};
+// default minimum wait period in retry - but will backoff exponentially
+const cDefaultMinWaitMs = {{{defaultMinWaitInMs}}};
 
 {{#apiInfo}}{{#apis}}
 {{>apiInner}}

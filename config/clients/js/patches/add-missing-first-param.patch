@@ -29,7 +29,7 @@ index 327e5e1..9c46cb9 100755
              
        const localVarPath = "/stores"
              
-@@ -702,11 +704,12 @@ export const OpenFgaApiFp = function(configuration: Configuration) {
+@@ -702,11 +704,12 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
      /**
           * Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.
           * @summary Create a store
@@ -41,10 +41,10 @@ index 327e5e1..9c46cb9 100755
 -      const localVarAxiosArgs = await localVarAxiosParamCreator.createStore(options);
 +    async createStore(body: CreateStoreRequest, options?: any): Promise<(axios?: AxiosStatic) => PromiseResult<CreateStoreResponse>> {
 +      const localVarAxiosArgs = await localVarAxiosParamCreator.createStore(body, options);
-       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials);
      },
      /**
-@@ -754,12 +757,13 @@ export const OpenFgaApiFp = function(configuration: Configuration) {
+@@ -754,12 +757,13 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
      /**
           * Returns a paginated list of OpenFGA stores.
           * @summary List all stores
@@ -57,10 +57,10 @@ index 327e5e1..9c46cb9 100755
 -      const localVarAxiosArgs = await localVarAxiosParamCreator.listStores(continuationToken, options);
 +    async listStores(pageSize?: number, continuationToken?: string, options?: any): Promise<(axios?: AxiosStatic) => PromiseResult<ListStoresResponse>> {
 +      const localVarAxiosArgs = await localVarAxiosParamCreator.listStores(pageSize, continuationToken, options);
-       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials);
      },
      /**
-@@ -877,11 +881,12 @@ export const OpenFgaApiFactory = function (configuration: Configuration, axios?:
+@@ -877,11 +881,12 @@ export const OpenFgaApiFactory = function (configuration: Configuration, credent
      /**
           * Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.
           * @summary Create a store
@@ -75,7 +75,7 @@ index 327e5e1..9c46cb9 100755
      },
      /**
           * Delete an OpenFGA store. This does not delete the data associated with the store, like tuples or authorization models.
-@@ -924,12 +929,13 @@ export const OpenFgaApiFactory = function (configuration: Configuration, axios?:
+@@ -924,12 +929,13 @@ export const OpenFgaApiFactory = function (configuration: Configuration, credent
      /**
           * Returns a paginated list of OpenFGA stores.
           * @summary List all stores
@@ -101,9 +101,9 @@ index 327e5e1..9c46cb9 100755
       * @memberof OpenFgaApi
       */
 -  public createStore(options?: any) {
--    return OpenFgaApiFp(this.configuration).createStore(options).then((request) => request(this.axios));
+-    return OpenFgaApiFp(this.configuration, this.credentials).createStore(options).then((request) => request(this.axios));
 +  public createStore(body: CreateStoreRequest, options?: any) {
-+    return OpenFgaApiFp(this.configuration).createStore(body, options).then((request) => request(this.axios));
++    return OpenFgaApiFp(this.configuration, this.credentials).createStore(body, options).then((request) => request(this.axios));
    }
  
    /**
@@ -118,9 +118,9 @@ index 327e5e1..9c46cb9 100755
       * @memberof OpenFgaApi
       */
 -  public listStores(continuationToken?: string, options?: any) {
--    return OpenFgaApiFp(this.configuration).listStores(continuationToken, options).then((request) => request(this.axios));
+-    return OpenFgaApiFp(this.configuration, this.credentials).listStores(continuationToken, options).then((request) => request(this.axios));
 +  public listStores(pageSize?: number, continuationToken?: string, options?: any) {
-+    return OpenFgaApiFp(this.configuration).listStores(pageSize, continuationToken, options).then((request) => request(this.axios));
++    return OpenFgaApiFp(this.configuration, this.credentials).listStores(pageSize, continuationToken, options).then((request) => request(this.axios));
    }
  
    /**
