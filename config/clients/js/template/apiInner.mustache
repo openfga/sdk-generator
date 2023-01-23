@@ -29,7 +29,7 @@ import { {{classname}} } from '{{apiRelativeToRoot}}{{tsModelPackage}}';
  * {{&description}}{{/description}}
  * @export
  */
-export const {{classname}}AxiosParamCreator = function (configuration: Configuration) {
+export const {{classname}}AxiosParamCreator = function (configuration: Configuration, credentials: Credentials) {
     return {
     {{#operation}}
         /**
@@ -199,8 +199,8 @@ export const {{classname}}AxiosParamCreator = function (configuration: Configura
  * {{{description}}}{{/description}}
  * @export
  */
-export const {{classname}}Fp = function(configuration: Configuration) {
-    const localVarAxiosParamCreator = {{classname}}AxiosParamCreator(configuration)
+export const {{classname}}Fp = function(configuration: Configuration, credentials: Credentials) {
+    const localVarAxiosParamCreator = {{classname}}AxiosParamCreator(configuration, credentials)
     return {
     {{#operation}}
         /**
@@ -219,7 +219,7 @@ export const {{classname}}Fp = function(configuration: Configuration) {
          */
         async {{nickname}}({{#allParams}}{{^-first}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/-first}}{{/allParams}}options?: any): Promise<(axios?: AxiosStatic) => PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.{{nickname}}({{#allParams}}{{^-first}}{{paramName}}, {{/-first}}{{/allParams}}options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, configuration);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials);
         },
     {{/operation}}
     }
@@ -230,8 +230,8 @@ export const {{classname}}Fp = function(configuration: Configuration) {
  * {{&description}}{{/description}}
  * @export
  */
-export const {{classname}}Factory = function (configuration: Configuration, axios?: AxiosStatic) {
-    const localVarFp = {{classname}}Fp(configuration)
+export const {{classname}}Factory = function (configuration: Configuration, credentials: Credentials, axios?: AxiosStatic) {
+    const localVarFp = {{classname}}Fp(configuration, credentials)
     return {
     {{#operation}}
         /**
@@ -348,12 +348,12 @@ export class {{classname}} extends BaseAPI {
      */
     {{#useSingleRequestParameter}}
     public {{nickname}}({{#allParams.0}}requestParameters: {{classname}}{{operationIdCamelCase}}Request{{^hasRequiredParams}} = {}{{/hasRequiredParams}}, {{/allParams.0}}options?: any) {
-        return {{classname}}Fp(this.configuration).{{nickname}}({{#allParams.0}}{{#allParams}}requestParameters.{{paramName}}, {{/allParams}}{{/allParams.0}}options).then((request) => request(this.axios));
+        return {{classname}}Fp(this.configuration, this.credentials).{{nickname}}({{#allParams.0}}{{#allParams}}requestParameters.{{paramName}}, {{/allParams}}{{/allParams.0}}options).then((request) => request(this.axios));
     }
     {{/useSingleRequestParameter}}
     {{^useSingleRequestParameter}}
     public {{nickname}}({{#allParams}}{{^-first}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/-first}}{{/allParams}}options?: any) {
-        return {{classname}}Fp(this.configuration).{{nickname}}({{#allParams}}{{^-first}}{{paramName}}, {{/-first}}{{/allParams}}options).then((request) => request(this.axios));
+        return {{classname}}Fp(this.configuration, this.credentials).{{nickname}}({{#allParams}}{{^-first}}{{paramName}}, {{/-first}}{{/allParams}}options).then((request) => request(this.axios));
     }
     {{/useSingleRequestParameter}}
     {{^-last}}
