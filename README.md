@@ -43,12 +43,12 @@ OpenFGA is designed to make it easy for application builders to model their perm
 
 ## Currently Supported SDKs
 
-| Language   | GitHub                                                      | Package Manager                                                    |
-|------------|-------------------------------------------------------------|--------------------------------------------------------------------|
-| Javascript | [openfga/js-sdk](https://github.com/openfga/js-sdk)         | [@openfga/sdk](https://www.npmjs.com/package/@auth0/fga) on npm    |
-| Go         | [openfga/go-sdk](https://github.com/openfga/go-sdk)         | -                                                                  |
-| .NET       | [openfga/dotnet-sdk](https://github.com/openfga/dotnet-sdk) | [OpenFga.Sdk](https://www.nuget.org/packages/OpenFga.Sdk) on nuget |
-| PYTHON     | [openfga/python](https://github.com/openfga/python-sdk)     | [openfga-sdk](https://pypi.org/project/openfga-sdk) on PyPI        |
+| Language   | GitHub                                                      | Package Manager                                                                                                                                                 |
+|------------|-------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Javascript | [openfga/js-sdk](https://github.com/openfga/js-sdk)         | [![@openfga/sdk on npm](https://img.shields.io/npm/v/@openfga/sdk.svg?label=@openfga/sdk&style=flat-square)](https://www.npmjs.com/package/@openfga/sdk)        |
+| Go         | [openfga/go-sdk](https://github.com/openfga/go-sdk)         | [![OpenFGA Go SDK on GitHub](https://img.shields.io/github/v/release/openfga/go-sdk?label=openfga-go-sdk&style=flat-square)](https://github.com/openfga/go-sdk) |
+| .NET       | [openfga/dotnet-sdk](https://github.com/openfga/dotnet-sdk) | [![OpenFga.Sdk on NuGet](https://img.shields.io/nuget/v/OpenFga.Sdk?label=OpenFga.Sdk&style=flat-square)](https://www.nuget.org/packages/OpenFga.Sdk)           |
+| Python     | [openfga/python](https://github.com/openfga/python-sdk)     | [![openfga-sdk on PyPi](https://img.shields.io/pypi/v/openfga_sdk.svg?label=openfga-sdk&style=flat-square)](https://pypi.org/project/openfga_sdk)               |
 
 ## Getting Started
 
