@@ -20,8 +20,8 @@
     "oauth2/internal/transport.go": {},
     "oauth2/transport.go": {},
     "oauth2/transport_test.go": {},
-    "fga_test.mustache": {
-      "destinationFilename": "fga_test.go",
+    "api_test.mustache": {
+      "destinationFilename": "api_open_fga_test.go",
       "templateType": "SupportingFiles"
     },
     "oauth2/clientcredentials/clientcredentials.mustache": {

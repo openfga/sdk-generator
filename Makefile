@@ -1,11 +1,11 @@
 # Main config
 OPEN_API_URL = https://raw.githubusercontent.com/openfga/api/main/docs/openapiv2/apidocs.swagger.json
-OPENAPI_GENERATOR_CLI_DOCKER_TAG = v6.0.1
-NODE_DOCKER_TAG = 16-alpine
+OPENAPI_GENERATOR_CLI_DOCKER_TAG = v6.3.0
+NODE_DOCKER_TAG = 18-alpine
 GO_DOCKER_TAG = 1
 DOTNET_DOCKER_TAG = 6.0
-GOLINT_DOCKER_TAG = v1.48
-BUSYBOX_DOCKER_TAG = 1.34.1
+GOLINT_DOCKER_TAG = v1.51-alpine
+BUSYBOX_DOCKER_TAG = 1
 PYTHON_DOCKER_TAG = 3.10
 # Other config
 CONFIG_DIR = ${PWD}/config
@@ -73,7 +73,7 @@ tag-client-go: test-client-go
 
 .PHONY: test-client-go
 test-client-go: build-client-go
-	make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'go test'"
+	make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'go test -v ./...'"
 	make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'go install golang.org/x/vuln/cmd/govulncheck@latest; govulncheck ./...;'"
 	make run-in-docker sdk_language=go image=golangci/golangci-lint:${GOLINT_DOCKER_TAG} command="golangci-lint run -v --skip-files=oauth2/"
 
