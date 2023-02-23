@@ -1,0 +1,28 @@
+{{>partial_header}}
+
+import { Configuration, UserConfigurationParams } from "../../configuration";
+import { CredentialsMethod } from "../../credentials";
+
+export const {{appUpperCaseName}}_STORE_ID = "test-random-store-id";
+export const {{appUpperCaseName}}_API_HOST = "api.fga.example";
+export const {{appUpperCaseName}}_API_TOKEN_ISSUER = "tokenissuer.fga.example";
+export const {{appUpperCaseName}}_API_AUDIENCE = "https://api.fga.example/";
+export const {{appUpperCaseName}}_CLIENT_ID = "some-random-id";
+export const {{appUpperCaseName}}_CLIENT_SECRET = "this-is-very-secret";
+export const {{appUpperCaseName}}_API_TOKEN = "fga_abcdef";
+
+export const baseConfig: UserConfigurationParams = {
+  storeId: {{appUpperCaseName}}_STORE_ID,
+  apiHost: {{appUpperCaseName}}_API_HOST,
+  credentials: {
+    method: CredentialsMethod.ClientCredentials,
+    config: {
+      apiTokenIssuer: {{appUpperCaseName}}_API_TOKEN_ISSUER,
+      apiAudience: {{appUpperCaseName}}_API_AUDIENCE,
+      clientId: {{appUpperCaseName}}_CLIENT_ID,
+      clientSecret: {{appUpperCaseName}}_CLIENT_SECRET,
+    }
+  }
+};
+
+export const defaultConfiguration = new Configuration(baseConfig);

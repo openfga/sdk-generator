@@ -23,11 +23,6 @@ import {
 {{/models}}
 } from './apiModel';
 
-// default maximum number of retry
-const cDefaultMaxRetry = {{{defaultMaxRetry}}};
-// default minimum wait period in retry - but will backoff exponentially
-const cDefaultMinWaitMs = {{{defaultMinWaitInMs}}};
-
 {{#apiInfo}}{{#apis}}
 {{>apiInner}}
 {{/apis}}{{/apiInfo}}
