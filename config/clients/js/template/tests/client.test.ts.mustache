@@ -402,9 +402,9 @@ describe("{{appTitleCaseName}} Client", () => {
         const scope1 = nocks.check(defaultConfiguration.storeId!, tuples[1], defaultConfiguration.getBasePath(), { allowed: false }).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
         const scope2 = nocks.check(defaultConfiguration.storeId!, tuples[2], defaultConfiguration.getBasePath(), { allowed: true }).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
         const scope3 = nocks.check(defaultConfiguration.storeId!, tuples[3], defaultConfiguration.getBasePath(), "" as any, 500).matchHeader("X-OpenFGA-Client-Method", "ListRelations");;
-        const scope4 = nocks.check(defaultConfiguration.storeId!, tuples[3], defaultConfiguration.getBasePath(), {
+        const scope4 = nocks.check(defaultConfiguration.storeId!, tuples[4], defaultConfiguration.getBasePath(), {
           "code": "validation_error",
-          "message": "relation &#39;workspace#reader&#39; not found"
+          "message": "relation &#39;workspace#can_read&#39; not found"
         }, 400).matchHeader("X-OpenFGA-Client-Method", "ListRelations");;
         const scope5 = nocks.readAuthorizationModels(defaultConfiguration.storeId!, defaultConfiguration.getBasePath(), [
           {
@@ -450,7 +450,7 @@ describe("{{appTitleCaseName}} Client", () => {
         expect(scope4.isDone()).toBe(false);
         expect(scope5.isDone()).toBe(true);
         expect(response.relations.length).toBe(2);
-        expect(response.relations.sort()).toEqual(expect.arrayContaining(["admin", "viewer"]));
+        expect(response.relations.sort()).toEqual(expect.arrayContaining(["admin", "reader"]));
       });
     });
 
