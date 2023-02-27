@@ -135,7 +135,7 @@ export const getNocks = ((nock: typeof Nock) => ({
   },
   write: (
     storeId: string,
-    tuple: TupleKey,
+    tuple?: TupleKey,
     basePath = defaultConfiguration.getBasePath(),
   ) => {
     return nock(basePath)

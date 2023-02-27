@@ -200,6 +200,36 @@ describe("{{appTitleCaseName}} Client", () => {
         expect(scope.isDone()).toBe(true);
         expect(data).toMatchObject({});
       });
+
+      it("should properly chunk the calls when called in non-transaction mode", async () => {
+        const tuples = [{
+          user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+          relation: "admin",
+          object: "workspace:1",
+        }, {
+          user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+          relation: "admin",
+          object: "workspace:2",
+        }];
+        const scope0 = nocks.write(baseConfig.storeId!).matchHeader("X-OpenFGA-Client-Method", "Write");
+        const scope1 = nocks.write(baseConfig.storeId!).matchHeader("X-OpenFGA-Client-Method", "Write");
+        const scope2 = nocks.write(baseConfig.storeId!).matchHeader("X-OpenFGA-Client-Method", "Write");
+
+        expect(scope0.isDone()).toBe(false);
+        expect(scope1.isDone()).toBe(false);
+        expect(scope2.isDone()).toBe(false);
+        const data = await fgaClient.write({
+          writes: tuples,
+        }, {
+          authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
+          transaction: { disable: true },
+        });
+
+        expect(scope0.isDone()).toBe(true);
+        expect(scope1.isDone()).toBe(true);
+        expect(scope2.isDone()).toBe(false);
+        expect(data).toMatchObject({});
+      });
     });
 
     describe("WriteTuples", () => {
@@ -273,12 +303,12 @@ describe("{{appTitleCaseName}} Client", () => {
           relation: "reader",
           object: "workspace:3",
         }];
-        const scope0 = nocks.check(defaultConfiguration.storeId!, tuples[0]);
-        const scope1 = nocks.check(defaultConfiguration.storeId!, tuples[1], defaultConfiguration.getBasePath(), { allowed: false });
+        const scope0 = nocks.check(defaultConfiguration.storeId!, tuples[0], defaultConfiguration.getBasePath(), { allowed: true }, 200).matchHeader("X-OpenFGA-Client-Method", "BatchCheck");
+        const scope1 = nocks.check(defaultConfiguration.storeId!, tuples[1], defaultConfiguration.getBasePath(), { allowed: false }, 200).matchHeader("X-OpenFGA-Client-Method", "BatchCheck");
         const scope2 = nocks.check(defaultConfiguration.storeId!, tuples[2], defaultConfiguration.getBasePath(), {
           "code": "validation_error",
           "message": "relation &#39;workspace#reader&#39; not found"
-        }, 400);
+        }, 400).matchHeader("X-OpenFGA-Client-Method", "BatchCheck");
 
         expect(scope0.isDone()).toBe(false);
         expect(scope1.isDone()).toBe(false);
@@ -368,14 +398,14 @@ describe("{{appTitleCaseName}} Client", () => {
           relation: "can_read",
           object: "workspace:1",
         }];
-        const scope0 = nocks.check(defaultConfiguration.storeId!, tuples[0]);
-        const scope1 = nocks.check(defaultConfiguration.storeId!, tuples[1], defaultConfiguration.getBasePath(), { allowed: false });
-        const scope2 = nocks.check(defaultConfiguration.storeId!, tuples[2]);
-        const scope3 = nocks.check(defaultConfiguration.storeId!, tuples[3], defaultConfiguration.getBasePath(), "" as any, 500);
+        const scope0 = nocks.check(defaultConfiguration.storeId!, tuples[0], defaultConfiguration.getBasePath(), { allowed: true }).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
+        const scope1 = nocks.check(defaultConfiguration.storeId!, tuples[1], defaultConfiguration.getBasePath(), { allowed: false }).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
+        const scope2 = nocks.check(defaultConfiguration.storeId!, tuples[2], defaultConfiguration.getBasePath(), { allowed: true }).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
+        const scope3 = nocks.check(defaultConfiguration.storeId!, tuples[3], defaultConfiguration.getBasePath(), "" as any, 500).matchHeader("X-OpenFGA-Client-Method", "ListRelations");;
         const scope4 = nocks.check(defaultConfiguration.storeId!, tuples[3], defaultConfiguration.getBasePath(), {
           "code": "validation_error",
           "message": "relation &#39;workspace#reader&#39; not found"
-        }, 400);
+        }, 400).matchHeader("X-OpenFGA-Client-Method", "ListRelations");;
         const scope5 = nocks.readAuthorizationModels(defaultConfiguration.storeId!, defaultConfiguration.getBasePath(), [
           {
             "id": "01GS6KDEJBSAJ4RFQFMEQZ9QN2",

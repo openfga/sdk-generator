@@ -27,7 +27,12 @@ import { BaseAPI } from "./base";
 import { CallResult, PromiseResult } from "./common";
 import { Configuration, RetryParams, UserConfigurationParams } from "./configuration";
 import { FgaValidationError } from "./errors";
-import { chunkSequentialCall, setNotEnumerableProperty } from "./utils";
+import {
+  chunkSequentialCall,
+  generateRandomIdWithNonUniqueFallback,
+  setHeaderIfNotSet,
+  setNotEnumerableProperty,
+} from "./utils";
 
 export type {{appShortName}}ClientConfig = (UserConfigurationParams | Configuration) & {
   authorizationModelId?: string;
@@ -35,11 +40,14 @@ export type {{appShortName}}ClientConfig = (UserConfigurationParams | Configurat
 
 type TupleKey = Required<ApiTupleKey>;
 
-const DEFAULT_MAX_METHOD_PARALLEL_REQS = 10;
-const DEFAULT_MAX_RETRY_OVERRIDE = 15;
+const DEFAULT_MAX_METHOD_PARALLEL_REQS = {{clientMaxMethodParallelRequests}};
+const DEFAULT_MAX_RETRY_OVERRIDE = {{defaultMaxRetryClientOverride}};
+const CLIENT_METHOD_HEADER = "{{clientMethodHeader}}";
+const CLIENT_BULK_REQUEST_ID_HEADER = "{{clientBulkRequestIdHeader}}";
 
 export interface ClientRequestOpts {
   retryParams?: RetryParams;
+  headers?: Record<string, string>;
 }
 
 export interface AuthorizationModelIdOpts {
@@ -194,7 +202,7 @@ export class {{appShortName}}Client extends BaseAPI {
     if (!authorizationModelId) {
       throw new Error("authorization_model_id_required");
     }
-    return this.api.readAuthorizationModel(authorizationModelId);
+    return this.api.readAuthorizationModel(authorizationModelId, options);
   }
 
   /**
@@ -202,7 +210,9 @@ export class {{appShortName}}Client extends BaseAPI {
    * @param options
    */
   async readLatestAuthorizationModel(options: ClientRequestOpts = {}): PromiseResult<ReadAuthorizationModelResponse> {
-    const authorizationModelsResponse = await this.readAuthorizationModels(options);
+    const { headers = {} } = options;
+    setHeaderIfNotSet(headers, CLIENT_METHOD_HEADER, "ReadLatestAuthorizationModel");
+    const authorizationModelsResponse = await this.readAuthorizationModels({ ...options, headers });
     const response = authorizationModelsResponse as any as CallResult<ReadAuthorizationModelResponse>;
     response.authorization_model = authorizationModelsResponse.authorization_models?.[0];
     delete (response as any).authorization_models;
@@ -240,7 +250,8 @@ export class {{appShortName}}Client extends BaseAPI {
    * @param {objects} options
    */
   async write(body: ClientWriteRequest, options: ClientRequestOptsWithAuthZModelId & ClientWriteRequestOpts = {}): Promise<ClientWriteResponse> {
-    const { transaction = {} } = options;
+    const { transaction = {}, headers = {} } = options;
+    const { maxPerChunk = 1 } = transaction; // 1 has to be the default otherwise the chunks will be sent in transactions
     const { writes, deletes } = body;
     const authorizationModelId = this.getAuthorizationModelId(options);
 
@@ -262,24 +273,26 @@ export class {{appShortName}}Client extends BaseAPI {
       };
     }
 
+    setHeaderIfNotSet(headers, CLIENT_METHOD_HEADER, "Write");
+    setHeaderIfNotSet(headers, CLIENT_BULK_REQUEST_ID_HEADER, generateRandomIdWithNonUniqueFallback());
     const results: ClientWriteResponse = { writes: [], deletes: [] };
     await chunkSequentialCall<TupleKey, void>(
       (chunk) => this.api.write(
         { writes: { tuple_keys: chunk}, authorization_model_id: authorizationModelId },
-        { retryParams: { maxRetry: DEFAULT_MAX_RETRY_OVERRIDE } })
+        { retryParams: { maxRetry: DEFAULT_MAX_RETRY_OVERRIDE }, headers })
         .then(() => { results.writes.push(...chunk.map(tuple => ({ tuple_key: tuple, status: ClientWriteStatus.SUCCESS }))); })
         .catch(() => { results.writes.push(...chunk.map(tuple => ({ tuple_key: tuple, status: ClientWriteStatus.FAILURE }))); }),
       writes || [],
-      transaction.maxPerChunk || DEFAULT_MAX_METHOD_PARALLEL_REQS,
+      maxPerChunk,
     );
     await chunkSequentialCall<TupleKey, void>(
       (chunk) => this.api.write(
         { deletes: { tuple_keys: chunk }, authorization_model_id: authorizationModelId },
-        { retryParams: { maxRetry: DEFAULT_MAX_RETRY_OVERRIDE } })
+        { retryParams: { maxRetry: DEFAULT_MAX_RETRY_OVERRIDE }, headers })
         .then(() => { results.deletes.push(...chunk.map(tuple => ({ tuple_key: tuple, status: ClientWriteStatus.SUCCESS }))); })
         .catch(() => { results.deletes.push(...chunk.map(tuple => ({ tuple_key: tuple, status: ClientWriteStatus.FAILURE }))); }),
       deletes || [],
-      transaction.maxPerChunk || DEFAULT_MAX_METHOD_PARALLEL_REQS,
+      maxPerChunk,
     );
 
     return results;
@@ -291,7 +304,9 @@ export class {{appShortName}}Client extends BaseAPI {
    * @param options
    */
   async writeTuples(tuples: TupleKey[], options: ClientRequestOptsWithAuthZModelId & ClientWriteRequestOpts = {}): Promise<ClientWriteResponse> {
-    return this.write({ writes: tuples }, options);
+    const { headers = {} } = options;
+    setHeaderIfNotSet(headers, CLIENT_METHOD_HEADER, "WriteTuples");
+    return this.write({ writes: tuples }, { ...options, headers });
   }
 
   /**
@@ -300,7 +315,9 @@ export class {{appShortName}}Client extends BaseAPI {
    * @param options
    */
   async deleteTuples(tuples: TupleKey[], options: ClientRequestOptsWithAuthZModelId & ClientWriteRequestOpts = {}): Promise<ClientWriteResponse> {
-    return this.write({ deletes: tuples }, options);
+    const { headers = {} } = options;
+    setHeaderIfNotSet(headers, CLIENT_METHOD_HEADER, "DeleteTuples");
+    return this.write({ deletes: tuples }, { ...options, headers });
   }
 
   /************************
@@ -321,7 +338,7 @@ export class {{appShortName}}Client extends BaseAPI {
       },
       contextual_tuples: { tuple_keys: checkRequest.contextual_tuples || [] },
       authorization_model_id: this.getAuthorizationModelId(options)
-    }).then(response => ({
+    }, options).then(response => ({
       ...response,
       allowed: response.allowed || false,
     }));
@@ -333,8 +350,12 @@ export class {{appShortName}}Client extends BaseAPI {
    * @param options
    */
   async batchCheck(batchCheckRequest: ClientBatchCheckRequest, options: ClientRequestOptsWithAuthZModelId = {}): Promise<ClientBatchCheckResponse> {
+    const { headers = {} } = options;
+    setHeaderIfNotSet(headers, CLIENT_METHOD_HEADER, "BatchCheck");
+    setHeaderIfNotSet(headers, CLIENT_BULK_REQUEST_ID_HEADER, generateRandomIdWithNonUniqueFallback());
+
     return chunkSequentialCall<TupleKey, any>(async (tuples) =>
-      Promise.all(tuples.map(tuple => this.check(tuple, { ...options, retryParams: { maxRetry: DEFAULT_MAX_RETRY_OVERRIDE } })
+      Promise.all(tuples.map(tuple => this.check(tuple, { ...options, retryParams: { maxRetry: DEFAULT_MAX_RETRY_OVERRIDE }, headers })
         .then(({ allowed, $response: response }) => {
           const result = {
             allowed: allowed || false,
@@ -391,6 +412,9 @@ export class {{appShortName}}Client extends BaseAPI {
   async listRelations(listRelationsRequest: ClientListRelationsRequest, options: ClientRequestOptsWithAuthZModelId = {}): Promise<ClientListRelationsResponse> {
     const { user, object } = listRelationsRequest;
     let { relations } = listRelationsRequest;
+    const { headers = {} } = options;
+    setHeaderIfNotSet(headers, CLIENT_METHOD_HEADER, "ListRelations");
+    setHeaderIfNotSet(headers, CLIENT_BULK_REQUEST_ID_HEADER, generateRandomIdWithNonUniqueFallback());
 
     // 1- Get the list of relations on that object type
     // 2- Filter out/error out on invalid relations
@@ -417,7 +441,7 @@ export class {{appShortName}}Client extends BaseAPI {
       user,
       relation,
       object
-    })), options);
+    })), { ...options, headers });
 
     return { relations: batchCheckResults.filter(result => result.allowed).map(result => result._request.relation) };
   }

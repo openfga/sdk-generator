@@ -50,6 +50,14 @@
       "destinationFilename": "utils/index.ts",
       "templateType": "SupportingFiles"
     },
+    "utils/generate-random-id.ts.mustache": {
+      "destinationFilename": "utils/generate-random-id.ts",
+      "templateType": "SupportingFiles"
+    },
+    "utils/set-header-if-not-set.ts.mustache": {
+      "destinationFilename": "utils/set-header-if-not-set.ts",
+      "templateType": "SupportingFiles"
+    },
     "utils/set-not-enumerable-property.ts.mustache": {
       "destinationFilename": "utils/set-not-enumerable-property.ts",
       "templateType": "SupportingFiles"

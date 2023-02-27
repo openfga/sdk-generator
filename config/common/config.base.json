@@ -88,5 +88,9 @@
   },
   "retryMaxAllowedNumber": 15,
   "defaultMaxRetry": 5,
-  "defaultMinWaitInMs": 100
+  "defaultMinWaitInMs": 100,
+  "defaultMaxRetryClientOverride": 15,
+  "clientMaxMethodParallelRequests": 10,
+  "clientMethodHeader": "X-OpenFGA-Client-Method",
+  "clientBulkRequestIdHeader": "X-OpenFGA-Client-Bulk-Request-Id"
 }
