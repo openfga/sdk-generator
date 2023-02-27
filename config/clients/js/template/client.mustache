@@ -184,8 +184,8 @@ export class {{appShortName}}Client extends BaseAPI {
    * ReadAuthorizationModels - Reads all authorization models
    * @param options
    */
-  async readAuthorizationModels(options: ClientRequestOpts = {}): PromiseResult<ReadAuthorizationModelsResponse> {
-    return this.api.readAuthorizationModels();
+  async readAuthorizationModels(options: ClientRequestOpts & PaginationOptions = {}): PromiseResult<ReadAuthorizationModelsResponse> {
+    return this.api.readAuthorizationModels(options.pageSize, options.continuationToken, options);
   }
 
   /**
