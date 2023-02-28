@@ -477,7 +477,12 @@ describe("{{appTitleCaseName}} Client", () => {
         const scope = nocks.writeAssertions(defaultConfiguration.storeId!, modelId);
 
         expect(scope.isDone()).toBe(false);
-        await fgaClient.writeAssertions([], { authorization_model_id: modelId });
+        await fgaClient.writeAssertions([{
+          user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+          relation: "viewer",
+          object: "document:roadmap",
+          expectation: true,
+        }], { authorization_model_id: modelId });
 
         expect(scope.isDone()).toBe(true);
       });

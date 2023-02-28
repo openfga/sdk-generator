@@ -4,24 +4,24 @@ import { AxiosResponse, AxiosStatic } from "axios";
 
 import { {{appShortName}}Api } from "./api";
 import {
+  Assertion,
   AuthorizationModel,
+  CheckResponse,
   CreateStoreRequest,
   CreateStoreResponse,
   ExpandResponse,
+  GetStoreResponse,
+  ListObjectsRequest,
+  ListObjectsResponse,
   ListStoresResponse,
-  TupleKey as ApiTupleKey,
-  CheckResponse,
+  ReadAssertionsResponse,
   ReadAuthorizationModelResponse,
   ReadAuthorizationModelsResponse,
-  GetStoreResponse,
-  WriteAuthorizationModelResponse,
-  WriteAuthorizationModelRequest,
-  ListObjectsResponse,
-  ListObjectsRequest,
-  ReadResponse,
-  WriteAssertionsRequest,
-  ReadAssertionsResponse,
   ReadChangesResponse,
+  ReadResponse,
+  TupleKey as ApiTupleKey,
+  WriteAuthorizationModelRequest,
+  WriteAuthorizationModelResponse,
 } from "./apiModel";
 import { BaseAPI } from "./base";
 import { CallResult, PromiseResult } from "./common";
@@ -66,7 +66,7 @@ export type ClientBatchCheckSingleResponse = {
   _request: ClientCheckRequest;
 } & ({
   allowed: boolean;
-  _response: AxiosResponse<CheckResponse>;
+  $response: AxiosResponse<CheckResponse>;
 } | {
   allowed: undefined;
   error: Error;
@@ -111,8 +111,8 @@ export interface ClientReadChangesRequest {
 export type ClientExpandRequest = Pick<TupleKey, "relation" | "object">;
 export type ClientReadRequest = ApiTupleKey;
 export type ClientListObjectsRequest = Omit<ListObjectsRequest, "authorization_model_id" | "contextual_tuples"> & { contextual_tuples?: TupleKey[] };
-export type ClientListRelationsRequest = Pick<TupleKey, "user" | "object"> & { relations?: string[] };
-export type ClientWriteAssertionsRequest = WriteAssertionsRequest["assertions"];
+export type ClientListRelationsRequest = Pick<ClientCheckRequest, "user" | "object" | "contextual_tuples"> & { relations?: string[] };
+export type ClientWriteAssertionsRequest = (TupleKey & Pick<Assertion, "expectation">)[];
 
 function getObjectFromString(objectString: string): { type: string; id: string } {
   const [type, id] = objectString.split(":");
@@ -139,7 +139,7 @@ export class {{appShortName}}Client extends BaseAPI {
    **********/
 
   /**
-   * ListStores - Returns a paginated list of stores.
+   * ListStores - Get a paginated list of stores.
    * @summary List all stores
    * @param {object} paginationOptions
    * @param {number} [paginationOptions.pageSize]
@@ -152,7 +152,7 @@ export class {{appShortName}}Client extends BaseAPI {
   }
 
   /**
-   * CreateStore - Initializes a store
+   * CreateStore - Initialize a store
    * @param body
    * @param options
    */
@@ -161,7 +161,7 @@ export class {{appShortName}}Client extends BaseAPI {
   }
 
   /**
-   * GetStore - Returns the current store
+   * GetStore - Get information about the current store
    * @param options
    */
   async getStore(options: ClientRequestOpts = {}): PromiseResult<GetStoreResponse> {
@@ -169,7 +169,7 @@ export class {{appShortName}}Client extends BaseAPI {
   }
 
   /**
-   * DeleteStore - Deletes a store
+   * DeleteStore - Delete a store
    * @param options
    */
   async deleteStore(options: ClientRequestOpts = {}): PromiseResult<void> {
@@ -181,7 +181,7 @@ export class {{appShortName}}Client extends BaseAPI {
    ************************/
 
   /**
-   * ReadAuthorizationModels - Reads all authorization models
+   * ReadAuthorizationModels - Read all authorization models
    * @param options
    */
   async readAuthorizationModels(options: ClientRequestOpts & PaginationOptions = {}): PromiseResult<ReadAuthorizationModelsResponse> {
@@ -189,7 +189,7 @@ export class {{appShortName}}Client extends BaseAPI {
   }
 
   /**
-   * WriteAuthorizationModel - Creates a new version of the authorization model
+   * WriteAuthorizationModel - Create a new version of the authorization model
    * @param body
    * @param options
    */
@@ -210,7 +210,7 @@ export class {{appShortName}}Client extends BaseAPI {
   }
 
   /**
-   * ReadLatestAuthorizationModel - Reads the latest authorization model for the current store
+   * ReadLatestAuthorizationModel - Read the latest authorization model for the current store
    * @param options
    */
   async readLatestAuthorizationModel(options: ClientRequestOpts = {}): PromiseResult<ReadAuthorizationModelResponse> {
@@ -228,7 +228,7 @@ export class {{appShortName}}Client extends BaseAPI {
    ***********************/
 
   /**
-   * Read Changes - Reads the list of historical tuple writes and deletes
+   * Read Changes - Read the list of historical relationship tuple writes and deletes
    * @param clientReadChangesRequest
    * @param {object} paginationOptions
    * @param {number} [paginationOptions.pageSize]
@@ -240,7 +240,7 @@ export class {{appShortName}}Client extends BaseAPI {
   }
 
   /**
-   * Read - Reads tuples previously written to the store (does not evaluate)
+   * Read - Read tuples previously written to the store (does not evaluate)
    * @param clientReadRequest
    * @param options
    */
@@ -376,7 +376,7 @@ export class {{appShortName}}Client extends BaseAPI {
   }
 
   /**
-   * Expand - Expands the leaves that have a particular relation to an object (evaluates)
+   * Expand - Expands the relationships in userset tree format (evaluates)
    * @param expandRequest
    * @param {string} expandRequest.relation The relation
    * @param {string} expandRequest.object The object, must be of the form: `<type>:<id>`
@@ -386,7 +386,7 @@ export class {{appShortName}}Client extends BaseAPI {
     return this.api.expand({
       authorization_model_id: this.getAuthorizationModelId(options),
       tuple_key: expandRequest,
-    });
+    }, options);
   }
 
   /**
@@ -406,7 +406,7 @@ export class {{appShortName}}Client extends BaseAPI {
   }
 
   /**
-   * ListRelations - Lists all the relations a user has with an object (evaluates)
+   * ListRelations - List all the relations a user has with an object (evaluates)
    * @param {object} listRelationsRequest
    * @param {string} listRelationsRequest.user The user object, must be of the form: `<type>:<id>`
    * @param {string} listRelationsRequest.object The object, must be of the form: `<type>:<id>`
@@ -444,7 +444,8 @@ export class {{appShortName}}Client extends BaseAPI {
     const batchCheckResults = await this.batchCheck(relations.map(relation => ({
       user,
       relation,
-      object
+      object,
+      contextual_tuples: listRelationsRequest.contextual_tuples,
     })), { ...options, headers, maxParallelRequests });
 
     return { relations: batchCheckResults.filter(result => result.allowed).map(result => result._request.relation) };
@@ -455,7 +456,7 @@ export class {{appShortName}}Client extends BaseAPI {
    **************/
 
   /**
-   * ReadAssertions - Reads assertions for a particular authorization model
+   * ReadAssertions - Read assertions for a particular authorization model
    * @param options
    */
   async readAssertions(options: ClientRequestOptsWithAuthZModelId = {}): PromiseResult<ReadAssertionsResponse> {
@@ -466,17 +467,20 @@ export class {{appShortName}}Client extends BaseAPI {
 
   /**
    * WriteAssertions - Updates assertions for a particular authorization model
-   * @param {array} assertions
-   * @param {object} assertions.tuple_key
-   * @param {string} assertions.tuple_key.user
-   * @param {string} assertions.tuple_key.relation
-   * @param {string} assertions.tuple_key.object
-   * @param {boolean} assertions.expectation
-   * @param {object} options
+   * @param {ClientWriteAssertionsRequest} assertions
+   * @param {ClientRequestOptsWithAuthZModelId} options
    */
   async writeAssertions(assertions: ClientWriteAssertionsRequest, options: ClientRequestOptsWithAuthZModelId = {}): PromiseResult<void> {
     const authorizationModelId = this.getAuthorizationModelId(options);
-    // Note: authorization model id is validated later
-    return this.api.writeAssertions(authorizationModelId!, { assertions }, options);
+    return this.api.writeAssertions(authorizationModelId!, {
+      assertions: assertions.map(assertion => ({
+        tuple_key: {
+          user: assertion.user,
+          relation: assertion.relation,
+          object: assertion.object,
+        },
+        expectation: assertion.expectation,
+      }))
+    }, options);
   }
 }
