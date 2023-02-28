@@ -3,10 +3,10 @@
 ```javascript
 const { {{appShortName}}Client } = require('{{packageName}}'); // OR import { {{appShortName}}Client } from '{{packageName}}';
 
-const openFga = new OpenFgaApi({
-  apiScheme: {{appCamelCaseName}}_API_SCHEME, // optional, defaults to "https"
-  apiHost: {{appCamelCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
-  storeId: {{appCamelCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
+const fgaClient = new {{appShortName}}Client({
+  apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
+  apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+  storeId: {{appUpperCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
 });
 ```
 
@@ -15,14 +15,14 @@ const openFga = new OpenFgaApi({
 ```javascript
 const { {{appShortName}}Client } = require('{{packageName}}'); // OR import { {{appShortName}}Client } from '{{packageName}}';
 
-const openFga = new OpenFgaClient({
-  apiScheme: {{appCamelCaseName}}_API_SCHEME, // optional, defaults to "https"
-  apiHost: {{appCamelCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
-  storeId: {{appCamelCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
+const fgaClient = new {{appShortName}}Client({
+  apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
+  apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+  storeId: {{appUpperCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
   credentials: {
     method: CredentialsMethod.ApiToken,
     config: {
-      token: {{appCamelCaseName}}_API_TOKEN, // will be passed as the "Authorization: Bearer ${ApiToken}" request header
+      token: {{appUpperCaseName}}_API_TOKEN, // will be passed as the "Authorization: Bearer ${ApiToken}" request header
     }
   }
 });
@@ -33,18 +33,18 @@ const openFga = new OpenFgaClient({
 ```javascript
 const { {{appShortName}}Client } = require('{{packageName}}'); // OR import { {{appShortName}}Client } from '{{packageName}}';
 
-const fgaClient = new OpenFgaClient({
-  apiScheme: {{appCamelCaseName}}_API_SCHEME, // optional, defaults to "https"
-  apiHost: {{appCamelCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
-  storeId: {{appCamelCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
-  authorizationModelId: {{appCamelCaseName}}_AUTHORIZATION_MODEL_ID, // not needed when calling `CreateAuthorizationModel` or `ReadAuthorizationModels`
+const fgaClient = new {{appShortName}}Client({
+  apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
+  apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+  storeId: {{appUpperCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
+  authorizationModelId: {{appUpperCaseName}}_AUTHORIZATION_MODEL_ID, // not needed when calling `CreateAuthorizationModel` or `ReadAuthorizationModels`
   credentials: {
     method: CredentialsMethod.ClientCredentials,
     config: {
-      apiTokenIssuer: {{appCamelCaseName}}_API_TOKEN_ISSUER,
-      apiAudience: {{appCamelCaseName}}_API_AUDIENCE,
-      clientId: {{appCamelCaseName}}_CLIENT_ID,
-      clientSecret: {{appCamelCaseName}}_CLIENT_SECRET,
+      apiTokenIssuer: {{appUpperCaseName}}_API_TOKEN_ISSUER,
+      apiAudience: {{appUpperCaseName}}_API_AUDIENCE,
+      clientId: {{appUpperCaseName}}_CLIENT_ID,
+      clientSecret: {{appUpperCaseName}}_CLIENT_SECRET,
     }
   }
 });
