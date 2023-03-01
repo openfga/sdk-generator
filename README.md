@@ -3,6 +3,7 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 [![Discord Server](https://img.shields.io/discord/759188666072825867?color=7289da&logo=discord "Discord Server")](https://discord.com/channels/759188666072825867/930524706854031421)
 [![Twitter](https://img.shields.io/twitter/follow/openfga?color=%23179CF0&logo=twitter&style=flat-square "@openfga on Twitter")](https://twitter.com/openfga)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fopenfga%2Fsyntax-transformer.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fopenfga%2Fsyntax-transformer?ref=badge_shield)
 
 This is the main generator responsible for generating the OpenFGA SDKs from the [OpenFGA OpenAPIv2 Document](https://github.com/openfga/api/blob/main/docs/openapiv2/apidocs.swagger.json).
 
