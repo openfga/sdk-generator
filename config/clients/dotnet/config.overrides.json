@@ -12,7 +12,7 @@
   "packageName": "OpenFga.Sdk",
   "packageVersion": "0.2.1",
   "licenseUrl": "https://github.com/openfga/dotnet-sdk/blob/main/LICENSE",
-  "fossaComplianceNoticeId": "4649217f-8fa8-4656-871f-ea9a94abf4bc",
+  "fossaComplianceNoticeId": "f8ac2ec4-84fc-44f4-a617-5800cd3d180e",
   "termsOfService": "",
   "caseInsensitiveResponseHeaders": true,
   "disallowAdditionalPropertiesIfNotPresent": false,
