@@ -125,7 +125,7 @@ const { authorization_model_id: id } = await fgaClient.writeAuthorizationModel({
 const options = {};
 
 // To override the authorization model id for this request
-options.authorization_model_id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
+options.authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
 
 const { authorization_model: authorizationModel } = await fgaClient.readAuthorizationModel(options);
 
@@ -235,7 +235,7 @@ By default, write runs in a transaction mode where any invalid operation (deleti
 const options = {};
 
 // To override the authorization model id for this request
-options.authorization_model_id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
+options.authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
 
 await fgaClient.write({
   writes: [{ user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b", relation: "viewer", object: "document:roadmap" }],
@@ -283,7 +283,7 @@ Check if a user has a particular relation with an object.
 ```javascript
 const options = {
   // if you'd like to override the authorization model id for this request
-  authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
+  authorizationModelId: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
 };
 
 const result = await fgaClient.check({
@@ -298,14 +298,14 @@ const result = await fgaClient.check({
 ##### Batch Check
 
 Run a set of [checks](#check). Batch Check will return `allowed: false` if it encounters an error, and will return the error in the body.
-If 429s or 5xxs are encountered, the underlying check will retry up to 15 times before giving up.
+If 429s or 5xxs are encountered, the underlying check will retry up to {{defaultMaxRetryClientOverride}} times before giving up.
 
 > Requires a client initialized with a storeId
 
 ```javascript
 const options = {
   // if you'd like to override the authorization model id for this request
-  authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
+  authorizationModelId: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
 }
 const { responses } = await fgaClient.batchCheck([{
   user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
@@ -370,7 +370,7 @@ Expands the relationships in userset tree format.
 const options = {};
 
 // To override the authorization model id for this request
-options.authorization_model_id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
+options.authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
 
 const { tree } = await fgaClient.expand({
   relation: "viewer",
@@ -392,7 +392,7 @@ const { tree } = await fgaClient.expand({
 const options = {};
 
 // To override the authorization model id for this request
-options.authorization_model_id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
+options.authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
 
 const response = await fgaClient.listObjects({
   user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
@@ -422,7 +422,7 @@ Read assertions for a particular authorization model.
 const options = {};
 
 // To override the authorization model id for this request
-options.authorization_model_id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
+options.authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
 
 const response = await fgaClient.readAssertions(options);
 
@@ -448,7 +448,7 @@ Update the assertions for a particular authorization model.
 const options = {};
 
 // To override the authorization model id for this request
-options.authorization_model_id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
+options.authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
 
 const response = await fgaClient.writeAssertions([{
   user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",

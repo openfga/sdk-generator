@@ -1,3 +1,7 @@
+The documentation below refers to the `{{appShortName}}Client`, to read the documentation for `{{appShortName}}Api`, check out the [`v0.2.2` documentation](https://github.com/openfga/js-sdk/tree/v0.2.2#readme).
+
+> The {{appShortName}}Client will by default retry API requests up to {{defaultMaxRetryClientOverride}} times on 429 and 5xx errors.
+
 #### No Credentials
 
 ```javascript
@@ -7,6 +11,7 @@ const fgaClient = new {{appShortName}}Client({
   apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
   apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
   storeId: {{appUpperCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
+  authorizationModelId: {{appUpperCaseName}}_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
 });
 ```
 
@@ -19,6 +24,7 @@ const fgaClient = new {{appShortName}}Client({
   apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
   apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
   storeId: {{appUpperCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
+  authorizationModelId: {{appUpperCaseName}}_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
   credentials: {
     method: CredentialsMethod.ApiToken,
     config: {
@@ -37,7 +43,7 @@ const fgaClient = new {{appShortName}}Client({
   apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
   apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
   storeId: {{appUpperCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
-  authorizationModelId: {{appUpperCaseName}}_AUTHORIZATION_MODEL_ID, // not needed when calling `CreateAuthorizationModel` or `ReadAuthorizationModels`
+  authorizationModelId: {{appUpperCaseName}}_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
   credentials: {
     method: CredentialsMethod.ClientCredentials,
     config: {
