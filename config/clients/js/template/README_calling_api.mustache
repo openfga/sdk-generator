@@ -1,50 +1,89 @@
-#### List Stores
+> Note regarding casing in the {{appShortName}}Client:
+> All input parameters are in `camelCase`, all response parameters will match the API and are in `snake_case`.
+
+> Note: The Client interface might see several changes over the next few months as we get more feedback before it stabilizes.
+
+#### Stores
+
+##### List Stores
+
+Get a paginated list of stores.
 
 [API Documentation]({{apiDocsUrl}}#/Stores/ListStores)
 
 ```javascript
-const { stores } = await {{appCamelCaseName}}.listStores();
+const options = { pageSize: 10, continuationToken: "..." };
+
+const { stores } = await fgaClient.listStores(options);
 
 // stores = [{ "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }]
 ```
 
-#### Create Store
+##### Create Store
+
+Initialize a store.
 
 [API Documentation]({{apiDocsUrl}}#/Stores/CreateStore)
 
 ```javascript
-const { id: storeId } = await {{appCamelCaseName}}.createStore({
+const { id: storeId } = await fgaClient.createStore({
   name: "FGA Demo Store",
 });
 
 // storeId = "01FQH7V8BEG3GPQW93KTRFR8JB"
 ```
 
-#### Get Store
+##### Get Store
+
+Get information about the current store.
 
 [API Documentation]({{apiDocsUrl}}#/Stores/GetStore)
 
 > Requires a client initialized with a storeId
 
 ```javascript
-const store = await {{appCamelCaseName}}.getStore({
-  name: "FGA Demo Store",
-});
+const store = await fgaClient.getStore();
 
 // store = { "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }
 ```
 
-#### Delete Store
+##### Delete Store
+
+Delete a store.
 
 [API Documentation]({{apiDocsUrl}}#/Stores/DeleteStore)
 
 > Requires a client initialized with a storeId
 
 ```javascript
-await {{appCamelCaseName}}.deleteStore();
+await fgaClient.deleteStore();
 ```
 
-#### Write Authorization Model
+#### Authorization Models
+
+##### Read Authorization Models
+
+Read all authorization models.
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModels)
+
+>  Requires a client initialized with a storeId
+
+```javascript
+const options = { pageSize: 10, continuationToken: "..." };
+
+const { authorization_models: authorizationModels } = await fgaClient.readAuthorizationModels(options);
+
+/*
+authorizationModels = [
+ { id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw", type_definitions: [...] },
+ { id: "GtQpMohWezFmIbyXxVEocOCxxgq", type_definitions: [...] }];
+*/
+```
+
+##### Write Authorization Model
+
+Create a new version of the authorization model.
 
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/WriteAuthorizationModel)
 
@@ -54,8 +93,10 @@ await {{appCamelCaseName}}.deleteStore();
 
 > Learn more about [the {{appName}} configuration language]({{docsUrl}}/configuration-language).
 
+> You can use the [OpenFGA Syntax Transformer](https://github.com/openfga/syntax-transformer) to convert between the friendly DSL and the JSON authorization model.
+
 ```javascript
-const { authorization_model_id: id } = await {{appCamelCaseName}}.writeAuthorizationModel({
+const { authorization_model_id: id } = await fgaClient.writeAuthorizationModel({
   type_definitions: [{
       type: "user",
     }, {
@@ -79,150 +120,42 @@ const { authorization_model_id: id } = await {{appCamelCaseName}}.writeAuthoriza
 // id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"
 ```
 
-#### Read a Single Authorization Model
+##### Read a Single Authorization Model
 
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
 
 > Requires a client initialized with a storeId
 
 ```javascript
-// Assuming `1uHxCSuTP0VKPYSnkq1pbb1jeZw` is an id of a single model
-const { authorization_model: authorizationModel } = await {{appCamelCaseName}}.readAuthorizationModel('1uHxCSuTP0VKPYSnkq1pbb1jeZw');
+const options = {};
+
+// To override the authorization model id for this request
+options.authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
+
+const { authorization_model: authorizationModel } = await fgaClient.readAuthorizationModel(options);
 
 // authorizationModel = { id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw", type_definitions: [...] }
 ```
 
-#### Read Authorization Model IDs
+##### Read the Latest Authorization Model
 
-[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModels)
+Reads the latest authorization model (note: this ignores the model id in configuration).
 
-```javascript
-const { authorization_model_ids: authorizationModelIds } = await {{appCamelCaseName}}.readAuthorizationModels();
-
-// authorizationModelIds = ["1uHxCSuTP0VKPYSnkq1pbb1jeZw", "GtQpMohWezFmIbyXxVEocOCxxgq"];
-```
-
-#### Check
-
-[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Check)
-
-> Requires a client initialized with a storeId
-
-> Provide a tuple and ask the {{appName}} API to check for a relationship
-
-```javascript
-const result = await {{appCamelCaseName}}.check({
-  tuple_key: {
-    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-    relation: "viewer",
-    object: "document:roadmap",
-  },
-  authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
-});
-
-// result = { allowed: true, resolution: "" }
-```
-
-#### Write Tuples
-
-[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
 
 > Requires a client initialized with a storeId
 
 ```javascript
-await {{appCamelCaseName}}.write({
-  writes: {
-    tuple_keys: [{ user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b", relation: "viewer", object: "document:roadmap" }],
-  },
-  authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
-});
+const { authorization_model: authorizationModel } = await fgaClient.readLatestAuthorizationModel();
 
+// authorizationModel = { id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw", type_definitions: [...] }
 ```
 
-#### Delete Tuples
+#### Relationship Tuples
 
-[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
+##### Read Relationship Tuple Changes (Watch)
 
-> Requires a client initialized with a storeId
-
-```javascript
-await {{appCamelCaseName}}.write({
-  deletes: {
-    tuple_keys: [{ user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b", relation: "viewer", object: "document:roadmap" }],
-  },
-  authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
-});
-
-```
-
-#### Expand
-
-[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Expand)
-
-> Requires a client initialized with a storeId
-
-```javascript
-const { tree } = await {{appCamelCaseName}}.expand({
-  tuple_key: {
-    relation: "viewer",
-    object: "document:roadmap",
-  },
-  authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
-});
-
-// tree  = { root: { name: "document:roadmap#viewer", leaf: { users: { users: ["user:81684243-9356-4421-8fbf-a4f8d36aa31b", "user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"] } } } }
-```
-
-#### Read Tuples
-
-[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Read)
-
-> Requires a client initialized with a storeId
-
-```javascript
-// Find if a relationship tuple stating that a certain user is a viewer of a certain document
-const body = {
-  tuple_key: {
-    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-    relation: "viewer",
-    object: "document:roadmap",
-  },
-};
-
-// Find all relationship tuples where a certain user has a relationship as any relation to a certain document
-const body = {
-  tuple_key: {
-    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-    object: "document:roadmap",
-  },
-};
-
-// Find all relationship tuples where a certain user is a viewer of any document
-const body = {
-  tuple_key: {
-    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-    relation: "viewer",
-    object: "document:",
-  },
-};
-
-// Find all relationship tuples where any user has a relationship as any relation with a particular document
-const body = {
-  tuple_key: {
-    object: "document:roadmap",
-  },
-};
-
-// Read all stored relationship tuples
-body := {};
-
-const { tuples } = await {{appCamelCaseName}}.read(body);
-
-// In all the above situations, the response will be of the form:
-// tuples = [{ key: { user, relation, object }, timestamp: ... }]
-```
-
-#### Read Changes (Watch)
+Reads the list of historical relationship tuple writes and deletes.
 
 > Requires a client initialized with a storeId
 
@@ -230,9 +163,12 @@ const { tuples } = await {{appCamelCaseName}}.read(body);
 
 ```javascript
 const type = 'document';
-const pageSize = 25;
-const continuationToken = 'eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==';
-const response = await {{appCamelCaseName}}.readChanges(type, pageSize, continuationToken);
+const options = {
+  pageSize: 25,
+  continuationToken: 'eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==',
+};
+
+const response = await fgaClient.readChanges({ type }, options);
 
 // response.continuation_token = ...
 // response.changes = [
@@ -241,27 +177,288 @@ const response = await {{appCamelCaseName}}.readChanges(type, pageSize, continua
 // ]
 ```
 
-#### List Objects
+##### Read Relationship Tuples
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Read)
+
+> Requires a client initialized with a storeId
+
+```javascript
+// Find if a relationship tuple stating that a certain user is a viewer of a certain document
+const body = {
+  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+  relation: "viewer",
+  object: "document:roadmap",
+};
+
+// Find all relationship tuples where a certain user has any relation to a certain document
+const body = {
+  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+  object: "document:roadmap",
+};
+
+// Find all relationship tuples where a certain user is a viewer of any document
+const body = {
+  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+  relation: "viewer",
+  object: "document:",
+};
+
+// Find all relationship tuples where a certain user has any relation with any document
+const body = {
+  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+  object: "document:",
+};
+
+// Find all relationship tuples where any user has any relation with a particular document
+const body = {
+  object: "document:roadmap",
+};
+
+// Read all stored relationship tuples
+const body = {};
+
+const { tuples } = await fgaClient.read(body);
+
+// In all the above situations, the response will be of the form:
+// tuples = [{ key: { user, relation, object }, timestamp: ... }]
+```
+
+##### Write (Create and Delete) Relationship Tuples
+
+Create and/or delete relationship tuples to update the system state.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
+
+> Requires a client initialized with a storeId
+
+###### Transaction mode (default)
+
+By default, write runs in a transaction mode where any invalid operation (deleting a non-exiting tuple, creating an existing tuple, one of the tuples was invalid) or a server error will fail the entire operation.
+
+```javascript
+const options = {};
+
+// To override the authorization model id for this request
+options.authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
+
+await fgaClient.write({
+  writes: [{ user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b", relation: "viewer", object: "document:roadmap" }],
+  deletes: [{ user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b", relation: "editor", object: "document:roadmap" }],
+}, options);
+
+// Convenience functions are available
+await fgaClient.writeTuples([{ user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b", relation: "viewer", object: "document:roadmap" }], options);
+await fgaClient.deleteTuples([{ user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b", relation: "editor", object: "document:roadmap" }], options);
+
+// if any error is encountered in the transaction mode, an error will be thrown
+```
+
+###### Non-transaction mode
+
+The SDK will split the writes into separate requests and send them sequentially to avoid violating rate limits.
+
+```
+// if you'd like to disable the transaction mode for writes (requests will be sent in parallel writes)
+options.transaction = { disable: true };
+
+const response = await fgaClient.write({
+  writes: [{ user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b", relation: "viewer", object: "document:roadmap" }],
+  deletes: [{ user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b", relation: "editor", object: "document:roadmap" }],
+}, options);
+
+/*
+response = {
+  writes: [{ tuple_key: { user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b", relation: "viewer", object: "document:roadmap", status: "success" } }],
+  deletes: [{ tuple_key: { user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b", relation: "editor", object: "document:roadmap", status: "failure", err: <FgaError ...>  } }],
+};
+*/
+```
+
+#### Relationship Queries
+
+##### Check
+
+Check if a user has a particular relation with an object.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Check)
+
+> Requires a client initialized with a storeId
+
+```javascript
+const options = {
+  // if you'd like to override the authorization model id for this request
+  authorizationModelId: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
+};
+
+const result = await fgaClient.check({
+  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+  relation: "viewer",
+  object: "document:roadmap",
+}, options);
+
+// result = { allowed: true }
+```
+
+##### Batch Check
+
+Run a set of [checks](#check). Batch Check will return `allowed: false` if it encounters an error, and will return the error in the body.
+If 429s or 5xxs are encountered, the underlying check will retry up to {{defaultMaxRetryClientOverride}} times before giving up.
+
+> Requires a client initialized with a storeId
+
+```javascript
+const options = {
+  // if you'd like to override the authorization model id for this request
+  authorizationModelId: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
+}
+const { responses } = await fgaClient.batchCheck([{
+  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+  relation: "viewer",
+  object: "document:budget",
+}, {
+  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+  relation: "member",
+  object: "document:budget",
+}, {
+  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+  relation: "viewer",
+  object: "document:roadmap",
+  contextual_tuples: [{
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation: "writer",
+    object: "document:roadmap"
+  }],
+}], options);
+
+/*
+responses = [{
+  allowed: false,
+  _request: {
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation: "viewer",
+    object: "document:budget",
+  }
+}, {
+  allowed: false,
+  _request: {
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation: "member",
+    object: "document:budget",
+  },
+  err: <FgaError ...>
+}, {
+  allowed: true,
+  _request: {
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation: "viewer",
+    object: "document:roadmap",
+    contextual_tuples: [{
+      user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+      relation: "writer",
+      object: "document:roadmap"
+    }],
+  }},
+]
+*/
+```
+
+#### Expand
+
+Expands the relationships in userset tree format.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Expand)
+
+> Requires a client initialized with a storeId
+
+```javascript
+const options = {};
+
+// To override the authorization model id for this request
+options.authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
+
+const { tree } = await fgaClient.expand({
+  relation: "viewer",
+  object: "document:roadmap",
+}, options);
+
+// tree  = { root: { name: "document:roadmap#viewer", leaf: { users: { users: ["user:81684243-9356-4421-8fbf-a4f8d36aa31b", "user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"] } } } }
+```
+
+##### List Objects
+
+ List the objects of a particular type that the user has a certain relation to.
 
 > Requires a client initialized with a storeId
 
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/ListObjects)
 
 ```javascript
-const response = await {{appCamelCaseName}}.listObjects({
-  authorization_model_id: "01GAHCE4YVKPQEKZQHT2R89MQV",
+const options = {};
+
+// To override the authorization model id for this request
+options.authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
+
+const response = await fgaClient.listObjects({
   user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
   relation: "viewer",
   type: "document",
-  contextual_tuples: {
-    tuple_keys:
-      [{
-        user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-        relation: "writer",
-        object: "document:budget"
-      }]
-  }
-});
+  contextual_tuples: [{
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation: "writer",
+    object: "document:budget"
+  }],
+}, options);
 
 // response.objects = ["document:roadmap"]
+```
+
+#### Assertions
+
+##### Read Assertions
+
+Read assertions for a particular authorization model.
+
+> Requires a client initialized with a storeId
+
+[API Documentation]({{apiDocsUrl}}#/Assertions/Read%20Assertions)
+
+```javascript
+const options = {};
+
+// To override the authorization model id for this request
+options.authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
+
+const response = await fgaClient.readAssertions(options);
+
+/*
+response.assertions = [{
+  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+  relation: "viewer",
+  object: "document:roadmap",
+  expectation: true,
+}];
+*/
+```
+
+##### Write Assertions
+
+Update the assertions for a particular authorization model.
+
+> Requires a client initialized with a storeId
+
+[API Documentation]({{apiDocsUrl}}#/Assertions/Write%20Assertions)
+
+```javascript
+const options = {};
+
+// To override the authorization model id for this request
+options.authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
+
+const response = await fgaClient.writeAssertions([{
+  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+  relation: "viewer",
+  object: "document:roadmap",
+  expectation: true,
+}], options);
 ```

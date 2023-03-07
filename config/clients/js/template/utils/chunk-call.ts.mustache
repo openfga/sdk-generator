@@ -1,0 +1,16 @@
+{{>partial_header}}
+
+import chunkArray from "./chunk-array";
+
+export async function chunkSequentialCall<T = any, W = any>(
+  fnToCall: (chunk: T[]) => Promise<W>,
+  dataArray: T[],
+  maxPerChunk: number,
+): Promise<Awaited<W>[]> {
+  const chunkedSet = chunkArray<T>(dataArray, maxPerChunk);
+  const results = [];
+  for (const chunk of chunkedSet) {
+    results.push(await fnToCall(chunk));
+  }
+  return results;
+}

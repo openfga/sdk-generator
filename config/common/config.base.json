@@ -26,7 +26,6 @@
   "discordServerId": "759188666072825867",
   "discordChannelId": "930524706854031421",
   "templateDir": "/config/template",
-  "retryMaxAllowedNumber": 5,
   "sampleApiDomain": "fga.example",
   "packageTags": [
     "openfga",
@@ -87,6 +86,11 @@
     },
     ".github/workflows/semgrep.yaml": {}
   },
-  "defaultMaxRetry": 3,
-  "defaultMinWaitInMs": 100
+  "retryMaxAllowedNumber": 15,
+  "defaultMaxRetry": 5,
+  "defaultMinWaitInMs": 100,
+  "defaultMaxRetryClientOverride": 15,
+  "clientMaxMethodParallelRequests": 10,
+  "clientMethodHeader": "X-OpenFGA-Client-Method",
+  "clientBulkRequestIdHeader": "X-OpenFGA-Client-Bulk-Request-Id"
 }

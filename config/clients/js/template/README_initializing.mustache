@@ -1,28 +1,56 @@
-Without an API Token
+The documentation below refers to the `{{appShortName}}Client`, to read the documentation for `{{appShortName}}Api`, check out the [`v0.2.2` documentation](https://github.com/openfga/js-sdk/tree/v0.2.2#readme).
+
+> The {{appShortName}}Client will by default retry API requests up to {{defaultMaxRetryClientOverride}} times on 429 and 5xx errors.
+
+#### No Credentials
 
 ```javascript
-const { {{appShortName}}Api } = require('{{packageName}}'); // OR import { {{appShortName}}Api } from '{{packageName}}';
+const { {{appShortName}}Client } = require('{{packageName}}'); // OR import { {{appShortName}}Client } from '{{packageName}}';
 
-const {{appCamelCaseName}} = new {{appShortName}}Api({
+const fgaClient = new {{appShortName}}Client({
   apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
   apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
   storeId: {{appUpperCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
+  authorizationModelId: {{appUpperCaseName}}_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
 });
 ```
 
-With an API Token
+#### API Token
 
 ```javascript
-const { {{appShortName}}Api } = require('{{packageName}}'); // OR import { {{appShortName}}Api } from '{{packageName}}';
+const { {{appShortName}}Client } = require('{{packageName}}'); // OR import { {{appShortName}}Client } from '{{packageName}}';
 
-const {{appCamelCaseName}} = new {{appShortName}}Api({
+const fgaClient = new {{appShortName}}Client({
   apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
   apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
   storeId: {{appUpperCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
+  authorizationModelId: {{appUpperCaseName}}_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
   credentials: {
     method: CredentialsMethod.ApiToken,
     config: {
       token: {{appUpperCaseName}}_API_TOKEN, // will be passed as the "Authorization: Bearer ${ApiToken}" request header
+    }
+  }
+});
+```
+
+#### Client Credentials
+
+```javascript
+const { {{appShortName}}Client } = require('{{packageName}}'); // OR import { {{appShortName}}Client } from '{{packageName}}';
+
+const fgaClient = new {{appShortName}}Client({
+  apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
+  apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+  storeId: {{appUpperCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
+  authorizationModelId: {{appUpperCaseName}}_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
+  credentials: {
+    method: CredentialsMethod.ClientCredentials,
+    config: {
+      apiTokenIssuer: {{appUpperCaseName}}_API_TOKEN_ISSUER,
+      apiAudience: {{appUpperCaseName}}_API_AUDIENCE,
+      clientId: {{appUpperCaseName}}_CLIENT_ID,
+      clientSecret: {{appUpperCaseName}}_CLIENT_SECRET,
     }
   }
 });
