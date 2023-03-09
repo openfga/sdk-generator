@@ -91,6 +91,7 @@
   "defaultMinWaitInMs": 100,
   "defaultMaxRetryClientOverride": 15,
   "clientMaxMethodParallelRequests": 10,
+  "clientDefaultWaitTimeBetweenChunksInMs": 100,
   "clientMethodHeader": "X-OpenFGA-Client-Method",
   "clientBulkRequestIdHeader": "X-OpenFGA-Client-Bulk-Request-Id"
 }
