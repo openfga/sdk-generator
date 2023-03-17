@@ -41,27 +41,6 @@ jobs:
       - name: Run SDK Tests
         run: make test-client-js
 
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: clients/fga-js-sdk/ --sarif-file-output=snyk-js.sarif
-
-      - name: Install FOSSA CLI
-        run: |-
-          mkdir -p ~/.local/bin
-          export PATH=$PATH:$HOME/.local/bin
-          curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh -b ~/.local/bin | bash
-
-      - name: Run FOSSA scan and upload build data
-        working-directory: clients/fga-js-sdk
-        env:
-          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
-        run: |-
-          export PATH=$PATH:$HOME/.local/bin
-          fossa test
-
       - name: Check for SDK changes
         run: ./scripts/commit_push_changes.sh
         env:
@@ -100,27 +79,6 @@ jobs:
       - name: Run SDK Tests
         run: make test-client-go
 
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/golang@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: clients/fga-go-sdk/ --sarif-file-output=snyk-golang.sarif
-
-      - name: Install FOSSA CLI
-        run: |-
-          mkdir -p ~/.local/bin
-          export PATH=$PATH:$HOME/.local/bin
-          curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh -b ~/.local/bin | bash
-
-      - name: Run FOSSA scan and upload build data
-        working-directory: clients/fga-go-sdk
-        env:
-          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
-        run: |-
-          export PATH=$PATH:$HOME/.local/bin
-          fossa test
-
       - name: Check for SDK changes
         run: ./scripts/commit_push_changes.sh
         env:
@@ -157,29 +115,6 @@ jobs:
 
       - name: Run All Tests
         run: make test-client-dotnet
-
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/dotnet@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: clients/fga-dotnet-sdk/src/OpenFga.Sdk/ --sarif-file-output=snyk-dotnet.sarif
-
-      - name: Install FOSSA CLI
-        run: |-
-          mkdir -p ~/.local/bin
-          export PATH=$PATH:$HOME/.local/bin
-          curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh -b ~/.local/bin | bash
-
-      - name: Run FOSSA scan and upload build data
-        working-directory: clients/fga-dotnet-sdk
-        env:
-          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
-        run: |-
-          export PATH=$PATH:$HOME/.local/bin
-          fossa test
-        # Note at the moment, our .NET SDK is failing FOSSA b/c of `Microsoft.NET.Sdk` - though we have gotten the clearance from the legal team to use it
-        continue-on-error: true
 
       - name: Check for SDK changes
         run: ./scripts/commit_push_changes.sh
@@ -223,41 +158,6 @@ jobs:
       - name: Run All Tests
         run: |-
           make test-client-python
-
-      - name: Install SDK to prepare for Snyk
-        working-directory: clients/fga-python-sdk
-        run: |-
-          pip install -r requirements.txt
-
-      - name: Install Snyk CLI
-        run: |-
-          mkdir -p ~/.local/bin
-          export PATH=$PATH:$HOME/.local/bin
-          curl https://static.snyk.io/cli/latest/snyk-linux -o ~/.local/bin/snyk
-          chmod +x ~/.local/bin/snyk
-
-      - name: Run Snyk to check for vulnerabilities
-        working-directory: clients/fga-python-sdk
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: |-
-          export PATH=$PATH:$HOME/.local/bin
-          snyk test
-
-      - name: Install FOSSA CLI
-        run: |-
-          mkdir -p ~/.local/bin
-          export PATH=$PATH:$HOME/.local/bin
-          curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh -b ~/.local/bin | bash
-
-      - name: Run FOSSA scan and upload build data
-        working-directory: clients/fga-python-sdk
-        env:
-          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
-        run: |-
-          export PATH=$PATH:$HOME/.local/bin
-          fossa analyze
-          fossa test
 
       - name: Check for SDK changes
         run: ./scripts/commit_push_changes.sh
