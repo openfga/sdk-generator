@@ -1,22 +1,26 @@
-Without an API Token
+The documentation below refers to the `{{packageName}}Client`, to read the documentation for `{{packageName}}Api`, check out the [`v0.2.1` documentation](https://github.com/openfga/dotnet-sdk/tree/v0.2.1#readme).
+
+> The {{packageName}}Client will by default retry API requests up to 15 times on 429 and 5xx errors.
+
+#### No Credentials
 
 ```csharp
-using {{packageName}}.{{apiPackage}};
 using {{packageName}}.Client;
-using {{packageName}}.Configuration;
-using {{packageName}}.{{modelPackage}};
+using {{packageName}}.Client.Model;
+using {{packageName}}.Model;
 
 namespace Example {
-    public class {{operationId}}Example {
+    public class Example {
         public static void Main() {
             try {
-                var configuration = new Configuration() {
+                var configuration = new ClientConfiguration() {
                     ApiScheme = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
-                    ApiHost = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+                    ApiHost = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
                     StoreId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+                    AuthorizationModelId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_AUTHORIZATION_MODEL_ID"), // Optional, can be overridden per request
                 };
-                var {{appCamelCaseName}}Api = new {{appShortName}}Api(configuration);
-                var response = {{appCamelCaseName}}Api.ReadAuthorizationModels();
+                var fgaClient = new {{appShortName}}Client(configuration);
+                var response = fgaClient.ReadAuthorizationModels();
             } catch (ApiException e) {
                  Debug.Print("Status Code: "+ e.ErrorCode);
             }
@@ -25,22 +29,22 @@ namespace Example {
 }
 ```
 
-With an API Token
+#### API Token
 
 ```csharp
-using {{packageName}}.{{apiPackage}};
 using {{packageName}}.Client;
-using {{packageName}}.Configuration;
-using {{packageName}}.{{modelPackage}};
+using {{packageName}}.Client.Model;
+using {{packageName}}.Model;
 
 namespace Example {
-    public class {{operationId}}Example {
+    public class Example {
         public static async void Main() {
             try {
-                var configuration = new Configuration() {
+                var configuration = new ClientConfiguration() {
                     ApiScheme = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
-                    ApiHost = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+                    ApiHost = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
                     StoreId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+                    AuthorizationModelId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_AUTHORIZATION_MODEL_ID"), // Optional, can be overridden per request
                     Credentials = new Credentials() {
                         Method = CredentialsMethod.ApiToken,
                         Config = new CredentialsConfig() {
@@ -48,8 +52,44 @@ namespace Example {
                         }
                     }
                 };
-                var {{appCamelCaseName}}Api = new {{appShortName}}Api(configuration);
-                var response = await {{appCamelCaseName}}Api.ReadAuthorizationModels();
+                var fgaClient = new {{appShortName}}Client(configuration);
+                var response = await fgaClient.ReadAuthorizationModels();
+            } catch (ApiException e) {
+                 Debug.Print("Status Code: "+ e.ErrorCode);
+            }
+        }
+    }
+}
+```
+
+#### Client Credentials
+
+```csharp
+using {{packageName}}.Client;
+using {{packageName}}.Client.Model;
+using {{packageName}}.Model;
+
+namespace Example {
+    public class Example {
+        public static async void Main() {
+            try {
+                var configuration = new ClientConfiguration() {
+                    ApiScheme = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
+                    ApiHost = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
+                    StoreId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+                    AuthorizationModelId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_AUTHORIZATION_MODEL_ID"), // Optional, can be overridden per request
+                    Credentials = new Credentials() {
+                        Method = CredentialsMethod.ClientCredentials,
+                        Config = new CredentialsConfig() {
+                            ApiTokenIssuer = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_TOKEN_ISSUER"),
+                            ApiAudience = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_AUDIENCE"),
+                            ClientId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_CLIENT_ID"),
+                            ClientSecret = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_CLIENT_SECRET"),
+                        }
+                    }
+                };
+                var fgaClient = new {{appShortName}}Client(configuration);
+                var response = await fgaClient.ReadAuthorizationModels();
             } catch (ApiException e) {
                  Debug.Print("Status Code: "+ e.ErrorCode);
             }
