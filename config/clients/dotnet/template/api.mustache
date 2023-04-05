@@ -1,6 +1,6 @@
 {{>partial_header}}
 
-using {{packageName}}.Client;
+using {{packageName}}.ApiClient;
 using {{packageName}}.Exceptions;
 using {{packageName}}.{{modelPackage}};
 
@@ -8,7 +8,7 @@ namespace {{packageName}}.{{apiPackage}};
 
 public class {{classname}} : IDisposable {
     private Configuration.Configuration _configuration;
-    private ApiClient _apiClient;
+    private ApiClient.ApiClient _apiClient;
 
     /// <summary>
     /// Store ID
@@ -28,7 +28,7 @@ public class {{classname}} : IDisposable {
         HttpClient? httpClient = null
     ) {
         this._configuration = configuration;
-        this._apiClient = new ApiClient(_configuration, httpClient);
+        this._apiClient = new ApiClient.ApiClient(_configuration, httpClient);
     }
 
     {{#operations}}
