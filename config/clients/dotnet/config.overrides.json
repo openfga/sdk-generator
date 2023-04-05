@@ -41,23 +41,24 @@
       "templateType": "SupportingFiles"
     },
     "Client_OAuth2Client.mustache": {
-      "destinationFilename": "src/OpenFga.Sdk/Client/OAuth2Client.cs",
+      "destinationFilename": "src/OpenFga.Sdk/ApiClient/OAuth2Client.cs",
       "templateType": "SupportingFiles"
     },
     "Client_ApiClient.mustache": {
-      "destinationFilename": "src/OpenFga.Sdk/Client/ApiClient.cs",
+      "destinationFilename": "src/OpenFga.Sdk/ApiClient/ApiClient.cs",
       "templateType": "SupportingFiles"
     },
     "Client_BaseClient.mustache": {
-      "destinationFilename": "src/OpenFga.Sdk/Client/BaseClient.cs",
+      "destinationFilename": "src/OpenFga.Sdk/ApiClient/BaseClient.cs",
       "templateType": "SupportingFiles"
     },
     "Client_RequestBuilder.mustache": {
-      "destinationFilename": "src/OpenFga.Sdk/Client/RequestBuilder.cs",
+      "destinationFilename": "src/OpenFga.Sdk/ApiClient/RequestBuilder.cs",
       "templateType": "SupportingFiles"
     },
     "Client_Utils.mustache": {
-      "destinationFilename": "src/OpenFga.Sdk/Client/Utils.cs",
+      "destinationFilename": "src/OpenFga.Sdk/ApiClient/Utils.cs",
+      "templateType": "SupportingFiles"
       "templateType": "SupportingFiles"
     },
     "Configuration_Configuration.mustache": {

@@ -76,7 +76,7 @@ public class {{classname}} : IDisposable {
             {{#bodyParam}}
             Body = Utils.CreateJsonStringContent({{paramName}}),
             {{/bodyParam}}
-            QueryParameters = queryParams
+            QueryParameters = queryParams,
         };
 
         {{#returnType}}return {{/returnType}}await this._apiClient.SendRequestAsync{{#returnType}}<{{{.}}}>{{/returnType}}(requestBuilder,
