@@ -80,6 +80,10 @@
       "destinationFilename": "src/OpenFga.Sdk/Exceptions/ApiException.cs",
       "templateType": "SupportingFiles"
     },
+    "Exceptions_ApiNotFoundError.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Exceptions/ApiNotFoundError.cs",
+      "templateType": "SupportingFiles"
+    },
     "Exceptions_ApiInternalError.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Exceptions/ApiInternalError.cs",
       "templateType": "SupportingFiles"
