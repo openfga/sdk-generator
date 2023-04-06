@@ -76,8 +76,8 @@ const { authorization_models: authorizationModels } = await fgaClient.readAuthor
 
 /*
 authorizationModels = [
- { id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw", type_definitions: [...] },
- { id: "GtQpMohWezFmIbyXxVEocOCxxgq", type_definitions: [...] }];
+ { id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw", schema_version: "1.1", type_definitions: [...] },
+ { id: "GtQpMohWezFmIbyXxVEocOCxxgq", schema_version: "1.1", type_definitions: [...] }];
 */
 ```
 
@@ -97,6 +97,7 @@ Create a new version of the authorization model.
 
 ```javascript
 const { authorization_model_id: id } = await fgaClient.writeAuthorizationModel({
+  schema_version: "1.1",
   type_definitions: [{
       type: "user",
     }, {
@@ -134,7 +135,7 @@ options.authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
 
 const { authorization_model: authorizationModel } = await fgaClient.readAuthorizationModel(options);
 
-// authorizationModel = { id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw", type_definitions: [...] }
+// authorizationModel = { id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw", schema_version: "1.1", type_definitions: [...] }
 ```
 
 ##### Read the Latest Authorization Model
@@ -148,7 +149,7 @@ Reads the latest authorization model (note: this ignores the model id in configu
 ```javascript
 const { authorization_model: authorizationModel } = await fgaClient.readLatestAuthorizationModel();
 
-// authorizationModel = { id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw", type_definitions: [...] }
+// authorizationModel = { id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw", schema_version: "1.1", type_definitions: [...] }
 ```
 
 #### Relationship Tuples
