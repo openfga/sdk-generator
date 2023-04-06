@@ -115,7 +115,8 @@ async def write_authorization_model():
     # Create an instance of the API class
     api_client = openfga_sdk.ApiClient(configuration)
     api_instance = open_fga_api.OpenFgaApi(api_client)
-    type_definitions = WriteAuthorizationModelRequest(
+    body = WriteAuthorizationModelRequest(
+        schema_version = "1.1",
         type_definitions=[
             TypeDefinition(
                 type="user",
@@ -142,7 +143,7 @@ async def write_authorization_model():
         ],
     )
 
-    response = await api_instance.write_authorization_model(type_definitions)
+    response = await api_instance.write_authorization_model(body)
     # response.authorization_model_id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"
     await api_client.close()
 ```
@@ -167,7 +168,7 @@ async def read_authorization_id():
     id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw" #  Assuming `1uHxCSuTP0VKPYSnkq1pbb1jeZw` is an id of an existing model
 
     response = await api_instance.read_authorization_model(id)
-    # response.authorization_model =  AuthorizationModel(id='1uHxCSuTP0VKPYSnkq1pbb1jeZw', type_definitions=type_definitions[...])
+    # response.authorization_model =  AuthorizationModel(id='1uHxCSuTP0VKPYSnkq1pbb1jeZw', schema_version = '1.1', type_definitions=type_definitions[...])
     await api_client.close()
 ```
 
@@ -189,7 +190,7 @@ async def read_authorization_models():
     api_instance = open_fga_api.OpenFgaApi(api_client)
 
     response = await api_instance.read_authorization_models()
-    # response.authorization_models = [AuthorizationModel(id='1uHxCSuTP0VKPYSnkq1pbb1jeZw', type_definitions=type_definitions[...], AuthorizationModel(id='GtQpMohWezFmIbyXxVEocOCxxgq', type_definitions=type_definitions[...])]
+    # response.authorization_models = [AuthorizationModel(id='1uHxCSuTP0VKPYSnkq1pbb1jeZw', schema_version = '1.1', type_definitions=type_definitions[...], AuthorizationModel(id='GtQpMohWezFmIbyXxVEocOCxxgq', schema_version = '1.1', type_definitions=type_definitions[...])]
     await api_client.close()
 ```
 

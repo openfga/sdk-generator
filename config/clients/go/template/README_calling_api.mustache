@@ -115,7 +115,7 @@ fmt.Printf("%s", data.AuthorizationModelId) // 1uHxCSuTP0VKPYSnkq1pbb1jeZw
 // Assuming `1uHxCSuTP0VKPYSnkq1pbb1jeZw` is an id of a single model
 data, response, err := apiClient.{{appShortName}}Api.ReadAuthorizationModel(context.Background(), "1uHxCSuTP0VKPYSnkq1pbb1jeZw").Execute()
 
-// data = {"authorization_model":{"id":"1uHxCSuTP0VKPYSnkq1pbb1jeZw","type_definitions":[{"type":"document","relations":{"writer":{"this":{}},"viewer":{ ... }}},{"type":"user"}]}} // JSON
+// data = {"authorization_model":{"id":"1uHxCSuTP0VKPYSnkq1pbb1jeZw","schema_version":"1.1","type_definitions":[{"type":"document","relations":{"writer":{"this":{}},"viewer":{ ... }}},{"type":"user"}]}} // JSON
 
 fmt.Printf("%s", data.AuthorizationModel.Id) // 1uHxCSuTP0VKPYSnkq1pbb1jeZw
 ```

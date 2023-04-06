@@ -488,6 +488,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
 {
   "authorization_model": {
     "id": "01G5JAVJ41T49E9TT3SKVS7X1J",
+    "schema_version":"1.1",
     "type_definitions": [
       {
         "type": "document",
@@ -550,7 +551,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
 		            )
                 )
             ]
-            authorization_model = AuthorizationModel(id='01G5JAVJ41T49E9TT3SKVS7X1J',
+            authorization_model = AuthorizationModel(id='01G5JAVJ41T49E9TT3SKVS7X1J', schema_version = "1.1",
                 type_definitions=type_definitions)
             self.assertEqual(api_response.authorization_model, authorization_model)
             mock_request.assert_called_once_with(
@@ -762,6 +763,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
 
             # example passing only required values which don't have defaults set
             body = WriteAuthorizationModelRequest(
+                schema_version = "1.1",
                 type_definitions=[
                     TypeDefinition(
                         type="document",
@@ -799,7 +801,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 headers=ANY,
                 query_params=[],
                 post_params=[],
-                body={"type_definitions":[{"type":"document","relations":{"writer":{"this":{}},"reader":{"union":{"child":[{"this":{}},{"computedUserset":{"object":"","relation":"writer"}}]}}}}]},
+                body={"schema_version":"1.1","type_definitions":[{"type":"document","relations":{"writer":{"this":{}},"reader":{"union":{"child":[{"this":{}},{"computedUserset":{"object":"","relation":"writer"}}]}}}}]},
                 _preload_content=ANY,
                 _request_timeout=None
             )
