@@ -11,7 +11,7 @@ using {{packageName}}.Model;
 
 namespace Example {
     public class Example {
-        public static void Main() {
+        public static async void Main() {
             try {
                 var configuration = new ClientConfiguration() {
                     ApiScheme = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
@@ -20,9 +20,9 @@ namespace Example {
                     AuthorizationModelId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_AUTHORIZATION_MODEL_ID"), // Optional, can be overridden per request
                 };
                 var fgaClient = new {{appShortName}}Client(configuration);
-                var response = fgaClient.ReadAuthorizationModels();
+                var response = await fgaClient.ReadAuthorizationModels();
             } catch (ApiException e) {
-                 Debug.Print("Status Code: "+ e.ErrorCode);
+                 Debug.Print("Error: "+ e);
             }
         }
     }
@@ -55,7 +55,7 @@ namespace Example {
                 var fgaClient = new {{appShortName}}Client(configuration);
                 var response = await fgaClient.ReadAuthorizationModels();
             } catch (ApiException e) {
-                 Debug.Print("Status Code: "+ e.ErrorCode);
+                 Debug.Print("Error: "+ e);
             }
         }
     }
@@ -91,7 +91,7 @@ namespace Example {
                 var fgaClient = new {{appShortName}}Client(configuration);
                 var response = await fgaClient.ReadAuthorizationModels();
             } catch (ApiException e) {
-                 Debug.Print("Status Code: "+ e.ErrorCode);
+                 Debug.Print("Error: "+ e);
             }
         }
     }

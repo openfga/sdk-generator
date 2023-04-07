@@ -51,7 +51,7 @@ public class {{classname}} : IDisposable {
         var pathParams = new Dictionary<string, string> {};
         {{#pathParams.0}}
         if (string.IsNullOrWhiteSpace(_configuration.StoreId)) {
-            throw new FgaRequiredParamError("Configuration", nameof(_configuration.StoreId));
+            throw new FgaRequiredParamError("{{operationId}}", nameof(_configuration.StoreId));
         }
         pathParams.Add("store_id", _configuration.StoreId);
         {{/pathParams.0}}
