@@ -36,7 +36,7 @@ func main() {
         StoreId:        os.Getenv("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
         Credentials: &credentials.Credentials{
             Method: credentials.CredentialsMethodApiToken,
-            Config: {
+            Config: &credentials.Config{
                 ApiToken: os.Getenv("{{appUpperCaseName}}_API_TOKEN"), // will be passed as the "Authorization: Bearer ${ApiToken}" request header
             },
         },
