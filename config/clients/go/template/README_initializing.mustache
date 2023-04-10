@@ -1,4 +1,4 @@
-Without an API Token
+#### No Credentials
 
 ```golang
 import (
@@ -21,7 +21,7 @@ func main() {
 }
 ```
 
-With an API Token
+#### API Token
 
 ```golang
 import (
@@ -36,8 +36,40 @@ func main() {
         StoreId:        os.Getenv("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
         Credentials: &credentials.Credentials{
             Method: credentials.CredentialsMethodApiToken,
-            Config: {
+            Config: &credentials.Config{
                 ApiToken: os.Getenv("{{appUpperCaseName}}_API_TOKEN"), // will be passed as the "Authorization: Bearer ${ApiToken}" request header
+            },
+        },
+    })
+
+    if err != nil {
+    // .. Handle error
+    }
+
+    apiClient := {{packageName}}.NewAPIClient(configuration)
+}
+```
+
+#### Client Credentials
+
+```golang
+import (
+    {{#lambda.lowercase}}{{appShortName}}{{/lambda.lowercase}} "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
+    "os"
+)
+
+func main() {
+    configuration, err := {{packageName}}.NewConfiguration({{packageName}}.Configuration{
+        ApiScheme:      os.Getenv("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
+        ApiHost:        os.Getenv("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+        StoreId:        os.Getenv("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+        Credentials: &credentials.Credentials{
+            Method: credentials.CredentialsMethodClientCredentials,
+            Config: &credentials.Config{
+                ClientCredentialsClientId:       os.Getenv("{{appUpperCaseName}}_CLIENT_ID"),
+                ClientCredentialsClientSecret:   os.Getenv("{{appUpperCaseName}}_CLIENT_SECRET"),
+                ClientCredentialsApiAudience:    os.Getenv("{{appUpperCaseName}}_API_AUDIENCE"),
+                ClientCredentialsApiTokenIssuer: os.Getenv("{{appUpperCaseName}}_API_TOKEN_ISSUER"),
             },
         },
     })
