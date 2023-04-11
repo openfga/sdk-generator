@@ -104,7 +104,7 @@ body  := {{packageName}}.WriteAuthorizationModelRequest{TypeDefinitions: []{{pac
 }}
 data, response, err := apiClient.{{appShortName}}Api.WriteAuthorizationModel(context.Background()).Body(body).Execute()
 
-fmt.Printf("%s", data.AuthorizationModelId) // 1uHxCSuTP0VKPYSnkq1pbb1jeZw
+fmt.Printf("%s", data.AuthorizationModelId) // 01GXSA8YR785C4FYS3C0RTG7B1
 ```
 
 #### Read a Single Authorization Model
@@ -112,12 +112,12 @@ fmt.Printf("%s", data.AuthorizationModelId) // 1uHxCSuTP0VKPYSnkq1pbb1jeZw
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
 
 ```golang
-// Assuming `1uHxCSuTP0VKPYSnkq1pbb1jeZw` is an id of a single model
-data, response, err := apiClient.{{appShortName}}Api.ReadAuthorizationModel(context.Background(), "1uHxCSuTP0VKPYSnkq1pbb1jeZw").Execute()
+// Assuming `01GXSA8YR785C4FYS3C0RTG7B1` is an id of a single model
+data, response, err := apiClient.{{appShortName}}Api.ReadAuthorizationModel(context.Background(), "01GXSA8YR785C4FYS3C0RTG7B1").Execute()
 
-// data = {"authorization_model":{"id":"1uHxCSuTP0VKPYSnkq1pbb1jeZw","schema_version":"1.1","type_definitions":[{"type":"document","relations":{"writer":{"this":{}},"viewer":{ ... }}},{"type":"user"}]}} // JSON
+// data = {"authorization_model":{"id":"01GXSA8YR785C4FYS3C0RTG7B1","schema_version":"1.1","type_definitions":[{"type":"document","relations":{"writer":{"this":{}},"viewer":{ ... }}},{"type":"user"}]}} // JSON
 
-fmt.Printf("%s", data.AuthorizationModel.Id) // 1uHxCSuTP0VKPYSnkq1pbb1jeZw
+fmt.Printf("%s", data.AuthorizationModel.Id) // 01GXSA8YR785C4FYS3C0RTG7B1
 ```
 
 #### Read Authorization Model IDs
@@ -127,9 +127,9 @@ fmt.Printf("%s", data.AuthorizationModel.Id) // 1uHxCSuTP0VKPYSnkq1pbb1jeZw
 ```golang
 data, response, err := apiClient.{{appShortName}}Api.ReadAuthorizationModels(context.Background()).Execute()
 
-// data = {"authorization_model_ids":["1uHxCSuTP0VKPYSnkq1pbb1jeZw","GtQpMohWezFmIbyXxVEocOCxxgq"]} // in JSON
+// data = {"authorization_model_ids":["01GXSA8YR785C4FYS3C0RTG7B1","01GXSBM5PVYHCJNRNKXMB4QZTW"]} // in JSON
 
-fmt.Printf("%s", (*data.AuthorizationModelIds)[0]) // 1uHxCSuTP0VKPYSnkq1pbb1jeZw
+fmt.Printf("%s", (*data.AuthorizationModelIds)[0]) // 01GXSA8YR785C4FYS3C0RTG7B1
 ```
 
 #### Check
@@ -145,7 +145,7 @@ body := {{packageName}}.CheckRequest{
 		Relation: {{packageName}}.PtrString("viewer"),
 		Object: {{packageName}}.PtrString("document:roadmap"),
 	},
-	AuthorizationModelId: {{packageName}}.PtrString("1uHxCSuTP0VKPYSnkq1pbb1jeZw"),
+	AuthorizationModelId: {{packageName}}.PtrString("01GXSA8YR785C4FYS3C0RTG7B1"),
 }
 data, response, err := apiClient.{{appShortName}}Api.Check(context.Background()).Body(body).Execute()
 
@@ -170,7 +170,7 @@ body := {{packageName}}.WriteRequest{
 			},
 		},
 	},
-	AuthorizationModelId: {{packageName}}.PtrString("1uHxCSuTP0VKPYSnkq1pbb1jeZw"),
+	AuthorizationModelId: {{packageName}}.PtrString("01GXSA8YR785C4FYS3C0RTG7B1"),
 }
 _, response, err := apiClient.{{appShortName}}Api.Write(context.Background()).Body(body).Execute()
 
@@ -191,7 +191,7 @@ body := {{packageName}}.WriteRequest{
 			},
 		},
 	},
-	AuthorizationModelId: {{packageName}}.PtrString("1uHxCSuTP0VKPYSnkq1pbb1jeZw"),
+	AuthorizationModelId: {{packageName}}.PtrString("01GXSA8YR785C4FYS3C0RTG7B1"),
 }
 _, response, err := apiClient.{{appShortName}}Api.Write(context.Background()).Body(body).Execute()
 
@@ -207,7 +207,7 @@ body := {{packageName}}.ExpandRequest{
 		Relation: {{packageName}}.PtrString("viewer"),
 		Object: {{packageName}}.PtrString("document:roadmap"),
 	},
-	AuthorizationModelId: {{packageName}}.PtrString("1uHxCSuTP0VKPYSnkq1pbb1jeZw"),
+	AuthorizationModelId: {{packageName}}.PtrString("01GXSA8YR785C4FYS3C0RTG7B1"),
 }
 data, response, err := apiClient.{{appShortName}}Api.Expand(context.Background()).Body(body).Execute()
 
@@ -287,7 +287,7 @@ data, response, err := apiClient.{{appShortName}}Api.ReadChanges(context.Backgro
 
 ```golang
 body := {{packageName}}.ListObjectsRequest{
-	AuthorizationModelId: {{packageName}}.PtrString("1uHxCSuTP0VKPYSnkq1pbb1jeZw"),
+	AuthorizationModelId: {{packageName}}.PtrString("01GXSA8YR785C4FYS3C0RTG7B1"),
     User:                 "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     Relation:             "viewer",
     Type:                 "document",
