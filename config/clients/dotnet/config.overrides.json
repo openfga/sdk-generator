@@ -92,6 +92,10 @@
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientCheckRequest.cs",
       "templateType": "SupportingFiles"
     },
+    "Client/Model/ClientCreateStoreOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientCreateStoreOptions.cs",
+      "templateType": "SupportingFiles"
+    },
     "Client/Model/ClientCreateStoreRequest.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientCreateStoreRequest.cs",
       "templateType": "SupportingFiles"
