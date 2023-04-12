@@ -1,6 +1,6 @@
 {{>partial_header}}
 
-using {{packageName}}.Client;
+using {{packageName}}.ApiClient;
 using {{packageName}}.Exceptions;
 using {{packageName}}.{{modelPackage}};
 
@@ -8,7 +8,7 @@ namespace {{packageName}}.{{apiPackage}};
 
 public class {{classname}} : IDisposable {
     private Configuration.Configuration _configuration;
-    private ApiClient _apiClient;
+    private ApiClient.ApiClient _apiClient;
 
     /// <summary>
     /// Store ID
@@ -28,7 +28,7 @@ public class {{classname}} : IDisposable {
         HttpClient? httpClient = null
     ) {
         this._configuration = configuration;
-        this._apiClient = new ApiClient(_configuration, httpClient);
+        this._apiClient = new ApiClient.ApiClient(_configuration, httpClient);
     }
 
     {{#operations}}
@@ -51,7 +51,7 @@ public class {{classname}} : IDisposable {
         var pathParams = new Dictionary<string, string> {};
         {{#pathParams.0}}
         if (string.IsNullOrWhiteSpace(_configuration.StoreId)) {
-            throw new FgaRequiredParamError("Configuration", nameof(_configuration.StoreId));
+            throw new FgaRequiredParamError("{{operationId}}", nameof(_configuration.StoreId));
         }
         pathParams.Add("store_id", _configuration.StoreId);
         {{/pathParams.0}}
@@ -76,7 +76,7 @@ public class {{classname}} : IDisposable {
             {{#bodyParam}}
             Body = Utils.CreateJsonStringContent({{paramName}}),
             {{/bodyParam}}
-            QueryParameters = queryParams
+            QueryParameters = queryParams,
         };
 
         {{#returnType}}return {{/returnType}}await this._apiClient.SendRequestAsync{{#returnType}}<{{{.}}}>{{/returnType}}(requestBuilder,

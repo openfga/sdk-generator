@@ -1,0 +1,9 @@
+{{>partial_header}}
+
+namespace {{packageName}}.Client.Model;
+
+public class ClientCheckOptions : IClientRequestOptionsWithAuthZModelId {
+
+    /// <inheritdoc />
+    public string? AuthorizationModelId { get; set; }
+}

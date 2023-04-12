@@ -10,7 +10,7 @@
   "packageGuid": "b8d9e3e9-0156-4948-9de7-5e0d3f9c4d9e",
   "testPackageGuid": "d119dfae-509a-4eba-a973-645b739356fc",
   "packageName": "OpenFga.Sdk",
-  "packageVersion": "0.2.1",
+  "packageVersion": "0.2.2",
   "licenseUrl": "https://github.com/openfga/dotnet-sdk/blob/main/LICENSE",
   "fossaComplianceNoticeId": "f8ac2ec4-84fc-44f4-a617-5800cd3d180e",
   "termsOfService": "",
@@ -41,23 +41,159 @@
       "templateType": "SupportingFiles"
     },
     "Client_OAuth2Client.mustache": {
-      "destinationFilename": "src/OpenFga.Sdk/Client/OAuth2Client.cs",
+      "destinationFilename": "src/OpenFga.Sdk/ApiClient/OAuth2Client.cs",
       "templateType": "SupportingFiles"
     },
     "Client_ApiClient.mustache": {
-      "destinationFilename": "src/OpenFga.Sdk/Client/ApiClient.cs",
+      "destinationFilename": "src/OpenFga.Sdk/ApiClient/ApiClient.cs",
       "templateType": "SupportingFiles"
     },
     "Client_BaseClient.mustache": {
-      "destinationFilename": "src/OpenFga.Sdk/Client/BaseClient.cs",
+      "destinationFilename": "src/OpenFga.Sdk/ApiClient/BaseClient.cs",
       "templateType": "SupportingFiles"
     },
     "Client_RequestBuilder.mustache": {
-      "destinationFilename": "src/OpenFga.Sdk/Client/RequestBuilder.cs",
+      "destinationFilename": "src/OpenFga.Sdk/ApiClient/RequestBuilder.cs",
       "templateType": "SupportingFiles"
     },
     "Client_Utils.mustache": {
-      "destinationFilename": "src/OpenFga.Sdk/Client/Utils.cs",
+      "destinationFilename": "src/OpenFga.Sdk/ApiClient/Utils.cs",
+      "templateType": "SupportingFiles"
+    },
+    "OpenFgaClientTests.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk.Test/Client/OpenFgaClientTests.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Client.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Client.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/ClientConfiguration.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/ClientConfiguration.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/AuthorizationModelIdOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/AuthorizationModelIdOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientBatchCheckOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientBatchCheckOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientBatchCheckResponse.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientBatchCheckResponse.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientCheckOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientCheckOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientCheckRequest.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientCheckRequest.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientCreateStoreOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientCreateStoreOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientCreateStoreRequest.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientCreateStoreRequest.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientExpandRequest.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientExpandRequest.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientListObjectsRequest.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientListObjectsRequest.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientListRelationsOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientListRelationsOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientListRelationsRequest.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientListRelationsRequest.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientListRelationsResponse.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientListRelationsResponse.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientListStoresOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientListStoresOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientPaginationOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientPaginationOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientReadAssertionsOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientReadAssertionsOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientReadAuthorizaionModelOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientReadAuthorizaionModelOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientReadAuthorizaionModelsOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientReadAuthorizaionModelsOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientReadChangesOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientReadChangesOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientReadChangesRequest.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientReadChangesRequest.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientReadOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientReadOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientReadRequest.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientReadRequest.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientRequestOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientRequestOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientRequestOptsWithAuthZModelId.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientRequestOptsWithAuthZModelId.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientTupleKey.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientTupleKey.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientWriteAssertionsOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientWriteAssertionsOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientWriteAssertionsRequest.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientWriteAssertionsRequest.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientWriteOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientWriteOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientWriteRequest.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientWriteRequest.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientWriteResponse.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientWriteResponse.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientWriteStatus.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientWriteStatus.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/RetryParams.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/RetryParams.cs",
       "templateType": "SupportingFiles"
     },
     "Configuration_Configuration.mustache": {
@@ -78,6 +214,10 @@
     },
     "Exceptions_ApiException.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Exceptions/ApiException.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Exceptions_ApiNotFoundError.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Exceptions/ApiNotFoundError.cs",
       "templateType": "SupportingFiles"
     },
     "Exceptions_ApiInternalError.mustache": {

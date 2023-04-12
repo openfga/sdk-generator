@@ -1,230 +1,539 @@
-#### List Stores
+#### Stores
+
+##### List Stores
+
+Get a paginated list of stores.
 
 [API Documentation]({{apiDocsUrl}}/docs/api#/Stores/ListStores)
 
 ```csharp
-var configuration = new Configuration() {
-    ApiScheme = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_SCHEME"),
-    ApiHost = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_HOST"),
+var options = new ClientListStoresOptions {
+    PageSize = 10,
+    ContinuationToken = "...",
 };
-var {{appCamelCaseName}}Api = new {{appShortName}}Api(configuration);
-var response = await {{appCamelCaseName}}Api.ListStores();
+var response = await fgaClient.ListStores(options);
 
 // stores = [{ "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }]
 ```
 
-#### Create Store
+##### Create Store
+
+Initialize a store.
 
 [API Documentation]({{apiDocsUrl}}/docs/api#/Stores/CreateStore)
 
 ```csharp
-var configuration = new Configuration() {
-    ApiScheme = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_SCHEME"),
-    ApiHost = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_HOST"),
-};
-var {{appCamelCaseName}}Api = new {{appShortName}}Api(configuration);
-var store = await {{appCamelCaseName}}Api.CreateStore(new CreateStoreRequest(){Name = "FGA Demo"})
+var store = await fgaClient.CreateStore(new ClientCreateStoreRequest(){Name = "FGA Demo"})
 
 // store.Id = "01FQH7V8BEG3GPQW93KTRFR8JB"
 
 // store store.Id in database
 
 // update the storeId of the current instance
-{{appCamelCaseName}}Api.StoreId = storeId;
+fgaClient.StoreId = storeId;
 
 // continue calling the API normally
 ```
 
-#### Get Store
+##### Get Store
+
+Get information about the current store.
 
 [API Documentation]({{apiDocsUrl}}/docs/api#/Stores/GetStore)
 
 > Requires a client initialized with a storeId
 
 ```csharp
-var configuration = new Configuration() {
-    ApiScheme = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_SCHEME"),
-    ApiHost = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_API_HOST"),
-    StoreId = Environment.GetEnvironmentVariable("{{appUpperCaseName}}_STORE_ID"),
-};
-var {{appCamelCaseName}}Api = new {{appShortName}}Api(configuration);
-var store = await {{appCamelCaseName}}Api.GetStore();
+var store = await fgaClient.GetStore();
 
 // store = { "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }
 ```
 
-#### Delete Store
+##### Delete Store
+
+Delete a store.
 
 [API Documentation]({{apiDocsUrl}}/docs/api#/Stores/DeleteStore)
 
 > Requires a client initialized with a storeId
 
 ```csharp
-var store = await {{appCamelCaseName}}Api.DeleteStore();
+var store = await fgaClient.DeleteStore();
 ```
 
-#### Write Authorization Model
+#### Authorization Models
+
+##### Read Authorization Models
+
+Read all authorization models in the store.
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModels)
+
+```csharp
+var options = new ClientReadAuthorizationModelsOptions {
+    PageSize = 10,
+    ContinuationToken = "...",
+};
+var response = await fgaClient.ReadAuthorizationModels(options);
+
+// response.AuthorizationModels = [
+// { Id: "01GXSA8YR785C4FYS3C0RTG7B1", SchemaVersion: "1.1", TypeDefinitions: [...] },
+// { Id: "01GXSBM5PVYHCJNRNKXMB4QZTW", SchemaVersion: "1.1", TypeDefinitions: [...] }];
+```
+
+##### Write Authorization Model
+
+Create a new authorization model.
 
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/WriteAuthorizationModel)
 
 > Note: To learn how to build your authorization model, check the Docs at {{docsUrl}}.
 
-> Learn more about [the {{appName}} configuration language]({{docsUrl}}/configuration-language).
+> Learn more about [the {{appTitleCaseName}} configuration language]({{docsUrl}}/configuration-language).
+
+> You can use the [OpenFGA Syntax Transformer](https://github.com/openfga/syntax-transformer) to convert between the friendly DSL and the JSON authorization model.
 
 ```csharp
-var documentRelations = new Dictionary<string, Userset>()
-{
-    {"writer", new Userset(_this: new object())},
-    {
-        "viewer",
-        new Userset(union: new Usersets(new List<Userset>()
-            {new(new object(), new ObjectRelation("", "writer"))}))
+
+var body = new WriteAuthorizationModelRequest {
+    SchemaVersion = "1.1",
+    TypeDefinitions = new List<TypeDefinition> {
+        new() {Type = "user", Relations = new Dictionary<string, Userset>()},
+        new() {Type = "document",
+            Relations = new Dictionary<string, Userset> {
+                {"writer", new Userset {This = new object()}}, {
+                    "viewer", new Userset {
+                        Union = new Usersets {
+                            Child = new List<Userset> {
+                                new() {This = new object()},
+                                new() {ComputedUserset = new ObjectRelation {Relation = "writer"}}
+                            }
+                        }
+                    }
+                }
+            },
+            Metadata = new Metadata {
+                Relations = new Dictionary<string, RelationMetadata> {
+                    {"writer", new RelationMetadata {
+                        DirectlyRelatedUserTypes = new List<RelationReference> {
+                            new() {Type = "user"}
+                        }
+                    }}, {"viewer", new RelationMetadata {
+                        DirectlyRelatedUserTypes = new List<RelationReference> {
+                            new() {Type = "user"}
+                        }
+                    }}
+                }
+            }
+        }
     }
 };
-var userRelations = new Dictionary<string, Userset>()
-{
-};
 
-var body = new WriteAuthorizationModelRequest(new List<TypeDefinition>() {new("document", documentRelations), new("user", userRelations)});
-var response = await {{appCamelCaseName}}Api.WriteAuthorizationModel(body);
+var response = await fgaClient.WriteAuthorizationModel(body);
 
-// response.AuthorizationModelId = 1uHxCSuTP0VKPYSnkq1pbb1jeZw
+// response.AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1"
 ```
 
 #### Read a Single Authorization Model
 
+Read a particular authorization model.
+
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
 
 ```csharp
-string authorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"; // Assuming `1uHxCSuTP0VKPYSnkq1pbb1jeZw` is an id of an existing model
-var response = await {{appCamelCaseName}}Api.ReadAuthorizationModel(authorizationModelId);
+var options = new ClientReadAuthorizationModelOptions {
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
+};
 
-// response.AuthorizationModel.Id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"
+var response = await fgaClient.ReadAuthorizationModel(options);
+
+// response.AuthorizationModel.Id = "01GXSA8YR785C4FYS3C0RTG7B1"
+// response.AuthorizationModel.SchemaVersion = "1.1"
 // response.AuthorizationModel.TypeDefinitions = [{ "type": "document", "relations": { ... } }, { "type": "user", "relations": { ... }}]
 ```
 
-#### Read Authorization Model IDs
+##### Read the Latest Authorization Model
 
-[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModels)
+Reads the latest authorization model (note: this ignores the model id in configuration).
 
-```csharp
-var response = await {{appCamelCaseName}}Api.ReadAuthorizationModels();
-
-// response.AuthorizationModelIds = ["1uHxCSuTP0VKPYSnkq1pbb1jeZw", "GtQpMohWezFmIbyXxVEocOCxxgq"];
-```
-
-#### Check
-
-[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Check)
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
 
 ```csharp
-var body =
-    new CheckRequest{tupleKey: new TupleKey("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b"), AuthorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"};
-var response = await {{appCamelCaseName}}Api.Check(body);
-// response.Allowed = true
+var response = await fgaClient.ReadLatestAuthorizationModel();
+
+// response.AuthorizationModel.Id = "01GXSA8YR785C4FYS3C0RTG7B1"
+// response.AuthorizationModel.SchemaVersion = "1.1"
+// response.AuthorizationModel.TypeDefinitions = [{ "type": "document", "relations": { ... } }, { "type": "user", "relations": { ... }}]
 ```
 
-#### Write Tuples
+#### Relationship Tuples
 
-[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
+##### Read Relationship Tuple Changes (Watch)
+
+Reads the list of historical relationship tuple writes and deletes.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/ReadChanges)
 
 ```csharp
-var body = new WriteRequest{Writes = new TupleKeys(new List<TupleKey>
-    {new("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b")}), AuthorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"};
-var response = await {{appCamelCaseName}}Api.Write(body);
+var body = new ClientReadChangesRequest { Type = "document" };
+var options = new ClientReadChangesOptions {
+    PageSize = 10,
+    ContinuationToken = "...",
+};
+
+var response = await fgaClient.ReadChanges(body, options);
+
+// response.ContinuationToken = ...
+// response.Changes = [
+//   { TupleKey: { User, Relation, Object }, Operation: TupleOperation.WRITE, Timestamp: ... },
+//   { TupleKey: { User, Relation, Object }, Operation: TupleOperation.DELETE, Timestamp: ... }
+// ]
 ```
 
-#### Delete Tuples
+##### Read Relationship Tuples
 
-[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
-
-```csharp
-var body = new WriteRequest{Deletes = new TupleKeys(new List<TupleKey>
-    {new("document:roadmap", "viewer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b")}), AuthorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"};
-var response = await {{appCamelCaseName}}Api.Write(body);
-```
-
-#### Expand
-
-[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Expand)
-
-```csharp
-var body = new ExpandRequest{TupleKey = new TupleKey("document:roadmap", "viewer"), AuthorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw"};
-var response = await {{appCamelCaseName}}Api.Expand(body);
-
-// response.Tree.Root = {"name":"document:roadmap#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b","user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]}}}
-```
-
-#### Read Changes
+Reads the relationship tuples stored in the database. It does not evaluate nor exclude invalid tuples according to the authorization model.
 
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Read)
 
 ```csharp
 // Find if a relationship tuple stating that a certain user is a viewer of a certain document
-var body = new ReadRequest(new TupleKey(
-    _object: "document:roadmap",
-    relation: "viewer",
-    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b");
+var body = new ClientReadRequest() {
+    User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation = "viewer",
+    Object = "document:roadmap",
+};
 
 // Find all relationship tuples where a certain user has a relationship as any relation to a certain document
-var body = new ReadRequest(new TupleKey(
-    _object: "document:roadmap",
-    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
+var body = new ClientReadRequest() {
+    User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Object = "document:roadmap",
+};
 
 // Find all relationship tuples where a certain user is a viewer of any document
-var body = new ReadRequest(new TupleKey(
-    _object: "document:",
-    relation: "viewer",
-    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b"));
+var body = new ClientReadRequest() {
+    User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation = "viewer",
+    Object = "document:",
+};
 
 // Find all relationship tuples where any user has a relationship as any relation with a particular document
-var body = new ReadRequest(new TupleKey(
-    _object: "document:roadmap"));
+
+var body = new ClientReadRequest() {
+    Object = "document:roadmap",
+};
 
 // Read all stored relationship tuples
-body := ReadRequest()
+var body = new ClientReadRequest();
 
-var response = await {{appCamelCaseName}}Api.Read(body);
+var options = new ClientReadOptions {
+    PageSize = 10,
+    ContinuationToken = "...",
+};
+
+var response = await fgaClient.Read(body, options);
 
 // In all the above situations, the response will be of the form:
-// response = {"tuples":[{"key":{"user":"...","relation":"...","object":"..."},"timestamp":"..."}]}
+// response = { Tuples: [{ Key: { User, Relation, Object }, Timestamp }, ...]}
 ```
 
-#### Read Changes (Watch)
+##### Write (Create and Delete) Relationship Tuples
 
-[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/ReadChanges)
+Create and/or delete relationship tuples to update the system state.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
+
+###### Transaction mode (default)
+
+By default, write runs in a transaction mode where any invalid operation (deleting a non-existing tuple, creating an existing tuple, one of the tuples was invalid) or a server error will fail the entire operation.
 
 ```csharp
-var type = 'document';
-var pageSize = 25;
-var continuationToken = 'eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==';
+var body = new ClientWriteRequest() {
+    Writes = new List<ClientTupleKey> {
+        new() {
+            User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+            Relation = "viewer",
+            Object = "document:roadmap",
+        },
+        new() {
+            User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+            Relation = "viewer",
+            Object = "document:budget",
+        }
+    },
+    Deletes = new List<ClientTupleKey> {
+        new() {
+            User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+            Relation = "writer",
+            Object = "document:roadmap",
+        }
+    },
+};
+var options = new ClientWriteOptions {
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
+};
+var response = await fgaClient.Write(body, options);
+```
 
-var response = await {{appCamelCaseName}}Api.ReadChanges(type, pageSize, continuationToken);
+Convenience `WriteTuples` and `DeleteTuples` methods are also available.
 
-// response.continuation_token = ...
-// response.changes = [
-//   { tuple_key: { user, relation, object }, operation: "writer", timestamp: ... },
-//   { tuple_key: { user, relation, object }, operation: "viewer", timestamp: ... }
-// ]
+###### Non-transaction mode
+
+The SDK will split the writes into separate requests and send them sequentially to avoid violating rate limits.
+
+```csharp
+var body = new ClientWriteRequest() {
+    Writes = new List<ClientTupleKey> {
+        new() {
+            User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+            Relation = "viewer",
+            Object = "document:roadmap",
+        },
+        new() {
+            User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+            Relation = "viewer",
+            Object = "document:budget",
+        }
+    },
+    Deletes = new List<ClientTupleKey> {
+        new() {
+            User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+            Relation = "writer",
+            Object = "document:roadmap",
+        }
+    },
+};
+var options = new ClientWriteOptions {
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
+    Transaction = new TransactionOptions() {
+        Disable = true,
+        MaxParallelRequests = 5, // Maximum number of requests to issue in parallel
+        MaxPerChunk = 1, // Maximum number of requests to be sent in a transaction in a particular chunk
+    }
+};
+var response = await fgaClient.Write(body, options);
+```
+
+#### Relationship Queries
+
+##### Check
+
+Check if a user has a particular relation with an object.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Check)
+
+```csharp
+var options = new ClientCheckOptions {
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
+};
+var body = new ClientCheckRequest {
+    Object = "document:roadmap",
+    Relation = "writer",
+    User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b"
+};
+var response = await fgaClient.Check(body, options);
+// response.Allowed = true
+```
+
+##### Batch Check
+
+Run a set of [checks](#check). Batch Check will return `allowed: false` if it encounters an error, and will return the error in the body.
+If 429s or 5xxs are encountered, the underlying check will retry up to {{defaultMaxRetry}} times before giving up.
+
+```csharp
+var options = new ClientBatchCheckOptions {
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
+    MaxParallelRequests = 5, // Max number of requests to issue in parallel, defaults to {{clientMaxMethodParallelRequests}}
+};
+var body = new List<ClientCheckRequest>(){
+    new() {
+        User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Relation = "viewer",
+        Object = "document:roadmap",
+        ContextualTuples = new List<ClientTupleKey>() {
+            new() {
+                User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                Relation = "editor",
+                Object = "document:roadmap",
+            }
+        },
+    },
+    new() {
+        User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Relation = "admin",
+        Object = "document:roadmap",
+        ContextualTuples = new List<ClientTupleKey>() {
+            new() {
+                User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                Relation = "editor",
+                Object = "document:roadmap",
+            }
+        },
+    },
+    new() {
+        User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Relation = "creator",
+        Object = "document:roadmap",
+    },
+    new() {
+        User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Relation = "deleter",
+        Object = "document:roadmap",
+    }
+};
+
+var response = await fgaClient.BatchCheck(body, options);
+
+/*
+response.Responses = [{
+  Allowed: false,
+  Request: {
+    User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation: "viewer",
+    Object: "document:roadmap",
+    ContextualTuples: [{
+      User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+      Relation: "editor",
+      Object: "document:roadmap"
+    }]
+  }
+}, {
+  Allowed: false,
+  Request: {
+    User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation: "admin",
+    Object: "document:roadmap",
+    ContextualTuples: [{
+      User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+      Relation: "editor",
+      Object: "document:roadmap"
+    }]
+  }
+}, {
+  Allowed: false,
+  Request: {
+    User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation: "creator",
+    Object: "document:roadmap",
+  },
+  Error: <FgaError ...>
+}, {
+  Allowed: true,
+  Request: {
+    User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation: "deleter",
+    Object: "document:roadmap",
+  }},
+]
+*/
+```
+
+##### Expand
+
+Expands the relationships in userset tree format.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Expand)
+
+```csharp
+var options = new ClientCheckOptions {
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
+};
+var body = new ClientExpandRequest {
+    Relation = "viewer",
+    Object = "document:roadmap",
+};
+var response = await fgaClient.Expand(body, options);
+
+// response.Tree.Root = {"name":"document:roadmap#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b","user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]}}}
 ```
 
 #### List Objects
 
+List the objects of a particular type a user has access to.
+
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/ListObjects)
 
 ```csharp
-var body = new ListObjectsRequest{
-    AuthorizationModelId = "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
+var options = new ClientListObjectsOptions {
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
+};
+var body = new ClientListObjectsRequest {
     User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     Relation = "viewer",
     Type = "document",
-    ContextualTuples = new ContextualTupleKeys() {
-        TupleKeys = new List<TupleKey> {
+    ContextualTuples = new List<TupleKey>() {
+        {
             new("document:budget", "writer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b")
         }
     }
 };
-var response = await {{appCamelCaseName}}Api.ListObjects(body);
+var response = await fgaClient.ListObjects(body, options);
 
 // response.Objects = ["document:roadmap"]
+```
+
+#### List Relations
+
+List the relations a user has on an object.
+
+```csharp
+ListRelationsRequest body =
+    new ListRelationsRequest() {
+        User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Object = "document:roadmap",
+        Relations = new List<string> {"can_view", "can_edit", "can_delete", "can_rename"},
+        ContextualTuples = new List<ClientTupleKey>() {
+            new ClientTupleKey {
+                User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                Relation = "editor",
+                Object = "document:roadmap",
+            }
+        }
+    };
+var response = await fgaClient.ListRelations(body);
+
+// response.Relations = ["can_view", "can_edit"]
+```
+
+### Assertions
+
+#### Read Assertions
+
+Read assertions for a particular authorization model.
+
+[API Documentation]({{apiDocsUrl}}#/Assertions/Read%20Assertions)
+
+```csharp
+var options = new ClientReadAssertionsOptions {
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
+};
+var response = await fgaClient.ReadAssertions(options);
+```
+
+#### Write Assertions
+
+Update the assertions for a particular authorization model.
+
+[API Documentation]({{apiDocsUrl}}#/Assertions/Write%20Assertions)
+
+```csharp
+var options = new ClientWriteAssertionsOptions {
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
+};
+var body = new List<ClientAssertion>() {new ClientAssertion() {
+    User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation = "viewer",
+    Object = "document:roadmap",
+    Expectation = true,
+}};
+await fgaClient.WriteAssertions(body, options);
 ```

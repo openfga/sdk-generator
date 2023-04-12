@@ -202,7 +202,7 @@ describe("{{appTitleCaseName}} Client", () => {
         const data = await fgaClient.write({
           writes: [tuple],
         }, {
-          authorizationModelId: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
+          authorizationModelId: "01GXSA8YR785C4FYS3C0RTG7B1",
         });
 
         expect(scope.isDone()).toBe(true);
@@ -229,7 +229,7 @@ describe("{{appTitleCaseName}} Client", () => {
         const data = await fgaClient.write({
           writes: tuples,
         }, {
-          authorizationModelId: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
+          authorizationModelId: "01GXSA8YR785C4FYS3C0RTG7B1",
           transaction: { disable: true },
         });
 
@@ -266,7 +266,7 @@ describe("{{appTitleCaseName}} Client", () => {
         const data = await fgaClient.write({
           writes: tuples,
         }, {
-          authorizationModelId: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
+          authorizationModelId: "01GXSA8YR785C4FYS3C0RTG7B1",
           transaction: { disable: true },
         });
 
@@ -291,7 +291,7 @@ describe("{{appTitleCaseName}} Client", () => {
 
         expect(scope.isDone()).toBe(false);
         const data = await fgaClient.writeTuples([tuple], {
-          authorizationModelId: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
+          authorizationModelId: "01GXSA8YR785C4FYS3C0RTG7B1",
         });
 
         expect(scope.isDone()).toBe(true);
@@ -310,7 +310,7 @@ describe("{{appTitleCaseName}} Client", () => {
 
         expect(scope.isDone()).toBe(false);
         const data = await fgaClient.deleteTuples([tuple], {
-          authorizationModelId: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
+          authorizationModelId: "01GXSA8YR785C4FYS3C0RTG7B1",
         });
 
         expect(scope.isDone()).toBe(true);
@@ -386,7 +386,7 @@ describe("{{appTitleCaseName}} Client", () => {
         const scope = nocks.expand(baseConfig.storeId!, tuple);
 
         expect(scope.isDone()).toBe(false);
-        const data = await fgaClient.expand(tuple, { authorizationModelId: "1uHxCSuTP0VKPYSnkq1pbb1jeZw" });
+        const data = await fgaClient.expand(tuple, { authorizationModelId: "01GXSA8YR785C4FYS3C0RTG7B1" });
 
         expect(scope.isDone()).toBe(true);
         expect(data).toMatchObject({});

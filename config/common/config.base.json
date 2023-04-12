@@ -87,7 +87,7 @@
     ".github/workflows/semgrep.yaml": {}
   },
   "retryMaxAllowedNumber": 15,
-  "defaultMaxRetry": 5,
+  "defaultMaxRetry": 15,
   "defaultMinWaitInMs": 100,
   "defaultMaxRetryClientOverride": 15,
   "clientMaxMethodParallelRequests": 10,

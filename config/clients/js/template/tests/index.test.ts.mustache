@@ -370,7 +370,7 @@ describe("{{appTitleCaseName}} SDK", function () {
       });
 
       it("should return allowed", async () => {
-        const result = await fgaApi.check({ tuple_key: tupleKey, authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw"}, {});
+        const result = await fgaApi.check({ tuple_key: tupleKey, authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1"}, {});
 
         expect(result.allowed).toBe(true);
       });
@@ -631,7 +631,7 @@ describe("{{appTitleCaseName}} SDK", function () {
         expect(scope.isDone()).toBe(false);
         const data = await fgaApi.write({
           writes: { tuple_keys: [tuple] },
-          authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
+          authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1",
         });
 
         expect(scope.isDone()).toBe(true);
@@ -651,7 +651,7 @@ describe("{{appTitleCaseName}} SDK", function () {
         expect(scope.isDone()).toBe(false);
         const data = await fgaApi.write({
           deletes: { tuple_keys: [tuple] },
-          authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw",
+          authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1",
         });
 
         expect(scope.isDone()).toBe(true);
@@ -669,7 +669,7 @@ describe("{{appTitleCaseName}} SDK", function () {
         const scope = nocks.expand(baseConfig.storeId!, tuple);
 
         expect(scope.isDone()).toBe(false);
-        const data = await fgaApi.expand({ tuple_key: tuple, authorization_model_id: "1uHxCSuTP0VKPYSnkq1pbb1jeZw"});
+        const data = await fgaApi.expand({ tuple_key: tuple, authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1"});
 
         expect(scope.isDone()).toBe(true);
         expect(data).toMatchObject({});
