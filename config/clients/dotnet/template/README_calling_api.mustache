@@ -95,7 +95,7 @@ Create a new authorization model.
 
 ```csharp
 
-var body = new WriteAuthorizationModelRequest {
+var body = new ClientWriteAuthorizationModelRequest {
     SchemaVersion = "1.1",
     TypeDefinitions = new List<TypeDefinition> {
         new() {Type = "user", Relations = new Dictionary<string, Userset>()},
@@ -468,11 +468,13 @@ var body = new ClientListObjectsRequest {
     User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     Relation = "viewer",
     Type = "document",
-    ContextualTuples = new List<TupleKey>() {
-        {
-            new("document:budget", "writer", "user:81684243-9356-4421-8fbf-a4f8d36aa31b")
-        }
-    }
+    ContextualTuples = new List<ClientTupleKey> {
+        new() {
+            User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+            Relation = "writer",
+            Object = "document:budget",
+        },
+    },
 };
 var response = await fgaClient.ListObjects(body, options);
 
