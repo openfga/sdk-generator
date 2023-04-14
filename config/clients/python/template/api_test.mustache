@@ -1126,7 +1126,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             self.assertIsInstance(api_response, CheckResponse)
             self.assertTrue(api_response.allowed)
             # Make sure the API was called with the right data
-            expectedHeader = urllib3.response.HTTPHeaderDict({'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'openfga-sdk /{{packageVersion}}', 'Authorization': 'Bearer TOKEN1'})
+            expectedHeader = urllib3.response.HTTPHeaderDict({'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'openfga-sdk {{sdkId}}/{{packageVersion}}', 'Authorization': 'Bearer TOKEN1'})
             mock_request.assert_called_once_with(
                 'POST',
                 'http://api.{{sampleApiDomain}}/stores/d12345abc/check',
@@ -1167,7 +1167,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             self.assertIsInstance(api_response, CheckResponse)
             self.assertTrue(api_response.allowed)
             # Make sure the API was called with the right data
-            expectedHeader = urllib3.response.HTTPHeaderDict({'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'openfga-sdk /{{packageVersion}}', 'Custom Header': 'custom value'})
+            expectedHeader = urllib3.response.HTTPHeaderDict({'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'openfga-sdk {{sdkId}}/{{packageVersion}}', 'Custom Header': 'custom value'})
             mock_request.assert_called_once_with(
                 'POST',
                 'http://api.{{sampleApiDomain}}/stores/d12345abc/check',

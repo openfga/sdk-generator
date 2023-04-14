@@ -1,4 +1,5 @@
 {
+  "sdkId": "python",
   "gitRepoId": "python-sdk",
   "packageName": "openfga_sdk",
   "packageVersion": "0.1.1",
