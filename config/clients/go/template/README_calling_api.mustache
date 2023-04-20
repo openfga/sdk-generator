@@ -1,38 +1,30 @@
-#### List Stores
+#### Stores
+
+##### List Stores
+
+Get a paginated list of stores.
 
 [API Documentation]({{apiDocsUrl}}/docs/api#/Stores/ListStores)
 
 ```golang
-configuration, err := {{packageName}}.NewConfiguration({{packageName}}.Configuration{
-    ApiHost: "api.{{sampleApiDomain}}"
-})
-
-if err != nil {
-// .. Handle error
+options := ClientListStoresOptions{
+  PageSize:          {{packageName}}.PtrInt32(10),
+  ContinuationToken: {{packageName}}.PtrString("..."),
 }
-
-apiClient := {{packageName}}.NewAPIClient(configuration)
-stores, response, err := apiClient.{{appShortName}}Api.ListStores(context.Background()).Execute();
+stores, err := fgaClient.ListStores(context.Background()).Options(options).Execute();
 
 // stores = [{ "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }]
 ```
 
-#### Create Store
+##### Create Store
+
+Create and initialize a store.
 
 [API Documentation]({{apiDocsUrl}}/docs/api#/Stores/CreateStore)
 
 ```golang
-configuration, err := {{packageName}}.NewConfiguration({{packageName}}.Configuration{
-    ApiHost: "api.{{sampleApiDomain}}"
-})
-
-if err != nil {
-// .. Handle error
-}
-
-apiClient := {{packageName}}.NewAPIClient(configuration)
-
-store, _, err := apiClient.{{appShortName}}Api.CreateStore(context.Background()).Body({{packageName}}.CreateStoreRequest{Name: "FGA Demo"}).Execute()
+body := ClientCreateStoreRequest{Name: "FGA Demo"}
+store, err := fgaClient.CreateStore(context.Background()).Body(body).Execute()
 if err != nil {
     // handle error
 }
@@ -42,17 +34,19 @@ if err != nil {
 // store store.Id in database
 // update the storeId of the current instance
 apiClient.SetStoreId(*store.Id)
-// continue calling the API normally
+// continue calling the API normally, scoped to this store
 ```
 
-#### Get Store
+##### Get Store
+
+Get information about the current store.
 
 [API Documentation]({{apiDocsUrl}}/docs/api#/Stores/GetStore)
 
 > Requires a client initialized with a storeId
 
 ```golang
-store, _, err := apiClient.{{appShortName}}Api.GetStore(context.Background()).Execute()
+store,  err := fgaClient.GetStore(context.Background()).Execute()
 if err != nil {
     // handle error
 }
@@ -60,249 +54,527 @@ if err != nil {
 // store = { "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }
 ```
 
-#### Delete Store
+##### Delete Store
+
+Delete a store.
 
 [API Documentation]({{apiDocsUrl}}/docs/api#/Stores/DeleteStore)
 
 > Requires a client initialized with a storeId
 
 ```golang
-_, err := apiClient.{{appShortName}}Api.DeleteStore(context.Background()).Execute()
+_,  err := fgaClient.DeleteStore(context.Background()).Execute()
 if err != nil {
     // handle error
 }
 ```
+#### Authorization Models
 
-#### Write Authorization Model
+##### Read Authorization Models
+
+Read all authorization models in the store.
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModels)
+
+```golang
+options := ClientReadAuthorizationModelsOptions{
+    PageSize: {{packageName}}.PtrInt32(10),
+    ContinuationToken: {{packageName}}.PtrString("..."),
+}
+data, err := fgaClient.ReadAuthorizationModels(context.Background()).Options(options).Execute()
+
+// data.AuthorizationModels = [
+// { Id: "01GXSA8YR785C4FYS3C0RTG7B1", SchemaVersion: "1.1", TypeDefinitions: [...] },
+// { Id: "01GXSBM5PVYHCJNRNKXMB4QZTW", SchemaVersion: "1.1", TypeDefinitions: [...] }];
+```
+
+##### Write Authorization Model
+
+Create a new authorization model.
 
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/WriteAuthorizationModel)
 
-> Note: To learn how to build your authorization model, check the Docs at {{docsUrl}}.
+> Note: To learn how to build your authorization model, check the Docs at https://{{packageName}}.dev/docs.
 
-> Learn more about [the {{appName}} configuration language]({{docsUrl}}/configuration-language).
+> Learn more about [the {{appTitleCaseName}} configuration language](https://{{packageName}}.dev/docs/configuration-language).
+
+> You can use the [{{appTitleCaseName}} Syntax Transformer](https://github.com/{{packageName}}/syntax-transformer) to convert between the friendly DSL and the JSON authorization model.
 
 ```golang
-body  := {{packageName}}.WriteAuthorizationModelRequest{TypeDefinitions: []{{packageName}}.TypeDefinition{
-	{
-		Type: "user",
-	},
-	{
-		Type: "document",
-		Relations: &map[string]{{packageName}}.Userset{
-			"writer": {This: &map[string]interface{}{}},
-			"viewer": {Union: &{{packageName}}.Usersets{
-				Child: &[]{{packageName}}.Userset{
-					{This: &map[string]interface{}{}},
-					{ComputedUserset: &{{packageName}}.ObjectRelation{
-						Object:   {{packageName}}.PtrString(""),
-						Relation: {{packageName}}.PtrString("writer"),
-					}},
-				},
-			}},
-		},
-	},
-}}
-data, response, err := apiClient.{{appShortName}}Api.WriteAuthorizationModel(context.Background()).Body(body).Execute()
+body := ClientWriteAuthorizationModelRequest{
+  SchemaVersion: "1.1",
+  TypeDefinitions: []{{packageName}}.TypeDefinition{
+    {Type: "user", Relations: &map[string]{{packageName}}.Userset{}},
+    {
+      Type: "document",
+      Relations: &map[string]{{packageName}}.Userset{
+        "writer": {
+          This: &map[string]interface{}{},
+        },
+        "viewer": {Union: &{{packageName}}.Usersets{
+          Child: &[]{{packageName}}.Userset{
+            {This: &map[string]interface{}{}},
+            {ComputedUserset: &{{packageName}}.ObjectRelation{
+              Object:   {{packageName}}.PtrString(""),
+              Relation: {{packageName}}.PtrString("writer"),
+            }},
+          },
+        }},
+      },
+      Metadata: &{{packageName}}.Metadata{
+        Relations: &map[string]{{packageName}}.RelationMetadata{
+          "writer": {
+            DirectlyRelatedUserTypes: &[]{{packageName}}.RelationReference{
+              {Type: "user"},
+            },
+          },
+          "viewer": {
+            DirectlyRelatedUserTypes: &[]{{packageName}}.RelationReference{
+              {Type: "user"},
+            },
+          },
+        },
+      },
+    }},
+}
+data, err := fgaClient.WriteAuthorizationModel(context.Background()).Body(body).Execute()
 
 fmt.Printf("%s", data.AuthorizationModelId) // 01GXSA8YR785C4FYS3C0RTG7B1
 ```
 
-#### Read a Single Authorization Model
+##### Read a Single Authorization Model
+
+Read a particular authorization model.
 
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
 
 ```golang
-// Assuming `01GXSA8YR785C4FYS3C0RTG7B1` is an id of a single model
-data, response, err := apiClient.{{appShortName}}Api.ReadAuthorizationModel(context.Background(), "01GXSA8YR785C4FYS3C0RTG7B1").Execute()
+options := ClientReadAuthorizationModelOptions{
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId: {{packageName}}.PtrString(modelId),
+}
+data, err := fgaClient.ReadAuthorizationModel(context.Background()).Options(options).Execute()
 
 // data = {"authorization_model":{"id":"01GXSA8YR785C4FYS3C0RTG7B1","schema_version":"1.1","type_definitions":[{"type":"document","relations":{"writer":{"this":{}},"viewer":{ ... }}},{"type":"user"}]}} // JSON
 
 fmt.Printf("%s", data.AuthorizationModel.Id) // 01GXSA8YR785C4FYS3C0RTG7B1
 ```
 
-#### Read Authorization Model IDs
+##### Read the Latest Authorization Model
 
-[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModels)
+Reads the latest authorization model (note: this ignores the model id in configuration).
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
 
 ```golang
-data, response, err := apiClient.{{appShortName}}Api.ReadAuthorizationModels(context.Background()).Execute()
+data, err := fgaClient.ReadLatestAuthorizationModel(context.Background()).Execute()
 
-// data = {"authorization_model_ids":["01GXSA8YR785C4FYS3C0RTG7B1","01GXSBM5PVYHCJNRNKXMB4QZTW"]} // in JSON
+// data.AuthorizationModel.Id = "01GXSA8YR785C4FYS3C0RTG7B1"
+// data.AuthorizationModel.SchemaVersion = "1.1"
+// data.AuthorizationModel.TypeDefinitions = [{ "type": "document", "relations": { ... } }, { "type": "user", "relations": { ... }}]
 
-fmt.Printf("%s", (*data.AuthorizationModelIds)[0]) // 01GXSA8YR785C4FYS3C0RTG7B1
+fmt.Printf("%s", (*data.AuthorizationModel).GetId()) // 01GXSA8YR785C4FYS3C0RTG7B1
 ```
 
-#### Check
+#### Relationship Tuples
 
-[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Check)
+##### Read Relationship Tuple Changes (Watch)
 
-> Provide a tuple and ask the {{appName}} API to check for a relationship
+Reads the list of historical relationship tuple writes and deletes.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/ReadChanges)
 
 ```golang
-body := {{packageName}}.CheckRequest{
-	TupleKey: {{packageName}}.TupleKey{
-		User: {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-		Relation: {{packageName}}.PtrString("viewer"),
-		Object: {{packageName}}.PtrString("document:roadmap"),
-	},
-	AuthorizationModelId: {{packageName}}.PtrString("01GXSA8YR785C4FYS3C0RTG7B1"),
+body := ClientReadChangesRequest{
+    Type: "document",
 }
-data, response, err := apiClient.{{appShortName}}Api.Check(context.Background()).Body(body).Execute()
-
-// data = {"allowed":true,"resolution":""} // in JSON
-
-fmt.Printf("%t", *data.Allowed) // True
-
-```
-
-#### Write Tuples
-
-[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
-
-```golang
-body := {{packageName}}.WriteRequest{
-	Writes: &{{packageName}}.TupleKeys{
-		TupleKeys: []{{packageName}}.TupleKey{
-			{
-				User: {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-				Relation: {{packageName}}.PtrString("viewer"),
-				Object: {{packageName}}.PtrString("document:roadmap"),
-			},
-		},
-	},
-	AuthorizationModelId: {{packageName}}.PtrString("01GXSA8YR785C4FYS3C0RTG7B1"),
+options := ClientReadChangesOptions{
+    PageSize: {{packageName}}.PtrInt32(10),
+    ContinuationToken: {{packageName}}.PtrString("eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="),
 }
-_, response, err := apiClient.{{appShortName}}Api.Write(context.Background()).Body(body).Execute()
+data, err := fgaClient.ReadChanges(context.Background()).Body(body).Options(options).Execute()
 
+// data.ContinuationToken = ...
+// data.Changes = [
+//   { TupleKey: { User, Relation, Object }, Operation: TupleOperation.WRITE, Timestamp: ... },
+//   { TupleKey: { User, Relation, Object }, Operation: TupleOperation.DELETE, Timestamp: ... }
+// ]
 ```
 
-#### Delete Tuples
+##### Read Relationship Tuples
 
-[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
-
-```golang
-body := {{packageName}}.WriteRequest{
-	Deletes: &{{packageName}}.TupleKeys{
-		TupleKeys: []{{packageName}}.TupleKey{
-			{
-				User: {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-				Relation: {{packageName}}.PtrString("viewer"),
-				Object: {{packageName}}.PtrString("document:roadmap"),
-			},
-		},
-	},
-	AuthorizationModelId: {{packageName}}.PtrString("01GXSA8YR785C4FYS3C0RTG7B1"),
-}
-_, response, err := apiClient.{{appShortName}}Api.Write(context.Background()).Body(body).Execute()
-
-```
-
-#### Expand
-
-[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Expand)
-
-```golang
-body := {{packageName}}.ExpandRequest{
-	TupleKey: {{packageName}}.TupleKey{
-		Relation: {{packageName}}.PtrString("viewer"),
-		Object: {{packageName}}.PtrString("document:roadmap"),
-	},
-	AuthorizationModelId: {{packageName}}.PtrString("01GXSA8YR785C4FYS3C0RTG7B1"),
-}
-data, response, err := apiClient.{{appShortName}}Api.Expand(context.Background()).Body(body).Execute()
-
-// data = {"tree":{"root":{"name":"document:roadmap#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b","user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]}}}}} // JSON
-```
-
-#### Read Changes
+Reads the relationship tuples stored in the database. It does not evaluate nor exclude invalid tuples according to the authorization model.
 
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Read)
 
 ```golang
 // Find if a relationship tuple stating that a certain user is a viewer of a certain document
-body := {{packageName}}.ReadRequest{
-    TupleKey: &{{packageName}}.TupleKey{
-        User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-        Relation: {{packageName}}.PtrString("viewer"),
-        Object:   {{packageName}}.PtrString("document:roadmap"),
-    },
+body := ClientReadRequest{
+    User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
+    Relation: {{packageName}}.PtrString("viewer"),
+    Object:   {{packageName}}.PtrString("document:roadmap"),
 }
 
 // Find all relationship tuples where a certain user has a relationship as any relation to a certain document
-body := {{packageName}}.ReadRequest{
-    TupleKey: &{{packageName}}.TupleKey{
-        User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-        Object:   {{packageName}}.PtrString("document:roadmap"),
-    },
+body := ClientReadRequest{
+    User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
+    Object:   {{packageName}}.PtrString("document:roadmap"),
 }
 
 // Find all relationship tuples where a certain user is a viewer of any document
-body := {{packageName}}.ReadRequest{
-    TupleKey: &{{packageName}}.TupleKey{
-        User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-        Relation: {{packageName}}.PtrString("viewer"),
-        Object:   {{packageName}}.PtrString("document:"),
-    },
+body := ClientReadRequest{
+    User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
+    Relation: {{packageName}}.PtrString("viewer"),
+    Object:   {{packageName}}.PtrString("document:"),
 }
 
 // Find all relationship tuples where any user has a relationship as any relation with a particular document
-body := {{packageName}}.ReadRequest{
-    TupleKey: &{{packageName}}.TupleKey{
-        Object:   {{packageName}}.PtrString("document:roadmap"),
-    },
+body := ClientReadRequest{
+    Object:   {{packageName}}.PtrString("document:roadmap"),
 }
 
 // Read all stored relationship tuples
-body := {{packageName}}.ReadRequest{}
+body := ClientReadRequest{}
 
-data, response, err := apiClient.{{appShortName}}Api.Read(context.Background()).Body(body).Execute()
+options := ClientReadOptions{
+    PageSize: {{packageName}}.PtrInt32(10),
+    ContinuationToken: {{packageName}}.PtrString("eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="),
+}
+data, err := fgaClient.Read(context.Background()).Body(requestBody).Options(options).Execute()
 
 // In all the above situations, the response will be of the form:
-// data = {"tuples":[{"key":{"user":"...","relation":"...","object":"..."},"timestamp":"..."}]} // JSON
+// data = { Tuples: [{ Key: { User, Relation, Object }, Timestamp }, ...]}
 ```
 
-#### Read Changes (Watch)
+##### Write (Create and Delete) Relationship Tuples
 
-[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/ReadChanges)
+Create and/or delete relationship tuples to update the system state.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
+
+###### Transaction mode (default)
+
+By default, write runs in a transaction mode where any invalid operation (deleting a non-existing tuple, creating an existing tuple, one of the tuples was invalid) or a server error will fail the entire operation.
 
 ```golang
-data, response, err := apiClient.{{appShortName}}Api.ReadChanges(context.Background()).
-    Type_("document").
-    PageSize(25).
-    ContinuationToken("eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==").
-    Execute()
+body := ClientWriteRequest{
+    Writes: &[]ClientTupleKey{ {
+        User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Relation: "viewer",
+        Object:   "document:roadmap",
+    }, {
+        User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Relation: "viewer",
+        Object:   "document:budget",
+    } },
+    Deletes: &[]ClientTupleKey{ {
+        User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Relation: "writer",
+        Object:   "document:roadmap",
+    } }
+}
 
-// response.continuation_token = ...
-// response.changes = [
-//   { tuple_key: { user, relation, object }, operation: "writer", timestamp: ... },
-//   { tuple_key: { user, relation, object }, operation: "viewer", timestamp: ... }
-// ]
+options := ClientWriteOptions{
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+}
+data, err := fgaClient.Write(context.Background()).Body(requestBody).Options(options).Execute()
+```
+
+Convenience `WriteTuples` and `DeleteTuples` methods are also available.
+
+###### Non-transaction mode
+
+The SDK will split the writes into separate chunks and send them in separate requests. Each chunk is a transaction. By default, each chunk is set to 1, but you may override that.
+
+```golang
+body := ClientWriteRequest{
+    Writes: &[]ClientTupleKey{ {
+        User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Relation: "viewer",
+        Object:   "document:roadmap",
+    }, {
+        User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Relation: "viewer",
+        Object:   "document:budget",
+    } },
+	  Deletes: &[]ClientTupleKey{ {
+      User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+      Relation: "writer",
+      Object:   "document:roadmap",
+    } }
+}
+
+options := ClientWriteOptions{
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+    Transaction: &TransactionOptions{
+        Disable: true,
+        MaxParallelRequests: 5, // Maximum number of requests to issue in parallel
+        MaxPerChunk: 1, // Maximum number of requests to be sent in a transaction in a particular chunk
+    },
+}
+data, err := fgaClient.Write(context.Background()).Body(requestBody).Options(options).Execute()
+
+// data.Writes = [{
+//   TupleKey: { User, Relation, Object },
+//   Status: "CLIENT_WRITE_STATUS_SUCCESS
+//   HttpResponse: ... // http response"
+// }, {
+//   TupleKey: { User, Relation, Object },
+//   Status: "CLIENT_WRITE_STATUS_FAILURE
+//   HttpResponse: ... // http response"
+//   Error: ...
+// }]
+// data.Deletes = [{
+//   TupleKey: { User, Relation, Object },
+//   Status: "CLIENT_WRITE_STATUS_SUCCESS
+//   HttpResponse: ... // http response"
+// }]
+```
+
+#### Relationship Queries
+
+##### Check
+
+Check if a user has a particular relation with an object.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Check)
+
+> Provide a tuple and ask the {{appTitleCaseName}} API to check for a relationship
+
+```golang
+body := ClientCheckRequest{
+    User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation: "viewer",
+    Object:   "document:roadmap",
+    ContextualTuples: &[]ClientTupleKey{ {
+        User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Relation: "editor",
+        Object:   "document:roadmap",
+    } },
+}
+
+options := ClientCheckOptions{
+    AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+}
+data, err := fgaClient.Check(context.Background()).Body(body).Options(options).Execute()
+
+// data = {"allowed":true,"resolution":""} // in JSON
+
+fmt.Printf("%t", data.GetAllowed()) // True
+
+```
+
+##### Batch Check
+
+Run a set of [checks](#check). Batch Check will return `allowed: false` if it encounters an error, and will return the error in the body.
+If 429s or 5xxs are encountered, the underlying check will retry up to 15 times before giving up.
+
+```golang
+options := ClientBatchCheckOptions{
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+    MaxParallelRequests: {{packageName}}.PtrInt32(5), // Max number of requests to issue in parallel, defaults to 10
+}
+
+body := ClientBatchCheckBody{ {
+    User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation: "viewer",
+    Object:   "document:roadmap",
+    ContextualTuples: &[]ClientTupleKey{ {
+        User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Relation: "editor",
+        Object:   "document:roadmap",
+    } },
+}, {
+    User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation: "admin",
+    Object:   "document:roadmap",
+    ContextualTuples: &[]ClientTupleKey{ {
+        User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Relation: "editor",
+        Object:   "document:roadmap",
+    } },
+}, {
+    User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation: "creator",
+    Object:   "document:roadmap",
+}, {
+    User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation: "deleter",
+    Object:   "document:roadmap",
+} }
+
+data, err := fgaClient.BatchCheck(context.Background()).Body(requestBody).Options(options).Execute()
+
+/*
+data = [{
+  Allowed: false,
+  Request: {
+    User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation: "viewer",
+    Object: "document:roadmap",
+    ContextualTuples: [{
+      User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+      Relation: "editor",
+      Object: "document:roadmap"
+    }]
+  },
+  HttpResponse: ...
+}, {
+  Allowed: false,
+  Request: {
+    User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation: "admin",
+    Object: "document:roadmap",
+    ContextualTuples: [{
+      User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+      Relation: "editor",
+      Object: "document:roadmap"
+    }]
+  },
+  HttpResponse: ...
+}, {
+  Allowed: false,
+  Request: {
+    User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation: "creator",
+    Object: "document:roadmap",
+  },
+  HttpResponse: ...,
+  Error: <FgaError ...>
+}, {
+  Allowed: true,
+  Request: {
+    User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation: "deleter",
+    Object: "document:roadmap",
+  }},
+  HttpResponse: ...,
+]
+*/
+```
+
+##### Expand
+
+Expands the relationships in userset tree format.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Expand)
+
+```golang
+options := ClientExpandOptions{
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+}
+body := ClientExpandRequest{
+    Relation: "viewer",
+    Object:   "document:roadmap",
+}
+data, err := fgaClient.Expand(context.Background()).Body(requestBody).Options(options).Execute()
+
+// data.Tree.Root = {"name":"document:roadmap#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b","user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]}}}
 ```
 
 #### List Objects
 
-> Requires a client initialized with a storeId
+List the objects of a particular type a user has access to.
 
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/ListObjects)
 
 ```golang
-body := {{packageName}}.ListObjectsRequest{
-	AuthorizationModelId: {{packageName}}.PtrString("01GXSA8YR785C4FYS3C0RTG7B1"),
-    User:                 "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-    Relation:             "viewer",
-    Type:                 "document",
-	ContextualTuples: &ContextualTupleKeys{
-{{=<% %>=}}
-        TupleKeys: []TupleKey{{
-            User:     PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
-            Relation: PtrString("writer"),
-            Object:   PtrString("document:budget"),
-        }},
-<%={{ }}=%>
+options := ClientListObjectsOptions{
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+}
+body := ClientListObjectsRequest{
+    User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Relation: "can_read",
+    Type:     "document",
+    ContextualTuples: &[]ClientTupleKey{ {
+        User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Relation: "editor",
+        Object:   "folder:product",
+    }, {
+        User:     "folder:product",
+        Relation: "parent",
+        Object:   "document:roadmap",
+    } },
+}
+data, err := fgaClient.ListObjects(context.Background()).
+  Body(requestBody).
+  Options(options).
+  Execute()
+
+// data.Objects = ["document:roadmap"]
+```
+
+#### List Relations
+
+List the relations a user has on an object.
+
+```golang
+options := ClientListRelationsOptions{
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+}
+body := ClientListRelationsRequest{
+    User:      "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    Object:    "document:roadmap",
+    Relations: []string{"can_view", "can_edit", "can_delete", "can_rename"},
+    ContextualTuples: &[]ClientTupleKey{ {
+        User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Relation: "editor",
+        Object:   "document:roadmap",
+    } },
+}
+data, err := fgaClient.ListRelations(context.Background()).
+  Body(requestBody).
+  Options(options).
+  Execute()
+
+// data.Relations = ["can_view", "can_edit"]
+```
+
+### Assertions
+
+#### Read Assertions
+
+Read assertions for a particular authorization model.
+
+[API Documentation]({{apiDocsUrl}}#/Assertions/Read%20Assertions)
+
+```golang
+options := ClientReadAssertionsOptions{
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+}
+data, err := fgaClient.ReadAssertions(context.Background()).
+  Options(options).
+  Execute()
+```
+
+#### Write Assertions
+
+Update the assertions for a particular authorization model.
+
+[API Documentation]({{apiDocsUrl}}#/Assertions/Write%20Assertions)
+
+```golang
+options := ClientWriteAssertionsOptions{
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+}
+requestBody := ClientWriteAssertionsRequest{
+    ClientAssertion{
+        User:        "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Relation:    "can_view",
+        Object:      "document:roadmap",
+        Expectation: true,
     },
 }
-
-data, response, err := apiClient.{{appShortName}}Api.ListObjects(context.Background()).Body(body).Execute()
-
-// response.objects = ["document:roadmap"]
+data, err := fgaClient.WriteAssertions(context.Background()).
+  Body(requestBody).
+  Options(options).
+  Execute()
 ```

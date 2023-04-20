@@ -112,9 +112,6 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	var (
 		localVarHTTPMethod   = _nethttp.Method{{httpMethod}}
 		localVarPostBody     interface{}
-		localVarFormFileName string
-		localVarFileName     string
-		localVarFileBytes    []byte
 		{{#returnType}}
 		localVarReturnValue  {{{.}}}
 		{{/returnType}}
@@ -130,7 +127,6 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
-	localVarFormParams := _neturl.Values{}
 	{{#allParams}}
 	{{#required}}
 	{{^isPathParam}}
@@ -333,7 +329,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 {{/isKeyInCookie}}
 {{/isApiKey}}
 {{/authMethods}}
-	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFormFileName, localVarFileName, localVarFileBytes)
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams)
 	if err != nil {
 		return {{#returnType}}localVarReturnValue, {{/returnType}}nil, err
 	}
@@ -350,9 +346,9 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 		return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, err
 	}
 
-	if localVarHTTPResponse.StatusCode >= 300 {
+	if localVarHTTPResponse.StatusCode >= _nethttp.StatusMultipleChoices {
 
-		if localVarHTTPResponse.StatusCode == 400 || localVarHTTPResponse.StatusCode == 422 {
+		if localVarHTTPResponse.StatusCode == _nethttp.StatusBadRequest || localVarHTTPResponse.StatusCode == _nethttp.StatusUnprocessableEntity {
 			newErr := FgaApiValidationError{
 				body:    localVarBody,
 				storeId: a.client.cfg.StoreId,
@@ -378,7 +374,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 			return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, newErr
 		}
 
-		if localVarHTTPResponse.StatusCode == 401  || localVarHTTPResponse.StatusCode == 403 {
+		if localVarHTTPResponse.StatusCode == _nethttp.StatusUnauthorized  || localVarHTTPResponse.StatusCode == _nethttp.StatusForbidden {
 			newErr := FgaApiAuthenticationError{
 				body:    localVarBody,
 
@@ -394,7 +390,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 			return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, newErr
 		}
 
-		if localVarHTTPResponse.StatusCode == 404 {
+		if localVarHTTPResponse.StatusCode == _nethttp.StatusNotFound {
 			newErr := FgaApiNotFoundError{
 				body:    localVarBody,
 				storeId: a.client.cfg.StoreId,
@@ -420,7 +416,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 			return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, newErr
 		}
 
-		if localVarHTTPResponse.StatusCode == 429 {
+		if localVarHTTPResponse.StatusCode == _nethttp.StatusTooManyRequests {
 			if i < maxRetry {
 				time.Sleep(time.Duration(randomTime(i, minWaitInMs)) * time.Millisecond)
 				continue
@@ -444,7 +440,11 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 			return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, newErr
 		}
 
-		if localVarHTTPResponse.StatusCode >= 500 {
+		if localVarHTTPResponse.StatusCode >= _nethttp.StatusInternalServerError {
+            if localVarHTTPResponse.StatusCode != _nethttp.StatusNotImplemented && i < maxRetry {
+                time.Sleep(time.Duration(randomTime(i, minWaitInMs)) * time.Millisecond)
+                continue
+            }
 			newErr := FgaApiInternalError{
 				body:    localVarBody,
 
@@ -514,10 +514,10 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	// should never have reached this
 	{{#returnType}}
 	var localVarReturnValue {{{.}}}
-	return localVarReturnValue, nil, reportError("RateLimitError not handled properly")
+	return localVarReturnValue, nil, reportError("Error not handled properly")
 	{{/returnType}}
     {{^returnType}}
-	return nil, reportError("RateLimitError not handled properly")
+	return nil, reportError("Error not handled properly")
     {{/returnType}}
 }
 {{/operation}}

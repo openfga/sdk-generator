@@ -374,7 +374,7 @@ func Test{{appShortName}}ApiConfiguration(t *testing.T) {
 
         _, _, err = apiClient.{{appShortName}}Api.ReadAuthorizationModels(context.Background()).Execute()
         if err == nil {
-            t.Fatalf("Expected an error, got non")
+            t.Fatalf("Expected an error, got none")
         }
     })
 }
