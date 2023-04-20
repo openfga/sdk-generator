@@ -42,20 +42,12 @@
       "destinationFilename": "utils/chunk-array.ts",
       "templateType": "SupportingFiles"
     },
-    "utils/chunk-call.ts.mustache": {
-      "destinationFilename": "utils/chunk-call.ts",
-      "templateType": "SupportingFiles"
-    },
     "utils/index.ts.mustache": {
       "destinationFilename": "utils/index.ts",
       "templateType": "SupportingFiles"
     },
     "utils/generate-random-id.ts.mustache": {
       "destinationFilename": "utils/generate-random-id.ts",
-      "templateType": "SupportingFiles"
-    },
-    "utils/sleep.ts.mustache": {
-      "destinationFilename": "utils/sleep.ts",
       "templateType": "SupportingFiles"
     },
     "utils/set-header-if-not-set.ts.mustache": {
