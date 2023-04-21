@@ -992,12 +992,12 @@ func Test{{appShortName}}Client(t *testing.T) {
 			t.Fatalf("{{appShortName}}Client.%v() - wanted %v calls to /check, got %v", test.Name, 4, httpmock.GetTotalCallCount())
 		}
 
-		if len(got) != len(requestBody) {
-			t.Fatalf("{{appShortName}}Client.%v() - Response Length = %v, want %v", test.Name, len(got), len(requestBody))
+		if len(*got) != len(requestBody) {
+			t.Fatalf("{{appShortName}}Client.%v() - Response Length = %v, want %v", test.Name, len(*got), len(requestBody))
 		}
 
-		for index := 0; index < len(got); index++ {
-			response := got[index]
+		for index := 0; index < len(*got); index++ {
+			response := (*got)[index]
 			if response.Error != nil {
 				t.Fatalf("{{appShortName}}Client.%v()|%d/ %v", test.Name, index, response.Error)
 			}
