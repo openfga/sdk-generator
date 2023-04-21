@@ -24,6 +24,7 @@ func main() {
 ```golang
 import (
     . "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/client"
+    "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
     "os"
 )
 
@@ -52,6 +53,7 @@ func main() {
 import (
     {{packageName}} "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
     . "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/client"
+    "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
     "os"
 )
 
@@ -60,7 +62,7 @@ func main() {
         ApiScheme:              os.Getenv("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
         ApiHost:                os.Getenv("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
         StoreId:                os.Getenv("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
-        AuthorizationModelId:   {{packagename}}.PtrString("{{appUpperCaseName}}_AUTHORIZATION_MODEL_ID"),
+        AuthorizationModelId:   {{packageName}}.PtrString("{{appUpperCaseName}}_AUTHORIZATION_MODEL_ID"),
         Credentials: &credentials.Credentials{
             Method: credentials.CredentialsMethodClientCredentials,
             Config: &credentials.Config{

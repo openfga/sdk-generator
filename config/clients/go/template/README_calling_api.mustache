@@ -11,7 +11,7 @@ options := ClientListStoresOptions{
   PageSize:          {{packageName}}.PtrInt32(10),
   ContinuationToken: {{packageName}}.PtrString("..."),
 }
-stores, err := fgaClient.ListStores(context.Background()).Options(options).Execute();
+stores, err := fgaClient.ListStores(context.Background()).Options(options).Execute()
 
 // stores = [{ "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }]
 ```
@@ -33,7 +33,7 @@ if err != nil {
 
 // store store.Id in database
 // update the storeId of the current instance
-apiClient.SetStoreId(*store.Id)
+fgaClient.SetStoreId(*store.Id)
 // continue calling the API normally, scoped to this store
 ```
 
