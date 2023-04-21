@@ -2,22 +2,20 @@
 
 ```golang
 import (
-    {{#lambda.lowercase}}{{appShortName}}{{/lambda.lowercase}} "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
+    . "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/client"
     "os"
 )
 
 func main() {
-    configuration, err := {{packageName}}.NewConfiguration({{packageName}}.Configuration{
+    fgaClient, err := NewSdkClient(&ClientConfiguration{
         ApiScheme:      os.Getenv("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
-        ApiHost:        os.Getenv("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+        ApiHost:        os.Getenv("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
         StoreId:        os.Getenv("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
     })
 
-    if err != nil {
-    // .. Handle error
+	if err != nil {
+        // .. Handle error
     }
-
-    apiClient := {{packageName}}.NewAPIClient(configuration)
 }
 ```
 
@@ -25,14 +23,15 @@ func main() {
 
 ```golang
 import (
-    {{#lambda.lowercase}}{{appShortName}}{{/lambda.lowercase}} "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
+    . "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/client"
+    "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
     "os"
 )
 
 func main() {
-    configuration, err := {{packageName}}.NewConfiguration({{packageName}}.Configuration{
+    fgaClient, err := NewSdkClient(&ClientConfiguration{
         ApiScheme:      os.Getenv("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
-        ApiHost:        os.Getenv("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+        ApiHost:        os.Getenv("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
         StoreId:        os.Getenv("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
         Credentials: &credentials.Credentials{
             Method: credentials.CredentialsMethodApiToken,
@@ -43,10 +42,8 @@ func main() {
     })
 
     if err != nil {
-    // .. Handle error
+        // .. Handle error
     }
-
-    apiClient := {{packageName}}.NewAPIClient(configuration)
 }
 ```
 
@@ -54,15 +51,18 @@ func main() {
 
 ```golang
 import (
-    {{#lambda.lowercase}}{{appShortName}}{{/lambda.lowercase}} "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
+    {{packageName}} "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
+    . "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/client"
+    "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
     "os"
 )
 
 func main() {
-    configuration, err := {{packageName}}.NewConfiguration({{packageName}}.Configuration{
-        ApiScheme:      os.Getenv("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
-        ApiHost:        os.Getenv("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
-        StoreId:        os.Getenv("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+    fgaClient, err := NewSdkClient(&ClientConfiguration{
+        ApiScheme:              os.Getenv("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
+        ApiHost:                os.Getenv("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
+        StoreId:                os.Getenv("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+        AuthorizationModelId:   {{packageName}}.PtrString("{{appUpperCaseName}}_AUTHORIZATION_MODEL_ID"),
         Credentials: &credentials.Credentials{
             Method: credentials.CredentialsMethodClientCredentials,
             Config: &credentials.Config{
@@ -75,9 +75,7 @@ func main() {
     })
 
     if err != nil {
-    // .. Handle error
+        // .. Handle error
     }
-
-    apiClient := {{packageName}}.NewAPIClient(configuration)
 }
 ```
