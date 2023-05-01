@@ -295,7 +295,7 @@ namespace {{testPackageName}}.Api {
 
             var mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
             mockHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>(
+                .SetupSequence<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.Is<HttpRequestMessage>(req =>
                         req.RequestUri == new Uri($"https://{config.Credentials.Config.ApiTokenIssuer}/oauth/token") &&
@@ -306,7 +306,15 @@ namespace {{testPackageName}}.Api {
                     StatusCode = HttpStatusCode.OK,
                     Content = Utils.CreateJsonStringContent(new OAuth2Client.AccessTokenResponse() {
                         AccessToken = "some-token",
-                        ExpiresIn = 20000,
+                        ExpiresIn = 86400,
+                        TokenType = "Bearer"
+                    }),
+                })
+                .ReturnsAsync(new HttpResponseMessage() {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = Utils.CreateJsonStringContent(new OAuth2Client.AccessTokenResponse() {
+                        AccessToken = "some-token",
+                        ExpiresIn = 86400,
                         TokenType = "Bearer"
                     }),
                 });
@@ -318,11 +326,16 @@ namespace {{testPackageName}}.Api {
                 req.Headers.Contains("Authorization") &&
                 req.Headers.Authorization.Equals(new AuthenticationHeaderValue("Bearer", "some-token")));
             mockHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>(
+                .SetupSequence<Task<HttpResponseMessage>>(
                     "SendAsync",
                     readAuthorizationModelsMockExpression,
                     ItExpr.IsAny<CancellationToken>()
                 )
+                .ReturnsAsync(new HttpResponseMessage() {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = Utils.CreateJsonStringContent(
+                            new ReadAuthorizationModelsResponse() { AuthorizationModels = { } }),
+                })
                 .ReturnsAsync(new HttpResponseMessage() {
                     StatusCode = HttpStatusCode.OK,
                     Content = Utils.CreateJsonStringContent(
@@ -333,6 +346,7 @@ namespace {{testPackageName}}.Api {
             var {{appCamelCaseName}}Api = new {{classname}}(config, httpClient);
 
             var response = await {{appCamelCaseName}}Api.ReadAuthorizationModels(null, null);
+            var response2 = await {{appCamelCaseName}}Api.ReadAuthorizationModels(null, null);
 
             mockHandler.Protected().Verify(
                 "SendAsync",
@@ -344,7 +358,7 @@ namespace {{testPackageName}}.Api {
             );
             mockHandler.Protected().Verify(
                 "SendAsync",
-                Times.Exactly(1),
+                Times.Exactly(2),
                 readAuthorizationModelsMockExpression,
                 ItExpr.IsAny<CancellationToken>()
             );
