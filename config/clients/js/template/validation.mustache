@@ -1,3 +1,5 @@
+{{>partial_header}}
+
 import { FgaRequiredParamError } from "./errors";
 
 /**
@@ -23,4 +25,9 @@ export const isWellFormedUriString = (uri: string): boolean => {
   } catch (err) {
     return false;
   }
+};
+
+export const isWellFormedUlidString = (ulid: string): boolean => {
+  const regex = /^[0-7][0-9A-HJKMNP-TV-Z]{25}$/;
+  return !!(typeof ulid === "string" && ulid.match(regex)?.length);
 };
