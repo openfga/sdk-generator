@@ -182,7 +182,7 @@ export const {{classname}}AxiosParamCreator = function (configuration: Configura
             localVarRequestOptions.data = localVarFormParams{{#vendorExtensions}}{{^multipartFormData}}.toString(){{/multipartFormData}}{{/vendorExtensions}};
     {{/hasFormParams}}
     {{#bodyParam}}
-            localVarRequestOptions.data = serializeDataIfNeeded({{paramName}}, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded({{paramName}}, localVarRequestOptions)
     {{/bodyParam}}
 
             return {
