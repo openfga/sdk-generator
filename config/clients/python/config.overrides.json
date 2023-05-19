@@ -21,6 +21,66 @@
     "credentials_test.mustache": {
       "destinationFilename": "test/test_credentials.py",
       "templateType": "SupportingFiles"
+    },
+    "client/__init__.mustache": {
+      "destinationFilename": "openfga_sdk/client/__init__.py",
+      "templateType": "SupportingFiles" 
+    },
+    "client/check_request_body.mustache": {
+      "destinationFilename": "openfga_sdk/client/check_request_body.py",
+      "templateType": "SupportingFiles" 
+    },
+    "client/batch_check_response.mustache": {
+      "destinationFilename": "openfga_sdk/client/batch_check_response.py",
+      "templateType": "SupportingFiles" 
+    },
+    "client/client_tuple.mustache": {
+      "destinationFilename": "openfga_sdk/client/client_tuple.py",
+      "templateType": "SupportingFiles" 
+    },
+    "client/client_write_request.mustache": {
+      "destinationFilename": "openfga_sdk/client/client_write_request.py",
+      "templateType": "SupportingFiles" 
+    },
+    "client/client_write_response.mustache": {
+      "destinationFilename": "openfga_sdk/client/client_write_response.py",
+      "templateType": "SupportingFiles" 
+    },
+    "client/configuration.mustache": {
+      "destinationFilename": "openfga_sdk/client/configuration.py",
+      "templateType": "SupportingFiles" 
+    },
+    "client/expand_request_body.mustache": {
+      "destinationFilename": "openfga_sdk/client/expand_request_body.py",
+      "templateType": "SupportingFiles" 
+    },
+    "client/list_objects_request_body.mustache": {
+      "destinationFilename": "openfga_sdk/client/list_objects_request_body.py",
+      "templateType": "SupportingFiles" 
+    },
+    "client/list_relations_request_body.mustache": {
+      "destinationFilename": "openfga_sdk/client/list_relations_request_body.py",
+      "templateType": "SupportingFiles" 
+    },
+    "client/openfga_client_test.mustache": {
+      "destinationFilename": "test/test_openfga_client.py",
+      "templateType": "SupportingFiles" 
+    },
+    "client/openfga_client.mustache": {
+      "destinationFilename": "openfga_sdk/client/openfga_client.py",
+      "templateType": "SupportingFiles" 
+    },
+    "client/read_changes_body.mustache": {
+      "destinationFilename": "openfga_sdk/client/read_changes_body.py",
+      "templateType": "SupportingFiles" 
+    },
+    "client/single_write_response.mustache": {
+      "destinationFilename": "openfga_sdk/client/single_write_response.py",
+      "templateType": "SupportingFiles" 
+    },
+    "client/write_transaction.mustache": {
+      "destinationFilename": "openfga_sdk/client/write_transaction.py",
+      "templateType": "SupportingFiles" 
     }
   }
 }

@@ -1,0 +1,17 @@
+# coding: utf-8
+{{>partial_header}}
+
+class ReadChangesBody():
+    """
+    ReadChangesBody encapsulates the parameters required to read changes
+    """
+
+    def __init__(self, type: str):
+        self._type = type
+
+    @property
+    def type(self):
+        """
+        Return type
+        """
+        return self._type

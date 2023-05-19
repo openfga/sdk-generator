@@ -123,6 +123,7 @@ class {{classname}}(object):
         :param _request_auth: set to override the auth_settings for an a single
                               request; this effectively ignores the authentication
                               in the spec for a single request.
+        :param _retry_param: if specified, override the retry parameters specified in configuration
         :type _request_auth: dict, optional
         :type _content_type: string, optional: force content-type for the request
         :return: Returns the result object.
@@ -165,7 +166,8 @@ class {{classname}}(object):
                 '_request_timeout',
                 '_request_auth',
                 '_content_type',
-                '_headers'
+                '_headers',
+                '_retry_parms'
             ]
         )
 
@@ -319,6 +321,7 @@ class {{classname}}(object):
             _return_http_data_only=local_var_params.get('_return_http_data_only'),  # noqa: E501
             _preload_content=local_var_params.get('_preload_content', True),
             _request_timeout=local_var_params.get('_request_timeout'),
+            _retry_params=local_var_params.get('_retry_params'),
             {{#servers.0}}
             _host=local_var_host,
             {{/servers.0}}
