@@ -331,9 +331,9 @@ var options = new ClientCheckOptions {
     AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
 };
 var body = new ClientCheckRequest {
-    Object = "document:roadmap",
+    User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     Relation = "writer",
-    User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b"
+    Object = "document:roadmap"
 };
 var response = await fgaClient.Check(body, options);
 // response.Allowed = true
@@ -453,7 +453,7 @@ var response = await fgaClient.Expand(body, options);
 // response.Tree.Root = {"name":"document:roadmap#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b","user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]}}}
 ```
 
-#### List Objects
+##### List Objects
 
 List the objects of a particular type a user has access to.
 
@@ -481,7 +481,7 @@ var response = await fgaClient.ListObjects(body, options);
 // response.Objects = ["document:roadmap"]
 ```
 
-#### List Relations
+##### List Relations
 
 List the relations a user has on an object.
 
@@ -504,9 +504,9 @@ var response = await fgaClient.ListRelations(body);
 // response.Relations = ["can_view", "can_edit"]
 ```
 
-### Assertions
+#### Assertions
 
-#### Read Assertions
+##### Read Assertions
 
 Read assertions for a particular authorization model.
 
@@ -520,7 +520,7 @@ var options = new ClientReadAssertionsOptions {
 var response = await fgaClient.ReadAssertions(options);
 ```
 
-#### Write Assertions
+##### Write Assertions
 
 Update the assertions for a particular authorization model.
 
