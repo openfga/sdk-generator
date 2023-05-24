@@ -20,7 +20,7 @@ from {{packageName}}.client.list_relations_request_body import ListRelationsRequ
 from {{packageName}}.client.read_changes_body import ReadChangesBody
 from {{packageName}}.client.single_write_response import SingleWriteResponse
 from {{packageName}}.client.write_transaction import WriteTransaction
-from {{packageName}}.exceptions import ValidationException
+from {{packageName}}.exceptions import ValidationException, FgaValidationException
 from {{packageName}}.models.assertion import Assertion
 from {{packageName}}.models.authorization_model import AuthorizationModel
 from {{packageName}}.models.check_response import CheckResponse
@@ -1975,3 +1975,25 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _request_timeout=None
             )
 
+    def test_configuration_store_id_invalid(self):
+        """
+        Test whether ApiValueError is raised if host has query
+        """
+        configuration = ClientConfiguration(
+            api_host='localhost',
+            api_scheme='http',
+            store_id="abcd"
+        )
+        self.assertRaises(FgaValidationException, configuration.is_valid)
+
+    def test_configuration_authorization_model_id_invalid(self):
+        """
+        Test whether ApiValueError is raised if host has query
+        """
+        configuration = ClientConfiguration(
+            api_host='localhost',
+            api_scheme='http',
+            store_id="01H15K9J85050XTEDPVM8DJM78",
+            authorization_model_id="abcd"
+        )
+        self.assertRaises(FgaValidationException, configuration.is_valid)

@@ -81,6 +81,14 @@
     "client/write_transaction.mustache": {
       "destinationFilename": "openfga_sdk/client/write_transaction.py",
       "templateType": "SupportingFiles" 
+    },
+    "validation.mustache": {
+      "destinationFilename": "openfga_sdk/validation.py",
+      "templateType": "SupportingFiles"
+    },
+    "validation_test.mustache": {
+      "destinationFilename": "test/test_validation.py",
+      "templateType": "SupportingFiles"
     }
   }
 }
