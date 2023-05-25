@@ -1,7 +1,7 @@
 # coding: utf-8
 {{>partial_header}}
 
-from {{packageName}}.client.check_request_body import CheckRequestBody
+from {{packageName}}.client.models.check_request import ClientCheckRequest
 from {{packageName}}.models.check_response import CheckResponse
 
 class BatchCheckResponse():
@@ -9,7 +9,7 @@ class BatchCheckResponse():
     BatchCheckResponse encapsulates the response for a single batch check
     """
 
-    def __init__(self, allowed: bool, request: CheckRequestBody, response: CheckResponse, error: Exception=None):
+    def __init__(self, allowed: bool, request: ClientCheckRequest, response: CheckResponse, error: Exception=None):
         self._allowed = allowed
         self._request = request
         self._response = response

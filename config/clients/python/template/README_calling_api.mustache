@@ -256,7 +256,7 @@ The SDK will split the writes into separate requests and send them sequentially 
 options = {
     # You can rely on the model id set in the configuration or override it for this specific request
     "authorization_model_id": "01GXSA8YR785C4FYS3C0RTG7B1",
-    "transaction": WriteTransaction(
+    "transaction": WriteTransactionOpts(
         disabled=True,
         max_parallel_requests=10, # Maximum number of requests to issue in parallel
         max_per_chunk=1, # Maximum number of requests to be sent in a transaction in a particular chunk
@@ -454,7 +454,7 @@ options = {
     # You can rely on the model id set in the configuration or override it for this specific request
     "authorization_model_id": "01GXSA8YR785C4FYS3C0RTG7B1"
 }
-body =  ListRelationsRequest(
+body = ClientListRelationsRequest(
     user = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     object = "document:roadmap",
     relations = ["can_view", "can_edit", "can_delete", "can_rename"],

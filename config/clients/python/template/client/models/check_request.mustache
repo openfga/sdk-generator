@@ -1,19 +1,19 @@
 # coding: utf-8
 {{>partial_header}}
 
-from {{packageName}}.client.client_tuple import ClientTuple
+from {{packageName}}.client.models.tuple import ClientTuple
 
 from typing import List
 
-def construct_check_request_body(user: str, relation: str, object: str, contextual_tuples: List[ClientTuple]=None):
+def construct_check_request(user: str, relation: str, object: str, contextual_tuples: List[ClientTuple]=None):
     """
     helper function to construct the check request body
     """
-    return CheckRequestBody(user, relation, object, contextual_tuples)
+    return ClientCheckRequest(user, relation, object, contextual_tuples)
 
-class CheckRequestBody():
+class ClientCheckRequest():
     """
-    CheckRequestBody encapsulates the parameters for check request
+    ClientCheckRequest encapsulates the parameters for check request
     """
 
     def __init__(self, user: str, relation: str, object: str, contextual_tuples: List[ClientTuple]=None):
