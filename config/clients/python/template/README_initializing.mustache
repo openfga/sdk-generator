@@ -1,89 +1,83 @@
-#### No Authentication ####
+The documentation below refers to the `{{appShortName}}Client`, to read the documentation for `{{appShortName}}Api`, check out the [`v0.1.1` documentation](https://github.com/{{gitUserId}}/{{gitRepoId}}/tree/v0.1.1#readme).
 
-##### Without Store ID #####
+> The {{appShortName}}Client will by default retry API requests up to {{defaultMaxRetry}} times on 429 and 5xx errors.
 
-To configure the SDK API client without store ID, we can initialize the api client by specifying the scheme and host.
+#### No Credentials
 
 ```python
 import {{packageName}}
-from {{packageName}}.api import open_fga_api
+from {{packageName}}.client import OpenFgaClient
 
-configuration = {{packageName}}.Configuration(
-    api_scheme = 'https',
-    api_host = 'api.{{sampleApiDomain}}'
-)
 
-async def api_setup():
-    # Enter a context with an instance of the API client
-    async with {{packageName}}.ApiClient(configuration) as api_client:
-        # Create an instance of the API class
-        api_instance = open_fga_api.OpenFgaApi(api_client)
+async def main():
+    configuration = {{packageName}}.ClientConfiguration(
+        api_scheme = {{appUpperCaseName}}_API_SCHEME, # optional, defaults to "https"
+        api_host = {{appUpperCaseName}}_API_HOST, # required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+        store_id = {{appUpperCaseName}}_STORE_ID, # optional, not needed when calling `CreateStore` or `ListStores`
+        authorization_model_id = {{appUpperCaseName}}_AUTHORIZATION_MODEL_ID, # Optional, can be overridden per request
+    )
+    # Enter a context with an instance of the OpenFgaClient
+    async with OpenFgaClient(configuration) as fga_client:
+        api_response = await fga_client.read_authorization_models()
+        await fga_client.close()
 
 ```
 
-##### With Store ID #####
-
-To configure the SDK API client store ID, we can initialize the api client by specifying the scheme, host and store_id.
+#### API Token
 
 ```python
 import {{packageName}}
-from {{packageName}}.api import open_fga_api
-
-configuration = openfga_sdk.Configuration(
-    api_scheme = 'https',
-    api_host = 'api.{{sampleApiDomain}}',
-    store_id = 'YOUR_STORE_ID'
-)
-
-async def api_setup():
-    # Enter a context with an instance of the API client
-    async with openfga_sdk.ApiClient(configuration) as api_client:
-        # Create an instance of the API class
-        api_instance = open_fga_api.OpenFgaApi(api_client)
-
-```
-
-Another possibility is to use the existing configuration and add store id in its configuration
-
-```python
-import {{packageName}}
-from {{packageName}}.api import open_fga_api
-
-configuration = openfga_sdk.Configuration(
-    api_scheme = 'https',
-    api_host = 'api.{{sampleApiDomain}}'
-)
-
-async def api_setup():
-    configuration.store_id = 'YOUR_STORE_ID'
-
-    # Enter a context with an instance of the API client
-    async with {{packageName}}.ApiClient(configuration) as api_client:
-        # Create an instance of the API class
-        api_instance = open_fga_api.OpenFgaApi(api_client)
-
-```
-
-#### Authentication via API Token ####
-
-To configure the SDK API client with authentication via API TOKEN, we can initialize the api client by specifying the scheme, host and credentials.
-
-```python
-import {{packageName}}
-from {{packageName}}.api import open_fga_api
+from {{packageName}}.client import OpenFgaClient
 from {{packageName}}.credentials import Credentials, CredentialConfiguration
 
-credentials = Credentials(method='api_token', configuration=CredentialConfiguration(api_token='TOKEN1'))
-configuration = {{packageName}}.Configuration(
-    api_scheme = 'https',
-    api_host = 'api.{{sampleApiDomain}}',
-    credentials = credentials
-)
 
-async def api_setup():
-    # Enter a context with an instance of the API client
-    async with {{packageName}}.ApiClient(configuration) as api_client:
-        # Create an instance of the API class
-        api_instance = open_fga_api.OpenFgaApi(api_client)
+async def main():
+    configuration = {{packageName}}.ClientConfiguration(
+        api_scheme = {{appUpperCaseName}}_API_SCHEME, # optional, defaults to "https"
+        api_host = {{appUpperCaseName}}_API_HOST, # required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+        store_id = {{appUpperCaseName}}_STORE_ID, # optional, not needed when calling `CreateStore` or `ListStores`
+        authorization_model_id = {{appUpperCaseName}}_AUTHORIZATION_MODEL_ID, # Optional, can be overridden per request
+        credentials = Credentials(
+            method='api_token',
+            configuration=CredentialConfiguration(
+                api_token= {{appUpperCaseName}}_API_TOKEN,
+            )
+        )
+    )
+    # Enter a context with an instance of the OpenFgaClient
+    async with OpenFgaClient(configuration) as fga_client:
+        api_response = await fga_client.read_authorization_models()
+        await fga_client.close()
+
+```
+
+#### Client Credentials
+
+```python
+import {{packageName}}
+from {{packageName}}.client import OpenFgaClient
+from {{packageName}}.credentials import Credentials, CredentialConfiguration
+
+
+async def main():
+    configuration = {{packageName}}.ClientConfiguration(
+        api_scheme = {{appUpperCaseName}}_API_SCHEME, # optional, defaults to "https"
+        api_host = {{appUpperCaseName}}_API_HOST, # required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+        store_id = {{appUpperCaseName}}_STORE_ID, # optional, not needed when calling `CreateStore` or `ListStores`
+        authorization_model_id = {{appUpperCaseName}}_AUTHORIZATION_MODEL_ID, # Optional, can be overridden per request
+        credentials = Credentials(
+            method='client_credentials',
+            configuration=CredentialConfiguration(
+                api_issuer= {{appUpperCaseName}}_API_TOKEN_ISSUER,
+                api_audience= {{appUpperCaseName}}_API_AUDIENCE,
+                client_id= {{appUpperCaseName}}_CLIENT_ID,
+                client_secret= {{appUpperCaseName}}_CLIENT_SECRET,
+            )
+        )
+    )
+    # Enter a context with an instance of the OpenFgaClient
+    async with OpenFgaClient(configuration) as fga_client:
+        api_response = await fga_client.read_authorization_models()
+        await fga_client.close()
 
 ```

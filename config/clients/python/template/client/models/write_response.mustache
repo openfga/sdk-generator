@@ -1,0 +1,29 @@
+# coding: utf-8
+{{>partial_header}}
+
+from {{packageName}}.client.models.write_single_response import ClientWriteSingleResponse
+
+from typing import List
+
+class ClientWriteResponse():
+    """
+    ClientWriteResponse returns the set of responses and their statuses
+    """
+
+    def __init__(self, writes: List[ClientWriteSingleResponse], deletes: List[ClientWriteSingleResponse]):
+        self._writes = writes
+        self._deletes = deletes
+
+    @property
+    def writes(self):
+        """
+        Return the writes response
+        """
+        return self._writes
+
+    @property
+    def deletes(self):
+        """
+        Return the delete response
+        """
+        return self._deletes

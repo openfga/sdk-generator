@@ -39,8 +39,6 @@ Get information about the current store.
 
 [API Documentation]({{apiDocsUrl}}#/Stores/GetStore)
 
-> Requires a client initialized with a storeId
-
 ```javascript
 const store = await fgaClient.getStore();
 
@@ -53,8 +51,6 @@ Delete a store.
 
 [API Documentation]({{apiDocsUrl}}#/Stores/DeleteStore)
 
-> Requires a client initialized with a storeId
-
 ```javascript
 await fgaClient.deleteStore();
 ```
@@ -63,7 +59,7 @@ await fgaClient.deleteStore();
 
 ##### Read Authorization Models
 
-Read all authorization models.
+Read all authorization models in the store.
 
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModels)
 
@@ -83,17 +79,15 @@ authorizationModels = [
 
 ##### Write Authorization Model
 
-Create a new version of the authorization model.
+Create a new authorization model.
 
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/WriteAuthorizationModel)
 
-> Requires a client initialized with a storeId
-
 > Note: To learn how to build your authorization model, check the Docs at {{docsUrl}}.
 
-> Learn more about [the {{appName}} configuration language]({{docsUrl}}/configuration-language).
+> Learn more about [the {{appTitleCaseName}} configuration language]({{docsUrl}}/configuration-language).
 
-> You can use the [OpenFGA Syntax Transformer](https://github.com/openfga/syntax-transformer) to convert between the friendly DSL and the JSON authorization model.
+> You can use the [{{appTitleCaseName}} Syntax Transformer](https://github.com/openfga/syntax-transformer) to convert between the friendly DSL and the JSON authorization model.
 
 ```javascript
 const { authorization_model_id: id } = await fgaClient.writeAuthorizationModel({
@@ -123,9 +117,7 @@ const { authorization_model_id: id } = await fgaClient.writeAuthorizationModel({
 
 ##### Read a Single Authorization Model
 
-[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
-
-> Requires a client initialized with a storeId
+Read a particular authorization model.
 
 ```javascript
 const options = {};
@@ -144,8 +136,6 @@ Reads the latest authorization model (note: this ignores the model id in configu
 
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
 
-> Requires a client initialized with a storeId
-
 ```javascript
 const { authorization_model: authorizationModel } = await fgaClient.readLatestAuthorizationModel();
 
@@ -157,8 +147,6 @@ const { authorization_model: authorizationModel } = await fgaClient.readLatestAu
 ##### Read Relationship Tuple Changes (Watch)
 
 Reads the list of historical relationship tuple writes and deletes.
-
-> Requires a client initialized with a storeId
 
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/ReadChanges)
 
@@ -180,9 +168,9 @@ const response = await fgaClient.readChanges({ type }, options);
 
 ##### Read Relationship Tuples
 
-[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Read)
+Reads the relationship tuples stored in the database. It does not evaluate nor exclude invalid tuples according to the authorization model.
 
-> Requires a client initialized with a storeId
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Read)
 
 ```javascript
 // Find if a relationship tuple stating that a certain user is a viewer of a certain document
@@ -230,8 +218,6 @@ const { tuples } = await fgaClient.read(body);
 Create and/or delete relationship tuples to update the system state.
 
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
-
-> Requires a client initialized with a storeId
 
 ###### Transaction mode (default)
 
@@ -288,8 +274,6 @@ Check if a user has a particular relation with an object.
 
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Check)
 
-> Requires a client initialized with a storeId
-
 ```javascript
 const options = {
   // if you'd like to override the authorization model id for this request
@@ -309,8 +293,6 @@ const result = await fgaClient.check({
 
 Run a set of [checks](#check). Batch Check will return `allowed: false` if it encounters an error, and will return the error in the body.
 If 429s or 5xxs are encountered, the underlying check will retry up to {{defaultMaxRetry}} times before giving up.
-
-> Requires a client initialized with a storeId
 
 ```javascript
 const options = {
@@ -374,8 +356,6 @@ Expands the relationships in userset tree format.
 
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Expand)
 
-> Requires a client initialized with a storeId
-
 ```javascript
 const options = {};
 
@@ -393,8 +373,6 @@ const { tree } = await fgaClient.expand({
 ##### List Objects
 
  List the objects of a particular type that the user has a certain relation to.
-
-> Requires a client initialized with a storeId
 
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/ListObjects)
 
@@ -424,8 +402,6 @@ List the relations a user has with an object. This wraps around [BatchCheck](#ba
 
 Note: Any error encountered when checking any relation will be treated as `allowed: false`;
 
-> Requires a client initialized with a storeId
-
 ```javascript
 const options = {};
 
@@ -452,8 +428,6 @@ const response = await fgaClient.listRelations({
 
 Read assertions for a particular authorization model.
 
-> Requires a client initialized with a storeId
-
 [API Documentation]({{apiDocsUrl}}#/Assertions/Read%20Assertions)
 
 ```javascript
@@ -477,8 +451,6 @@ response.assertions = [{
 ##### Write Assertions
 
 Update the assertions for a particular authorization model.
-
-> Requires a client initialized with a storeId
 
 [API Documentation]({{apiDocsUrl}}#/Assertions/Write%20Assertions)
 

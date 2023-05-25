@@ -6,6 +6,9 @@
 
 __version__ = "{{packageVersion}}"
 
+from {{packageName}}.client.client import OpenFgaClient
+from {{packageName}}.client.configuration import ClientConfiguration
+
 # import apis into sdk package
 {{#apiInfo}}{{#apis}}from {{apiPackage}}.{{classFilename}} import {{classname}}
 {{/apis}}{{/apiInfo}}
