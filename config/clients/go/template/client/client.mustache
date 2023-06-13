@@ -5,11 +5,12 @@ import (
 	_context "context"
 	"encoding/json"
 	"fmt"
+	"math"
+	_nethttp "net/http"
+
 	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
 	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
 	"golang.org/x/sync/errgroup"
-	"math"
-	_nethttp "net/http"
 )
 
 var (
@@ -393,7 +394,7 @@ type SdkClient interface {
 	 * WriteAssertionsExecute executes the WriteAssertions request
 	 * @return *ClientWriteAssertionsResponse
 	 */
-	WriteAssertionsExecute(request SdkClientWriteAssertionsRequest) (*ClientWriteAssertionsReponse, error)
+	WriteAssertionsExecute(request SdkClientWriteAssertionsRequest) (*ClientWriteAssertionsResponse, error)
 }
 
 func (client *{{appShortName}}Client) getAuthorizationModelId(authorizationModelId *string) *string {
@@ -699,6 +700,13 @@ func (request SdkClientReadAuthorizationModelRequest) Options(options ClientRead
 	return request
 }
 
+func (request SdkClientReadAuthorizationModelRequest) getAuthorizationModelIdOverride() *string {
+	if request.options == nil {
+		return nil
+	}
+	return request.options.AuthorizationModelId
+}
+
 func (request SdkClientReadAuthorizationModelRequest) Body(body ClientReadAuthorizationModelRequest) SdkClientReadAuthorizationModelRequest {
 	request.body = &body
 	return request
@@ -709,7 +717,11 @@ func (request SdkClientReadAuthorizationModelRequest) Execute() (*ClientReadAuth
 }
 
 func (client *{{appShortName}}Client) ReadAuthorizationModelExecute(request SdkClientReadAuthorizationModelRequest) (*ClientReadAuthorizationModelResponse, error) {
-	data, _, err := client.{{appShortName}}Api.ReadAuthorizationModel(request.ctx, *request.options.AuthorizationModelId).Execute()
+	authorizationModelId := client.getAuthorizationModelId(request.getAuthorizationModelIdOverride())
+	if authorizationModelId == nil {
+		return nil, FgaRequiredParamError{param: "AuthorizationModelId"}
+	}
+	data, _, err := client.{{appShortName}}Api.ReadAuthorizationModel(request.ctx, *authorizationModelId).Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -874,15 +886,18 @@ func (request SdkClientReadRequest) Execute() (*ClientReadResponse, error) {
 }
 
 func (client *{{appShortName}}Client) ReadExecute(request SdkClientReadRequest) (*ClientReadResponse, error) {
-	data, _, err := client.{{appShortName}}Api.Read(request.ctx).Body({{packageName}}.ReadRequest{
-		TupleKey: &{{packageName}}.TupleKey{
+	body := openfga.ReadRequest{
+		PageSize:          getPageSizeFromRequest((*ClientPaginationOptions)(request.options)),
+		ContinuationToken: getContinuationTokenFromRequest((*ClientPaginationOptions)(request.options)),
+	}
+	if request.body != nil && (request.body.User != nil || request.body.Relation != nil || request.body.Object != nil) {
+		body.TupleKey = &openfga.TupleKey{
 			User:     request.body.User,
 			Relation: request.body.Relation,
 			Object:   request.body.Object,
-		},
-		PageSize:          getPageSizeFromRequest((*ClientPaginationOptions)(request.options)),
-		ContinuationToken: getContinuationTokenFromRequest((*ClientPaginationOptions)(request.options)),
-	}).Execute()
+		}
+	}
+	data, _, err := client.OpenFgaApi.Read(request.ctx).Body(body).Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -973,6 +988,13 @@ func (request SdkClientWriteRequest) Options(options ClientWriteOptions) SdkClie
 	return request
 }
 
+func (request SdkClientWriteRequest) getAuthorizationModelIdOverride() *string {
+	if request.options == nil {
+		return nil
+	}
+	return request.options.AuthorizationModelId
+}
+
 func (request SdkClientWriteRequest) Body(body ClientWriteRequest) SdkClientWriteRequest {
 	request.body = &body
 	return request
@@ -1001,7 +1023,7 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 	// In transaction mode, the client will send the request to the server as is
 	if request.options == nil || request.options.Transaction == nil || !request.options.Transaction.Disable {
 		writeRequest := {{packageName}}.WriteRequest{
-			AuthorizationModelId: client.getAuthorizationModelId(request.options.AuthorizationModelId),
+			AuthorizationModelId: client.getAuthorizationModelId(request.getAuthorizationModelIdOverride()),
 		}
 		if request.body.Writes != nil && len(*request.body.Writes) > 0 {
 			writes := {{packageName}}.TupleKeys{}
@@ -1024,7 +1046,7 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 			clientWriteStatus = FAILURE
 		}
 
-		if request.body.Writes != nil {
+		if request.body != nil && request.body.Writes != nil {
 			writeRequestTupleKeys := *request.body.Writes
 			for index := 0; index < len(writeRequestTupleKeys); index++ {
 				response.Writes = append(response.Writes, ClientWriteSingleResponse{
@@ -1036,7 +1058,7 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 			}
 		}
 
-		if request.body.Deletes != nil {
+		if request.body != nil && request.body.Deletes != nil {
 			deleteRequestTupleKeys := *request.body.Deletes
 			for index := 0; index < len(deleteRequestTupleKeys); index++ {
 				response.Deletes = append(response.Deletes, ClientWriteSingleResponse{
@@ -1057,11 +1079,13 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 	// - the max items in each request are based on maxPerChunk (default=1)
 	var writeChunkSize = int(maxPerChunk)
 	var writeChunks [][]ClientTupleKey
-	for i := 0; i < len(*request.body.Writes); i += writeChunkSize {
-		end := int(math.Min(float64(i+writeChunkSize), float64(len(*request.body.Writes))))
+    if request.body != nil {
+        for i := 0; i < len(*request.body.Writes); i += writeChunkSize {
+            end := int(math.Min(float64(i+writeChunkSize), float64(len(*request.body.Writes))))
 
-		writeChunks = append(writeChunks, (*request.body.Writes)[i:end])
-	}
+            writeChunks = append(writeChunks, (*request.body.Writes)[i:end])
+        }
+    }
 
 	writeGroup, ctx := errgroup.WithContext(request.ctx)
 	writeGroup.SetLimit(int(maxParallelReqs))
@@ -1076,7 +1100,7 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 					Writes: &writeBody,
 				},
 				options: &ClientWriteOptions{
-					AuthorizationModelId: client.getAuthorizationModelId(request.options.AuthorizationModelId),
+					AuthorizationModelId: client.getAuthorizationModelId(request.getAuthorizationModelIdOverride()),
 				},
 			})
 
@@ -1090,11 +1114,13 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 
 	var deleteChunkSize = int(maxPerChunk)
 	var deleteChunks [][]ClientTupleKey
-	for i := 0; i < len(*request.body.Deletes); i += deleteChunkSize {
-		end := int(math.Min(float64(i+writeChunkSize), float64(len(*request.body.Deletes))))
+    if request.body != nil {
+        for i := 0; i < len(*request.body.Deletes); i += deleteChunkSize {
+            end := int(math.Min(float64(i+writeChunkSize), float64(len(*request.body.Deletes))))
 
-		deleteChunks = append(deleteChunks, (*request.body.Deletes)[i:end])
-	}
+            deleteChunks = append(deleteChunks, (*request.body.Deletes)[i:end])
+        }
+    }
 
 	deleteGroup, ctx := errgroup.WithContext(request.ctx)
 	deleteGroup.SetLimit(int(maxParallelReqs))
@@ -1109,7 +1135,7 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 					Deletes: &deleteBody,
 				},
 				options: &ClientWriteOptions{
-					AuthorizationModelId: client.getAuthorizationModelId(request.options.AuthorizationModelId),
+					AuthorizationModelId: client.getAuthorizationModelId(request.getAuthorizationModelIdOverride()),
 				},
 			})
 
@@ -1169,9 +1195,13 @@ func (request SdkClientWriteTuplesRequest) Execute() (*ClientWriteResponse, erro
 }
 
 func (client *{{appShortName}}Client) WriteTuplesExecute(request SdkClientWriteTuplesRequest) (*ClientWriteResponse, error) {
-	return client.Write(request.ctx).Body(ClientWriteRequest{
+	baseReq := client.Write(request.ctx).Body(ClientWriteRequest{
 		Writes: request.body,
-	}).Options(*request.options).Execute()
+	})
+	if request.options != nil {
+		baseReq.Options(*request.options)
+	}
+	return baseReq.Execute()
 }
 
 // / DeleteTuples
@@ -1207,9 +1237,13 @@ func (request SdkClientDeleteTuplesRequest) Execute() (*ClientWriteResponse, err
 }
 
 func (client *{{appShortName}}Client) DeleteTuplesExecute(request SdkClientDeleteTuplesRequest) (*ClientWriteResponse, error) {
-	return client.Write(request.ctx).Body(ClientWriteRequest{
+	baseReq := client.Write(request.ctx).Body(ClientWriteRequest{
 		Deletes: request.body,
-	}).Options(*request.options).Execute()
+	})
+	if request.options != nil {
+		baseReq.Options(*request.options)
+	}
+	return baseReq.Execute()
 }
 
 /* Relationship Queries */
@@ -1252,6 +1286,13 @@ func (request SdkClientCheckRequest) Options(options ClientCheckOptions) SdkClie
 	return request
 }
 
+func (request SdkClientCheckRequest) getAuthorizationModelIdOverride() *string {
+	if request.options == nil {
+		return nil
+	}
+	return request.options.AuthorizationModelId
+}
+
 func (request SdkClientCheckRequest) Body(body ClientCheckRequest) SdkClientCheckRequest {
 	request.body = &body
 	return request
@@ -1275,7 +1316,7 @@ func (client *{{appShortName}}Client) CheckExecute(request SdkClientCheckRequest
 			Object:   {{packageName}}.PtrString(request.body.Object),
 		},
 		ContextualTuples:     {{packageName}}.NewContextualTupleKeys(contextualTuples),
-		AuthorizationModelId: client.getAuthorizationModelId(request.options.AuthorizationModelId),
+		AuthorizationModelId: client.getAuthorizationModelId(request.getAuthorizationModelIdOverride()),
 	}
 
 	data, httpResponse, err := client.{{appShortName}}Api.Check(request.ctx).Body(requestBody).Execute()
@@ -1319,6 +1360,13 @@ func (request SdkClientBatchCheckRequest) Options(options ClientBatchCheckOption
 	return request
 }
 
+func (request SdkClientBatchCheckRequest) getAuthorizationModelIdOverride() *string {
+	if request.options == nil {
+		return nil
+	}
+	return request.options.AuthorizationModelId
+}
+
 func (request SdkClientBatchCheckRequest) Body(body ClientBatchCheckBody) SdkClientBatchCheckRequest {
 	request.body = &body
 	return request
@@ -1347,7 +1395,7 @@ func (client *{{appShortName}}Client) BatchCheckExecute(request SdkClientBatchCh
 				Client: *client,
 				body:   &checkBody,
 				options: &ClientCheckOptions{
-					AuthorizationModelId: client.getAuthorizationModelId(request.options.AuthorizationModelId),
+					AuthorizationModelId: client.getAuthorizationModelId(request.getAuthorizationModelIdOverride()),
 				},
 			})
 
@@ -1400,6 +1448,13 @@ func (request SdkClientExpandRequest) Options(options ClientExpandOptions) SdkCl
 	return request
 }
 
+func (request SdkClientExpandRequest) getAuthorizationModelIdOverride() *string {
+	if request.options == nil {
+		return nil
+	}
+	return request.options.AuthorizationModelId
+}
+
 func (request SdkClientExpandRequest) Body(body ClientExpandRequest) SdkClientExpandRequest {
 	request.body = &body
 	return request
@@ -1415,7 +1470,7 @@ func (client *{{appShortName}}Client) ExpandExecute(request SdkClientExpandReque
 			Relation: &request.body.Relation,
 			Object:   &request.body.Object,
 		},
-		AuthorizationModelId: client.getAuthorizationModelId(request.options.AuthorizationModelId),
+		AuthorizationModelId: client.getAuthorizationModelId(request.getAuthorizationModelIdOverride()),
 	}).Execute()
 	if err != nil {
 		return nil, err
@@ -1457,6 +1512,13 @@ func (request SdkClientListObjectsRequest) Options(options ClientListObjectsOpti
 	return request
 }
 
+func (request SdkClientListObjectsRequest) getAuthorizationModelIdOverride() *string {
+	if request.options == nil {
+		return nil
+	}
+	return request.options.AuthorizationModelId
+}
+
 func (request SdkClientListObjectsRequest) Body(body ClientListObjectsRequest) SdkClientListObjectsRequest {
 	request.body = &body
 	return request
@@ -1478,7 +1540,7 @@ func (client *{{appShortName}}Client) ListObjectsExecute(request SdkClientListOb
 		Relation:             request.body.Relation,
 		Type:                 request.body.Type,
 		ContextualTuples:     {{packageName}}.NewContextualTupleKeys(contextualTuples),
-		AuthorizationModelId: client.getAuthorizationModelId(request.options.AuthorizationModelId),
+		AuthorizationModelId: client.getAuthorizationModelId(request.getAuthorizationModelIdOverride()),
 	}).Execute()
 	if err != nil {
 		return nil, err
@@ -1529,6 +1591,13 @@ func (request SdkClientListRelationsRequest) Options(options ClientListRelations
 	return request
 }
 
+func (request SdkClientListRelationsRequest) getAuthorizationModelIdOverride() *string {
+	if request.options == nil {
+		return nil
+	}
+	return request.options.AuthorizationModelId
+}
+
 func (request SdkClientListRelationsRequest) Body(body ClientListRelationsRequest) SdkClientListRelationsRequest {
 	request.body = &body
 	return request
@@ -1558,7 +1627,7 @@ func (client *{{appShortName}}Client) ListRelationsExecute(request SdkClientList
 		Client: *client,
 		body:   &batchRequestBody,
 		options: &ClientBatchCheckOptions{
-			AuthorizationModelId: client.getAuthorizationModelId(request.options.AuthorizationModelId),
+			AuthorizationModelId: client.getAuthorizationModelId(request.getAuthorizationModelIdOverride()),
 		},
 	})
 
@@ -1602,12 +1671,23 @@ func (request SdkClientReadAssertionsRequest) Options(options ClientReadAssertio
 	return request
 }
 
+func (request SdkClientReadAssertionsRequest) getAuthorizationModelIdOverride() *string {
+	if request.options == nil {
+		return nil
+	}
+	return request.options.AuthorizationModelId
+}
+
 func (request SdkClientReadAssertionsRequest) Execute() (*ClientReadAssertionsResponse, error) {
 	return request.Client.ReadAssertionsExecute(request)
 }
 
 func (client *{{appShortName}}Client) ReadAssertionsExecute(request SdkClientReadAssertionsRequest) (*ClientReadAssertionsResponse, error) {
-	data, _, err := client.{{appShortName}}Api.ReadAssertions(request.ctx, *client.getAuthorizationModelId(request.options.AuthorizationModelId)).Execute()
+	authorizationModelId := client.getAuthorizationModelId(request.getAuthorizationModelIdOverride())
+	if authorizationModelId == nil {
+		return nil, FgaRequiredParamError{param: "AuthorizationModelId"}
+	}
+	data, _, err := client.{{appShortName}}Api.ReadAssertions(request.ctx, *authorizationModelId).Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -1647,7 +1727,7 @@ type ClientWriteAssertionsOptions struct {
 	AuthorizationModelId *string `json:"authorization_model_id,omitempty"`
 }
 
-type ClientWriteAssertionsReponse struct {
+type ClientWriteAssertionsResponse struct {
 }
 
 func (client *{{appShortName}}Client) WriteAssertions(ctx _context.Context) SdkClientWriteAssertionsRequest {
@@ -1662,24 +1742,35 @@ func (request SdkClientWriteAssertionsRequest) Options(options ClientWriteAssert
 	return request
 }
 
+func (request SdkClientWriteAssertionsRequest) getAuthorizationModelIdOverride() *string {
+	if request.options == nil {
+		return nil
+	}
+	return request.options.AuthorizationModelId
+}
+
 func (request SdkClientWriteAssertionsRequest) Body(body ClientWriteAssertionsRequest) SdkClientWriteAssertionsRequest {
 	request.body = &body
 	return request
 }
 
-func (request SdkClientWriteAssertionsRequest) Execute() (*ClientWriteAssertionsReponse, error) {
+func (request SdkClientWriteAssertionsRequest) Execute() (*ClientWriteAssertionsResponse, error) {
 	return request.Client.WriteAssertionsExecute(request)
 }
 
-func (client *{{appShortName}}Client) WriteAssertionsExecute(request SdkClientWriteAssertionsRequest) (*ClientWriteAssertionsReponse, error) {
+func (client *{{appShortName}}Client) WriteAssertionsExecute(request SdkClientWriteAssertionsRequest) (*ClientWriteAssertionsResponse, error) {
 	writeAssertionsRequest := {{packageName}}.WriteAssertionsRequest{}
+	authorizationModelId := client.getAuthorizationModelId(request.getAuthorizationModelIdOverride())
+	if authorizationModelId == nil {
+		return nil, FgaRequiredParamError{param: "AuthorizationModelId"}
+	}
 	for index := 0; index < len(*request.body); index++ {
 		clientAssertion := (*request.body)[index]
 		writeAssertionsRequest.Assertions = append(writeAssertionsRequest.Assertions, clientAssertion.ToAssertion())
 	}
-	_, err := client.{{appShortName}}Api.WriteAssertions(request.ctx, *client.getAuthorizationModelId(request.options.AuthorizationModelId)).Body(writeAssertionsRequest).Execute()
+	_, err := client.{{appShortName}}Api.WriteAssertions(request.ctx, *authorizationModelId).Body(writeAssertionsRequest).Execute()
 	if err != nil {
 		return nil, err
 	}
-	return &ClientWriteAssertionsReponse{}, nil
+	return &ClientWriteAssertionsResponse{}, nil
 }
