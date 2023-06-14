@@ -13,6 +13,8 @@ import (
 	"time"
 {{#imports}}	"{{import}}"
 {{/imports}}
+
+    "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/utils"
 )
 
 // Linger please
@@ -121,6 +123,9 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
         if a.client.cfg.StoreId == "" {
 		    return {{#returnType}}localVarReturnValue, {{/returnType}}nil, reportError("Configuration.StoreId is required and must be specified to call this method")
         }
+		if !utils.IsWellFormedUlidString(a.client.cfg.StoreId) {
+            return {{#returnType}}localVarReturnValue, {{/returnType}}nil, reportError("Configuration.StoreId is invalid")
+		}
     {{/pathParams.0}}
 	localVarPath := "{{{path}}}"{{#pathParams}}
 	localVarPath = strings.Replace(localVarPath, "{"+"{{baseName}}"+"}", _neturl.PathEscape({{#-first}}a.client.cfg.StoreId{{/-first}}{{^-first}}parameterToString(r.{{paramName}}, "{{#collectionFormat}}{{collectionFormat}}{{/collectionFormat}}"){{/-first}}), -1){{/pathParams}}
