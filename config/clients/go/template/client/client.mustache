@@ -72,7 +72,7 @@ func NewSdkClient(cfg *ClientConfiguration) (*{{appShortName}}Client, error) {
 	clientConfig := newClientConfiguration(apiConfiguration)
 	clientConfig.AuthorizationModelId = cfg.AuthorizationModelId
 
-	// store id is already validate as part of configuraiton validation
+	// store id is already validate as part of configuration validation
 
 	if cfg.AuthorizationModelId != nil && !utils.IsWellFormedUlidString(*cfg.AuthorizationModelId) {
 		return nil, FgaInvalidError{param: "AuthorizationModelId", description: "ULID"}
@@ -414,6 +414,19 @@ func (client *{{appShortName}}Client) getAuthorizationModelId(authorizationModel
 		return nil, FgaInvalidError{param: "AuthorizationModelId", description: "ULID"}
 	}
 	return modelId, nil
+}
+
+// helper function to validate the connection (i.e., get token)
+func (client *{{appShortName}}Client) validateAuthorizationModel(ctx _context.Context, authorizationModelId *string) error {
+	if authorizationModelId != nil {
+	    _, _, err := client.{{appShortName}}Api.ReadAuthorizationModel(ctx, *authorizationModelId).Execute()
+		return err
+	} else {
+		_, err := client.ReadAuthorizationModels(ctx).Options(ClientReadAuthorizationModelsOptions{
+		    PageSize: {{packageName}}.PtrInt32(1),
+	    }).Execute()
+		return err
+	}
 }
 
 /* Stores */
@@ -1326,6 +1339,11 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
     }
 
 	writeGroup, ctx := errgroup.WithContext(request.GetContext())
+	err = client.validateAuthorizationModel(ctx, authorizationModelId)
+	if err != nil {
+		return nil, err
+	}
+
 	writeGroup.SetLimit(int(maxParallelReqs))
 	writeResponses := make([]ClientWriteResponse, len(writeChunks))
 	for index, writeBody := range writeChunks {
@@ -1724,6 +1742,11 @@ func (client *{{appShortName}}Client) BatchCheckExecute(request SdkClientBatchCh
 		return nil, err 
 	}
 
+	group.Go(func() error {
+		// if the connection is probelmatic, we will return error to the overall
+		// response rather than individual response
+		return client.validateAuthorizationModel(ctx, authorizationModelId)
+	})
 	for index, checkBody := range *request.GetBody() {
 		index, checkBody := index, checkBody
 		group.Go(func() error {
