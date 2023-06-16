@@ -110,7 +110,7 @@ tag-client-python: test-client-python
 
 .PHONY: build-client-python
 build-client-python:
-	make build-client sdk_language=python tmpdir=${TMP_DIR} library="--library asyncio"
+	make build-client sdk_language=python tmpdir=${TMP_DIR} library="asyncio"
 	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/openfga_sdk/api/open_fga_api.py /config/clients/python/patches/open_fga_api.py.patch'"
 	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/docs/OpenFgaApi.md /config/clients/python/patches/OpenFgaApi.md.patch'"
 	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install autopep8; autopep8 --in-place --ignore E402 --recursive openfga_sdk; autopep8 --in-place --recursive test'"
@@ -132,45 +132,11 @@ run-in-docker:
 		${image} \
 		${command}
 
+.EXPORT_ALL_VARIABLES:
 .PHONY: build-client
 build-client: build-openapi
-	# Build a config from common + overrides
-	jq -rs 'reduce .[] as $$item ({}; . * $$item)' "${CONFIG_DIR}/common/config.base.json" "${CONFIG_DIR}/clients/${sdk_language}/config.overrides.json" > "${tmpdir}/config.json"
-
-	mkdir -p "${CLIENTS_OUTPUT_DIR}/fga-${sdk_language}-sdk"
-
-	# Initialize the temporary template directory
-	mkdir "${tmpdir}/template"
-
-	# Copy the shared files into temp template
-	cp -r "${CONFIG_DIR}/common/files/." "${tmpdir}/template/"
-
-	# Copy the template files into temp template
-	cp -r "${CONFIG_DIR}/clients/${sdk_language}/template/." "${tmpdir}/template/"
-
-	# Copy the CHANGELOG.md file into temp template
-	cp "${CONFIG_DIR}/clients/${sdk_language}/CHANGELOG.md.mustache" "${tmpdir}/template/"
-
-	# Clear existing directory
-	cd "${CLIENTS_OUTPUT_DIR}/fga-${sdk_language}-sdk" && ls -A | grep -Ev '.git|node_modules|.idea|venv' | xargs rm -r && cd -
-
-	# Copy the generator ignore file into target directory (we need to do this before build otherwise openapi-generator ignores it)
-	cp "${CONFIG_DIR}/clients/${sdk_language}/.openapi-generator-ignore" "${CLIENTS_OUTPUT_DIR}/fga-${sdk_language}-sdk/"
-
-	# Generate the SDK
-	docker run --rm \
-		-u ${CURRENT_UID}:${CURRENT_GID} \
-		-v ${PWD}/docs:/docs \
-		-v ${CLIENTS_OUTPUT_DIR}:/clients \
-		-v ${tmpdir}:/config \
-		--name openapi-generator \
-		openapitools/openapi-generator-cli:${OPENAPI_GENERATOR_CLI_DOCKER_TAG} generate \
-		-i /docs/openapi/openfga.openapiv2.json \
-		--http-user-agent='openfga-sdk (${sdk_language}) {packageVersion}' \
-		${library} \
-		-o /clients/fga-${sdk_language}-sdk \
-		-c /config/config.json \
-		-g `cat ./config/clients/${sdk_language}/generator.txt`
+	SDK_LANGUAGE="${sdk_language}" TMP_DIR="${tmpdir}" LIBRARY_TEMPLATE="${library}" \
+		./scripts/build_client.sh
 
 .PHONY: build-openapi
 build-openapi: init get-openapi-doc
