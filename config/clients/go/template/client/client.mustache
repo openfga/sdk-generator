@@ -417,7 +417,7 @@ func (client *{{appShortName}}Client) getAuthorizationModelId(authorizationModel
 }
 
 // helper function to validate the connection (i.e., get token)
-func (client *{{appShortName}}Client) validateAuthorizationModel(ctx _context.Context, authorizationModelId *string) error {
+func (client *{{appShortName}}Client) checkValidApiConnection(ctx _context.Context, authorizationModelId *string) error {
 	if authorizationModelId != nil {
 	    _, _, err := client.{{appShortName}}Api.ReadAuthorizationModel(ctx, *authorizationModelId).Execute()
 		return err
@@ -1339,7 +1339,7 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
     }
 
 	writeGroup, ctx := errgroup.WithContext(request.GetContext())
-	err = client.validateAuthorizationModel(ctx, authorizationModelId)
+	err = client.checkValidApiConnection(ctx, authorizationModelId)
 	if err != nil {
 		return nil, err
 	}
@@ -1745,7 +1745,7 @@ func (client *{{appShortName}}Client) BatchCheckExecute(request SdkClientBatchCh
 	group.Go(func() error {
 		// if the connection is probelmatic, we will return error to the overall
 		// response rather than individual response
-		return client.validateAuthorizationModel(ctx, authorizationModelId)
+		return client.checkValidApiConnection(ctx, authorizationModelId)
 	})
 	for index, checkBody := range *request.GetBody() {
 		index, checkBody := index, checkBody
