@@ -8,8 +8,6 @@ import (
 	_ioutil "io/ioutil"
 	_nethttp "net/http"
 	_neturl "net/url"
-	_math "math"
-	_rand "math/rand"
 	"time"
 {{#imports}}	"{{import}}"
 {{/imports}}
@@ -48,12 +46,6 @@ type {{classname}} interface {
 
 // {{classname}}Service {{classname}} service
 type {{classname}}Service service
-
-func randomTime(loopCount int, minWaitInMs int) int{
-    min := int(_math.Pow(2, float64(loopCount))) * minWaitInMs;
-    max := int(_math.Pow(2, float64(loopCount + 1))) * minWaitInMs;
-    return _rand.Intn(max - min + 1) + min
-}
 
 {{#operation}}
 
@@ -423,7 +415,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 
 		if localVarHTTPResponse.StatusCode == _nethttp.StatusTooManyRequests {
 			if i < maxRetry {
-				time.Sleep(time.Duration(randomTime(i, minWaitInMs)) * time.Millisecond)
+				time.Sleep(time.Duration(internalutils.RandomTime(i, minWaitInMs)) * time.Millisecond)
 				continue
 			}
 			// maximum number of retry reached
@@ -447,7 +439,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 
 		if localVarHTTPResponse.StatusCode >= _nethttp.StatusInternalServerError {
             if localVarHTTPResponse.StatusCode != _nethttp.StatusNotImplemented && i < maxRetry {
-                time.Sleep(time.Duration(randomTime(i, minWaitInMs)) * time.Millisecond)
+                time.Sleep(time.Duration(internalutils.RandomTime(i, minWaitInMs)) * time.Millisecond)
                 continue
             }
 			newErr := FgaApiInternalError{
