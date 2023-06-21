@@ -64,12 +64,12 @@
       "templateType": "SupportingFiles"
     },
     "oauth2/token_test.go": {},
-    "utils/utils.mustache": {
-      "destinationFilename": "utils/utils.go",
+    "internalUtils/utils.mustache": {
+      "destinationFilename": "internalUtils/utils.go",
       "templateType": "SupportingFiles"
     },
-    "utils/utils_test.mustache": {
-      "destinationFilename": "utils/utils_test.go",
+    "internalUtils/utils_test.mustache": {
+      "destinationFilename": "internalUtils/utils_test.go",
       "templateType": "SupportingFiles"
     }
   }
