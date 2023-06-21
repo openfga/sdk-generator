@@ -52,14 +52,22 @@ func NewConfiguration(config Configuration) (*Configuration, error) {
         ApiHost:        config.ApiHost,
         StoreId:        config.StoreId,
         Credentials:    config.Credentials,
-        DefaultHeaders: make(map[string]string),
-        UserAgent:      GetSdkUserAgent(),
+        DefaultHeaders: config.DefaultHeaders,
+        UserAgent:      config.UserAgent,
         Debug:          false,
         RetryParams:    config.RetryParams,
     }
 
     if cfg.ApiScheme == "" {
         cfg.ApiScheme = "https"
+    }
+
+    if cfg.UserAgent == "" {
+        cfg.UserAgent = GetSdkUserAgent()
+    }
+
+    if cfg.DefaultHeaders == nil {
+        cfg.DefaultHeaders = make(map[string]string)
     }
 
     err := cfg.ValidateConfig()

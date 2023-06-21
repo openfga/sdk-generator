@@ -59,8 +59,8 @@ func NewSdkClient(cfg *ClientConfiguration) (*{{appShortName}}Client, error) {
 		ApiHost:        cfg.ApiHost,
 		StoreId:        cfg.StoreId,
 		Credentials:    cfg.Credentials,
-		DefaultHeaders: make(map[string]string),
-		UserAgent:      {{packageName}}.GetSdkUserAgent(),
+		DefaultHeaders: cfg.DefaultHeaders,
+		UserAgent:      cfg.UserAgent,
 		Debug:          cfg.Debug,
 		RetryParams:    cfg.RetryParams,
 	})
@@ -628,7 +628,7 @@ type SdkClientDeleteStoreRequest struct {
 
 type SdkClientDeleteStoreRequestInterface interface{
 	Options(options ClientDeleteStoreOptions) SdkClientDeleteStoreRequestInterface
-	Execute() (*ClientDeleteStoreResponse, error)	
+	Execute() (*ClientDeleteStoreResponse, error)
 
     GetContext() _context.Context
     GetOptions() *ClientDeleteStoreOptions
@@ -910,7 +910,7 @@ type SdkClientReadLatestAuthorizationModelRequestInterface interface {
     Execute() (*ClientReadAuthorizationModelResponse, error)
 
     GetContext()  _context.Context
-	GetOptions() *ClientReadLatestAuthorizationModelOptions 
+	GetOptions() *ClientReadLatestAuthorizationModelOptions
 }
 
 type ClientReadLatestAuthorizationModelOptions struct {
@@ -1664,7 +1664,7 @@ type SdkClientBatchCheckRequestInterface interface {
 	Options(options ClientBatchCheckOptions) SdkClientBatchCheckRequestInterface
 	Body(body ClientBatchCheckBody) SdkClientBatchCheckRequestInterface
 	Execute() (*ClientBatchCheckResponse, error)
-	GetAuthorizationModelIdOverride() *string 
+	GetAuthorizationModelIdOverride() *string
 
 	GetContext() _context.Context
 	GetBody() *ClientBatchCheckBody
@@ -1978,7 +1978,7 @@ type SdkClientListRelationsRequestInterface interface {
 	Body(body ClientListRelationsRequest) SdkClientListRelationsRequestInterface
     Execute() (*ClientListRelationsResponse, error)
 	GetAuthorizationModelIdOverride() *string
-	
+
 	GetContext() _context.Context
 	GetBody() *ClientListRelationsRequest
 	GetOptions() *ClientListRelationsOptions
@@ -2167,7 +2167,7 @@ type SdkClientWriteAssertionsRequest struct {
 type SdkClientWriteAssertionsRequestInterface interface {
 	Options(options ClientWriteAssertionsOptions) SdkClientWriteAssertionsRequestInterface
     Body(body ClientWriteAssertionsRequest) SdkClientWriteAssertionsRequestInterface
-	Execute() (*ClientWriteAssertionsResponse, error) 
+	Execute() (*ClientWriteAssertionsResponse, error)
 	GetAuthorizationModelIdOverride() *string
 
 	GetContext() _context.Context
