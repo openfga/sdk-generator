@@ -10,7 +10,7 @@ import (
 
 	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
 	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
-    "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/internalUtils"
+	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/internal/utils"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -74,7 +74,7 @@ func NewSdkClient(cfg *ClientConfiguration) (*{{appShortName}}Client, error) {
 
 	// store id is already validate as part of configuration validation
 
-	if cfg.AuthorizationModelId != nil && !internalUtils.IsWellFormedUlidString(*cfg.AuthorizationModelId) {
+	if cfg.AuthorizationModelId != nil && !internalutils.IsWellFormedUlidString(*cfg.AuthorizationModelId) {
 		return nil, FgaInvalidError{param: "AuthorizationModelId", description: "ULID"}
 	}
 
@@ -410,7 +410,7 @@ func (client *{{appShortName}}Client) getAuthorizationModelId(authorizationModel
 		modelId = authorizationModelId
 	}
 
-	if modelId != nil && !internalUtils.IsWellFormedUlidString(*modelId) {
+	if modelId != nil && !internalutils.IsWellFormedUlidString(*modelId) {
 		return nil, FgaInvalidError{param: "AuthorizationModelId", description: "ULID"}
 	}
 	return modelId, nil

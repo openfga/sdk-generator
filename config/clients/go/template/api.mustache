@@ -14,7 +14,7 @@ import (
 {{#imports}}	"{{import}}"
 {{/imports}}
 
-    "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/internalUtils"
+    "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/internal/utils"
 )
 
 // Linger please
@@ -123,7 +123,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
         if a.client.cfg.StoreId == "" {
 		    return {{#returnType}}localVarReturnValue, {{/returnType}}nil, reportError("Configuration.StoreId is required and must be specified to call this method")
         }
-		if !internalUtils.IsWellFormedUlidString(a.client.cfg.StoreId) {
+		if !internalutils.IsWellFormedUlidString(a.client.cfg.StoreId) {
             return {{#returnType}}localVarReturnValue, {{/returnType}}nil, reportError("Configuration.StoreId is invalid")
 		}
     {{/pathParams.0}}

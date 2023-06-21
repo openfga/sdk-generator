@@ -5,7 +5,7 @@ import (
     "net/http"
 
     "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
-    "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/internalUtils"
+    "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/internal/utils"
 )
 
 const (
@@ -108,7 +108,7 @@ func (c *Configuration) ValidateConfig() error {
         return reportError("Configuration.RetryParams.MaxRetry exceeds maximum allowed limit of {{retryMaxAllowedNumber}}")
     }
 
-    if c.StoreId != "" && !internalUtils.IsWellFormedUlidString(c.StoreId) {
+    if c.StoreId != "" && !internalutils.IsWellFormedUlidString(c.StoreId) {
 		return reportError("Configuration.StoreId is not a valid ulid")
     }
 
