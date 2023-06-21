@@ -63,6 +63,14 @@
       "destinationFilename": "oauth2/token.go",
       "templateType": "SupportingFiles"
     },
-    "oauth2/token_test.go": {}
+    "oauth2/token_test.go": {},
+    "utils/utils.mustache": {
+      "destinationFilename": "utils/utils.go",
+      "templateType": "SupportingFiles"
+    },
+    "utils/utils_test.mustache": {
+      "destinationFilename": "utils/utils_test.go",
+      "templateType": "SupportingFiles"
+    }
   }
 }
