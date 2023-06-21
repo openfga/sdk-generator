@@ -12,7 +12,7 @@
   "author": "OpenFGA",
   "gitHost": "github.com",
   "gitUserId": "openfga",
-  "userAgent": "openfga-sdk {sdkId}/{packageVersion}",
+  "userAgent": "openfga-sdk $sdk_language/$package_version",
   "supportInfo": "https://discord.gg/8naAwJfWN6",
   "docsUrl": "https://openfga.dev/docs",
   "apiDocsUrl": "https://openfga.dev/api/service",

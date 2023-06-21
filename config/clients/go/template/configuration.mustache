@@ -3,12 +3,16 @@ package {{packageName}}
 
 import (
     "net/http"
-    "strings"
 
     "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
+    "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/utils"
 )
 
-var SdkVersion = "{{packageVersion}}"
+const (
+    SdkVersion = "{{packageVersion}}"
+
+    defaultUserAgent = "{{{userAgent}}}"
+)
 
 // RetryParams configures configuration for retry in case of HTTP too many request
 type RetryParams struct {
@@ -38,9 +42,7 @@ func DefaultRetryParams() *RetryParams {
 }
 
 func GetSdkUserAgent() string {
-    userAgent := strings.Replace("{{#userAgent}}{{{.}}}{{/userAgent}}", "{sdkId}", "{{sdkId}}", -1)
-    userAgent = strings.Replace(userAgent, "{packageVersion}", SdkVersion, -1)
-    return userAgent
+    return defaultUserAgent
 }
 
 // NewConfiguration returns a new Configuration object
@@ -104,6 +106,10 @@ func (c *Configuration) ValidateConfig() error {
 
     if c.RetryParams != nil && c.RetryParams.MaxRetry > {{retryMaxAllowedNumber}} {
         return reportError("Configuration.RetryParams.MaxRetry exceeds maximum allowed limit of {{retryMaxAllowedNumber}}")
+    }
+
+    if c.StoreId != "" && !utils.IsWellFormedUlidString(c.StoreId) {
+		return reportError("Configuration.StoreId is not a valid ulid")
     }
 
     return nil
