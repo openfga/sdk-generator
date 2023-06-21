@@ -51,6 +51,8 @@ public class Configuration {
     /// <value>Version of the package.</value>
     public const string Version = "{{packageVersion}}";
 
+    private const string DefaultUserAgent = "{{{userAgent}}}";
+
     #endregion Constants
 
     #region Constructors
@@ -68,11 +70,10 @@ public class Configuration {
     /// </summary>
     /// <exception cref="FgaRequiredParamError"></exception>
     public Configuration() {
-        UserAgent = "{{#userAgent}}{{{.}}}{{/userAgent}}".Replace("{sdkId}", "{{sdkId}}").Replace("{packageVersion}", Version);
         DefaultHeaders ??= new Dictionary<string, string>();
 
         if (!DefaultHeaders.ContainsKey("User-Agent")) {
-            DefaultHeaders.Add("User-Agent", UserAgent);
+            DefaultHeaders.Add("User-Agent", DefaultUserAgent);
         }
     }
 
