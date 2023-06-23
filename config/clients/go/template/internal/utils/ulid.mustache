@@ -1,5 +1,5 @@
 {{>partial_header}}
-package utils
+package internalutils
 
 import (
 	"regexp"
@@ -13,3 +13,4 @@ func IsWellFormedUlidString(ulidString string) bool {
 	re := regexp.MustCompile(cUlidRegex)
 	return re.MatchString(ulidString)
 }
+
