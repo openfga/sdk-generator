@@ -64,12 +64,16 @@
       "templateType": "SupportingFiles"
     },
     "oauth2/token_test.go": {},
-    "utils/utils.mustache": {
-      "destinationFilename": "utils/utils.go",
+    "internal/utils/randomtime.mustache": {
+      "destinationFilename": "internal/utils/randomtime.go",
       "templateType": "SupportingFiles"
     },
-    "utils/utils_test.mustache": {
-      "destinationFilename": "utils/utils_test.go",
+    "internal/utils/ulid.mustache": {
+      "destinationFilename": "internal/utils/ulid.go",
+      "templateType": "SupportingFiles"
+    },
+    "internal/utils/ulid_test.mustache": {
+      "destinationFilename": "internal/utils/ulid_test.go",
       "templateType": "SupportingFiles"
     }
   }
