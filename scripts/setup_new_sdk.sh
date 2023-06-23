@@ -46,7 +46,7 @@ EOF
 echo "$CONFIG_OVERRIDES" > "${CONFIG_PATH}/config.overrides.json"
 touch "${CONFIG_PATH}/.openapi-generator-ignore"
 mkdir -p "${CONFIG_PATH}/template/.github/workflows/"
-touch "${CONFIG_PATH}/template/.github/workflows/tests.yml"
+touch "${CONFIG_PATH}/template/.github/workflows/main.yml"
 touch "${CONFIG_PATH}/template/README_installation.mustache"
 touch "${CONFIG_PATH}/template/README_initializing.mustache"
 touch "${CONFIG_PATH}/template/README_calling_api.mustache"

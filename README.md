@@ -103,17 +103,21 @@ make setup-new-sdk
    * `CHANGELOG.md`: To be updated as new releases are generated
    * `generator.txt`: the name of the generator to use. Must be a [valid generator](https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators.md)
    * `config.overrides.json`: Custom config for this generator + overrides to the common config in `config/common/config.base.json`
-   * `.openapi-generator-ignore`: Any files that the generator should ignore and not build
-   * `template/` directory'
-      * `LICENSE`: License file from legal. Note: All SDKs must be MIT Licensed.
-      * `.github/workflows/tests.yml`: Any CI checks that need to run
+   * `.openapi-generator-ignore`: Any files that the generator should ignore and not built
+   * `template-source`: Newer SDKs should have this to mark what commit of the generator we branched off
+   * `template/` directory
+      * `LICENSE`: Apache-2.0 License
+      * `.github/workflows/main.yml`: Any CI checks that need to run
       * The following files, each with the relevant section (look at the JS template for an example):
-         * README_installation.mustache
-         * README_initializing.mustache
-         * README_calling_api.mustache
-         * README_api_endpoints.mustache
-         * README_models.mustache
-         * README_license_disclaimer.mustache
+         * `README_installation.mustache`
+         * `README_initializing.mustache`
+         * `README_calling_api.mustache`
+         * `README_api_endpoints.mustache`
+         * `README_models.mustache`
+         * `README_license_disclaimer.mustache`
+         * `README_custom_badges.mustache` (optional, any custom badges for this specific SDK)
+         * `gitignore_custom.mustache` (optional, any custom ignores for this specific SDK)
+         * `NOTICE_details.mustache` (optional, see [Updating the Notice files](#updating-the-notice-files))
       * custom files according to the generator
 2. Update the `Makefile`.
    1. add a target for the new sdk
@@ -140,6 +144,12 @@ test-client-{{LANG}}: build-client-{{LANG}}
 test-all-clients: test-client-js test-client-go ...  test-client-{{LANG}}
 ```
 
+> Note: Try to ensure that the SDK is built through container files so that other contributors would not need to set up the full language framework/toolchain whenever they need to contribute. Checkout the [go sdk build steps](https://github.com/openfga/sdk-generator/blob/bf6709a5faba14ce260f4f8df019dddd54078df0/Makefile#L76) as an example.
+
+### Updating the Notice files
+1- Ensure that `fossaComplianceNoticeId` has been set in each SDK's config overrides.
+2- Run `make update-fossa-reports`
+
 ### Uploading the SDK
 
 Once the SDK is ready, you need to:
@@ -158,38 +168,23 @@ Note: Semgrep will be automatically enabled - there is nothing you need to do fo
 
 ### GitHub Action Secrets
 
-| Key                         | Comment                                |
-|-----------------------------|----------------------------------------|
-| `KNOWN_HOSTS`               |                                        |
-| `FOSSA_API_KEY`             | FOSSA API Key                          |
-| `SNYK_TOKEN`                | Snyk API Key                           |
-| `GO_SDK_GITHUB_ORG_ID`      | The GitHub org for the SDK             |
-| `GO_SDK_GITHUB_REPO_ID`     | The GitHub repo id for the SDK         |
-| `GO_SDK_SSH_KEY`            | The SSH private deploy key for the SDK |
-| `JS_SDK_GITHUB_ORG_ID`      | The GitHub org for the SDK             |
-| `JS_SDK_GITHUB_REPO_ID`     | The GitHub repo id for the SDK         |
-| `JS_SDK_SSH_KEY`            | The SSH private deploy key for the SDK |
-| `DOTNET_SDK_GITHUB_ORG_ID`  | The GitHub org for the SDK             |
-| `DOTNET_SDK_GITHUB_REPO_ID` | The GitHub repo id for the SDK         |
-| `DOTNET_SDK_SSH_KEY`        | The SSH private deploy key for the SDK |
-| `PYTHON_SDK_GITHUB_ORG_ID`  | The GitHub org for the SDK             |
-| `PYTHON_SDK_GITHUB_REPO_ID` | The GitHub repo id for the SDK         |
-| `PYTHON_SDK_SSH_KEY`        | The SSH private deploy key for the SDK |
-
-The following keys are also available but should be considered deprecated. Automated release is disabled due to the complexity of generating relevant commit messages when using a generator.
-
-| Key                          | Comment                                                               |
-|------------------------------|-----------------------------------------------------------------------|
-| `GIT_USER_EMAIL`             | Email of the user in the git commits                                  |
-| `GIT_USER_NAME`              | Name of the user in the git commits                                   |
-| `GO_SDK_DRY_RUN`             | Whether to show git diff and exit without pushing changes for the SDK |
-| `GO_SDK_TAGGING_DISABLE`     | Whether to disable tagging and publishing for the SDK                 |
-| `JS_SDK_DRY_RUN`             | Whether to show git diff and exit without pushing changes for the SDK |
-| `JS_SDK_TAGGING_DISABLE`     | Whether to disable tagging and publishing for the SDK                 |
-| `NPM_EMAIL`                  | The email of the user pushing to npm                                  |
-| `NPM_TOKEN`                  | The token of the user pushing to npm                                  |
-| `DOTNET_SDK_DRY_RUN`         | Whether to show git diff and exit without pushing changes for the SDK |
-| `DOTNET_SDK_TAGGING_DISABLE` | Whether to disable tagging and publishing for the SDK                 |
+| Key                         | Comment                                                                     |
+|-----------------------------|-----------------------------------------------------------------------------|
+| `KNOWN_HOSTS`               |                                                                             |
+| `FOSSA_API_KEY`             | FOSSA API Key                                                               |
+| `SNYK_TOKEN`                | Snyk API Key                                                                |
+| `GO_SDK_GITHUB_ORG_ID`      | The GitHub org for the SDK                                                  |
+| `GO_SDK_GITHUB_REPO_ID`     | The GitHub repo id for the SDK                                              |
+| `GO_SDK_SSH_KEY`            | The SSH private deploy key for the SDK (Not needed after the SDK is public) |
+| `JS_SDK_GITHUB_ORG_ID`      | The GitHub org for the SDK                                                  |
+| `JS_SDK_GITHUB_REPO_ID`     | The GitHub repo id for the SDK                                              |
+| `JS_SDK_SSH_KEY`            | The SSH private deploy key for the SDK (Not needed after the SDK is public) |
+| `DOTNET_SDK_GITHUB_ORG_ID`  | The GitHub org for the SDK                                                  |
+| `DOTNET_SDK_GITHUB_REPO_ID` | The GitHub repo id for the SDK                                              |
+| `DOTNET_SDK_SSH_KEY`        | The SSH private deploy key for the SDK (Not needed after the SDK is public) |
+| `PYTHON_SDK_GITHUB_ORG_ID`  | The GitHub org for the SDK                                                  |
+| `PYTHON_SDK_GITHUB_REPO_ID` | The GitHub repo id for the SDK                                              |
+| `PYTHON_SDK_SSH_KEY`        | The SSH private deploy key for the SDK (Not needed after the SDK is public) |
 
 ## Contributing
 Please review the [Contributing Guidelines](https://github.com/openfga/.github/blob/main/CONTRIBUTING.md) before sending a PR or opening an issue.
@@ -200,7 +195,7 @@ In addition, we ask that the SDKs:
 
 * have roughly the same consistent interface for configuration, such as [JS](https://github.com/openfga/js-sdk), [GoLang](https://github.com/openfga/go-sdk), [.NET](https://github.com/openfga/dotnet-sdk) and [Python](https://github.com/openfga/python-sdk) SDKs.
 
-* support the same features with other existing SDKs.
+* support the same features with other existing SDKs, including: Retries, Error Handling, .
 
 * have a base set of functional tests.
 
