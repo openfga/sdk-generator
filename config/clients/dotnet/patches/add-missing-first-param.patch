@@ -13,7 +13,7 @@
  
          var queryParams = new Dictionary<string, string>();
 @@ -216,10 +217,11 @@
-     /// List all stores Returns a paginated list of OpenFGA stores.
+     /// List all stores Returns a paginated list of OpenFGA stores and a continuation token to get additional stores. The continuation token will be empty if there are no more stores. 
      /// </summary>
      /// <exception cref="OpenFga.Sdk.Exceptions.ApiException">Thrown when fails to make API call</exception>
 +    /// <param name="pageSize"> (optional)</param>
