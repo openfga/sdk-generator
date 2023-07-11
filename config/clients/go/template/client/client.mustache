@@ -476,11 +476,11 @@ func (client *{{appShortName}}Client) ListStoresExecute(request SdkClientListSto
 	req := client.{{appShortName}}Api.ListStores(request.GetContext())
 	pageSize := getPageSizeFromRequest((*ClientPaginationOptions)(request.GetOptions()))
 	if pageSize != nil {
-		req.PageSize(*pageSize)
+		req = req.PageSize(*pageSize)
 	}
 	continuationToken := getContinuationTokenFromRequest((*ClientPaginationOptions)(request.GetOptions()))
 	if continuationToken != nil {
-		req.ContinuationToken(*continuationToken)
+		req = req.ContinuationToken(*continuationToken)
 	}
 	data, _, err := req.Execute()
 	if err != nil {
@@ -720,11 +720,11 @@ func (client *{{appShortName}}Client) ReadAuthorizationModelsExecute(request Sdk
 	req := client.{{appShortName}}Api.ReadAuthorizationModels(request.GetContext())
 	pageSize := getPageSizeFromRequest((*ClientPaginationOptions)(request.GetOptions()))
 	if pageSize != nil {
-		req.PageSize(*pageSize)
+		req = req.PageSize(*pageSize)
 	}
 	continuationToken := getContinuationTokenFromRequest((*ClientPaginationOptions)(request.GetOptions()))
 	if continuationToken != nil {
-		req.ContinuationToken(*continuationToken)
+		req = req.ContinuationToken(*continuationToken)
 	}
 	data, _, err := req.Execute()
 	if err != nil {
@@ -881,7 +881,7 @@ func (client *{{appShortName}}Client) ReadAuthorizationModelExecute(request SdkC
 	if err != nil {
 		return nil, err
 	}
-	if authorizationModelId == nil {
+	if authorizationModelId == nil || *authorizationModelId == "" {
 		return nil, FgaRequiredParamError{param: "AuthorizationModelId"}
 	}
 	data, _, err := client.{{appShortName}}Api.ReadAuthorizationModel(request.GetContext(), *authorizationModelId).Execute()
@@ -1031,12 +1031,17 @@ func (client *{{appShortName}}Client) ReadChangesExecute(request SdkClientReadCh
 	req := client.{{appShortName}}Api.ReadChanges(request.GetContext())
 	pageSize := getPageSizeFromRequest((*ClientPaginationOptions)(request.GetOptions()))
 	if pageSize != nil {
-		req.PageSize(*pageSize)
+		req = req.PageSize(*pageSize)
 	}
 	continuationToken := getContinuationTokenFromRequest((*ClientPaginationOptions)(request.GetOptions()))
 	if continuationToken != nil {
-		req.ContinuationToken(*continuationToken)
+		req = req.ContinuationToken(*continuationToken)
 	}
+	requestBody := request.GetBody()
+	if requestBody != nil {
+		req = req.Type_(requestBody.Type)
+	}
+
 	data, _, err := req.Execute()
 	if err != nil {
 		return nil, err
@@ -1479,7 +1484,7 @@ func (client *{{appShortName}}Client) WriteTuplesExecute(request SdkClientWriteT
 		Writes: request.GetBody(),
 	})
 	if request.GetOptions() != nil {
-		baseReq.Options(*request.GetOptions())
+		baseReq = baseReq.Options(*request.GetOptions())
 	}
 	return baseReq.Execute()
 }
@@ -1543,7 +1548,7 @@ func (client *{{appShortName}}Client) DeleteTuplesExecute(request SdkClientDelet
 		Deletes: request.GetBody(),
 	})
 	if request.GetOptions() != nil {
-		baseReq.Options(*request.GetOptions())
+		baseReq = baseReq.Options(*request.GetOptions())
 	}
 	return baseReq.Execute()
 }
@@ -2147,7 +2152,7 @@ func (client *{{appShortName}}Client) ReadAssertionsExecute(request SdkClientRea
 	if err != nil {
 		return nil, err
 	}
-	if authorizationModelId == nil {
+	if authorizationModelId == nil || *authorizationModelId == "" {
 		return nil, FgaRequiredParamError{param: "AuthorizationModelId"}
 	}
 	data, _, err := client.{{appShortName}}Api.ReadAssertions(request.GetContext(), *authorizationModelId).Execute()
@@ -2251,7 +2256,7 @@ func (client *{{appShortName}}Client) WriteAssertionsExecute(request SdkClientWr
 	if err != nil {
 		return nil, err
 	}
-	if authorizationModelId == nil {
+	if authorizationModelId == nil || *authorizationModelId == ""  {
 		return nil, FgaRequiredParamError{param: "AuthorizationModelId"}
 	}
 	for index := 0; index < len(*request.GetBody()); index++ {
