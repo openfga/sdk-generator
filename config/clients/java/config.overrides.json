@@ -5,6 +5,7 @@
   "artifactId": "openfga-sdk",
   "groupId": "dev.openfga",
   "apiPackage": "dev.openfga.api",
+  "invokerPackage": "dev.openfga.api.invoker",
   "modelPackage": "dev.openfga.api.model",
   "packageVersion": "0.0.1",
   "snapshotVersion": false,
@@ -28,6 +29,14 @@
   "files": {
     "build.gradle.mustache" : {
       "destinationFilename": "build.gradle",
+      "templateType": "SupportingFiles"
+    },
+    "OpenFgaApiTest.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/api/OpenFgaApiTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "Java/gradle-wrapper.properties.mustache" : {
+      "destinationFilename": "gradle/wrapper/gradle-wrapper.properties",
       "templateType": "SupportingFiles"
     }
   }

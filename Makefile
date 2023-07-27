@@ -130,6 +130,7 @@ run-in-docker:
 		-v "${CLIENTS_OUTPUT_DIR}/fga-${sdk_language}-sdk":/module \
 		-v ${CONFIG_DIR}:/config \
 		-w /module \
+		--net="host" \
 		${image} \
 		${command}
 
@@ -207,8 +208,12 @@ setup-new-sdk:
 .PHONY: build-client-java
 build-client-java:
 	make build-client sdk_language=java tmpdir=${TMP_DIR}
-	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c 'gradle fmt'"
+	make run-in-docker sdk_language=java image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'chmod +x ./gradlew'"
+	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c './gradlew fmt'"
 
 .PHONY: test-client-java
 test-client-java: build-client-java
-	# ... any custom test code ...
+	docker container rm --force openfga-for-java-client || true
+	docker run --detach --name openfga-for-java-client -p 8080:8080 openfga/openfga run
+	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c './gradlew build'"
+	docker container rm --force openfga-for-java-client
