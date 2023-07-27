@@ -1,0 +1,7 @@
+{
+  "repo": "https://github.com/OpenAPITools/openapi-generator",
+  "branch": "master",
+  "commit": "90eacb685c57308e67c65e436b19d160091f91e1",
+  "url": "https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator/src/main/resources/Java",
+  "docs": "https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/java.md"
+}
