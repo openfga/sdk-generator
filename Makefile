@@ -212,8 +212,12 @@ build-client-java:
 	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c './gradlew fmt'"
 
 .PHONY: test-client-java
-test-client-java: build-client-java
+test-integration-client-java: build-client-java
 	docker container rm --force openfga-for-java-client || true
 	docker run --detach --name openfga-for-java-client -p 8080:8080 openfga/openfga run
 	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c './gradlew test-integration'"
 	docker container rm --force openfga-for-java-client
+
+.PHONY: test-client-java
+test-client-java: build-client-java
+	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c './gradlew build'"
