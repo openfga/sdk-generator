@@ -31,8 +31,12 @@
       "destinationFilename": "build.gradle",
       "templateType": "SupportingFiles"
     },
-    "OpenFgaApiTest.java.mustache" : {
-      "destinationFilename": "src/test/java/dev/openfga/api/OpenFgaApiTest.java",
+    "OpenFgaApiIntegrationTest.java" : {
+      "destinationFilename": "src/test-integration/java/dev/openfga/api/OpenFgaApiIntegrationTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "TestUtil.java" : {
+      "destinationFilename": "src/test-integration/java/dev/openfga/testutil/TestUtil.java",
       "templateType": "SupportingFiles"
     },
     "Java/gradle-wrapper.properties.mustache" : {

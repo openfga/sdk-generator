@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'jvm-test-suite'
     id 'maven-publish'
     id 'idea'
     id 'eclipse'
@@ -73,6 +74,25 @@ dependencies {
 
 }
 
+testing {
+    suites {
+        integration(JvmTestSuite) {
+            testType = TestSuiteType.INTEGRATION_TEST
+            useJUnitJupiter()
+
+            dependencies {
+                implementation project()
+            }
+
+            sources {
+                java {
+                    srcDirs = ['src/test-integration/java']
+                }
+            }
+        }
+    }
+}
+
 // Use spotless plugin to automatically format code, remove unused import, etc
 // To apply changes directly to the file, run `gradlew spotlessApply`
 // Ref: https://github.com/diffplug/spotless/tree/main/plugin-gradle
@@ -99,4 +119,8 @@ spotless {
 // Ref: https://github.com/diffplug/spotless/tree/main/plugin-gradle
 tasks.register('fmt') {
     dependsOn 'spotlessApply'
+}
+
+tasks.register('test-integration') {
+    dependsOn testing.suites.integration
 }
