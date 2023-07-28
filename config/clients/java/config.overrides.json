@@ -35,10 +35,6 @@
       "destinationFilename": "src/test-integration/java/dev/openfga/api/OpenFgaApiIntegrationTest.java",
       "templateType": "SupportingFiles"
     },
-    "TestUtil.java" : {
-      "destinationFilename": "src/test-integration/java/dev/openfga/testutil/TestUtil.java",
-      "templateType": "SupportingFiles"
-    },
     "Java/gradle-wrapper.properties.mustache" : {
       "destinationFilename": "gradle/wrapper/gradle-wrapper.properties",
       "templateType": "SupportingFiles"

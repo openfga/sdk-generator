@@ -12,7 +12,6 @@
 
 package dev.openfga.api;
 
-import static dev.openfga.testutil.TestUtil.thisTestName;
 import static org.junit.jupiter.api.Assertions.*;
 
 import dev.openfga.api.invoker.*;
@@ -116,5 +115,14 @@ public class OpenFgaApiIntegrationTest {
     private String createStore(String storeName) throws ApiException {
         CreateStoreResponse response = api.createStore(new CreateStoreRequest().name(storeName));
         return response.getId();
+    }
+
+    /** Get the name of the test that invokes this function. Returned in the form: "$class.$fn" */
+    private String thisTestName() {
+        // Tracing the stack gives an array of:
+        // 0: getStackTrace(), 1: getThisFunctionName(), 2: <The calling function>, 3: ...
+        StackTraceElement callingFn = Thread.currentThread().getStackTrace()[2];
+
+        return String.format("%s.%s", callingFn.getClassName(), callingFn.getMethodName());
     }
 }
