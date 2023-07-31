@@ -14,14 +14,25 @@ package dev.openfga.api;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.openfga.api.invoker.*;
 import dev.openfga.api.model.*;
+
+import java.beans.Transient;
 import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class OpenFgaApiIntegrationTest {
-    OpenFgaApi api;
+    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final String DEFAULT_AUTH_MODEL =
+        "{\"schema_version\":\"1.1\",\"type_definitions\":[{\"type\":\"user\"},{\"type\":\"document\",\"relations\":{\"reader\":{\"this\":{}},\"writer\":{\"this\":{}},\"owner\":{\"this\":{}}},\"metadata\":{\"relations\":{\"reader\":{\"directly_related_user_types\":[{\"type\":\"user\"}]},\"writer\":{\"directly_related_user_types\":[{\"type\":\"user\"}]},\"owner\":{\"directly_related_user_types\":[{\"type\":\"user\"}]}}}}]}";
+
+
+    private OpenFgaApi api;
 
     @BeforeEach
     public void initializeApi() {
@@ -92,8 +103,25 @@ public class OpenFgaApiIntegrationTest {
         assertEquals(storeName, response.getName());
     }
 
+    @Test
+    public void writeAuthorizationModel() throws ApiException, JsonProcessingException {
+        // Given
+        String storeName = thisTestName();
+        String storeId = createStore(storeName);
+        WriteAuthorizationModelRequest request = mapper.readValue(DEFAULT_AUTH_MODEL, WriteAuthorizationModelRequest.class);
+
+        // When
+        WriteAuthorizationModelResponse response = api.writeAuthorizationModel(storeId, request);
+
+        // Then
+        assertNotNull(response);
+        assertNotNull(response.getAuthorizationModelId());
+        assertNotEquals("", response.getAuthorizationModelId());
+    }
+
     /*
        TODO:
+
        * check
        * expand
        * listObjects
@@ -104,17 +132,27 @@ public class OpenFgaApiIntegrationTest {
        * readChanges
        * write
        * writeAssertions
-       * writeAuthorizationModel
-       * WriteAuthorizationModels
     */
 
     /**
-     * Create a store for a given name. If tests fail here, troubleshoot with the no-arguments @Test createStore()
-     * method.
+     * Create a store for a given name. If tests fail here, troubleshoot with the no-arguments
+     * test method createStore().
+     * @return The created Store ID
      */
     private String createStore(String storeName) throws ApiException {
         CreateStoreResponse response = api.createStore(new CreateStoreRequest().name(storeName));
         return response.getId();
+    }
+
+    /**
+     * Add a default authorization model to a store. If tests fail here, troubleshoot with the
+     * no-arguments @Test writeAuthorizationModel() method.
+     * @return The created Authorization Model ID
+     */
+    private String writeAuthModel(String storeId) throws ApiException, JsonProcessingException {
+        WriteAuthorizationModelRequest request = mapper.readValue(DEFAULT_AUTH_MODEL, WriteAuthorizationModeRequest.class);
+        WriteAuthorizationModelResponse response = api.writeAuthorizationModel(storeId, request);
+        return response.getAuthorizationModelId();
     }
 
     /** Get the name of the test that invokes this function. Returned in the form: "$class.$fn" */
