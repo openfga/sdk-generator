@@ -121,15 +121,19 @@ public class OpenFgaApiIntegrationTest {
     }
 
     @Test
-    public void write_and_read() throws ApiException, JsonProcessingException {
+    public void write_and_read() throws Exception {
         // Given
         String storeName = thisTestName();
         String storeId = createStore(storeName);
-        String authModelId = writeAuthModel(storeId);
-        WriteRequest writeRequest = new WriteRequest().writes(new TupleKeys().tupleKeys(List.of(
-                new TupleKey().user(DEFAULT_USER).relation("reader")._object(DEFAULT_DOC)
-        )));
-        ReadRequest readRequest = new ReadRequest().tupleKey(new TupleKey().user(DEFAULT_USER)._object(DEFAULT_DOC));
+        String _authModelId = writeAuthModel(storeId);
+        WriteRequest writeRequest = new WriteRequest()
+                .writes(new TupleKeys()
+                        .tupleKeys(List.of(new TupleKey()
+                                .user(DEFAULT_USER)
+                                .relation("reader")
+                                ._object(DEFAULT_DOC))));
+        ReadRequest readRequest =
+                new ReadRequest().tupleKey(new TupleKey().user(DEFAULT_USER)._object(DEFAULT_DOC));
 
         // When
         api.write(storeId, writeRequest);
@@ -142,12 +146,82 @@ public class OpenFgaApiIntegrationTest {
         assertEquals(DEFAULT_DOC, key.getObject());
     }
 
+    @Test
+    public void write_and_check() throws Exception {
+        // Given
+        String storeName = thisTestName();
+        String storeId = createStore(storeName);
+        String _authModelId = writeAuthModel(storeId);
+        WriteRequest writeRequest = new WriteRequest()
+                .writes(new TupleKeys()
+                        .tupleKeys(List.of(new TupleKey()
+                                .user(DEFAULT_USER)
+                                .relation("reader")
+                                ._object(DEFAULT_DOC))));
+        CheckRequest checkRequest =
+                new CheckRequest().tupleKey(new TupleKey().user(DEFAULT_USER)._object(DEFAULT_DOC));
+
+        // When
+        api.write(storeId, writeRequest);
+        CheckResponse response = api.check(storeId, checkRequest);
+
+        // Then
+        assertTrue(response.getAllowed());
+    }
+
+    @Test
+    public void write_and_expand() throws Exception {
+        // Given
+        String storeName = thisTestName();
+        String storeId = createStore(storeName);
+        String _authModelId = writeAuthModel(storeId);
+        WriteRequest writeRequest = new WriteRequest()
+                .writes(new TupleKeys()
+                        .tupleKeys(List.of(new TupleKey()
+                                .user(DEFAULT_USER)
+                                .relation("reader")
+                                ._object(DEFAULT_DOC))));
+        ExpandRequest expandRequest =
+                new ExpandRequest().tupleKey(new TupleKey()._object(DEFAULT_DOC).relation("reader"));
+
+        // When
+        api.write(storeId, writeRequest);
+        ExpandResponse response = api.expand(storeId, expandRequest);
+
+        // Then
+        assertNotNull(response.getTree());
+        String responseJson = mapper.writeValueAsString(response);
+        assertEquals(
+                "{\"tree\":{\"root\":{\"name\":\"document:2021-budget#reader\",\"leaf\":{\"users\":{\"users\":[\"user:81684243-9356-4421-8fbf-a4f8d36aa31b\"]},\"computed\":null,\"tupleToUserset\":null},\"difference\":null,\"union\":null,\"intersection\":null}}}",
+                responseJson);
+    }
+
+    @Test
+    public void write_and_listObjects() throws Exception {
+        // Given
+        String storeName = thisTestName();
+        String storeId = createStore(storeName);
+        String _authModelId = writeAuthModel(storeId);
+        WriteRequest writeRequest = new WriteRequest()
+                .writes(new TupleKeys()
+                        .tupleKeys(List.of(new TupleKey()
+                                .user(DEFAULT_USER)
+                                .relation("reader")
+                                ._object(DEFAULT_DOC))));
+        ListObjectsRequest listObjectsRequest = new ListObjectsRequest().user(DEFAULT_USER).relation("reader").type("document");
+
+        // When
+        api.write(storeId, writeRequest);
+        ListObjectsResponse response = api.listObjects(storeId, listObjectsRequest);
+
+        // Then
+        assertEquals(1, response.getObjects().size());
+        assertEquals(DEFAULT_DOC, response.getObjects().get(0));
+    }
+
     /*
        TODO:
 
-       * check
-       * expand
-       * listObjects
        * readAssertions
        * readAuthorizationModel
        * readAuthorizationModels
@@ -171,7 +245,7 @@ public class OpenFgaApiIntegrationTest {
      * @return The created Authorization Model ID
      */
     private String writeAuthModel(String storeId) throws ApiException, JsonProcessingException {
-        WriteAuthorizationModelRequest request = mapper.readValue(DEFAULT_AUTH_MODEL, WriteAuthorizationModeRequest.class);
+        WriteAuthorizationModelRequest request = mapper.readValue(DEFAULT_AUTH_MODEL, WriteAuthorizationModelRequest.class);
         WriteAuthorizationModelResponse response = api.writeAuthorizationModel(storeId, request);
         return response.getAuthorizationModelId();
     }
