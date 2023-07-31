@@ -29,8 +29,9 @@ import org.junit.jupiter.api.Test;
 public class OpenFgaApiIntegrationTest {
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String DEFAULT_AUTH_MODEL =
-        "{\"schema_version\":\"1.1\",\"type_definitions\":[{\"type\":\"user\"},{\"type\":\"document\",\"relations\":{\"reader\":{\"this\":{}},\"writer\":{\"this\":{}},\"owner\":{\"this\":{}}},\"metadata\":{\"relations\":{\"reader\":{\"directly_related_user_types\":[{\"type\":\"user\"}]},\"writer\":{\"directly_related_user_types\":[{\"type\":\"user\"}]},\"owner\":{\"directly_related_user_types\":[{\"type\":\"user\"}]}}}}]}";
-
+            "{\"schema_version\":\"1.1\",\"type_definitions\":[{\"type\":\"user\"},{\"type\":\"document\",\"relations\":{\"reader\":{\"this\":{}},\"writer\":{\"this\":{}},\"owner\":{\"this\":{}}},\"metadata\":{\"relations\":{\"reader\":{\"directly_related_user_types\":[{\"type\":\"user\"}]},\"writer\":{\"directly_related_user_types\":[{\"type\":\"user\"}]},\"owner\":{\"directly_related_user_types\":[{\"type\":\"user\"}]}}}}]}";
+    private static final String DEFAULT_USER = "user:81684243-9356-4421-8fbf-a4f8d36aa31b";
+    private static final String DEFAULT_DOC = "document:2021-budget";
 
     private OpenFgaApi api;
 
@@ -69,6 +70,19 @@ public class OpenFgaApiIntegrationTest {
     }
 
     @Test
+    public void getStore() throws ApiException {
+        // Given
+        String storeName = thisTestName();
+        String storeId = createStore(storeName);
+
+        // When
+        GetStoreResponse response = api.getStore(storeId);
+
+        // Then
+        assertEquals(storeName, response.getName());
+    }
+
+    @Test
     public void listStores() throws ApiException {
         // Given
         String testName = thisTestName();
@@ -91,20 +105,7 @@ public class OpenFgaApiIntegrationTest {
     }
 
     @Test
-    public void getStore() throws ApiException {
-        // Given
-        String storeName = thisTestName();
-        String storeId = createStore(storeName);
-
-        // When
-        GetStoreResponse response = api.getStore(storeId);
-
-        // Then
-        assertEquals(storeName, response.getName());
-    }
-
-    @Test
-    public void writeAuthorizationModel() throws ApiException, JsonProcessingException {
+    public void writeAuthModel() throws ApiException, JsonProcessingException {
         // Given
         String storeName = thisTestName();
         String storeId = createStore(storeName);
@@ -119,18 +120,38 @@ public class OpenFgaApiIntegrationTest {
         assertNotEquals("", response.getAuthorizationModelId());
     }
 
+    @Test
+    public void write_and_read() throws ApiException, JsonProcessingException {
+        // Given
+        String storeName = thisTestName();
+        String storeId = createStore(storeName);
+        String authModelId = writeAuthModel(storeId);
+        WriteRequest writeRequest = new WriteRequest().writes(new TupleKeys().tupleKeys(List.of(
+                new TupleKey().user(DEFAULT_USER).relation("reader")._object(DEFAULT_DOC)
+        )));
+        ReadRequest readRequest = new ReadRequest().tupleKey(new TupleKey().user(DEFAULT_USER)._object(DEFAULT_DOC));
+
+        // When
+        api.write(storeId, writeRequest);
+        ReadResponse response = api.read(storeId, readRequest);
+
+        // Then
+        TupleKey key = response.getTuples().get(0).getKey();
+        assertEquals(DEFAULT_USER, key.getUser());
+        assertEquals("reader", key.getRelation());
+        assertEquals(DEFAULT_DOC, key.getObject());
+    }
+
     /*
        TODO:
 
        * check
        * expand
        * listObjects
-       * read
        * readAssertions
        * readAuthorizationModel
        * readAuthorizationModels
        * readChanges
-       * write
        * writeAssertions
     */
 
@@ -146,7 +167,7 @@ public class OpenFgaApiIntegrationTest {
 
     /**
      * Add a default authorization model to a store. If tests fail here, troubleshoot with the
-     * no-arguments @Test writeAuthorizationModel() method.
+     * no-arguments @Test writeAuthModel() method.
      * @return The created Authorization Model ID
      */
     private String writeAuthModel(String storeId) throws ApiException, JsonProcessingException {
