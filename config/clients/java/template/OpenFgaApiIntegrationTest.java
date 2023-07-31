@@ -105,6 +105,52 @@ public class OpenFgaApiIntegrationTest {
     }
 
     @Test
+    public void readAuthModel() throws Exception {
+        // Given
+        String storeName = thisTestName();
+        String storeId = createStore(storeName);
+        String authModelId = writeAuthModel(storeId);
+
+        // When
+        ReadAuthorizationModelResponse response = api.readAuthorizationModel(storeId, authModelId);
+
+        // Then
+        AuthorizationModel authModel = response.getAuthorizationModel();
+        assertEquals(authModelId, authModel.getId());
+        String typeDefsJson = mapper.writeValueAsString(authModel.getTypeDefinitions());
+        assertEquals(
+                "[{\"type\":\"user\",\"relations\":{},\"metadata\":null},{\"type\":\"document\",\"relations\":{\"owner\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null},\"reader\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null},\"writer\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null}},\"metadata\":{\"relations\":{\"owner\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null}]},\"reader\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null}]},\"writer\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null}]}}}}]",
+                typeDefsJson);
+    }
+
+    @Test
+    public void readAuthModels() throws Exception {
+        // Given
+        String storeName = thisTestName();
+        String storeId = createStore(storeName);
+        String authModelId = writeAuthModel(storeId);
+
+        // When
+        ReadAuthorizationModelsResponse response = api.readAuthorizationModels(storeId, 100, null);
+
+        // Then
+        response.getAuthorizationModels().stream()
+                .filter(authModel -> authModel.getId().equals(authModelId))
+                .forEach(authModel -> {
+                    assertEquals(authModelId, authModel.getId());
+                    try {
+                        String typeDefsJson = mapper.writeValueAsString(authModel.getTypeDefinitions());
+
+                        assertEquals(
+                                "[{\"type\":\"user\",\"relations\":{},\"metadata\":null},{\"type\":\"document\",\"relations\":{\"owner\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null},\"reader\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null},\"writer\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null}},\"metadata\":{\"relations\":{\"owner\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null}]},\"reader\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null}]},\"writer\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null}]}}}}]",
+                                typeDefsJson);
+                    } catch (JsonProcessingException ex) {
+                        assertNull(ex);
+                    }
+                });
+    }
+
+    @Test
     public void writeAuthModel() throws ApiException, JsonProcessingException {
         // Given
         String storeName = thisTestName();
@@ -159,7 +205,7 @@ public class OpenFgaApiIntegrationTest {
                                 .relation("reader")
                                 ._object(DEFAULT_DOC))));
         CheckRequest checkRequest =
-                new CheckRequest().tupleKey(new TupleKey().user(DEFAULT_USER)._object(DEFAULT_DOC));
+                new CheckRequest().tupleKey(new TupleKey().user(DEFAULT_USER).relation("reader")._object(DEFAULT_DOC));
 
         // When
         api.write(storeId, writeRequest);
