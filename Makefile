@@ -113,7 +113,7 @@ build-client-python:
 	make build-client sdk_language=python tmpdir=${TMP_DIR} library="asyncio"
 	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/openfga_sdk/api/open_fga_api.py /config/clients/python/patches/open_fga_api.py.patch'"
 	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/docs/OpenFgaApi.md /config/clients/python/patches/OpenFgaApi.md.patch'"
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install autopep8; autopep8 --in-place --ignore E402 --recursive openfga_sdk; autopep8 --in-place --recursive test'"
+	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install pycodestyle==2.10.0 autopep8; autopep8 --in-place --ignore E402 --recursive openfga_sdk; autopep8 --in-place --recursive test'"
 	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'pip install setuptools wheel && python setup.py sdist bdist_wheel'"
 
 .PHONY: test-client-python
