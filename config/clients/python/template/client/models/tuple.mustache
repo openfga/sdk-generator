@@ -61,11 +61,11 @@ class ClientTuple():
         self._object = value
 
     @property
-	def tuple_key(self):
-	    """
-		Return the tuple as tuple_key
+    def tuple_key(self):
         """
-		return TupleKey(
+        Return the tuple as tuple_key
+        """
+        return TupleKey(
             object=self.object,
             relation=self.relation,
             user=self.user,

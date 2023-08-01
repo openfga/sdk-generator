@@ -545,10 +545,10 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                                 ],
                             ),
                         ),
-					    writer=Userset(
+                            writer=Userset(
                             this=dict(),
                         ),
-		            )
+                    )
                 )
             ]
             authorization_model = AuthorizationModel(id='01G5JAVJ41T49E9TT3SKVS7X1J', schema_version = "1.1",
@@ -768,7 +768,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                     TypeDefinition(
                         type="document",
                         relations=dict(
-			        		writer=Userset(
+                                writer=Userset(
                                 this=dict(),
                             ),
                             reader=Userset(
@@ -782,7 +782,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                                     ],
                                 ),
                             ),
-		                )
+                        )
                     ),
                 ],
             )
