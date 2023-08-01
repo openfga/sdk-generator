@@ -210,6 +210,7 @@ build-client-java:
 	make build-client sdk_language=java tmpdir=${TMP_DIR}
 	make run-in-docker sdk_language=java image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'chmod +x ./gradlew'"
 	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c './gradlew fmt'"
+	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c './gradlew build'"
 
 .PHONY: test-client-java
 test-integration-client-java: build-client-java
@@ -220,3 +221,4 @@ test-integration-client-java: build-client-java
 
 .PHONY: test-client-java
 test-client-java: build-client-java
+	# ... any custom test code ...

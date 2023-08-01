@@ -1,7 +1,7 @@
 **/ServerConfiguration.java
 **/ServerVariable.java
 src/main/AndroidManifest.xml
-pom.xml
 build.sbt
+pom.xml
 git_push.sh
 .travis.yml
