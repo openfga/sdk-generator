@@ -26,7 +26,7 @@
   "allowUnicodeIdentifiers": true,
   "caseInsensitiveResponseHeaders": true,
   "files": {
-    "Java/build.gradle.mustache" : {
+    "build.gradle.mustache" : {
       "destinationFilename": "build.gradle",
       "templateType": "SupportingFiles"
     }
