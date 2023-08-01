@@ -11,10 +11,10 @@ class ClientListObjectsRequest():
     """
 
     def __init__(self, user: str, relation: str, type: str, contextual_tuples: List[ClientTuple]=None):
-        self._user = user	
+        self._user = user
         self._relation = relation
         self._type = type
-		self._contextual_tuples = contextual_tuples
+        self._contextual_tuples = contextual_tuples
 
     @property
     def user(self):
