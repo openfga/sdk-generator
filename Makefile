@@ -208,9 +208,7 @@ setup-new-sdk:
 .PHONY: build-client-java
 build-client-java:
 	make build-client sdk_language=java tmpdir=${TMP_DIR}
-	make run-in-docker sdk_language=java image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'chmod +x ./gradlew'"
-	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c './gradlew fmt'"
-	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c './gradlew build'"
+	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c 'chmod +x ./gradlew && gradle fmt build'"
 
 .PHONY: test-client-java
 test-integration-client-java: build-client-java
