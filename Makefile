@@ -29,6 +29,7 @@ pull-docker-images:
 	docker pull golangci/golangci-lint:${GOLINT_DOCKER_TAG}
 	docker pull mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG}
 	docker pull busybox:${BUSYBOX_DOCKER_TAG}
+	docker pull gradle:${GRADLE_DOCKER_TAG}
 
 ## Publishing
 publish-client-dotnet: build-client-dotnet
@@ -43,10 +44,10 @@ test: test-all-clients
 build: build-all-clients
 
 .PHONY: test-all-clients
-test-all-clients: test-client-js test-client-go test-client-dotnet test-client-python
+test-all-clients: test-client-js test-client-go test-client-dotnet test-client-python test-client-java
 
 .PHONY: build-all-clients
-build-all-clients: build-client-js build-client-go build-client-dotnet build-client-python
+build-all-clients: build-client-js build-client-go build-client-dotnet build-client-python build-client-java
 
 ### JavaScript
 .PHONY: tag-client-js
