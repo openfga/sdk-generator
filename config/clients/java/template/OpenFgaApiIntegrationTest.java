@@ -28,7 +28,8 @@ public class OpenFgaApiIntegrationTest {
             "{\"schema_version\":\"1.1\",\"type_definitions\":[{\"type\":\"user\"},{\"type\":\"document\",\"relations\":{\"reader\":{\"this\":{}},\"writer\":{\"this\":{}},\"owner\":{\"this\":{}}},\"metadata\":{\"relations\":{\"reader\":{\"directly_related_user_types\":[{\"type\":\"user\"}]},\"writer\":{\"directly_related_user_types\":[{\"type\":\"user\"}]},\"owner\":{\"directly_related_user_types\":[{\"type\":\"user\"}]}}}}]}";
     private static final String DEFAULT_USER = "user:81684243-9356-4421-8fbf-a4f8d36aa31b";
     private static final String DEFAULT_DOC = "document:2021-budget";
-    public static final TupleKey DEFAULT_TUPLE_KEY = new TupleKey().user(DEFAULT_USER).relation("reader")._object(DEFAULT_DOC);
+    public static final TupleKey DEFAULT_TUPLE_KEY =
+            new TupleKey().user(DEFAULT_USER).relation("reader")._object(DEFAULT_DOC);
     public static final List<TupleKey> DEFAULT_TUPLE_KEYS = List.of(DEFAULT_TUPLE_KEY);
 
     private OpenFgaApi api;
@@ -153,7 +154,8 @@ public class OpenFgaApiIntegrationTest {
         // Given
         String storeName = thisTestName();
         String storeId = createStore(storeName);
-        WriteAuthorizationModelRequest request = mapper.readValue(DEFAULT_AUTH_MODEL, WriteAuthorizationModelRequest.class);
+        WriteAuthorizationModelRequest request =
+                mapper.readValue(DEFAULT_AUTH_MODEL, WriteAuthorizationModelRequest.class);
 
         // When
         WriteAuthorizationModelResponse response = api.writeAuthorizationModel(storeId, request);
@@ -171,7 +173,8 @@ public class OpenFgaApiIntegrationTest {
         String storeId = createStore(storeName);
         String _authModelId = writeAuthModel(storeId);
         WriteRequest writeRequest = new WriteRequest().writes(new TupleKeys().tupleKeys(List.of(DEFAULT_TUPLE_KEY)));
-        ReadRequest readRequest = new ReadRequest().tupleKey(new TupleKey().user(DEFAULT_USER)._object(DEFAULT_DOC));
+        ReadRequest readRequest =
+                new ReadRequest().tupleKey(new TupleKey().user(DEFAULT_USER)._object(DEFAULT_DOC));
 
         // When
         api.write(storeId, writeRequest);
@@ -244,14 +247,31 @@ public class OpenFgaApiIntegrationTest {
     }
 
     @Test
+    public void write_and_readChanges() throws Exception {
+        // Given
+        String storeName = thisTestName();
+        String storeId = createStore(storeName);
+        String _authModelId = writeAuthModel(storeId);
+        WriteRequest writeRequest = new WriteRequest().writes(new TupleKeys().tupleKeys(DEFAULT_TUPLE_KEYS));
+
+        // When
+        api.write(storeId, writeRequest);
+        ReadChangesResponse response = api.readChanges(storeId, null, null, null);
+
+        // Then
+        assertEquals(1, response.getChanges().size());
+        String firstTupleKeyJson = mapper.writeValueAsString(response.getChanges().get(0).getTupleKey());
+        assertEquals("{\"object\":\"document:2021-budget\",\"relation\":\"reader\",\"user\":\"user:81684243-9356-4421-8fbf-a4f8d36aa31b\"}", firstTupleKeyJson);
+    }
+
+    @Test
     public void write_readAssertions() throws Exception {
         // Given
         String storeName = thisTestName();
         String storeId = createStore(storeName);
         String authModelId = writeAuthModel(storeId);
-        WriteAssertionsRequest writeRequest = new WriteAssertionsRequest().assertions(List.of(
-                new Assertion().tupleKey(DEFAULT_TUPLE_KEY).expectation(true)
-        ));
+        WriteAssertionsRequest writeRequest = new WriteAssertionsRequest()
+                .assertions(List.of(new Assertion().tupleKey(DEFAULT_TUPLE_KEY).expectation(true)));
 
         // When
         api.writeAssertions(storeId, authModelId, writeRequest);
@@ -259,14 +279,10 @@ public class OpenFgaApiIntegrationTest {
 
         // Then
         String responseJson = mapper.writeValueAsString(response.getAssertions());
-        assertEquals("[{\"tuple_key\":{\"object\":\"document:2021-budget\",\"relation\":\"reader\",\"user\":\"user:81684243-9356-4421-8fbf-a4f8d36aa31b\"},\"expectation\":true}]", responseJson);
+        assertEquals(
+                "[{\"tuple_key\":{\"object\":\"document:2021-budget\",\"relation\":\"reader\",\"user\":\"user:81684243-9356-4421-8fbf-a4f8d36aa31b\"},\"expectation\":true}]",
+                responseJson);
     }
-
-    /*
-       TODO:
-
-       * readChanges
-    */
 
     /**
      * Create a store for a given name. If tests fail here, troubleshoot with the no-arguments
