@@ -29,6 +29,7 @@ pull-docker-images:
 	docker pull golangci/golangci-lint:${GOLINT_DOCKER_TAG}
 	docker pull mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG}
 	docker pull busybox:${BUSYBOX_DOCKER_TAG}
+	docker pull gradle:${GRADLE_DOCKER_TAG}
 
 ## Publishing
 publish-client-dotnet: build-client-dotnet
@@ -43,10 +44,10 @@ test: test-all-clients
 build: build-all-clients
 
 .PHONY: test-all-clients
-test-all-clients: test-client-js test-client-go test-client-dotnet test-client-python
+test-all-clients: test-client-js test-client-go test-client-dotnet test-client-python test-client-java
 
 .PHONY: build-all-clients
-build-all-clients: build-client-js build-client-go build-client-dotnet build-client-python
+build-all-clients: build-client-js build-client-go build-client-dotnet build-client-python build-client-java
 
 ### JavaScript
 .PHONY: tag-client-js
@@ -130,6 +131,7 @@ run-in-docker:
 		-v "${CLIENTS_OUTPUT_DIR}/fga-${sdk_language}-sdk":/module \
 		-v ${CONFIG_DIR}:/config \
 		-w /module \
+		--net="host" \
 		${image} \
 		${command}
 
@@ -207,7 +209,14 @@ setup-new-sdk:
 .PHONY: build-client-java
 build-client-java:
 	make build-client sdk_language=java tmpdir=${TMP_DIR}
-	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c 'gradle fmt'"
+	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c 'chmod +x ./gradlew && gradle fmt build'"
+
+.PHONY: test-integration-client-java
+test-integration-client-java: build-client-java
+	docker container rm --force openfga-for-java-client || true
+	docker run --detach --name openfga-for-java-client -p 8080:8080 openfga/openfga run
+	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c './gradlew test-integration'"
+	docker container rm --force openfga-for-java-client
 
 .PHONY: test-client-java
 test-client-java: build-client-java
