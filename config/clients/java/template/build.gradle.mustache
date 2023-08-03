@@ -71,8 +71,8 @@ dependencies {
 
     // Test-only dependencies
     testImplementation "org.junit.jupiter:junit-jupiter:$junit_version"
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
+    testImplementation "org.mockito:mockito-core:3.+"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 
 testing {
