@@ -20,6 +20,7 @@ import java.util.HashMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 /**
  * API tests for OpenFgaApi
@@ -63,7 +64,7 @@ public class OpenFgaApiTest {
                 .authorizationModelId("anything");
 
         // When
-        CheckResponse response = fga.check(storeId, new CheckRequest());
+        CheckResponse response = fga.check(storeId, request);
 
         // Then
         verify(mockApiClient).getBaseUri();
@@ -81,6 +82,15 @@ public class OpenFgaApiTest {
         assertEquals("Missing the required parameter 'storeId' when calling check", exception.getMessage());
     }
 
+    @Test
+    public void check_bodyRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.check("whatever", null));
+
+        // Then
+        assertEquals("Missing the required parameter 'body' when calling check", exception.getMessage());
+    }
+
     /**
      * Create a store.
      * <p>
@@ -92,10 +102,18 @@ public class OpenFgaApiTest {
     @Test
     @Disabled
     public void createStoreTest() throws ApiException {
-        CreateStoreRequest body = null;
-        CreateStoreResponse response = fga.createStore(body);
+        CreateStoreResponse response = fga.createStore(null);
 
-        // TODO: test validations
+        // TODO: Write this
+    }
+
+    @Test
+    public void createStore_bodyRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.createStore(null));
+
+        // Then
+        assertEquals("Missing the required parameter 'body' when calling createStore", exception.getMessage());
     }
 
     /**
@@ -116,6 +134,15 @@ public class OpenFgaApiTest {
         // TODO: test validations
     }
 
+    @Test
+    public void deleteStore_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.deleteStore(null));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling deleteStore", exception.getMessage());
+    }
+
     /**
      * Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason about and debug a certain relationship.
      * <p>
@@ -134,6 +161,24 @@ public class OpenFgaApiTest {
         // TODO: test validations
     }
 
+    @Test
+    public void expand_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.expand(null, new ExpandRequest()));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling expand", exception.getMessage());
+    }
+
+    @Test
+    public void expand_bodyRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.expand("whatever", null));
+
+        // Then
+        assertEquals("Missing the required parameter 'body' when calling expand", exception.getMessage());
+    }
+
     /**
      * Get a store.
      * <p>
@@ -149,6 +194,15 @@ public class OpenFgaApiTest {
         GetStoreResponse response = fga.getStore(storeId);
 
         // TODO: test validations
+    }
+
+    @Test
+    public void getStore_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.getStore(null));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling getStore", exception.getMessage());
     }
 
     /**
@@ -169,6 +223,24 @@ public class OpenFgaApiTest {
         // TODO: test validations
     }
 
+    @Test
+    public void listObjects_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.listObjects(null, new ListObjectsRequest()));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling listObjects", exception.getMessage());
+    }
+
+    @Test
+    public void listObjects_bodyRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.listObjects("whatever", null));
+
+        // Then
+        assertEquals("Missing the required parameter 'body' when calling listObjects", exception.getMessage());
+    }
+
     /**
      * List all stores.
      * <p>
@@ -180,9 +252,7 @@ public class OpenFgaApiTest {
     @Test
     @Disabled
     public void listStoresTest() throws ApiException {
-        Integer pageSize = null;
-        String continuationToken = null;
-        ListStoresResponse response = fga.listStores(pageSize, continuationToken);
+        ListStoresResponse response = fga.listStores(null, null);
 
         // TODO: test validations
     }
@@ -205,6 +275,24 @@ public class OpenFgaApiTest {
         // TODO: test validations
     }
 
+    @Test
+    public void read_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.read(null, new ReadRequest()));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling read", exception.getMessage());
+    }
+
+    @Test
+    public void read_bodyRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.read("whatever", null));
+
+        // Then
+        assertEquals("Missing the required parameter 'body' when calling read", exception.getMessage());
+    }
+
     /**
      * Read assertions for an authorization model ID.
      * <p>
@@ -221,6 +309,24 @@ public class OpenFgaApiTest {
         ReadAssertionsResponse response = fga.readAssertions(storeId, authorizationModelId);
 
         // TODO: test validations
+    }
+
+    @Test
+    public void readAssertions_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readAssertions(null, "whatever"));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling readAssertions", exception.getMessage());
+    }
+
+    @Test
+    public void readAssertions_authModelIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readAssertions("whatever", null));
+
+        // Then
+        assertEquals("Missing the required parameter 'authorizationModelId' when calling readAssertions", exception.getMessage());
     }
 
     /**
@@ -241,6 +347,24 @@ public class OpenFgaApiTest {
         // TODO: test validations
     }
 
+    @Test
+    public void readAuthorizationModel_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readAuthorizationModel(null, "whatever"));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling readAuthorizationModel", exception.getMessage());
+    }
+
+    @Test
+    public void readAuthorizationModel_idRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readAuthorizationModel("whatever", null));
+
+        // Then
+        assertEquals("Missing the required parameter 'id' when calling readAuthorizationModel", exception.getMessage());
+    }
+
     /**
      * Return all the authorization models for a particular store.
      * <p>
@@ -258,6 +382,15 @@ public class OpenFgaApiTest {
         ReadAuthorizationModelsResponse response = fga.readAuthorizationModels(storeId, pageSize, continuationToken);
 
         // TODO: test validations
+    }
+
+    @Test
+    public void readAuthorizationModels_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readAuthorizationModels(null, null, null));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling readAuthorizationModels", exception.getMessage());
     }
 
     /**
@@ -280,6 +413,15 @@ public class OpenFgaApiTest {
         // TODO: test validations
     }
 
+    @Test
+    public void readChanges_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readChanges(null, null, null, null));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling readChanges", exception.getMessage());
+    }
+
     /**
      * Add or delete tuples from the store.
      * <p>
@@ -296,6 +438,24 @@ public class OpenFgaApiTest {
         Object response = fga.write(storeId, body);
 
         // TODO: test validations
+    }
+
+    @Test
+    public void write_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.write(null, new WriteRequest()));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling write", exception.getMessage());
+    }
+
+    @Test
+    public void write_bodyRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.write("whatever", null));
+
+        // Then
+        assertEquals("Missing the required parameter 'body' when calling write", exception.getMessage());
     }
 
     /**
@@ -318,6 +478,33 @@ public class OpenFgaApiTest {
         // TODO: test validations
     }
 
+    @Test
+    public void writeAssertions_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.writeAssertions(null, "whatever", new WriteAssertionsRequest()));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling writeAssertions", exception.getMessage());
+    }
+
+    @Test
+    public void writeAssertions_authModelIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.writeAssertions("whatever", null, new WriteAssertionsRequest()));
+
+        // Then
+        assertEquals("Missing the required parameter 'authorizationModelId' when calling writeAssertions", exception.getMessage());
+    }
+
+    @Test
+    public void writeAssertions_bodyRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.writeAssertions("whatever", "whatever", null));
+
+        // Then
+        assertEquals("Missing the required parameter 'body' when calling writeAssertions", exception.getMessage());
+    }
+
     /**
      * Create a new authorization model.
      * <p>
@@ -336,7 +523,26 @@ public class OpenFgaApiTest {
         // TODO: test validations
     }
 
+    @Test
+    public void writeAuthorizationModel_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.writeAuthorizationModel(null, new WriteAuthorizationModelRequest()));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling writeAuthorizationModel", exception.getMessage());
+    }
+
+    @Test
+    public void writeAuthorizationModel_bodyRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.writeAuthorizationModel("whatever",  null));
+
+        // Then
+        assertEquals("Missing the required parameter 'body' when calling writeAuthorizationModel", exception.getMessage());
+    }
+
     private HttpResponse<InputStream> basicHttpOkResponse() {
+        @SuppressWarnings("unchecked")
         HttpResponse<InputStream> response = mock(HttpResponse.class);
         when(response.headers()).thenReturn(HttpHeaders.of(new HashMap<>(), (_a, _b) -> true));
         InputStream b = new ByteArrayInputStream("{}".getBytes());
