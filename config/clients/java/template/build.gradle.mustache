@@ -68,16 +68,21 @@ dependencies {
     {{#hasFormParamsInSpec}}
     implementation "org.apache.httpcomponents:httpmime:$httpmime_version"
     {{/hasFormParamsInSpec}}
-
-    // Test-only dependencies
-    testImplementation "org.junit.jupiter:junit-jupiter:$junit_version"
-    testImplementation "org.mockito:mockito-core:3.+"
-    testImplementation "com.pgs-soft:HttpClientMock:1.0.0"
-    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 
 testing {
     suites {
+        test {
+            useJUnitJupiter()
+
+            dependencies {
+                implementation project()
+                implementation "org.junit.jupiter:junit-jupiter:$junit_version"
+                implementation "org.mockito:mockito-core:3.+"
+                implementation "com.pgs-soft:HttpClientMock:1.0.0"
+                runtimeOnly "org.junit.platform:junit-platform-launcher"
+            }
+        }
         integration(JvmTestSuite) {
             testType = TestSuiteType.INTEGRATION_TEST
             useJUnitJupiter()
@@ -95,10 +100,6 @@ testing {
             }
         }
     }
-}
-
-tasks.named('test', Test) {
-    useJUnitPlatform()
 }
 
 // Use spotless plugin to automatically format code, remove unused import, etc
