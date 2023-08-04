@@ -61,7 +61,8 @@ public class OpenFgaApiTest {
         // Then
         verify(mockApiClient).getBaseUri();
         verify(mockApiClient).getReadTimeout();
-        String expectedBody = "{\"tuple_key\":{\"object\":null,\"relation\":null,\"user\":null},\"contextual_tuples\":{\"tuple_keys\":[]},\"authorization_model_id\":\"01G5JAVJ41T49E9TT3SKVS7X1J\",\"trace\":null}";
+        String expectedBody =
+                "{\"tuple_key\":{\"object\":null,\"relation\":null,\"user\":null},\"contextual_tuples\":{\"tuple_keys\":[]},\"authorization_model_id\":\"01G5JAVJ41T49E9TT3SKVS7X1J\",\"trace\":null}";
         mockHttpClient
                 .verify()
                 .post("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check")
@@ -91,11 +92,20 @@ public class OpenFgaApiTest {
      * Create a store.
      */
     @Test
-    @Disabled
     public void createStoreTest() throws ApiException {
-        CreateStoreResponse response = fga.createStore(null);
+        // Given
+        mockHttpClient
+                .onPost("https://localhost/stores")
+                .doReturn(200, "{}");
 
-        // TODO: Write this
+        // When
+        CreateStoreResponse _response = fga.createStore(new CreateStoreRequest());
+
+        // Then
+        mockHttpClient
+                .verify()
+                .post("https://localhost/stores")
+                .called(1);
     }
 
     @Test
@@ -111,13 +121,20 @@ public class OpenFgaApiTest {
      * Delete a store.
      */
     @Test
-    @Disabled
     public void deleteStoreTest() throws ApiException {
-        String storeId = null;
+        // Given
+        mockHttpClient
+                .onDelete("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X")
+                .doReturn(200, "{}");
 
-        fga.deleteStore(storeId);
+        // When
+        fga.deleteStore(DEFAULT_STORE_ID);
 
-        // TODO: test validations
+        // Then
+        mockHttpClient
+                .verify()
+                .delete("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X")
+                .called(1);
     }
 
     @Test
@@ -133,13 +150,20 @@ public class OpenFgaApiTest {
      * Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason about and debug a certain relationship.
      */
     @Test
-    @Disabled
     public void expandTest() throws ApiException {
-        String storeId = null;
-        ExpandRequest body = null;
-        ExpandResponse response = fga.expand(storeId, body);
+        // Given
+        mockHttpClient
+                .onPost("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/expand")
+                .doReturn(200, "{}");
 
-        // TODO: test validations
+        // When
+        ExpandResponse _response = fga.expand(DEFAULT_STORE_ID, new ExpandRequest());
+
+        // Then
+        mockHttpClient
+                .verify()
+                .post("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/expand")
+                .called(1);
     }
 
     @Test
@@ -164,12 +188,20 @@ public class OpenFgaApiTest {
      * Get a store.
      */
     @Test
-    @Disabled
     public void getStoreTest() throws ApiException {
-        String storeId = null;
-        GetStoreResponse response = fga.getStore(storeId);
+        // Given
+        mockHttpClient
+                .onGet("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X")
+                .doReturn(200, "{}");
 
-        // TODO: test validations
+        // When
+        GetStoreResponse _response = fga.getStore(DEFAULT_STORE_ID);
+
+        // Then
+        mockHttpClient
+                .verify()
+                .get("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X")
+                .called(1);
     }
 
     @Test
@@ -185,13 +217,20 @@ public class OpenFgaApiTest {
      * List all objects of the given type that the user has a relation with.
      */
     @Test
-    @Disabled
     public void listObjectsTest() throws ApiException {
-        String storeId = null;
-        ListObjectsRequest body = null;
-        ListObjectsResponse response = fga.listObjects(storeId, body);
+        // Given
+        mockHttpClient
+                .onPost("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/list-objects")
+                .doReturn(200, "{}");
 
-        // TODO: test validations
+        // When
+        ListObjectsResponse _response = fga.listObjects(DEFAULT_STORE_ID, new ListObjectsRequest());
+
+        // Then
+        mockHttpClient
+                .verify()
+                .post("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/list-objects")
+                .called(1);
     }
 
     @Test
@@ -217,24 +256,40 @@ public class OpenFgaApiTest {
      * List all stores.
      */
     @Test
-    @Disabled
     public void listStoresTest() throws ApiException {
-        ListStoresResponse response = fga.listStores(null, null);
+        // Given
+        mockHttpClient
+                .onGet("https://localhost/stores")
+                .doReturn(200, "{}");
 
-        // TODO: test validations
+        // When
+        ListStoresResponse _response = fga.listStores(null, null);
+
+        // Then
+        mockHttpClient
+                .verify()
+                .get("https://localhost/stores")
+                .called(1);
     }
 
     /**
      * Get tuples from the store that matches a query, without following userset rewrite rules.
      */
     @Test
-    @Disabled
     public void readTest() throws ApiException {
-        String storeId = null;
-        ReadRequest body = null;
-        ReadResponse response = fga.read(storeId, body);
+        // Given
+        mockHttpClient
+                .onPost("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/read")
+                .doReturn(200, "{}");
 
-        // TODO: test validations
+        // When
+        ReadResponse _response = fga.read(DEFAULT_STORE_ID, new ReadRequest());
+
+        // Then
+        mockHttpClient
+                .verify()
+                .post("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/read")
+                .called(1);
     }
 
     @Test
@@ -259,13 +314,20 @@ public class OpenFgaApiTest {
      * Read assertions for an authorization model ID.
      */
     @Test
-    @Disabled
     public void readAssertionsTest() throws ApiException {
-        String storeId = null;
-        String authorizationModelId = null;
-        ReadAssertionsResponse response = fga.readAssertions(storeId, authorizationModelId);
+        // Given
+        mockHttpClient
+                .onGet("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X1J")
+                .doReturn(200, "{}");
 
-        // TODO: test validations
+        // When
+        ReadAssertionsResponse _response = fga.readAssertions(DEFAULT_STORE_ID, DEFAULT_AUTH_MODEL_ID);
+
+        // Then
+        mockHttpClient
+                .verify()
+                .get("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X1J")
+                .called(1);
     }
 
     @Test
@@ -293,13 +355,20 @@ public class OpenFgaApiTest {
      * Return a particular version of an authorization model.
      */
     @Test
-    @Disabled
     public void readAuthorizationModelTest() throws ApiException {
-        String storeId = null;
-        String id = null;
-        ReadAuthorizationModelResponse response = fga.readAuthorizationModel(storeId, id);
+        // Given
+        mockHttpClient
+                .onGet("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J")
+                .doReturn(200, "{}");
 
-        // TODO: test validations
+        // When
+        ReadAuthorizationModelResponse _response = fga.readAuthorizationModel(DEFAULT_STORE_ID, DEFAULT_AUTH_MODEL_ID);
+
+        // Then
+        mockHttpClient
+                .verify()
+                .get("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J")
+                .called(1);
     }
 
     @Test
@@ -327,14 +396,20 @@ public class OpenFgaApiTest {
      * Return all the authorization models for a particular store.
      */
     @Test
-    @Disabled
     public void readAuthorizationModelsTest() throws ApiException {
-        String storeId = null;
-        Integer pageSize = null;
-        String continuationToken = null;
-        ReadAuthorizationModelsResponse response = fga.readAuthorizationModels(storeId, pageSize, continuationToken);
+        // Given
+        mockHttpClient
+                .onGet("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models")
+                .doReturn(200, "{}");
 
-        // TODO: test validations
+        // When
+        ReadAuthorizationModelsResponse _response = fga.readAuthorizationModels(DEFAULT_STORE_ID, null, null);
+
+        // Then
+        mockHttpClient
+                .verify()
+                .get("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models")
+                .called(1);
     }
 
     @Test
@@ -352,15 +427,20 @@ public class OpenFgaApiTest {
      * Return a list of all the tuple changes.
      */
     @Test
-    @Disabled
     public void readChangesTest() throws ApiException {
-        String storeId = null;
-        String type = null;
-        Integer pageSize = null;
-        String continuationToken = null;
-        ReadChangesResponse response = fga.readChanges(storeId, type, pageSize, continuationToken);
+        // Given
+        mockHttpClient
+                .onGet("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/changes")
+                .doReturn(200, "{}");
 
-        // TODO: test validations
+        // When
+        ReadChangesResponse _response = fga.readChanges(DEFAULT_STORE_ID, null, null, null);
+
+        // Then
+        mockHttpClient
+                .verify()
+                .get("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/changes")
+                .called(1);
     }
 
     @Test
@@ -376,13 +456,20 @@ public class OpenFgaApiTest {
      * Add or delete tuples from the store.
      */
     @Test
-    @Disabled
     public void writeTest() throws ApiException {
-        String storeId = null;
-        WriteRequest body = null;
-        Object response = fga.write(storeId, body);
+        // Given
+        mockHttpClient
+                .onPost("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/write")
+                .doReturn(200, "{}");
 
-        // TODO: test validations
+        // When
+        fga.write(DEFAULT_STORE_ID, new WriteRequest());
+
+        // Then
+        mockHttpClient
+                .verify()
+                .post("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/write")
+                .called(1);
     }
 
     @Test
@@ -407,15 +494,20 @@ public class OpenFgaApiTest {
      * Upsert assertions for an authorization model ID.
      */
     @Test
-    @Disabled
     public void writeAssertionsTest() throws ApiException {
-        String storeId = null;
-        String authorizationModelId = null;
-        WriteAssertionsRequest body = null;
+        // Given
+        mockHttpClient
+                .onPut("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X1J")
+                .doReturn(200, "{}");
 
-        fga.writeAssertions(storeId, authorizationModelId, body);
+        // When
+        fga.writeAssertions(DEFAULT_STORE_ID, DEFAULT_AUTH_MODEL_ID, new WriteAssertionsRequest());
 
-        // TODO: test validations
+        // Then
+        mockHttpClient
+                .verify()
+                .put("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X1J")
+                .called(1);
     }
 
     @Test
@@ -455,13 +547,20 @@ public class OpenFgaApiTest {
      * Create a new authorization model.
      */
     @Test
-    @Disabled
     public void writeAuthorizationModelTest() throws ApiException {
-        String storeId = null;
-        WriteAuthorizationModelRequest body = null;
-        WriteAuthorizationModelResponse response = fga.writeAuthorizationModel(storeId, body);
+        // Given
+        mockHttpClient
+                .onPost("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models")
+                .doReturn(200, "{}");
 
-        // TODO: test validations
+        // When
+        WriteAuthorizationModelResponse _response = fga.writeAuthorizationModel(DEFAULT_STORE_ID, new WriteAuthorizationModelRequest());
+
+        // Then
+        mockHttpClient
+                .verify()
+                .post("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models")
+                .called(1);
     }
 
     @Test
