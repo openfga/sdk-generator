@@ -378,16 +378,52 @@ public class OpenFgaApiTest {
      * Add or delete tuples from the store.
      */
     @Test
-    public void writeTest() throws ApiException {
+    public void writeTest_writes() throws ApiException {
         // Given
         String postPath = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/write";
-        mockHttpClient.onPost(postPath).doReturn(200, EMPTY_RESPONSE_BODY);
+        String expectedBody = String.format(
+                "{\"writes\":{\"tuple_keys\":[{\"object\":\"%s\",\"relation\":\"%s\",\"user\":\"%s\"}]},\"deletes\":null,\"authorization_model_id\":\"%s\"}",
+                DEFAULT_OBJECT, DEFAULT_RELATION, DEFAULT_USER, DEFAULT_AUTH_MODEL_ID);
+        mockHttpClient.onPost(postPath).withBody(is(expectedBody)).doReturn(200, EMPTY_RESPONSE_BODY);
+        WriteRequest request = new WriteRequest()
+                .authorizationModelId(DEFAULT_AUTH_MODEL_ID)
+                .writes(new TupleKeys()
+                        .tupleKeys(List.of(new TupleKey()
+                                ._object(DEFAULT_OBJECT)
+                                .relation(DEFAULT_RELATION)
+                                .user(DEFAULT_USER))));
 
         // When
-        fga.write(DEFAULT_STORE_ID, new WriteRequest()); // TODO: Flesh out request and request body
+        fga.write(DEFAULT_STORE_ID, request);
 
         // Then
-        mockHttpClient.verify().post(postPath).called(1);
+        mockHttpClient.verify().post(postPath).withBody(is(expectedBody)).called(1);
+    }
+
+    /**
+     * Add or delete tuples from the store.
+     */
+    @Test
+    public void writeTest_deletes() throws ApiException {
+        // Given
+        String postPath = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/write";
+        String expectedBody = String.format(
+                "{\"writes\":null,\"deletes\":{\"tuple_keys\":[{\"object\":\"%s\",\"relation\":\"%s\",\"user\":\"%s\"}]},\"authorization_model_id\":\"%s\"}",
+                DEFAULT_OBJECT, DEFAULT_RELATION, DEFAULT_USER, DEFAULT_AUTH_MODEL_ID);
+        mockHttpClient.onPost(postPath).withBody(is(expectedBody)).doReturn(200, EMPTY_RESPONSE_BODY);
+        WriteRequest request = new WriteRequest()
+                .authorizationModelId(DEFAULT_AUTH_MODEL_ID)
+                .deletes(new TupleKeys()
+                        .tupleKeys(List.of(new TupleKey()
+                                ._object(DEFAULT_OBJECT)
+                                .relation(DEFAULT_RELATION)
+                                .user(DEFAULT_USER))));
+
+        // When
+        fga.write(DEFAULT_STORE_ID, request);
+
+        // Then
+        mockHttpClient.verify().post(postPath).withBody(is(expectedBody)).called(1);
     }
 
     @Test
