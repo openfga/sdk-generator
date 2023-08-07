@@ -408,7 +408,7 @@ type SdkClient interface {
 
 func (client *{{appShortName}}Client) getAuthorizationModelId(authorizationModelId *string) (*string, error) {
 	modelId := client.config.AuthorizationModelId
-	if authorizationModelId != nil {
+	if authorizationModelId != nil && *authorizationModelId != "" {
 		modelId = authorizationModelId
 	}
 
@@ -420,8 +420,8 @@ func (client *{{appShortName}}Client) getAuthorizationModelId(authorizationModel
 
 // helper function to validate the connection (i.e., get token)
 func (client *{{appShortName}}Client) checkValidApiConnection(ctx _context.Context, authorizationModelId *string) error {
-	if authorizationModelId != nil {
-	    _, _, err := client.{{appShortName}}Api.ReadAuthorizationModel(ctx, *authorizationModelId).Execute()
+	if authorizationModelId != nil && *authorizationModelId != "" {
+	  _, _, err := client.{{appShortName}}Api.ReadAuthorizationModel(ctx, *authorizationModelId).Execute()
 		return err
 	} else {
 		_, err := client.ReadAuthorizationModels(ctx).Options(ClientReadAuthorizationModelsOptions{
@@ -1746,7 +1746,7 @@ func (client *{{appShortName}}Client) BatchCheckExecute(request SdkClientBatchCh
 	response := make(ClientBatchCheckResponse, numOfChecks)
 	authorizationModelId, err := client.getAuthorizationModelId(request.GetAuthorizationModelIdOverride())
 	if err != nil {
-		return nil, err 
+		return nil, err
 	}
 
 	group.Go(func() error {
