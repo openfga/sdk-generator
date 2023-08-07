@@ -48,56 +48,28 @@ public class OpenFgaApiTest {
     }
 
     /**
-     * Check whether a user is authorized to access an object.
+     * List all stores.
      */
     @Test
-    public void check() throws Exception {
+    public void listStoresTest() throws ApiException {
         // Given
-        String expectedBody = String.format(
-                "{\"tuple_key\":{\"object\":\"%s\",\"relation\":\"%s\",\"user\":\"%s\"},\"contextual_tuples\":{\"tuple_keys\":[]},\"authorization_model_id\":\"01G5JAVJ41T49E9TT3SKVS7X1J\",\"trace\":null}",
-                DEFAULT_OBJECT, DEFAULT_RELATION, DEFAULT_USER);
         mockHttpClient
-                .onPost("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check")
-                .withBody(is(expectedBody))
-                .doReturn(200, "{\"allowed\":true}");
-        CheckRequest request = new CheckRequest()
-                .tupleKey(new TupleKey()
-                        ._object(DEFAULT_OBJECT)
-                        .relation(DEFAULT_RELATION)
-                        .user(DEFAULT_USER))
-                .contextualTuples(new ContextualTupleKeys())
-                .authorizationModelId(DEFAULT_AUTH_MODEL_ID);
+                .onGet("https://localhost/stores")
+                .doReturn(
+                        200,
+                        String.format(
+                                "{\"stores\":[{\"id\":\"%s\",\"name\":\"%s\"}]}",
+                                DEFAULT_STORE_ID, DEFAULT_STORE_NAME));
 
         // When
-        CheckResponse response = fga.check(DEFAULT_STORE_ID, request);
+        ListStoresResponse response = fga.listStores(null, null);
 
         // Then
-        verify(mockApiClient).getBaseUri();
-        verify(mockApiClient).getReadTimeout();
-        mockHttpClient
-                .verify()
-                .post("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check")
-                .withBody(is(expectedBody))
-                .called(1);
-        assertEquals(Boolean.TRUE, response.getAllowed());
-    }
-
-    @Test
-    public void check_storeIdRequired() throws ApiException {
-        // When
-        ApiException exception = assertThrows(ApiException.class, () -> fga.check(null, new CheckRequest()));
-
-        // Then
-        assertEquals("Missing the required parameter 'storeId' when calling check", exception.getMessage());
-    }
-
-    @Test
-    public void check_bodyRequired() throws ApiException {
-        // When
-        ApiException exception = assertThrows(ApiException.class, () -> fga.check(DEFAULT_STORE_ID, null));
-
-        // Then
-        assertEquals("Missing the required parameter 'body' when calling check", exception.getMessage());
+        mockHttpClient.verify().get("https://localhost/stores").called(1);
+        assertNotNull(response.getStores());
+        assertEquals(1, response.getStores().size());
+        assertEquals(DEFAULT_STORE_ID, response.getStores().get(0).getId());
+        assertEquals(DEFAULT_STORE_NAME, response.getStores().get(0).getName());
     }
 
     /**
@@ -126,85 +98,6 @@ public class OpenFgaApiTest {
 
         // Then
         assertEquals("Missing the required parameter 'body' when calling createStore", exception.getMessage());
-    }
-
-    /**
-     * Delete a store.
-     */
-    @Test
-    public void deleteStoreTest() throws ApiException {
-        // Given
-        mockHttpClient
-                .onDelete("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X")
-                .doReturn(200, "");
-
-        // When
-        fga.deleteStore(DEFAULT_STORE_ID);
-
-        // Then
-        mockHttpClient
-                .verify()
-                .delete("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X")
-                .called(1);
-    }
-
-    @Test
-    public void deleteStore_storeIdRequired() throws ApiException {
-        // When
-        ApiException exception = assertThrows(ApiException.class, () -> fga.deleteStore(null));
-
-        // Then
-        assertEquals("Missing the required parameter 'storeId' when calling deleteStore", exception.getMessage());
-    }
-
-    /**
-     * Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason about and debug a certain relationship.
-     */
-    @Test
-    public void expandTest() throws ApiException {
-        // Given
-        String expectedBody = String.format(
-                "{\"tuple_key\":{\"object\":\"%s\",\"relation\":\"%s\",\"user\":\"%s\"},\"authorization_model_id\":\"01G5JAVJ41T49E9TT3SKVS7X1J\"}",
-                DEFAULT_OBJECT, DEFAULT_RELATION, DEFAULT_USER);
-        mockHttpClient
-                .onPost("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/expand")
-                .withBody(is(expectedBody))
-                .doReturn(200, "{}");
-        ExpandRequest request = new ExpandRequest()
-                .authorizationModelId(DEFAULT_AUTH_MODEL_ID)
-                .tupleKey(new TupleKey()
-                        ._object(DEFAULT_OBJECT)
-                        .relation(DEFAULT_RELATION)
-                        .user(DEFAULT_USER));
-
-        // When
-        ExpandResponse response = fga.expand(DEFAULT_STORE_ID, request);
-
-        // Then
-        mockHttpClient
-                .verify()
-                .post("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/expand")
-                .withBody(is(expectedBody))
-                .called(1);
-        assertNull(response.getTree());
-    }
-
-    @Test
-    public void expand_storeIdRequired() throws ApiException {
-        // When
-        ApiException exception = assertThrows(ApiException.class, () -> fga.expand(null, new ExpandRequest()));
-
-        // Then
-        assertEquals("Missing the required parameter 'storeId' when calling expand", exception.getMessage());
-    }
-
-    @Test
-    public void expand_bodyRequired() throws ApiException {
-        // When
-        ApiException exception = assertThrows(ApiException.class, () -> fga.expand(DEFAULT_STORE_ID, null));
-
-        // Then
-        assertEquals("Missing the required parameter 'body' when calling expand", exception.getMessage());
     }
 
     /**
@@ -239,77 +132,213 @@ public class OpenFgaApiTest {
     }
 
     /**
-     * List all objects of the given type that the user has a relation with.
+     * Delete a store.
      */
     @Test
-    public void listObjectsTest() throws ApiException {
+    public void deleteStoreTest() throws ApiException {
         // Given
-        String expectedBody = String.format(
-                "{\"authorization_model_id\":\"%s\",\"type\":null,\"relation\":\"%s\",\"user\":\"%s\",\"contextual_tuples\":null}",
-                DEFAULT_AUTH_MODEL_ID, DEFAULT_RELATION, DEFAULT_USER);
         mockHttpClient
-                .onPost("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/list-objects")
-                .withBody(is(expectedBody))
-                .doReturn(200, String.format("{\"objects\":[\"%s\"]}", DEFAULT_OBJECT));
-        ListObjectsRequest request = new ListObjectsRequest()
-                .authorizationModelId(DEFAULT_AUTH_MODEL_ID)
-                .relation(DEFAULT_RELATION)
-                .user(DEFAULT_USER);
+                .onDelete("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X")
+                .doReturn(200, "");
 
         // When
-        ListObjectsResponse response = fga.listObjects(DEFAULT_STORE_ID, request);
+        fga.deleteStore(DEFAULT_STORE_ID);
 
         // Then
         mockHttpClient
                 .verify()
-                .post("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/list-objects")
-                .withBody(is(expectedBody))
+                .delete("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X")
                 .called(1);
-        assertEquals(List.of(DEFAULT_OBJECT), response.getObjects());
     }
 
     @Test
-    public void listObjects_storeIdRequired() throws ApiException {
+    public void deleteStore_storeIdRequired() throws ApiException {
         // When
-        ApiException exception =
-                assertThrows(ApiException.class, () -> fga.listObjects(null, new ListObjectsRequest()));
+        ApiException exception = assertThrows(ApiException.class, () -> fga.deleteStore(null));
 
         // Then
-        assertEquals("Missing the required parameter 'storeId' when calling listObjects", exception.getMessage());
-    }
-
-    @Test
-    public void listObjects_bodyRequired() throws ApiException {
-        // When
-        ApiException exception = assertThrows(ApiException.class, () -> fga.listObjects(DEFAULT_STORE_ID, null));
-
-        // Then
-        assertEquals("Missing the required parameter 'body' when calling listObjects", exception.getMessage());
+        assertEquals("Missing the required parameter 'storeId' when calling deleteStore", exception.getMessage());
     }
 
     /**
-     * List all stores.
+     * Return all the authorization models for a particular store.
      */
     @Test
-    public void listStoresTest() throws ApiException {
+    public void readAuthorizationModelsTest() throws ApiException {
         // Given
         mockHttpClient
-                .onGet("https://localhost/stores")
+                .onGet("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models")
                 .doReturn(
                         200,
                         String.format(
-                                "{\"stores\":[{\"id\":\"%s\",\"name\":\"%s\"}]}",
-                                DEFAULT_STORE_ID, DEFAULT_STORE_NAME));
+                                "{\"authorization_models\":[{\"id\":\"%s\",\"schema_version\":\"%s\"}]}",
+                                DEFAULT_AUTH_MODEL_ID, DEFAULT_SCHEMA_VERSION));
 
         // When
-        ListStoresResponse response = fga.listStores(null, null);
+        ReadAuthorizationModelsResponse response = fga.readAuthorizationModels(DEFAULT_STORE_ID, null, null);
 
         // Then
-        mockHttpClient.verify().get("https://localhost/stores").called(1);
-        assertNotNull(response.getStores());
-        assertEquals(1, response.getStores().size());
-        assertEquals(DEFAULT_STORE_ID, response.getStores().get(0).getId());
-        assertEquals(DEFAULT_STORE_NAME, response.getStores().get(0).getName());
+        mockHttpClient
+                .verify()
+                .get("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models")
+                .called(1);
+        assertNotNull(response.getAuthorizationModels());
+        assertEquals(1, response.getAuthorizationModels().size());
+        AuthorizationModel authModel = response.getAuthorizationModels().get(0);
+        assertEquals(DEFAULT_AUTH_MODEL_ID, authModel.getId());
+        assertEquals(DEFAULT_SCHEMA_VERSION, authModel.getSchemaVersion());
+    }
+
+    @Test
+    public void readAuthorizationModels_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readAuthorizationModels(null, null, null));
+
+        // Then
+        assertEquals(
+                "Missing the required parameter 'storeId' when calling readAuthorizationModels",
+                exception.getMessage());
+    }
+
+    /**
+     * Create a new authorization model.
+     */
+    @Test
+    public void writeAuthorizationModelTest() throws ApiException {
+        // Given
+        String expectedBody =
+                "{\"type_definitions\":[{\"type\":\"document\",\"relations\":{},\"metadata\":null}],\"schema_version\":\"1.1\"}";
+        mockHttpClient
+                .onPost("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models")
+                .withBody(is(expectedBody))
+                .doReturn(200, String.format("{\"authorization_model_id\":\"%s\"}", DEFAULT_AUTH_MODEL_ID));
+        WriteAuthorizationModelRequest request = new WriteAuthorizationModelRequest()
+                .schemaVersion(DEFAULT_SCHEMA_VERSION)
+                .typeDefinitions(List.of(new TypeDefinition().type(DEFAULT_TYPE)));
+
+        // When
+        WriteAuthorizationModelResponse response = fga.writeAuthorizationModel(DEFAULT_STORE_ID, request);
+
+        // Then
+        mockHttpClient
+                .verify()
+                .post("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models")
+                .withBody(is(expectedBody))
+                .called(1);
+        assertEquals(DEFAULT_AUTH_MODEL_ID, response.getAuthorizationModelId());
+    }
+
+    @Test
+    public void writeAuthorizationModel_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(
+                ApiException.class, () -> fga.writeAuthorizationModel(null, new WriteAuthorizationModelRequest()));
+
+        // Then
+        assertEquals(
+                "Missing the required parameter 'storeId' when calling writeAuthorizationModel",
+                exception.getMessage());
+    }
+
+    @Test
+    public void writeAuthorizationModel_bodyRequired() throws ApiException {
+        // When
+        ApiException exception =
+                assertThrows(ApiException.class, () -> fga.writeAuthorizationModel(DEFAULT_STORE_ID, null));
+
+        // Then
+        assertEquals(
+                "Missing the required parameter 'body' when calling writeAuthorizationModel", exception.getMessage());
+    }
+
+    /**
+     * Return a particular version of an authorization model.
+     */
+    @Test
+    public void readAuthorizationModelTest() throws ApiException {
+        // Given
+        mockHttpClient
+                .onGet(
+                        "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J")
+                .doReturn(
+                        200,
+                        String.format(
+                                "{\"authorization_model\":{\"id\":\"%s\",\"schema_version\":\"%s\"}}",
+                                DEFAULT_AUTH_MODEL_ID, DEFAULT_SCHEMA_VERSION));
+
+        // When
+        ReadAuthorizationModelResponse response = fga.readAuthorizationModel(DEFAULT_STORE_ID, DEFAULT_AUTH_MODEL_ID);
+
+        // Then
+        mockHttpClient
+                .verify()
+                .get(
+                        "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J")
+                .called(1);
+        assertNotNull(response.getAuthorizationModel());
+        assertEquals(DEFAULT_AUTH_MODEL_ID, response.getAuthorizationModel().getId());
+        assertEquals(DEFAULT_SCHEMA_VERSION, response.getAuthorizationModel().getSchemaVersion());
+    }
+
+    @Test
+    public void readAuthorizationModel_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception =
+                assertThrows(ApiException.class, () -> fga.readAuthorizationModel(null, DEFAULT_AUTH_MODEL_ID));
+
+        // Then
+        assertEquals(
+                "Missing the required parameter 'storeId' when calling readAuthorizationModel", exception.getMessage());
+    }
+
+    @Test
+    public void readAuthorizationModel_idRequired() throws ApiException {
+        // When
+        ApiException exception =
+                assertThrows(ApiException.class, () -> fga.readAuthorizationModel(DEFAULT_STORE_ID, null));
+
+        // Then
+        assertEquals("Missing the required parameter 'id' when calling readAuthorizationModel", exception.getMessage());
+    }
+
+    /**
+     * Return a list of all the tuple changes.
+     */
+    @Test
+    public void readChangesTest() throws ApiException {
+        // Given
+        mockHttpClient
+                .onGet("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/changes")
+                .doReturn(
+                        200,
+                        String.format(
+                                "{\"changes\":[{\"tuple_key\":{\"object\":\"%s\",\"relation\":\"%s\",\"user\":\"%s\"}}]}",
+                                DEFAULT_OBJECT, DEFAULT_RELATION, DEFAULT_USER));
+
+        // When
+        ReadChangesResponse response = fga.readChanges(DEFAULT_STORE_ID, null, null, null);
+
+        // Then
+        mockHttpClient
+                .verify()
+                .get("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/changes")
+                .called(1);
+        assertNotNull(response.getChanges());
+        assertEquals(1, response.getChanges().size());
+        TupleChange change = response.getChanges().get(0);
+        assertNotNull(change.getTupleKey());
+        assertEquals(DEFAULT_OBJECT, change.getTupleKey().getObject());
+        assertEquals(DEFAULT_RELATION, change.getTupleKey().getRelation());
+        assertEquals(DEFAULT_USER, change.getTupleKey().getUser());
+    }
+
+    @Test
+    public void readChanges_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readChanges(null, null, null, null));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling readChanges", exception.getMessage());
     }
 
     /**
@@ -372,6 +401,196 @@ public class OpenFgaApiTest {
     }
 
     /**
+     * Add or delete tuples from the store.
+     */
+    @Test
+    public void writeTest() throws ApiException {
+        // Given
+        mockHttpClient
+                .onPost("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/write")
+                .doReturn(200, "{}");
+
+        // When
+        fga.write(DEFAULT_STORE_ID, new WriteRequest());
+
+        // Then
+        mockHttpClient
+                .verify()
+                .post("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/write")
+                .called(1);
+    }
+
+    @Test
+    public void write_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.write(null, new WriteRequest()));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling write", exception.getMessage());
+    }
+
+    @Test
+    public void write_bodyRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.write(DEFAULT_STORE_ID, null));
+
+        // Then
+        assertEquals("Missing the required parameter 'body' when calling write", exception.getMessage());
+    }
+
+    /**
+     * Check whether a user is authorized to access an object.
+     */
+    @Test
+    public void check() throws Exception {
+        // Given
+        String expectedBody = String.format(
+                "{\"tuple_key\":{\"object\":\"%s\",\"relation\":\"%s\",\"user\":\"%s\"},\"contextual_tuples\":{\"tuple_keys\":[]},\"authorization_model_id\":\"01G5JAVJ41T49E9TT3SKVS7X1J\",\"trace\":null}",
+                DEFAULT_OBJECT, DEFAULT_RELATION, DEFAULT_USER);
+        mockHttpClient
+                .onPost("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check")
+                .withBody(is(expectedBody))
+                .doReturn(200, "{\"allowed\":true}");
+        CheckRequest request = new CheckRequest()
+                .tupleKey(new TupleKey()
+                        ._object(DEFAULT_OBJECT)
+                        .relation(DEFAULT_RELATION)
+                        .user(DEFAULT_USER))
+                .contextualTuples(new ContextualTupleKeys())
+                .authorizationModelId(DEFAULT_AUTH_MODEL_ID);
+
+        // When
+        CheckResponse response = fga.check(DEFAULT_STORE_ID, request);
+
+        // Then
+        verify(mockApiClient).getBaseUri();
+        verify(mockApiClient).getReadTimeout();
+        mockHttpClient
+                .verify()
+                .post("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check")
+                .withBody(is(expectedBody))
+                .called(1);
+        assertEquals(Boolean.TRUE, response.getAllowed());
+    }
+
+    @Test
+    public void check_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.check(null, new CheckRequest()));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling check", exception.getMessage());
+    }
+
+    @Test
+    public void check_bodyRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.check(DEFAULT_STORE_ID, null));
+
+        // Then
+        assertEquals("Missing the required parameter 'body' when calling check", exception.getMessage());
+    }
+
+    /**
+     * Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason about and debug a certain relationship.
+     */
+    @Test
+    public void expandTest() throws ApiException {
+        // Given
+        String expectedBody = String.format(
+                "{\"tuple_key\":{\"object\":\"%s\",\"relation\":\"%s\",\"user\":\"%s\"},\"authorization_model_id\":\"01G5JAVJ41T49E9TT3SKVS7X1J\"}",
+                DEFAULT_OBJECT, DEFAULT_RELATION, DEFAULT_USER);
+        mockHttpClient
+                .onPost("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/expand")
+                .withBody(is(expectedBody))
+                .doReturn(200, "{}");
+        ExpandRequest request = new ExpandRequest()
+                .authorizationModelId(DEFAULT_AUTH_MODEL_ID)
+                .tupleKey(new TupleKey()
+                        ._object(DEFAULT_OBJECT)
+                        .relation(DEFAULT_RELATION)
+                        .user(DEFAULT_USER));
+
+        // When
+        ExpandResponse response = fga.expand(DEFAULT_STORE_ID, request);
+
+        // Then
+        mockHttpClient
+                .verify()
+                .post("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/expand")
+                .withBody(is(expectedBody))
+                .called(1);
+        assertNull(response.getTree());
+    }
+
+    @Test
+    public void expand_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.expand(null, new ExpandRequest()));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling expand", exception.getMessage());
+    }
+
+    @Test
+    public void expand_bodyRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.expand(DEFAULT_STORE_ID, null));
+
+        // Then
+        assertEquals("Missing the required parameter 'body' when calling expand", exception.getMessage());
+    }
+
+    /**
+     * List all objects of the given type that the user has a relation with.
+     */
+    @Test
+    public void listObjectsTest() throws ApiException {
+        // Given
+        String expectedBody = String.format(
+                "{\"authorization_model_id\":\"%s\",\"type\":null,\"relation\":\"%s\",\"user\":\"%s\",\"contextual_tuples\":null}",
+                DEFAULT_AUTH_MODEL_ID, DEFAULT_RELATION, DEFAULT_USER);
+        mockHttpClient
+                .onPost("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/list-objects")
+                .withBody(is(expectedBody))
+                .doReturn(200, String.format("{\"objects\":[\"%s\"]}", DEFAULT_OBJECT));
+        ListObjectsRequest request = new ListObjectsRequest()
+                .authorizationModelId(DEFAULT_AUTH_MODEL_ID)
+                .relation(DEFAULT_RELATION)
+                .user(DEFAULT_USER);
+
+        // When
+        ListObjectsResponse response = fga.listObjects(DEFAULT_STORE_ID, request);
+
+        // Then
+        mockHttpClient
+                .verify()
+                .post("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/list-objects")
+                .withBody(is(expectedBody))
+                .called(1);
+        assertEquals(List.of(DEFAULT_OBJECT), response.getObjects());
+    }
+
+    @Test
+    public void listObjects_storeIdRequired() throws ApiException {
+        // When
+        ApiException exception =
+                assertThrows(ApiException.class, () -> fga.listObjects(null, new ListObjectsRequest()));
+
+        // Then
+        assertEquals("Missing the required parameter 'storeId' when calling listObjects", exception.getMessage());
+    }
+
+    @Test
+    public void listObjects_bodyRequired() throws ApiException {
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.listObjects(DEFAULT_STORE_ID, null));
+
+        // Then
+        assertEquals("Missing the required parameter 'body' when calling listObjects", exception.getMessage());
+    }
+
+    /**
      * Read assertions for an authorization model ID.
      */
     @Test
@@ -422,174 +641,6 @@ public class OpenFgaApiTest {
         assertEquals(
                 "Missing the required parameter 'authorizationModelId' when calling readAssertions",
                 exception.getMessage());
-    }
-
-    /**
-     * Return a particular version of an authorization model.
-     */
-    @Test
-    public void readAuthorizationModelTest() throws ApiException {
-        // Given
-        mockHttpClient
-                .onGet(
-                        "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J")
-                .doReturn(
-                        200,
-                        String.format(
-                                "{\"authorization_model\":{\"id\":\"%s\",\"schema_version\":\"%s\"}}",
-                                DEFAULT_AUTH_MODEL_ID, DEFAULT_SCHEMA_VERSION));
-
-        // When
-        ReadAuthorizationModelResponse response = fga.readAuthorizationModel(DEFAULT_STORE_ID, DEFAULT_AUTH_MODEL_ID);
-
-        // Then
-        mockHttpClient
-                .verify()
-                .get(
-                        "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J")
-                .called(1);
-        assertNotNull(response.getAuthorizationModel());
-        assertEquals(DEFAULT_AUTH_MODEL_ID, response.getAuthorizationModel().getId());
-        assertEquals(DEFAULT_SCHEMA_VERSION, response.getAuthorizationModel().getSchemaVersion());
-    }
-
-    @Test
-    public void readAuthorizationModel_storeIdRequired() throws ApiException {
-        // When
-        ApiException exception =
-                assertThrows(ApiException.class, () -> fga.readAuthorizationModel(null, DEFAULT_AUTH_MODEL_ID));
-
-        // Then
-        assertEquals(
-                "Missing the required parameter 'storeId' when calling readAuthorizationModel", exception.getMessage());
-    }
-
-    @Test
-    public void readAuthorizationModel_idRequired() throws ApiException {
-        // When
-        ApiException exception =
-                assertThrows(ApiException.class, () -> fga.readAuthorizationModel(DEFAULT_STORE_ID, null));
-
-        // Then
-        assertEquals("Missing the required parameter 'id' when calling readAuthorizationModel", exception.getMessage());
-    }
-
-    /**
-     * Return all the authorization models for a particular store.
-     */
-    @Test
-    public void readAuthorizationModelsTest() throws ApiException {
-        // Given
-        mockHttpClient
-                .onGet("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models")
-                .doReturn(
-                        200,
-                        String.format(
-                                "{\"authorization_models\":[{\"id\":\"%s\",\"schema_version\":\"%s\"}]}",
-                                DEFAULT_AUTH_MODEL_ID, DEFAULT_SCHEMA_VERSION));
-
-        // When
-        ReadAuthorizationModelsResponse response = fga.readAuthorizationModels(DEFAULT_STORE_ID, null, null);
-
-        // Then
-        mockHttpClient
-                .verify()
-                .get("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models")
-                .called(1);
-        assertNotNull(response.getAuthorizationModels());
-        assertEquals(1, response.getAuthorizationModels().size());
-        AuthorizationModel authModel = response.getAuthorizationModels().get(0);
-        assertEquals(DEFAULT_AUTH_MODEL_ID, authModel.getId());
-        assertEquals(DEFAULT_SCHEMA_VERSION, authModel.getSchemaVersion());
-    }
-
-    @Test
-    public void readAuthorizationModels_storeIdRequired() throws ApiException {
-        // When
-        ApiException exception = assertThrows(ApiException.class, () -> fga.readAuthorizationModels(null, null, null));
-
-        // Then
-        assertEquals(
-                "Missing the required parameter 'storeId' when calling readAuthorizationModels",
-                exception.getMessage());
-    }
-
-    /**
-     * Return a list of all the tuple changes.
-     */
-    @Test
-    public void readChangesTest() throws ApiException {
-        // Given
-        mockHttpClient
-                .onGet("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/changes")
-                .doReturn(
-                        200,
-                        String.format(
-                                "{\"changes\":[{\"tuple_key\":{\"object\":\"%s\",\"relation\":\"%s\",\"user\":\"%s\"}}]}",
-                                DEFAULT_OBJECT, DEFAULT_RELATION, DEFAULT_USER));
-
-        // When
-        ReadChangesResponse response = fga.readChanges(DEFAULT_STORE_ID, null, null, null);
-
-        // Then
-        mockHttpClient
-                .verify()
-                .get("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/changes")
-                .called(1);
-        assertNotNull(response.getChanges());
-        assertEquals(1, response.getChanges().size());
-        TupleChange change = response.getChanges().get(0);
-        assertNotNull(change.getTupleKey());
-        assertEquals(DEFAULT_OBJECT, change.getTupleKey().getObject());
-        assertEquals(DEFAULT_RELATION, change.getTupleKey().getRelation());
-        assertEquals(DEFAULT_USER, change.getTupleKey().getUser());
-    }
-
-    @Test
-    public void readChanges_storeIdRequired() throws ApiException {
-        // When
-        ApiException exception = assertThrows(ApiException.class, () -> fga.readChanges(null, null, null, null));
-
-        // Then
-        assertEquals("Missing the required parameter 'storeId' when calling readChanges", exception.getMessage());
-    }
-
-    /**
-     * Add or delete tuples from the store.
-     */
-    @Test
-    public void writeTest() throws ApiException {
-        // Given
-        mockHttpClient
-                .onPost("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/write")
-                .doReturn(200, "{}");
-
-        // When
-        fga.write(DEFAULT_STORE_ID, new WriteRequest());
-
-        // Then
-        mockHttpClient
-                .verify()
-                .post("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/write")
-                .called(1);
-    }
-
-    @Test
-    public void write_storeIdRequired() throws ApiException {
-        // When
-        ApiException exception = assertThrows(ApiException.class, () -> fga.write(null, new WriteRequest()));
-
-        // Then
-        assertEquals("Missing the required parameter 'storeId' when calling write", exception.getMessage());
-    }
-
-    @Test
-    public void write_bodyRequired() throws ApiException {
-        // When
-        ApiException exception = assertThrows(ApiException.class, () -> fga.write(DEFAULT_STORE_ID, null));
-
-        // Then
-        assertEquals("Missing the required parameter 'body' when calling write", exception.getMessage());
     }
 
     /**
@@ -654,56 +705,5 @@ public class OpenFgaApiTest {
 
         // Then
         assertEquals("Missing the required parameter 'body' when calling writeAssertions", exception.getMessage());
-    }
-
-    /**
-     * Create a new authorization model.
-     */
-    @Test
-    public void writeAuthorizationModelTest() throws ApiException {
-        // Given
-        String expectedBody =
-                "{\"type_definitions\":[{\"type\":\"document\",\"relations\":{},\"metadata\":null}],\"schema_version\":\"1.1\"}";
-        mockHttpClient
-                .onPost("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models")
-                .withBody(is(expectedBody))
-                .doReturn(200, String.format("{\"authorization_model_id\":\"%s\"}", DEFAULT_AUTH_MODEL_ID));
-        WriteAuthorizationModelRequest request = new WriteAuthorizationModelRequest()
-                .schemaVersion(DEFAULT_SCHEMA_VERSION)
-                .typeDefinitions(List.of(new TypeDefinition().type(DEFAULT_TYPE)));
-
-        // When
-        WriteAuthorizationModelResponse response = fga.writeAuthorizationModel(DEFAULT_STORE_ID, request);
-
-        // Then
-        mockHttpClient
-                .verify()
-                .post("https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models")
-                .withBody(is(expectedBody))
-                .called(1);
-        assertEquals(DEFAULT_AUTH_MODEL_ID, response.getAuthorizationModelId());
-    }
-
-    @Test
-    public void writeAuthorizationModel_storeIdRequired() throws ApiException {
-        // When
-        ApiException exception = assertThrows(
-                ApiException.class, () -> fga.writeAuthorizationModel(null, new WriteAuthorizationModelRequest()));
-
-        // Then
-        assertEquals(
-                "Missing the required parameter 'storeId' when calling writeAuthorizationModel",
-                exception.getMessage());
-    }
-
-    @Test
-    public void writeAuthorizationModel_bodyRequired() throws ApiException {
-        // When
-        ApiException exception =
-                assertThrows(ApiException.class, () -> fga.writeAuthorizationModel(DEFAULT_STORE_ID, null));
-
-        // Then
-        assertEquals(
-                "Missing the required parameter 'body' when calling writeAuthorizationModel", exception.getMessage());
     }
 }
