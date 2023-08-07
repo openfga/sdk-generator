@@ -71,21 +71,70 @@ public class OpenFgaApiTest {
         assertEquals(DEFAULT_STORE_NAME, response.getStores().get(0).getName());
     }
 
+    @Test
+    public void listStores_400() throws ApiException {
+        // Given
+        mockHttpClient.onGet("https://localhost/stores").doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
+        Integer pageSize = null; // Input is optional
+        String continuationToken = null; // Input is optional
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.listStores(pageSize, continuationToken));
+
+        // Then
+        mockHttpClient.verify().get("https://localhost/stores").called(1);
+        assertEquals(400, exception.getCode());
+        assertEquals("{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void listStores_404() throws ApiException {
+        // Given
+        mockHttpClient.onGet("https://localhost/stores").doReturn(404, "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}");
+        Integer pageSize = null; // Input is optional
+        String continuationToken = null; // Input is optional
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.listStores(pageSize, continuationToken));
+
+        // Then
+        mockHttpClient.verify().get("https://localhost/stores").called(1);
+        assertEquals(404, exception.getCode());
+        assertEquals("{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void listStores_500() throws ApiException {
+        // Given
+        mockHttpClient.onGet("https://localhost/stores").doReturn(500, "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}");
+        Integer pageSize = null; // Input is optional
+        String continuationToken = null; // Input is optional
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.listStores(pageSize, continuationToken));
+
+        // Then
+        mockHttpClient.verify().get("https://localhost/stores").called(1);
+        assertEquals(500, exception.getCode());
+        assertEquals("{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}", exception.getResponseBody());
+    }
+
     /**
      * Create a store.
      */
     @Test
     public void createStoreTest() throws ApiException {
         // Given
+        String expectedBody = String.format("{\"name\":\"%s\"}", DEFAULT_STORE_NAME);
         String requestBody = String.format("{\"id\":\"%s\",\"name\":\"%s\"}", DEFAULT_STORE_ID, DEFAULT_STORE_NAME);
-        mockHttpClient.onPost("https://localhost/stores").doReturn(200, requestBody);
+        mockHttpClient.onPost("https://localhost/stores").withBody(is(expectedBody)).doReturn(201, requestBody);
         CreateStoreRequest request = new CreateStoreRequest().name(DEFAULT_STORE_NAME);
 
         // When
         CreateStoreResponse response = fga.createStore(request);
 
         // Then
-        mockHttpClient.verify().post("https://localhost/stores").called(1);
+        mockHttpClient.verify().post("https://localhost/stores").withBody(is(expectedBody)).called(1);
         assertEquals(DEFAULT_STORE_ID, response.getId());
         assertEquals(DEFAULT_STORE_NAME, response.getName());
     }
@@ -97,6 +146,48 @@ public class OpenFgaApiTest {
 
         // Then
         assertEquals("Missing the required parameter 'body' when calling createStore", exception.getMessage());
+    }
+
+    @Test
+    public void createStore_400() throws ApiException {
+        // Given
+        mockHttpClient.onPost("https://localhost/stores").doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.createStore(new CreateStoreRequest()));
+
+        // Then
+        mockHttpClient.verify().post("https://localhost/stores").called(1);
+        assertEquals(400, exception.getCode());
+        assertEquals("{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void createStore_404() throws ApiException {
+        // Given
+        mockHttpClient.onPost("https://localhost/stores").doReturn(404, "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.createStore(new CreateStoreRequest()));
+
+        // Then
+        mockHttpClient.verify().post("https://localhost/stores").called(1);
+        assertEquals(404, exception.getCode());
+        assertEquals("{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void createStore_500() throws ApiException {
+        // Given
+        mockHttpClient.onPost("https://localhost/stores").doReturn(500, "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.createStore(new CreateStoreRequest()));
+
+        // Then
+        mockHttpClient.verify().post("https://localhost/stores").called(1);
+        assertEquals(500, exception.getCode());
+        assertEquals("{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}", exception.getResponseBody());
     }
 
     /**
@@ -127,6 +218,51 @@ public class OpenFgaApiTest {
         assertEquals("Missing the required parameter 'storeId' when calling getStore", exception.getMessage());
     }
 
+    @Test
+    public void getStore_400() throws ApiException {
+        // Given
+        String getUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X";
+        mockHttpClient.onGet(getUrl).doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.getStore(DEFAULT_STORE_ID));
+
+        // Then
+        mockHttpClient.verify().get(getUrl).called(1);
+        assertEquals(400, exception.getCode());
+        assertEquals("{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void getStore_404() throws ApiException {
+        // Given
+        String getUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X";
+        mockHttpClient.onGet(getUrl).doReturn(404, "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.getStore(DEFAULT_STORE_ID));
+
+        // Then
+        mockHttpClient.verify().get(getUrl).called(1);
+        assertEquals(404, exception.getCode());
+        assertEquals("{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void getStore_500() throws ApiException {
+        // Given
+        String getUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X";
+        mockHttpClient.onGet(getUrl).doReturn(500, "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.getStore(DEFAULT_STORE_ID));
+
+        // Then
+        mockHttpClient.verify().get(getUrl).called(1);
+        assertEquals(500, exception.getCode());
+        assertEquals("{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}", exception.getResponseBody());
+    }
+
     /**
      * Delete a store.
      */
@@ -134,7 +270,7 @@ public class OpenFgaApiTest {
     public void deleteStoreTest() throws ApiException {
         // Given
         String deleteUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X";
-        mockHttpClient.onDelete(deleteUrl).doReturn(200, EMPTY_RESPONSE_BODY);
+        mockHttpClient.onDelete(deleteUrl).doReturn(204, EMPTY_RESPONSE_BODY);
 
         // When
         fga.deleteStore(DEFAULT_STORE_ID);
@@ -150,6 +286,51 @@ public class OpenFgaApiTest {
 
         // Then
         assertEquals("Missing the required parameter 'storeId' when calling deleteStore", exception.getMessage());
+    }
+
+    @Test
+    public void deleteStore_400() throws ApiException {
+        // Given
+        String deleteUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X";
+        mockHttpClient.onDelete(deleteUrl).doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.deleteStore(DEFAULT_STORE_ID));
+
+        // Then
+        mockHttpClient.verify().delete(deleteUrl).called(1);
+        assertEquals(400, exception.getCode());
+        assertEquals("{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void deleteStore_404() throws ApiException {
+        // Given
+        String deleteUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X";
+        mockHttpClient.onDelete(deleteUrl).doReturn(404, "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.deleteStore(DEFAULT_STORE_ID));
+
+        // Then
+        mockHttpClient.verify().delete(deleteUrl).called(1);
+        assertEquals(404, exception.getCode());
+        assertEquals("{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void deleteStore_500() throws ApiException {
+        // Given
+        String deleteUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X";
+        mockHttpClient.onDelete(deleteUrl).doReturn(500, "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.deleteStore(DEFAULT_STORE_ID));
+
+        // Then
+        mockHttpClient.verify().delete(deleteUrl).called(1);
+        assertEquals(500, exception.getCode());
+        assertEquals("{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}", exception.getResponseBody());
     }
 
     /**
@@ -190,6 +371,57 @@ public class OpenFgaApiTest {
                 exception.getMessage());
     }
 
+    @Test
+    public void readAuthorizationModels_400() throws ApiException {
+        // Given
+        String getUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models";
+        mockHttpClient.onGet(getUrl).doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
+        Integer pageSize = null; // Input is optional
+        String continuationToken = null; // Input is optional
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readAuthorizationModels(DEFAULT_STORE_ID, pageSize, continuationToken));
+
+        // Then
+        mockHttpClient.verify().get(getUrl).called(1);
+        assertEquals(400, exception.getCode());
+        assertEquals("{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void readAuthorizationModels_404() throws ApiException {
+        // Given
+        String getUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models";
+        mockHttpClient.onGet(getUrl).doReturn(404, "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}");
+        Integer pageSize = null; // Input is optional
+        String continuationToken = null; // Input is optional
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readAuthorizationModels(DEFAULT_STORE_ID, pageSize, continuationToken));
+
+        // Then
+        mockHttpClient.verify().get(getUrl).called(1);
+        assertEquals(404, exception.getCode());
+        assertEquals("{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void readAuthorizationModels_500() throws ApiException {
+        // Given
+        String getUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models";
+        mockHttpClient.onGet(getUrl).doReturn(500, "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}");
+        Integer pageSize = null; // Input is optional
+        String continuationToken = null; // Input is optional
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readAuthorizationModels(DEFAULT_STORE_ID, pageSize, continuationToken));
+
+        // Then
+        mockHttpClient.verify().get(getUrl).called(1);
+        assertEquals(500, exception.getCode());
+        assertEquals("{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}", exception.getResponseBody());
+    }
+
     /**
      * Create a new authorization model.
      */
@@ -200,7 +432,7 @@ public class OpenFgaApiTest {
         String expectedBody =
                 "{\"type_definitions\":[{\"type\":\"document\",\"relations\":{},\"metadata\":null}],\"schema_version\":\"1.1\"}";
         String responseBody = String.format("{\"authorization_model_id\":\"%s\"}", DEFAULT_AUTH_MODEL_ID);
-        mockHttpClient.onPost(postUrl).withBody(is(expectedBody)).doReturn(200, responseBody);
+        mockHttpClient.onPost(postUrl).withBody(is(expectedBody)).doReturn(201, responseBody);
         WriteAuthorizationModelRequest request = new WriteAuthorizationModelRequest()
                 .schemaVersion(DEFAULT_SCHEMA_VERSION)
                 .typeDefinitions(List.of(new TypeDefinition().type(DEFAULT_TYPE)));
@@ -234,6 +466,51 @@ public class OpenFgaApiTest {
         // Then
         assertEquals(
                 "Missing the required parameter 'body' when calling writeAuthorizationModel", exception.getMessage());
+    }
+
+    @Test
+    public void writeAuthorizationModel_400() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models";
+        mockHttpClient.onPost(postUrl).doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.writeAuthorizationModel(DEFAULT_STORE_ID, new WriteAuthorizationModelRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(400, exception.getCode());
+        assertEquals("{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void writeAuthorizationModel_404() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models";
+        mockHttpClient.onPost(postUrl).doReturn(404, "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.writeAuthorizationModel(DEFAULT_STORE_ID, new WriteAuthorizationModelRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(404, exception.getCode());
+        assertEquals("{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void writeAuthorizationModel_500() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models";
+        mockHttpClient.onPost(postUrl).doReturn(500, "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.writeAuthorizationModel(DEFAULT_STORE_ID, new WriteAuthorizationModelRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(500, exception.getCode());
+        assertEquals("{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}", exception.getResponseBody());
     }
 
     /**
@@ -280,6 +557,54 @@ public class OpenFgaApiTest {
         assertEquals("Missing the required parameter 'id' when calling readAuthorizationModel", exception.getMessage());
     }
 
+    @Test
+    public void readAuthorizationModel_400() throws ApiException {
+        // Given
+        String getUrl =
+                "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J";
+        mockHttpClient.onGet(getUrl).doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readAuthorizationModel(DEFAULT_STORE_ID, DEFAULT_AUTH_MODEL_ID));
+
+        // Then
+        mockHttpClient.verify().get(getUrl).called(1);
+        assertEquals(400, exception.getCode());
+        assertEquals("{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void readAuthorizationModel_404() throws ApiException {
+        // Given
+        String getUrl =
+                "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J";
+        mockHttpClient.onGet(getUrl).doReturn(404, "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readAuthorizationModel(DEFAULT_STORE_ID, DEFAULT_AUTH_MODEL_ID));
+
+        // Then
+        mockHttpClient.verify().get(getUrl).called(1);
+        assertEquals(404, exception.getCode());
+        assertEquals("{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void readAuthorizationModel_500() throws ApiException {
+        // Given
+        String getUrl =
+                "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J";
+        mockHttpClient.onGet(getUrl).doReturn(500, "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readAuthorizationModel(DEFAULT_STORE_ID, DEFAULT_AUTH_MODEL_ID));
+
+        // Then
+        mockHttpClient.verify().get(getUrl).called(1);
+        assertEquals(500, exception.getCode());
+        assertEquals("{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}", exception.getResponseBody());
+    }
+
     /**
      * Return a list of all the tuple changes.
      */
@@ -318,20 +643,74 @@ public class OpenFgaApiTest {
         assertEquals("Missing the required parameter 'storeId' when calling readChanges", exception.getMessage());
     }
 
+    @Test
+    public void readChanges_400() throws ApiException {
+        // Given
+        String getUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/changes";
+        mockHttpClient.onGet(getUrl).doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
+        String type = null; // Input is optional
+        Integer pageSize = null; // Input is optional
+        String continuationToken = null; // Input is optional
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readChanges(DEFAULT_STORE_ID, type, pageSize, continuationToken));
+
+        // Then
+        mockHttpClient.verify().get(getUrl).called(1);
+        assertEquals(400, exception.getCode());
+        assertEquals("{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void readChanges_404() throws ApiException {
+        // Given
+        String getUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/changes";
+        mockHttpClient.onGet(getUrl).doReturn(404, "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}");
+        String type = null; // Input is optional
+        Integer pageSize = null; // Input is optional
+        String continuationToken = null; // Input is optional
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readChanges(DEFAULT_STORE_ID, type, pageSize, continuationToken));
+
+        // Then
+        mockHttpClient.verify().get(getUrl).called(1);
+        assertEquals(404, exception.getCode());
+        assertEquals("{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void readChanges_500() throws ApiException {
+        // Given
+        String getUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/changes";
+        mockHttpClient.onGet(getUrl).doReturn(500, "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}");
+        String type = null; // Input is optional
+        Integer pageSize = null; // Input is optional
+        String continuationToken = null; // Input is optional
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readChanges(DEFAULT_STORE_ID, type, pageSize, continuationToken));
+
+        // Then
+        mockHttpClient.verify().get(getUrl).called(1);
+        assertEquals(500, exception.getCode());
+        assertEquals("{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}", exception.getResponseBody());
+    }
+
     /**
      * Get tuples from the store that matches a query, without following userset rewrite rules.
      */
     @Test
     public void readTest() throws ApiException {
         // Given
-        String postPath = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/read";
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/read";
         String expectedBody = String.format(
                 "{\"tuple_key\":{\"object\":\"%s\",\"relation\":\"%s\",\"user\":\"%s\"},\"page_size\":null,\"continuation_token\":null}",
                 DEFAULT_OBJECT, DEFAULT_RELATION, DEFAULT_USER);
         String responseBody = String.format(
                 "{\"tuples\":[{\"key\":{\"user\":\"%s\",\"relation\":\"%s\",\"object\":\"%s\"}}]}",
                 DEFAULT_USER, DEFAULT_RELATION, DEFAULT_OBJECT);
-        mockHttpClient.onPost(postPath).withBody(is(expectedBody)).doReturn(200, responseBody);
+        mockHttpClient.onPost(postUrl).withBody(is(expectedBody)).doReturn(200, responseBody);
         ReadRequest request = new ReadRequest()
                 .tupleKey(new TupleKey()
                         ._object(DEFAULT_OBJECT)
@@ -342,7 +721,7 @@ public class OpenFgaApiTest {
         ReadResponse response = fga.read(DEFAULT_STORE_ID, request);
 
         // Then
-        mockHttpClient.verify().post(postPath).withBody(is(expectedBody)).called(1);
+        mockHttpClient.verify().post(postUrl).withBody(is(expectedBody)).called(1);
         assertNotNull(response.getTuples());
         assertEquals(1, response.getTuples().size());
         TupleKey key = response.getTuples().get(0).getKey();
@@ -368,6 +747,51 @@ public class OpenFgaApiTest {
 
         // Then
         assertEquals("Missing the required parameter 'body' when calling read", exception.getMessage());
+    }
+
+    @Test
+    public void read_400() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/read";
+        mockHttpClient.onPost(postUrl).doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.read(DEFAULT_STORE_ID, new ReadRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(400, exception.getCode());
+        assertEquals("{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void read_404() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/read";
+        mockHttpClient.onPost(postUrl).doReturn(404, "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.read(DEFAULT_STORE_ID, new ReadRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(404, exception.getCode());
+        assertEquals("{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void read_500() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/read";
+        mockHttpClient.onPost(postUrl).doReturn(500, "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.read(DEFAULT_STORE_ID, new ReadRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(500, exception.getCode());
+        assertEquals("{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}", exception.getResponseBody());
     }
 
     /**
@@ -440,6 +864,51 @@ public class OpenFgaApiTest {
         assertEquals("Missing the required parameter 'body' when calling write", exception.getMessage());
     }
 
+    @Test
+    public void write_400() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/write";
+        mockHttpClient.onPost(postUrl).doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.write(DEFAULT_STORE_ID, new WriteRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(400, exception.getCode());
+        assertEquals("{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void write_404() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/write";
+        mockHttpClient.onPost(postUrl).doReturn(404, "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.write(DEFAULT_STORE_ID, new WriteRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(404, exception.getCode());
+        assertEquals("{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void write_500() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/write";
+        mockHttpClient.onPost(postUrl).doReturn(500, "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.write(DEFAULT_STORE_ID, new WriteRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(500, exception.getCode());
+        assertEquals("{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}", exception.getResponseBody());
+    }
+
     /**
      * Check whether a user is authorized to access an object.
      */
@@ -485,6 +954,51 @@ public class OpenFgaApiTest {
 
         // Then
         assertEquals("Missing the required parameter 'body' when calling check", exception.getMessage());
+    }
+
+    @Test
+    public void check_400() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check";
+        mockHttpClient.onPost(postUrl).doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.check(DEFAULT_STORE_ID, new CheckRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(400, exception.getCode());
+        assertEquals("{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void check_404() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check";
+        mockHttpClient.onPost(postUrl).doReturn(404, "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.check(DEFAULT_STORE_ID, new CheckRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(404, exception.getCode());
+        assertEquals("{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void check_500() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check";
+        mockHttpClient.onPost(postUrl).doReturn(500, "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.check(DEFAULT_STORE_ID, new CheckRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(500, exception.getCode());
+        assertEquals("{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}", exception.getResponseBody());
     }
 
     /**
@@ -545,6 +1059,51 @@ public class OpenFgaApiTest {
         assertEquals("Missing the required parameter 'body' when calling expand", exception.getMessage());
     }
 
+    @Test
+    public void expand_400() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/expand";
+        mockHttpClient.onPost(postUrl).doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.expand(DEFAULT_STORE_ID, new ExpandRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(400, exception.getCode());
+        assertEquals("{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void expand_404() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/expand";
+        mockHttpClient.onPost(postUrl).doReturn(404, "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.expand(DEFAULT_STORE_ID, new ExpandRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(404, exception.getCode());
+        assertEquals("{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void expand_500() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/expand";
+        mockHttpClient.onPost(postUrl).doReturn(500, "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.expand(DEFAULT_STORE_ID, new ExpandRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(500, exception.getCode());
+        assertEquals("{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}", exception.getResponseBody());
+    }
+
     /**
      * List all objects of the given type that the user has a relation with.
      */
@@ -589,6 +1148,51 @@ public class OpenFgaApiTest {
 
         // Then
         assertEquals("Missing the required parameter 'body' when calling listObjects", exception.getMessage());
+    }
+
+    @Test
+    public void listObjects_400() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/list-objects";
+        mockHttpClient.onPost(postUrl).doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.listObjects(DEFAULT_STORE_ID, new ListObjectsRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(400, exception.getCode());
+        assertEquals("{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void listObjects_404() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/list-objects";
+        mockHttpClient.onPost(postUrl).doReturn(404, "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.listObjects(DEFAULT_STORE_ID, new ListObjectsRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(404, exception.getCode());
+        assertEquals("{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void listObjects_500() throws ApiException {
+        // Given
+        String postUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/list-objects";
+        mockHttpClient.onPost(postUrl).doReturn(500, "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.listObjects(DEFAULT_STORE_ID, new ListObjectsRequest()));
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        assertEquals(500, exception.getCode());
+        assertEquals("{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}", exception.getResponseBody());
     }
 
     /**
@@ -637,6 +1241,51 @@ public class OpenFgaApiTest {
         assertEquals(
                 "Missing the required parameter 'authorizationModelId' when calling readAssertions",
                 exception.getMessage());
+    }
+
+    @Test
+    public void readAssertions_400() throws ApiException {
+        // Given
+        String getUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X1J";
+        mockHttpClient.onGet(getUrl).doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readAssertions(DEFAULT_STORE_ID, DEFAULT_AUTH_MODEL_ID));
+
+        // Then
+        mockHttpClient.verify().get(getUrl).called(1);
+        assertEquals(400, exception.getCode());
+        assertEquals("{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void readAssertions_404() throws ApiException {
+        // Given
+        String getUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X1J";
+        mockHttpClient.onGet(getUrl).doReturn(404, "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readAssertions(DEFAULT_STORE_ID, DEFAULT_AUTH_MODEL_ID));
+
+        // Then
+        mockHttpClient.verify().get(getUrl).called(1);
+        assertEquals(404, exception.getCode());
+        assertEquals("{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void readAssertions_500() throws ApiException {
+        // Given
+        String getUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X1J";
+        mockHttpClient.onGet(getUrl).doReturn(500, "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.readAssertions(DEFAULT_STORE_ID, DEFAULT_AUTH_MODEL_ID));
+
+        // Then
+        mockHttpClient.verify().get(getUrl).called(1);
+        assertEquals(500, exception.getCode());
+        assertEquals("{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}", exception.getResponseBody());
     }
 
     /**
@@ -696,5 +1345,50 @@ public class OpenFgaApiTest {
 
         // Then
         assertEquals("Missing the required parameter 'body' when calling writeAssertions", exception.getMessage());
+    }
+
+    @Test
+    public void writeAssertions_400() throws ApiException {
+        // Given
+        String putUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X1J";
+        mockHttpClient.onPut(putUrl).doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.writeAssertions(DEFAULT_STORE_ID, DEFAULT_AUTH_MODEL_ID, new WriteAssertionsRequest()));
+
+        // Then
+        mockHttpClient.verify().put(putUrl).called(1);
+        assertEquals(400, exception.getCode());
+        assertEquals("{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void writeAssertions_404() throws ApiException {
+        // Given
+        String putUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X1J";
+        mockHttpClient.onPut(putUrl).doReturn(404, "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.writeAssertions(DEFAULT_STORE_ID, DEFAULT_AUTH_MODEL_ID, new WriteAssertionsRequest()));
+
+        // Then
+        mockHttpClient.verify().put(putUrl).called(1);
+        assertEquals(404, exception.getCode());
+        assertEquals("{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}", exception.getResponseBody());
+    }
+
+    @Test
+    public void writeAssertions_500() throws ApiException {
+        // Given
+        String putUrl = "https://localhost/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X1J";
+        mockHttpClient.onPut(putUrl).doReturn(500, "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}");
+
+        // When
+        ApiException exception = assertThrows(ApiException.class, () -> fga.writeAssertions(DEFAULT_STORE_ID, DEFAULT_AUTH_MODEL_ID, new WriteAssertionsRequest()));
+
+        // Then
+        mockHttpClient.verify().put(putUrl).called(1);
+        assertEquals(500, exception.getCode());
+        assertEquals("{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}", exception.getResponseBody());
     }
 }
