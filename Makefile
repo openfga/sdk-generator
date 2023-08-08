@@ -220,4 +220,4 @@ test-integration-client-java: build-client-java
 
 .PHONY: test-client-java
 test-client-java: build-client-java
-	# ... any custom test code ...
+	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c 'gradle test'"
