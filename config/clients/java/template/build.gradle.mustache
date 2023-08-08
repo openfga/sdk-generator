@@ -45,7 +45,7 @@ ext {
     {{/swagger2AnnotationLibrary}}
     jackson_version = "2.14.1"
     jakarta_annotation_version = "1.3.5"
-    junit_version = "4.13.2" // TODO: JUnit 5 (Jupiter)
+    junit_version = "5.7.1"
     {{#hasFormParamsInSpec}}
     httpmime_version = "4.5.13"
     {{/hasFormParamsInSpec}}
@@ -68,14 +68,21 @@ dependencies {
     {{#hasFormParamsInSpec}}
     implementation "org.apache.httpcomponents:httpmime:$httpmime_version"
     {{/hasFormParamsInSpec}}
-
-    // Test-only dependencies
-    testImplementation "junit:junit:$junit_version"
-
 }
 
 testing {
     suites {
+        test {
+            useJUnitJupiter()
+
+            dependencies {
+                implementation project()
+                implementation "org.junit.jupiter:junit-jupiter:$junit_version"
+                implementation "org.mockito:mockito-core:3.+"
+                implementation "com.pgs-soft:HttpClientMock:1.0.0"
+                runtimeOnly "org.junit.platform:junit-platform-launcher"
+            }
+        }
         integration(JvmTestSuite) {
             testType = TestSuiteType.INTEGRATION_TEST
             useJUnitJupiter()
