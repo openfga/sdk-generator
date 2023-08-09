@@ -47,15 +47,38 @@ public class ApiClient {
 
   private HttpClient.Builder builder;
   private ObjectMapper mapper;
-  private String scheme;
-  private String host;
-  private int port;
-  private String basePath;
+  private Configuration configuration;
   private Consumer<HttpRequest.Builder> interceptor;
   private Consumer<HttpResponse<InputStream>> responseInterceptor;
   private Consumer<HttpResponse<String>> asyncResponseInterceptor;
-  private Duration readTimeout;
-  private Duration connectTimeout;
+
+  /**
+   * Create an instance of ApiClient.
+   */
+  public ApiClient() {
+    this.builder = createDefaultHttpClientBuilder();
+    this.mapper = createDefaultObjectMapper();
+    configuration = Configuration.of("");
+    interceptor = null;
+    responseInterceptor = null;
+    asyncResponseInterceptor = null;
+  }
+
+  /**
+   * Create an instance of ApiClient.
+   *
+   * @param builder Http client builder.
+   * @param mapper Object mapper.
+   * @param configuration Api configuration.
+   */
+  public ApiClient(HttpClient.Builder builder, ObjectMapper mapper, Configuration configuration) {
+    this.builder = builder;
+    this.mapper = mapper;
+    this.configuration = configuration;
+    interceptor = null;
+    responseInterceptor = null;
+    asyncResponseInterceptor = null;
+  }
 
   private static String valueToString(Object value) {
     if (value == null) {
@@ -151,38 +174,6 @@ public class ApiClient {
     return Collections.singletonList(new Pair(urlEncode(name), joiner.toString()));
   }
 
-  /**
-   * Create an instance of ApiClient.
-   */
-  public ApiClient() {
-    this.builder = createDefaultHttpClientBuilder();
-    this.mapper = createDefaultObjectMapper();
-    updateBaseUri(getDefaultBaseUri());
-    interceptor = null;
-    readTimeout = null;
-    connectTimeout = null;
-    responseInterceptor = null;
-    asyncResponseInterceptor = null;
-  }
-
-  /**
-   * Create an instance of ApiClient.
-   *
-   * @param builder Http client builder.
-   * @param mapper Object mapper.
-   * @param baseUri Base URI
-   */
-  public ApiClient(HttpClient.Builder builder, ObjectMapper mapper, String baseUri) {
-    this.builder = builder;
-    this.mapper = mapper;
-    updateBaseUri(baseUri != null ? baseUri : getDefaultBaseUri());
-    interceptor = null;
-    readTimeout = null;
-    connectTimeout = null;
-    responseInterceptor = null;
-    asyncResponseInterceptor = null;
-  }
-
   protected ObjectMapper createDefaultObjectMapper() {
     ObjectMapper mapper = new ObjectMapper();
     mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -205,14 +196,6 @@ public class ApiClient {
 
   protected HttpClient.Builder createDefaultHttpClientBuilder() {
     return HttpClient.newBuilder();
-  }
-
-  public void updateBaseUri(String baseUri) {
-    URI uri = URI.create(baseUri);
-    scheme = uri.getScheme();
-    host = uri.getHost();
-    port = uri.getPort();
-    basePath = uri.getRawPath();
   }
 
   /**
@@ -260,38 +243,23 @@ public class ApiClient {
   }
 
   /**
-   * Set a custom host name for the target service.
+   * Set {@link Configuration} for the ApiClient.
    *
-   * @param host The host name of the target service.
+   * @param configuration Custom configuration.
    * @return This object.
    */
-  public ApiClient setHost(String host) {
-    this.host = host;
+  public ApiClient setConfiguration(Configuration configuration) {
+    this.configuration = configuration;
     return this;
   }
 
   /**
-   * Set a custom port number for the target service.
+   * Get a copy of the current {@link Configuration}.
    *
-   * @param port The port of the target service. Set this to -1 to reset the
-   *             value to the default for the scheme.
-   * @return This object.
+   * @return A copy of the current configuration.
    */
-  public ApiClient setPort(int port) {
-    this.port = port;
-    return this;
-  }
-
-  /**
-   * Set a custom base path for the target service, for example '/v2'.
-   *
-   * @param basePath The base path against which the rest of the path is
-   *                 resolved.
-   * @return This object.
-   */
-  public ApiClient setBasePath(String basePath) {
-    this.basePath = basePath;
-    return this;
+  public Configuration getConfiguration() {
+    return configuration;
   }
 
   /**
@@ -301,18 +269,7 @@ public class ApiClient {
    * resolved against.
    */
   public String getBaseUri() {
-    return scheme + "://" + host + (port == -1 ? "" : ":" + port) + basePath;
-  }
-
-  /**
-   * Set a custom scheme for the target service, for example 'https'.
-   *
-   * @param scheme The scheme of the target service
-   * @return This object.
-   */
-  public ApiClient setScheme(String scheme){
-    this.scheme = scheme;
-    return this;
+    return configuration.getApiUrl();
   }
 
   /**
@@ -391,59 +348,99 @@ public class ApiClient {
   }
 
   /**
-   * Set the read timeout for the http client.
-   *
-   * <p>This is the value used by default for each request, though it can be
-   * overridden on a per-request basis with a request interceptor.</p>
-   *
-   * @param readTimeout The read timeout used by default by the http client.
-   *                    Setting this value to null resets the timeout to an
-   *                    effectively infinite value.
-   * @return This object.
+   * Configurations for an ApiClient.
    */
-  public ApiClient setReadTimeout(Duration readTimeout) {
-    this.readTimeout = readTimeout;
-    return this;
-  }
+  public static class Configuration {
+    private String apiUrl;
+    private Duration readTimeout;
+    private Duration connectTimeout;
 
-  /**
-   * Get the read timeout that was set.
-   *
-   * @return The read timeout, or null if no timeout was set. Null represents
-   * an infinite wait time.
-   */
-  public Duration getReadTimeout() {
-    return readTimeout;
-  }
-  /**
-   * Sets the connect timeout (in milliseconds) for the http client.
-   *
-   * <p> In the case where a new connection needs to be established, if
-   * the connection cannot be established within the given {@code
-   * duration}, then {@link HttpClient#send(HttpRequest,BodyHandler)
-   * HttpClient::send} throws an {@link HttpConnectTimeoutException}, or
-   * {@link HttpClient#sendAsync(HttpRequest,BodyHandler)
-   * HttpClient::sendAsync} completes exceptionally with an
-   * {@code HttpConnectTimeoutException}. If a new connection does not
-   * need to be established, for example if a connection can be reused
-   * from a previous request, then this timeout duration has no effect.
-   *
-   * @param connectTimeout connection timeout in milliseconds
-   *
-   * @return This object.
-   */
-  public ApiClient setConnectTimeout(Duration connectTimeout) {
-    this.connectTimeout = connectTimeout;
-    this.builder.connectTimeout(connectTimeout);
-    return this;
-  }
+    private Configuration(String apiUrl, Duration readTimeout, Duration connectTimeout) {
+      this.apiUrl = apiUrl;
+      this.readTimeout = readTimeout;
+      this.connectTimeout = connectTimeout;
+    }
 
-  /**
-   * Get connection timeout (in milliseconds).
-   *
-   * @return Timeout in milliseconds
-   */
-  public Duration getConnectTimeout() {
-    return connectTimeout;
+    public static Configuration of(String apiUrl) {
+        return new Configuration(apiUrl, Duration.ofSeconds(10), Duration.ofSeconds(5));
+    }
+
+    /**
+    * Set the API URL for the http client.
+    *
+    * @param apiUrl The url.
+    * @return This object.
+    */
+    public Configuration setApiUrl(String apiUrl) {
+      this.apiUrl = apiUrl;
+      return this;
+    }
+
+    /**
+    * Get the API URL that was set.
+    *
+    * @return The url.
+    */
+    public String getApiUrl() {
+      return apiUrl;
+    }
+
+    /**
+    * Set the read timeout for the http client.
+    *
+    * <p>This is the value used by default for each request, though it can be
+    * overridden on a per-request basis with a request interceptor.</p>
+    *
+    * @param readTimeout The read timeout used by default by the http client.
+    *                    Setting this value to null resets the timeout to an
+    *                    effectively infinite value.
+    * @return This object.
+    */
+    public Configuration setReadTimeout(Duration readTimeout) {
+      this.readTimeout = readTimeout;
+      return this;
+    }
+
+    /**
+    * Get the read timeout that was set.
+    *
+    * @return The read timeout, or null if no timeout was set. Null represents
+    * an infinite wait time.
+    */
+    public Duration getReadTimeout() {
+      return readTimeout;
+    }
+
+    /**
+    * Sets the connect timeout (in milliseconds) for the http client.
+    *
+    * <p> In the case where a new connection needs to be established, if
+    * the connection cannot be established within the given {@code
+    * duration}, then {@link HttpClient#send(HttpRequest,BodyHandler)
+    * HttpClient::send} throws an {@link HttpConnectTimeoutException}, or
+    * {@link HttpClient#sendAsync(HttpRequest,BodyHandler)
+    * HttpClient::sendAsync} completes exceptionally with an
+    * {@code HttpConnectTimeoutException}. If a new connection does not
+    * need to be established, for example if a connection can be reused
+    * from a previous request, then this timeout duration has no effect.
+    *
+    * @param connectTimeout connection timeout in milliseconds
+    *
+    * @return This object.
+    */
+    public Configuration setConnectTimeout(Duration connectTimeout) {
+      this.connectTimeout = connectTimeout;
+      {{! this.builder.connectTimeout(connectTimeout); }}
+      return this;
+    }
+
+    /**
+    * Get connection timeout (in milliseconds).
+    *
+    * @return Timeout in milliseconds
+    */
+    public Duration getConnectTimeout() {
+      return connectTimeout;
+    }
   }
 }

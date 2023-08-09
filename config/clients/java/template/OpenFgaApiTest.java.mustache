@@ -31,6 +31,7 @@ public class OpenFgaApiTest {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private OpenFgaApi fga;
+    private ApiClient.Configuration mockConfiguration;
     private ApiClient mockApiClient;
     private HttpClientMock mockHttpClient;
 
@@ -38,11 +39,14 @@ public class OpenFgaApiTest {
     public void beforeEachTest() {
         mockHttpClient = new HttpClientMock();
 
+        mockConfiguration = mock(ApiClient.Configuration.class);
+        when(mockConfiguration.getReadTimeout()).thenReturn(Duration.ofMillis(250));
+
         mockApiClient = mock(ApiClient.class);
         when(mockApiClient.getBaseUri()).thenReturn("https://localhost");
         when(mockApiClient.getObjectMapper()).thenReturn(mapper);
-        when(mockApiClient.getReadTimeout()).thenReturn(Duration.ofMillis(250));
         when(mockApiClient.getHttpClient()).thenReturn(mockHttpClient);
+        when(mockApiClient.getConfiguration()).thenReturn(mockConfiguration);
 
         fga = new OpenFgaApi(mockApiClient);
     }
@@ -932,7 +936,7 @@ public class OpenFgaApiTest {
 
         // Then
         verify(mockApiClient).getBaseUri();
-        verify(mockApiClient).getReadTimeout();
+        verify(mockConfiguration).getReadTimeout();
         mockHttpClient.verify().post(postPath).withBody(is(expectedBody)).called(1);
         assertEquals(Boolean.TRUE, response.getAllowed());
     }
