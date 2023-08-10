@@ -31,6 +31,10 @@
       "destinationFilename": "build.gradle",
       "templateType": "SupportingFiles"
     },
+    "Configuration.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/api/client/Configuration.java",
+      "templateType": "SupportingFiles"
+    },
     "OpenFgaApiTest.java.mustache" : {
       "destinationFilename": "src/test/java/dev/openfga/api/OpenFgaApiTest.java",
       "templateType": "SupportingFiles"

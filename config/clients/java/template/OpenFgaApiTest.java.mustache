@@ -31,7 +31,7 @@ public class OpenFgaApiTest {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private OpenFgaApi fga;
-    private ApiClient.Configuration mockConfiguration;
+    private Configuration mockConfiguration;
     private ApiClient mockApiClient;
     private HttpClientMock mockHttpClient;
 
@@ -39,16 +39,15 @@ public class OpenFgaApiTest {
     public void beforeEachTest() {
         mockHttpClient = new HttpClientMock();
 
-        mockConfiguration = mock(ApiClient.Configuration.class);
+        mockConfiguration = mock(Configuration.class);
+        when(mockConfiguration.getApiUrl()).thenReturn("https://localhost");
         when(mockConfiguration.getReadTimeout()).thenReturn(Duration.ofMillis(250));
 
         mockApiClient = mock(ApiClient.class);
-        when(mockApiClient.getBaseUri()).thenReturn("https://localhost");
         when(mockApiClient.getObjectMapper()).thenReturn(mapper);
         when(mockApiClient.getHttpClient()).thenReturn(mockHttpClient);
-        when(mockApiClient.getConfiguration()).thenReturn(mockConfiguration);
 
-        fga = new OpenFgaApi(mockApiClient);
+        fga = new OpenFgaApi(mockApiClient, mockConfiguration);
     }
 
     /**
@@ -935,7 +934,7 @@ public class OpenFgaApiTest {
         CheckResponse response = fga.check(DEFAULT_STORE_ID, request);
 
         // Then
-        verify(mockApiClient).getBaseUri();
+        verify(mockConfiguration).getApiUrl();
         verify(mockConfiguration).getReadTimeout();
         mockHttpClient.verify().post(postPath).withBody(is(expectedBody)).called(1);
         assertEquals(Boolean.TRUE, response.getAllowed());

@@ -1,0 +1,123 @@
+{{>licenseInfo}}
+package {{invokerPackage}};
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpConnectTimeoutException;
+import java.net.http.HttpRequest;
+import java.time.Duration;
+
+/**
+ * Configurations for an ApiClient.
+ */
+public class Configuration {
+    public static final String VERSION = "{{{artifactVersion}}}";
+
+    private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(10);
+    private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(10);
+
+    private URI apiUri;
+    private Duration readTimeout;
+    private Duration connectTimeout;
+
+    private Configuration(URI apiUri, Duration readTimeout, Duration connectTimeout) {
+        this.apiUri = apiUri;
+        this.readTimeout = readTimeout;
+        this.connectTimeout = connectTimeout;
+    }
+
+    public static Configuration of(String apiUrl) {
+        return new Configuration(URI.create(apiUrl), DEFAULT_READ_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+    }
+
+    public static Configuration of(URI apiUri) {
+        return new Configuration(apiUri, DEFAULT_READ_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+    }
+
+    /**
+     * Set the API URL for the http client.
+     *
+     * @param apiUrl The URL.
+     * @return This object.
+     */
+    public Configuration setApiUrl(String apiUrl) {
+        this.apiUri = URI.create(apiUrl);
+        return this;
+    }
+
+    /**
+     * Set the API URL for the http client as {@link URI}.
+     *
+     * @param apiUri The URL as a {@link URI}.
+     * @return This object.
+     */
+    public Configuration setApiUrl(URI apiUri) {
+        this.apiUri = apiUri;
+        return this;
+    }
+
+    /**
+     * Get the API URL that was set.
+     *
+     * @return The url.
+     */
+    public String getApiUrl() {
+        return apiUri.toString();
+    }
+
+    /**
+     * Set the read timeout for the http client.
+     *
+     * <p>This is the value used by default for each request, though it can be
+     * overridden on a per-request basis with a request interceptor.</p>
+     *
+     * @param readTimeout The read timeout used by default by the http client.
+     *                    Setting this value to null resets the timeout to an
+     *                    effectively infinite value.
+     * @return This object.
+     */
+    public Configuration setReadTimeout(Duration readTimeout) {
+        this.readTimeout = readTimeout;
+        return this;
+    }
+
+    /**
+     * Get the read timeout that was set.
+     *
+     * @return The read timeout, or null if no timeout was set. Null represents
+     * an infinite wait time.
+     */
+    public Duration getReadTimeout() {
+        return readTimeout;
+    }
+
+    /**
+     * Sets the connect timeout (in milliseconds) for the http client.
+     *
+     * <p> In the case where a new connection needs to be established, if
+     * the connection cannot be established within the given {@code
+     * duration}, then {@link HttpClient#send(HttpRequest, BodyHandler)
+     * HttpClient::send} throws an {@link HttpConnectTimeoutException}, or
+     * {@link HttpClient#sendAsync(HttpRequest, BodyHandler)
+     * HttpClient::sendAsync} completes exceptionally with an
+     * {@code HttpConnectTimeoutException}. If a new connection does not
+     * need to be established, for example if a connection can be reused
+     * from a previous request, then this timeout duration has no effect.
+     *
+     * @param connectTimeout connection timeout in milliseconds
+     * @return This object.
+     */
+    public Configuration setConnectTimeout(Duration connectTimeout) {
+        this.connectTimeout = connectTimeout;
+        return this;
+    }
+
+    /**
+     * Get connection timeout (in milliseconds).
+     *
+     * @return Timeout in milliseconds
+     */
+    public Duration getConnectTimeout() {
+        return connectTimeout;
+    }
+}

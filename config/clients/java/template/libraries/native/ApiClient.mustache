@@ -47,7 +47,6 @@ public class ApiClient {
 
   private HttpClient.Builder builder;
   private ObjectMapper mapper;
-  private Configuration configuration;
   private Consumer<HttpRequest.Builder> interceptor;
   private Consumer<HttpResponse<InputStream>> responseInterceptor;
   private Consumer<HttpResponse<String>> asyncResponseInterceptor;
@@ -58,7 +57,6 @@ public class ApiClient {
   public ApiClient() {
     this.builder = createDefaultHttpClientBuilder();
     this.mapper = createDefaultObjectMapper();
-    configuration = Configuration.of("");
     interceptor = null;
     responseInterceptor = null;
     asyncResponseInterceptor = null;
@@ -69,12 +67,10 @@ public class ApiClient {
    *
    * @param builder Http client builder.
    * @param mapper Object mapper.
-   * @param configuration Api configuration.
    */
-  public ApiClient(HttpClient.Builder builder, ObjectMapper mapper, Configuration configuration) {
+  public ApiClient(HttpClient.Builder builder, ObjectMapper mapper) {
     this.builder = builder;
     this.mapper = mapper;
-    this.configuration = configuration;
     interceptor = null;
     responseInterceptor = null;
     asyncResponseInterceptor = null;
@@ -243,36 +239,6 @@ public class ApiClient {
   }
 
   /**
-   * Set {@link Configuration} for the ApiClient.
-   *
-   * @param configuration Custom configuration.
-   * @return This object.
-   */
-  public ApiClient setConfiguration(Configuration configuration) {
-    this.configuration = configuration;
-    return this;
-  }
-
-  /**
-   * Get a copy of the current {@link Configuration}.
-   *
-   * @return A copy of the current configuration.
-   */
-  public Configuration getConfiguration() {
-    return configuration;
-  }
-
-  /**
-   * Get the base URI to resolve the endpoint paths against.
-   *
-   * @return The complete base URI that the rest of the API parameters are
-   * resolved against.
-   */
-  public String getBaseUri() {
-    return configuration.getApiUrl();
-  }
-
-  /**
    * Set a custom request interceptor.
    *
    * <p>A request interceptor is a mechanism for altering each request before it
@@ -345,120 +311,5 @@ public class ApiClient {
    */
   public Consumer<HttpResponse<String>> getAsyncResponseInterceptor() {
     return asyncResponseInterceptor;
-  }
-
-  /**
-   * Configurations for an ApiClient.
-   */
-  public static class Configuration {
-    private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(10);
-    private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(10);
-
-    private URI apiUri;
-    private Duration readTimeout;
-    private Duration connectTimeout;
-
-    private Configuration(URI apiUri, Duration readTimeout, Duration connectTimeout) {
-      this.apiUri = apiUri;
-      this.readTimeout = readTimeout;
-      this.connectTimeout = connectTimeout;
-    }
-
-    public static Configuration of(String apiUrl) {
-        return new Configuration(URI.create(apiUrl), DEFAULT_READ_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
-    }
-
-    public static Configuration of(URI apiUri) {
-        return new Configuration(apiUri, DEFAULT_READ_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
-    }
-
-    /**
-      * Set the API URL for the http client.
-      *
-      * @param apiUrl The URL.
-      * @return This object.
-      */
-    public Configuration setApiUrl(String apiUrl) {
-      this.apiUri = URI.create(apiUrl);
-      return this;
-    }
-
-    /**
-      * Set the API URL for the http client as {@link java.net.URI}.
-      *
-      * @param apiUri The URL as a {@link java.net.URI}.
-      * @return This object.
-      */
-    public Configuration setApiUrl(URI apiUri) {
-      this.apiUri = apiUri;
-      return this;
-    }
-
-    /**
-      * Get the API URL that was set.
-      *
-      * @return The url.
-      */
-    public String getApiUrl() {
-      return apiUri.toString();
-    }
-
-    /**
-    * Set the read timeout for the http client.
-    *
-    * <p>This is the value used by default for each request, though it can be
-    * overridden on a per-request basis with a request interceptor.</p>
-    *
-    * @param readTimeout The read timeout used by default by the http client.
-    *                    Setting this value to null resets the timeout to an
-    *                    effectively infinite value.
-    * @return This object.
-    */
-    public Configuration setReadTimeout(Duration readTimeout) {
-      this.readTimeout = readTimeout;
-      return this;
-    }
-
-    /**
-    * Get the read timeout that was set.
-    *
-    * @return The read timeout, or null if no timeout was set. Null represents
-    * an infinite wait time.
-    */
-    public Duration getReadTimeout() {
-      return readTimeout;
-    }
-
-    /**
-    * Sets the connect timeout (in milliseconds) for the http client.
-    *
-    * <p> In the case where a new connection needs to be established, if
-    * the connection cannot be established within the given {@code
-    * duration}, then {@link HttpClient#send(HttpRequest,BodyHandler)
-    * HttpClient::send} throws an {@link HttpConnectTimeoutException}, or
-    * {@link HttpClient#sendAsync(HttpRequest,BodyHandler)
-    * HttpClient::sendAsync} completes exceptionally with an
-    * {@code HttpConnectTimeoutException}. If a new connection does not
-    * need to be established, for example if a connection can be reused
-    * from a previous request, then this timeout duration has no effect.
-    *
-    * @param connectTimeout connection timeout in milliseconds
-    *
-    * @return This object.
-    */
-    public Configuration setConnectTimeout(Duration connectTimeout) {
-      this.connectTimeout = connectTimeout;
-      {{! this.builder.connectTimeout(connectTimeout); }}
-      return this;
-    }
-
-    /**
-    * Get connection timeout (in milliseconds).
-    *
-    * @return Timeout in milliseconds
-    */
-    public Duration getConnectTimeout() {
-      return connectTimeout;
-    }
   }
 }
