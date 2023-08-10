@@ -351,38 +351,56 @@ public class ApiClient {
    * Configurations for an ApiClient.
    */
   public static class Configuration {
-    private String apiUrl;
+    private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(10);
+    private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(10);
+
+    private URI apiUri;
     private Duration readTimeout;
     private Duration connectTimeout;
 
-    private Configuration(String apiUrl, Duration readTimeout, Duration connectTimeout) {
-      this.apiUrl = apiUrl;
+    private Configuration(URI apiUri, Duration readTimeout, Duration connectTimeout) {
+      this.apiUri = apiUri;
       this.readTimeout = readTimeout;
       this.connectTimeout = connectTimeout;
     }
 
     public static Configuration of(String apiUrl) {
-        return new Configuration(apiUrl, Duration.ofSeconds(10), Duration.ofSeconds(5));
+        return new Configuration(URI.create(apiUrl), DEFAULT_READ_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+    }
+
+    public static Configuration of(URI apiUri) {
+        return new Configuration(apiUri, DEFAULT_READ_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
     }
 
     /**
-    * Set the API URL for the http client.
-    *
-    * @param apiUrl The url.
-    * @return This object.
-    */
+      * Set the API URL for the http client.
+      *
+      * @param apiUrl The URL.
+      * @return This object.
+      */
     public Configuration setApiUrl(String apiUrl) {
-      this.apiUrl = apiUrl;
+      this.apiUri = URI.create(apiUrl);
       return this;
     }
 
     /**
-    * Get the API URL that was set.
-    *
-    * @return The url.
-    */
+      * Set the API URL for the http client as {@link java.net.URI}.
+      *
+      * @param apiUri The URL as a {@link java.net.URI}.
+      * @return This object.
+      */
+    public Configuration setApiUrl(URI apiUri) {
+      this.apiUri = apiUri;
+      return this;
+    }
+
+    /**
+      * Get the API URL that was set.
+      *
+      * @return The url.
+      */
     public String getApiUrl() {
-      return apiUrl;
+      return apiUri.toString();
     }
 
     /**
