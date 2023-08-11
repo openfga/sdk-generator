@@ -5,7 +5,7 @@
   "artifactId": "openfga-sdk",
   "groupId": "dev.openfga",
   "apiPackage": "dev.openfga.api",
-  "invokerPackage": "dev.openfga.api.invoker",
+  "invokerPackage": "dev.openfga.api.client",
   "modelPackage": "dev.openfga.api.model",
   "packageVersion": "0.0.1",
   "snapshotVersion": false,
