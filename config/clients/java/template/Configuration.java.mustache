@@ -13,25 +13,24 @@ import java.time.Duration;
 public class Configuration {
     public static final String VERSION = "{{{artifactVersion}}}";
 
+    private static final String DEFAULT_USER_AGENT = "{{{userAgent}}}";
     private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(10);
     private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(10);
 
     private URI apiUri;
+    private String userAgent;
     private Duration readTimeout;
     private Duration connectTimeout;
 
-    private Configuration(URI apiUri, Duration readTimeout, Duration connectTimeout) {
+    public Configuration(String apiUrl) {
+        this(URI.create(apiUrl));
+    }
+
+    public Configuration(URI apiUri) {
         this.apiUri = apiUri;
-        this.readTimeout = readTimeout;
-        this.connectTimeout = connectTimeout;
-    }
-
-    public static Configuration of(String apiUrl) {
-        return new Configuration(URI.create(apiUrl), DEFAULT_READ_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
-    }
-
-    public static Configuration of(URI apiUri) {
-        return new Configuration(apiUri, DEFAULT_READ_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
+        this.userAgent = DEFAULT_USER_AGENT;
+        this.readTimeout = DEFAULT_READ_TIMEOUT;
+        this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
     }
 
     /**
@@ -40,7 +39,7 @@ public class Configuration {
      * @param apiUrl The URL.
      * @return This object.
      */
-    public Configuration setApiUrl(String apiUrl) {
+    public Configuration apiUrl(String apiUrl) {
         this.apiUri = URI.create(apiUrl);
         return this;
     }
@@ -51,7 +50,7 @@ public class Configuration {
      * @param apiUri The URL as a {@link URI}.
      * @return This object.
      */
-    public Configuration setApiUrl(URI apiUri) {
+    public Configuration apiUrl(URI apiUri) {
         this.apiUri = apiUri;
         return this;
     }
@@ -66,6 +65,26 @@ public class Configuration {
     }
 
     /**
+     * Set the user agent.
+     *
+     * @param userAgent The user agent.
+     * @return This object.
+     */
+    public Configuration userAgent(String userAgent) {
+        this.userAgent = userAgent;
+        return this;
+    }
+
+    /**
+     * Get the user agent.
+     *
+     * @return The user agent.
+     */
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    /**
      * Set the read timeout for the http client.
      *
      * <p>This is the value used by default for each request, though it can be
@@ -76,7 +95,7 @@ public class Configuration {
      *                    effectively infinite value.
      * @return This object.
      */
-    public Configuration setReadTimeout(Duration readTimeout) {
+    public Configuration readTimeout(Duration readTimeout) {
         this.readTimeout = readTimeout;
         return this;
     }
@@ -107,7 +126,7 @@ public class Configuration {
      * @param connectTimeout connection timeout in milliseconds
      * @return This object.
      */
-    public Configuration setConnectTimeout(Duration connectTimeout) {
+    public Configuration connectTimeout(Duration connectTimeout) {
         this.connectTimeout = connectTimeout;
         return this;
     }
