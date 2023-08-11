@@ -1,11 +1,14 @@
 {{>licenseInfo}}
 package {{invokerPackage}};
 
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpRequest;
 import java.time.Duration;
+import java.util.regex.Pattern;
 
 /**
  * Configurations for an ApiClient.
@@ -17,20 +20,35 @@ public class Configuration {
     private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(10);
     private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(10);
 
-    private URI apiUri;
+    private String apiUrl;
     private String userAgent;
     private Duration readTimeout;
     private Duration connectTimeout;
 
     public Configuration(String apiUrl) {
-        this(URI.create(apiUrl));
-    }
-
-    public Configuration(URI apiUri) {
-        this.apiUri = apiUri;
+        this.apiUrl = apiUrl;
         this.userAgent = DEFAULT_USER_AGENT;
         this.readTimeout = DEFAULT_READ_TIMEOUT;
         this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+    }
+
+    /**
+     * Assert that the configuration is valid.
+     */
+    public void assertValid() throws MalformedURLException, NullPointerException, FgaInvalidParameterException {
+        if (this.apiUrl == null) {
+            throw new NullPointerException("API URL cannot be null.");
+        }
+
+        URL url = new URL(apiUrl);
+
+        if (isNullOrWhitespace(url.getHost())) {
+            throw new FgaInvalidParameterException("Configuration", "hostname");
+        }
+    }
+
+    private boolean isNullOrWhitespace(String str) {
+        return Pattern.compile("^\\s*$").matcher(str).matches();
     }
 
     /**
@@ -40,18 +58,7 @@ public class Configuration {
      * @return This object.
      */
     public Configuration apiUrl(String apiUrl) {
-        this.apiUri = URI.create(apiUrl);
-        return this;
-    }
-
-    /**
-     * Set the API URL for the http client as {@link URI}.
-     *
-     * @param apiUri The URL as a {@link URI}.
-     * @return This object.
-     */
-    public Configuration apiUrl(URI apiUri) {
-        this.apiUri = apiUri;
+        this.apiUrl = apiUrl;
         return this;
     }
 
@@ -61,7 +68,7 @@ public class Configuration {
      * @return The url.
      */
     public String getApiUrl() {
-        return apiUri.toString();
+        return apiUrl;
     }
 
     /**

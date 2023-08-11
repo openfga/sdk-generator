@@ -1,0 +1,8 @@
+package {{invokerPackage}};
+
+public class FgaInvalidParameterException extends Exception {
+    public FgaInvalidParameterException(String paramName, String functionName) {
+        super(String.format("Required parameter %s was not defined when calling %s.",
+                paramName, functionName));
+    }
+}

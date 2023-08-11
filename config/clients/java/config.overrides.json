@@ -35,6 +35,14 @@
       "destinationFilename": "src/main/java/dev/openfga/api/client/Configuration.java",
       "templateType": "SupportingFiles"
     },
+    "ConfigurationTest.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/api/client/ConfigurationTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "FgaInvalidParameterException.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/api/client/FgaInvalidParameterException.java",
+      "templateType": "SupportingFiles"
+    },
     "OpenFgaApiTest.java.mustache" : {
       "destinationFilename": "src/test/java/dev/openfga/api/OpenFgaApiTest.java",
       "templateType": "SupportingFiles"
