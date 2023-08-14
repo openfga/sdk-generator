@@ -40,7 +40,7 @@
       "templateType": "SupportingFiles"
     },
     "FgaInvalidParameterException.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/api/client/FgaInvalidParameterException.java",
+      "destinationFilename": "src/main/java/dev/openfga/errors/FgaInvalidParameterException.java",
       "templateType": "SupportingFiles"
     },
     "OpenFgaApiTest.java.mustache" : {
