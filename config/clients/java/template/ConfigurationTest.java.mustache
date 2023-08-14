@@ -1,61 +1,69 @@
 package {{invokerPackage}};
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import dev.openfga.errors.*;
 import org.junit.jupiter.api.Test;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ConfigurationTest {
 
     @Test
     void apiUrl_nullFails() {
         String apiUrl = null;
-        NullPointerException e = assertThrows(NullPointerException.class, () -> {
-            var config = new Configuration(apiUrl);
+        FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
+            var config = new BasicConfiguration(apiUrl);
             config.assertValid();
         });
-        assertEquals("API URL cannot be null.", e.getMessage());
+        assertEquals("Required parameter apiUrl was invalid when calling Configuration.", e.getMessage());
     }
 
     @Test
     void apiUrl_emptyStringFails() {
-        MalformedURLException e = assertThrows(MalformedURLException.class, () ->{
-            var config = new Configuration("");
+        String apiUrl = "";
+        FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
+            var config = new BasicConfiguration(apiUrl);
             config.assertValid();
         });
-        assertEquals("no protocol: ", e.getMessage());
+        assertEquals("Required parameter apiUrl was invalid when calling Configuration.", e.getMessage());
     }
 
     @Test
     void apiUrl_stringNoProtocolFails() {
         String apiUrl = "localhost:8080";
-        MalformedURLException e = assertThrows(MalformedURLException.class, () -> {
-            var config = new Configuration(apiUrl);
+        FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
+            var config = new BasicConfiguration(apiUrl);
             config.assertValid();
         });
-        assertEquals("unknown protocol: localhost", e.getMessage());
+        assertEquals("Required parameter apiUrl was invalid when calling Configuration.", e.getMessage());
     }
 
     @Test
     void apiUrl_stringInvalidProtocolFails() {
         String apiUrl = "zzz://localhost:8080";
-        MalformedURLException e = assertThrows(MalformedURLException.class, () -> {
-            var config = new Configuration(apiUrl);
+        FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
+            var config = new BasicConfiguration(apiUrl);
             config.assertValid();
         });
-        assertEquals("unknown protocol: zzz", e.getMessage());
+        assertEquals("Required parameter apiUrl was invalid when calling Configuration.", e.getMessage());
     }
 
     @Test
     void apiUrl_stringNoHostFails() {
         String apiUrl = "http://";
         FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
-            var config = new Configuration(apiUrl);
+            var config = new BasicConfiguration(apiUrl);
             config.assertValid();
         });
-        assertEquals("Required parameter Configuration was not defined when calling hostname.", e.getMessage());
+        assertEquals("Required parameter apiUrl was invalid when calling Configuration.", e.getMessage());
+    }
+
+    @Test
+    void apiUrl_stringBadPortFails() {
+        String apiUrl = "http://localshost:abcd";
+        FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
+            var config = new BasicConfiguration(apiUrl);
+            config.assertValid();
+        });
+        assertEquals("Required parameter apiUrl was invalid when calling Configuration.", e.getMessage());
     }
 }
