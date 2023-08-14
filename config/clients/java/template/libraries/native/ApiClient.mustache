@@ -64,6 +64,10 @@ public class ApiClient {
 
   /**
    * Create an instance of ApiClient.
+   * <p>
+   * In other contexts, note that any settings in a {@link Configuration}
+   * will take precedence over equivalent settings in the
+   * {@link HttpClient.Builder} here.
    *
    * @param builder Http client builder.
    * @param mapper Object mapper.
@@ -197,6 +201,10 @@ public class ApiClient {
   /**
    * Set a custom {@link HttpClient.Builder} object to use when creating the
    * {@link HttpClient} that is used by the API client.
+   * <p>
+   * In other contexts, note that any settings in a {@link Configuration}
+   * will take precedence over equivalent settings in the
+   * {@link HttpClient.Builder} here.
    *
    * @param builder Custom client builder.
    * @return This object.
