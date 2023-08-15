@@ -31,6 +31,18 @@
       "destinationFilename": "build.gradle",
       "templateType": "SupportingFiles"
     },
+    "creds-CredentialsMethod.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/api/client/CredentialsMethod.java",
+      "templateType": "SupportingFiles"
+    },
+    "creds-ApiBearerToken.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/api/client/ApiBearerToken.java",
+      "templateType": "SupportingFiles"
+    },
+    "creds-ClientCredentials.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/api/client/ClientCredentials.java",
+      "templateType": "SupportingFiles"
+    },
     "BaseConfiguration.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/api/client/BaseConfiguration.java",
       "templateType": "SupportingFiles"
