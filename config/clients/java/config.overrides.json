@@ -31,8 +31,8 @@
       "destinationFilename": "build.gradle",
       "templateType": "SupportingFiles"
     },
-    "BasicConfiguration.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/api/client/BasicConfiguration.java",
+    "BaseConfiguration.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/api/client/BaseConfiguration.java",
       "templateType": "SupportingFiles"
     },
     "Configuration.java.mustache" : {

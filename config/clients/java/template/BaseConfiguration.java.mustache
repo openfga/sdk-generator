@@ -1,0 +1,17 @@
+{{>licenseInfo}}
+package {{invokerPackage}};
+
+import dev.openfga.errors.FgaInvalidParameterException;
+import java.time.Duration;
+
+public interface BaseConfiguration {
+    void assertValid() throws FgaInvalidParameterException;
+
+    String getApiUrl();
+
+    String getUserAgent();
+
+    Duration getReadTimeout();
+
+    Duration getConnectTimeout();
+}

@@ -11,7 +11,7 @@ class ConfigurationTest {
     void apiUrl_nullFails() {
         String apiUrl = null;
         FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
-            var config = new BasicConfiguration(apiUrl);
+            var config = new Configuration(apiUrl);
             config.assertValid();
         });
         assertEquals("Required parameter apiUrl was invalid when calling Configuration.", e.getMessage());
@@ -21,7 +21,7 @@ class ConfigurationTest {
     void apiUrl_emptyStringFails() {
         String apiUrl = "";
         FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
-            var config = new BasicConfiguration(apiUrl);
+            var config = new Configuration(apiUrl);
             config.assertValid();
         });
         assertEquals("Required parameter apiUrl was invalid when calling Configuration.", e.getMessage());
@@ -31,7 +31,7 @@ class ConfigurationTest {
     void apiUrl_stringNoProtocolFails() {
         String apiUrl = "localhost:8080";
         FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
-            var config = new BasicConfiguration(apiUrl);
+            var config = new Configuration(apiUrl);
             config.assertValid();
         });
         assertEquals("Required parameter apiUrl was invalid when calling Configuration.", e.getMessage());
@@ -41,7 +41,7 @@ class ConfigurationTest {
     void apiUrl_stringInvalidProtocolFails() {
         String apiUrl = "zzz://localhost:8080";
         FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
-            var config = new BasicConfiguration(apiUrl);
+            var config = new Configuration(apiUrl);
             config.assertValid();
         });
         assertEquals("Required parameter apiUrl was invalid when calling Configuration.", e.getMessage());
@@ -51,7 +51,7 @@ class ConfigurationTest {
     void apiUrl_stringNoHostFails() {
         String apiUrl = "http://";
         FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
-            var config = new BasicConfiguration(apiUrl);
+            var config = new Configuration(apiUrl);
             config.assertValid();
         });
         assertEquals("Required parameter apiUrl was invalid when calling Configuration.", e.getMessage());
@@ -61,7 +61,7 @@ class ConfigurationTest {
     void apiUrl_stringBadPortFails() {
         String apiUrl = "http://localshost:abcd";
         FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
-            var config = new BasicConfiguration(apiUrl);
+            var config = new Configuration(apiUrl);
             config.assertValid();
         });
         assertEquals("Required parameter apiUrl was invalid when calling Configuration.", e.getMessage());
