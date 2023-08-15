@@ -59,11 +59,11 @@
       "destinationFilename": "src/test/java/dev/openfga/api/client/ConfigurationTest.java",
       "templateType": "SupportingFiles"
     },
-    "StringUtil.java.mustache" : {
+    "util-StringUtil.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/util/StringUtil.java",
       "templateType": "SupportingFiles"
     },
-    "StringUtilTest.java.mustache" : {
+    "util-StringUtilTest.java.mustache" : {
       "destinationFilename": "src/test/java/dev/openfga/util/StringUtilTest.java",
       "templateType": "SupportingFiles"
     },
