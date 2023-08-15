@@ -1,6 +1,8 @@
 {{>licenseInfo}}
 package {{invokerPackage}};
 
+import static dev.openfga.util.StringUtil.isNullOrWhitespace;
+
 import dev.openfga.errors.FgaInvalidParameterException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -59,10 +61,6 @@ public class Configuration implements BaseConfiguration {
         if (isNullOrWhitespace(uri.getHost())) {
             throw new FgaInvalidParameterException("hostname", "Configuration");
         }
-    }
-
-    private boolean isNullOrWhitespace(String str) {
-        return Pattern.compile("^\\s*$").matcher(str).matches();
     }
 
     /**
