@@ -43,6 +43,10 @@
       "destinationFilename": "src/main/java/dev/openfga/api/client/ClientCredentials.java",
       "templateType": "SupportingFiles"
     },
+    "creds-ClientCredentialsTest.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/api/client/ClientCredentialsTest.java",
+      "templateType": "SupportingFiles"
+    },
     "config-BaseConfiguration.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/api/client/BaseConfiguration.java",
       "templateType": "SupportingFiles"
@@ -55,11 +59,11 @@
       "destinationFilename": "src/test/java/dev/openfga/api/client/ConfigurationTest.java",
       "templateType": "SupportingFiles"
     },
-    "StringUtil.java" : {
+    "StringUtil.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/util/StringUtil.java",
       "templateType": "SupportingFiles"
     },
-    "StringUtilTest.java" : {
+    "StringUtilTest.java.mustache" : {
       "destinationFilename": "src/test/java/dev/openfga/util/StringUtilTest.java",
       "templateType": "SupportingFiles"
     },
