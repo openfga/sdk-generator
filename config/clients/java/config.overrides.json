@@ -43,15 +43,15 @@
       "destinationFilename": "src/main/java/dev/openfga/api/client/ClientCredentials.java",
       "templateType": "SupportingFiles"
     },
-    "BaseConfiguration.java.mustache" : {
+    "config-BaseConfiguration.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/api/client/BaseConfiguration.java",
       "templateType": "SupportingFiles"
     },
-    "Configuration.java.mustache" : {
+    "config-Configuration.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/api/client/Configuration.java",
       "templateType": "SupportingFiles"
     },
-    "ConfigurationTest.java.mustache" : {
+    "config-ConfigurationTest.java.mustache" : {
       "destinationFilename": "src/test/java/dev/openfga/api/client/ConfigurationTest.java",
       "templateType": "SupportingFiles"
     },
