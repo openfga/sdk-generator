@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 public class Configuration implements BaseConfiguration {
     public static final String VERSION = "{{packageVersion}}";
 
+    private static final String DEFAULT_API_URL = "http://localhost:8080";
     private static final String DEFAULT_USER_AGENT = "{{{userAgent}}}";
     private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(10);
     private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(10);
@@ -40,26 +41,25 @@ public class Configuration implements BaseConfiguration {
      */
     @Override
     public void assertValid() throws FgaInvalidParameterException {
-        if (this.apiUrl == null) {
-            throw new FgaInvalidParameterException(
-                    "apiUrl", "Configuration", new NullPointerException("API URL cannot be null."));
-        }
+        // If apiUrl is null/empty/whitespace it will resolve to
+        // DEFAULT_API_URL when getApiUrl is called.
+        if (!isNullOrWhitespace(apiUrl)) {
+            URI uri;
 
-        URI uri;
+            try {
+                uri = URI.create(apiUrl);
+                URL _url = uri.toURL();
+            } catch (MalformedURLException | IllegalArgumentException cause) {
+                throw new FgaInvalidParameterException("apiUrl", "Configuration", cause);
+            }
 
-        try {
-            uri = URI.create(apiUrl);
-            URL _url = uri.toURL();
-        } catch (MalformedURLException | IllegalArgumentException cause) {
-            throw new FgaInvalidParameterException("apiUrl", "Configuration", cause);
-        }
+            if (isNullOrWhitespace(uri.getScheme())) {
+                throw new FgaInvalidParameterException("scheme", "Configuration");
+            }
 
-        if (isNullOrWhitespace(uri.getScheme())) {
-            throw new FgaInvalidParameterException("scheme", "Configuration");
-        }
-
-        if (isNullOrWhitespace(uri.getHost())) {
-            throw new FgaInvalidParameterException("hostname", "Configuration");
+            if (isNullOrWhitespace(uri.getHost())) {
+                throw new FgaInvalidParameterException("hostname", "Configuration");
+            }
         }
     }
 
@@ -81,6 +81,10 @@ public class Configuration implements BaseConfiguration {
      */
     @Override
     public String getApiUrl() {
+        if (isNullOrWhitespace(apiUrl)) {
+            return DEFAULT_API_URL;
+        }
+
         return apiUrl;
     }
 

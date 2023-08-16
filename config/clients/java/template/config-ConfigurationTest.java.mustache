@@ -6,25 +6,43 @@ import dev.openfga.errors.*;
 import org.junit.jupiter.api.Test;
 
 class ConfigurationTest {
-
     @Test
-    void apiUrl_nullFails() {
+    void apiUrl_nullDefaults() throws FgaInvalidParameterException {
+        // Given
         String apiUrl = null;
-        FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
-            var config = new Configuration(apiUrl);
-            config.assertValid();
-        });
-        assertEquals("Required parameter apiUrl was invalid when calling Configuration.", e.getMessage());
+        var config = new Configuration(apiUrl);
+
+        // When
+        config.assertValid();
+
+        // Then
+        assertEquals("http://localhost:8080", config.getApiUrl());
     }
 
     @Test
-    void apiUrl_emptyStringFails() {
+    void apiUrl_emptyStringDefaults() throws FgaInvalidParameterException {
+        // Given
         String apiUrl = "";
-        FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
-            var config = new Configuration(apiUrl);
-            config.assertValid();
-        });
-        assertEquals("Required parameter apiUrl was invalid when calling Configuration.", e.getMessage());
+        var config = new Configuration(apiUrl);
+
+        // When
+        config.assertValid();
+
+        // Then
+        assertEquals("http://localhost:8080", config.getApiUrl());
+    }
+
+    @Test
+    void apiUrl_whitespaceStringDefaults() throws FgaInvalidParameterException {
+        // Given
+        String apiUrl = " \t\r\n";
+        var config = new Configuration(apiUrl);
+
+        // When
+        config.assertValid();
+
+        // Then
+        assertEquals("http://localhost:8080", config.getApiUrl());
     }
 
     @Test
