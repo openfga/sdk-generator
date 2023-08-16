@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  * Configurations for an ApiClient.
  */
 public class Configuration implements BaseConfiguration {
-    public static final String VERSION = "0.1";
+    public static final String VERSION = "{{packageVersion}}";
 
     private static final String DEFAULT_USER_AGENT = "{{{userAgent}}}";
     private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(10);
