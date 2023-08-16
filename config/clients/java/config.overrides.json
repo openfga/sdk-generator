@@ -31,6 +31,46 @@
       "destinationFilename": "build.gradle",
       "templateType": "SupportingFiles"
     },
+    "creds-CredentialsMethod.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/api/client/CredentialsMethod.java",
+      "templateType": "SupportingFiles"
+    },
+    "creds-ApiBearerToken.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/api/client/ApiBearerToken.java",
+      "templateType": "SupportingFiles"
+    },
+    "creds-ClientCredentials.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/api/client/ClientCredentials.java",
+      "templateType": "SupportingFiles"
+    },
+    "creds-ClientCredentialsTest.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/api/client/ClientCredentialsTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-BaseConfiguration.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/api/client/BaseConfiguration.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-Configuration.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/api/client/Configuration.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ConfigurationTest.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/api/client/ConfigurationTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "util-StringUtil.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/util/StringUtil.java",
+      "templateType": "SupportingFiles"
+    },
+    "util-StringUtilTest.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/util/StringUtilTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "FgaInvalidParameterException.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/errors/FgaInvalidParameterException.java",
+      "templateType": "SupportingFiles"
+    },
     "OpenFgaApiTest.java.mustache" : {
       "destinationFilename": "src/test/java/dev/openfga/api/OpenFgaApiTest.java",
       "templateType": "SupportingFiles"
