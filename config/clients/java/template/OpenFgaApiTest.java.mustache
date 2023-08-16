@@ -1,6 +1,6 @@
 {{>licenseInfo}}
 
-package dev.openfga.api;
+package {{apiPackage}};
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgssoft.httpclient.HttpClientMock;
 import {{invokerPackage}}.*;
 import {{modelPackage}}.*;
-import dev.openfga.errors.*;
+import dev.openfga.sdk.errors.*;
 import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;

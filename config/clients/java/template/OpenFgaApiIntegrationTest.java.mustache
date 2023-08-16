@@ -1,6 +1,6 @@
 {{>licenseInfo}}
 
-package dev.openfga.api;
+package {{apiPackage}};
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,7 +42,7 @@ public class OpenFgaApiIntegrationTest {
         CreateStoreResponse response = api.createStore(createStoreRequest);
 
         // Then
-        assertEquals("dev.openfga.api.OpenFgaApiIntegrationTest.createStore", response.getName());
+        assertEquals("OpenFgaApiIntegrationTest.createStore", response.getName());
     }
 
     @Test
@@ -303,7 +303,7 @@ public class OpenFgaApiIntegrationTest {
         // Tracing the stack gives an array of:
         // 0: getStackTrace(), 1: getThisFunctionName(), 2: <The calling function>, 3: ...
         StackTraceElement callingFn = Thread.currentThread().getStackTrace()[2];
-        String callingClass = callingFn.getClassName().replace("def.openfga.api.", "");
+        String callingClass = callingFn.getClassName().replace("dev.openfga.sdk.api.", "");
 
         return String.format("%s.%s", callingClass, callingFn.getMethodName());
     }
