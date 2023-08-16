@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 public class Configuration implements BaseConfiguration {
     public static final String VERSION = "0.1";
 
-    private static final String DEFAULT_USER_AGENT = "openfga-sdk java/0.0.1";
+    private static final String DEFAULT_USER_AGENT = "{{{userAgent}}}";
     private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(10);
     private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(10);
 
