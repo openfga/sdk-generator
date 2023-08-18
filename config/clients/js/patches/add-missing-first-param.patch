@@ -35,9 +35,9 @@
           * @param {*} [options] Override http request option.
           * @throws { FgaError }
           */
--    async createStore(options?: any): Promise<(axios?: AxiosStatic) => PromiseResult<CreateStoreResponse>> {
+-    async createStore(options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<CreateStoreResponse>> {
 -      const localVarAxiosArgs = await localVarAxiosParamCreator.createStore(options);
-+    async createStore(body: CreateStoreRequest, options?: any): Promise<(axios?: AxiosStatic) => PromiseResult<CreateStoreResponse>> {
++    async createStore(body: CreateStoreRequest, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<CreateStoreResponse>> {
 +      const localVarAxiosArgs = await localVarAxiosParamCreator.createStore(body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials);
      },
@@ -51,9 +51,9 @@
           * @param {*} [options] Override http request option.
           * @throws { FgaError }
           */
--    async listStores(continuationToken?: string, options?: any): Promise<(axios?: AxiosStatic) => PromiseResult<ListStoresResponse>> {
+-    async listStores(continuationToken?: string, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<ListStoresResponse>> {
 -      const localVarAxiosArgs = await localVarAxiosParamCreator.listStores(continuationToken, options);
-+    async listStores(pageSize?: number, continuationToken?: string, options?: any): Promise<(axios?: AxiosStatic) => PromiseResult<ListStoresResponse>> {
++    async listStores(pageSize?: number, continuationToken?: string, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<ListStoresResponse>> {
 +      const localVarAxiosArgs = await localVarAxiosParamCreator.listStores(pageSize, continuationToken, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials);
      },

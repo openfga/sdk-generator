@@ -82,6 +82,7 @@
   "defaultMaxRetry": 15,
   "defaultMinWaitInMs": 100,
   "clientMaxMethodParallelRequests": 10,
+  "defaultConnectionTimeoutInMs": 10000,
   "clientMethodHeader": "X-OpenFGA-Client-Method",
   "clientBulkRequestIdHeader": "X-OpenFGA-Client-Bulk-Request-Id"
 }

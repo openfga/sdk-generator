@@ -1,6 +1,6 @@
 {{>partial_header}}
 
-import { AxiosResponse, AxiosStatic } from "axios";
+import { AxiosResponse, AxiosInstance } from "axios";
 import asyncPool = require("tiny-async-pool");
 
 import { {{appShortName}}Api } from "./api";
@@ -129,10 +129,10 @@ export class {{appShortName}}Client extends BaseAPI {
   public api: {{appShortName}}Api;
   public authorizationModelId?: string;
 
-  constructor(configuration: ClientConfiguration, protected axios?: AxiosStatic) {
+  constructor(configuration: ClientConfiguration, protected axios?: AxiosInstance) {
     super(configuration, axios);
 
-    this.api = new {{appShortName}}Api(this.configuration);
+    this.api = new {{appShortName}}Api(this.configuration, axios);
     this.authorizationModelId = configuration.authorizationModelId;
 
     this.getAuthorizationModelId(); // validates the authorization model id
