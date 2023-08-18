@@ -32,6 +32,10 @@
       "destinationFilename": "build.gradle",
       "templateType": "SupportingFiles"
     },
+    ".github/workflows/main.yml.mustache" : {
+      "destinationFilename": ".github/workflows/main.yml",
+      "templateType": "SupportingFiles"
+    },
     "creds-CredentialsMethod.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/CredentialsMethod.java",
       "templateType": "SupportingFiles"
