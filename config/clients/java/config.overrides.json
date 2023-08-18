@@ -22,6 +22,7 @@
   "scmDeveloperConnection": "scm:git:git@github.com:openfga/java-sdk.git",
   "scmUrl": "https://github.com/openfga/java-sdk",
   "library": "native",
+  "asyncNative": true,
   "disallowAdditionalPropertiesIfNotPresent": false,
   "enumUnknownDefaultCase": true,
   "allowUnicodeIdentifiers": true,
