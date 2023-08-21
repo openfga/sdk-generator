@@ -52,7 +52,7 @@ public class OpenFgaApiIntegrationTest {
         String storeId = createStore(storeName);
 
         // When
-        api.deleteStore(storeId);
+        api.deleteStore(storeId).get();
 
         // Then
         ListStoresResponse response = api.listStores(100, null).get();
@@ -169,7 +169,7 @@ public class OpenFgaApiIntegrationTest {
                 new ReadRequest().tupleKey(new TupleKey().user(DEFAULT_USER)._object(DEFAULT_DOC));
 
         // When
-        api.write(storeId, writeRequest);
+        api.write(storeId, writeRequest).get();
         ReadResponse response = api.read(storeId, readRequest).get();
 
         // Then
@@ -190,7 +190,7 @@ public class OpenFgaApiIntegrationTest {
                 .tupleKey(new TupleKey().user(DEFAULT_USER).relation("reader")._object(DEFAULT_DOC));
 
         // When
-        api.write(storeId, writeRequest);
+        api.write(storeId, writeRequest).get();
         CheckResponse response = api.check(storeId, checkRequest).get();
 
         // Then
@@ -208,7 +208,7 @@ public class OpenFgaApiIntegrationTest {
                 new ExpandRequest().tupleKey(new TupleKey()._object(DEFAULT_DOC).relation("reader"));
 
         // When
-        api.write(storeId, writeRequest);
+        api.write(storeId, writeRequest).get();
         ExpandResponse response = api.expand(storeId, expandRequest).get();
 
         // Then
@@ -230,7 +230,7 @@ public class OpenFgaApiIntegrationTest {
                 new ListObjectsRequest().user(DEFAULT_USER).relation("reader").type("document");
 
         // When
-        api.write(storeId, writeRequest);
+        api.write(storeId, writeRequest).get();
         ListObjectsResponse response = api.listObjects(storeId, listObjectsRequest).get();
 
         // Then
@@ -247,7 +247,7 @@ public class OpenFgaApiIntegrationTest {
         WriteRequest writeRequest = new WriteRequest().writes(new TupleKeys().tupleKeys(DEFAULT_TUPLE_KEYS));
 
         // When
-        api.write(storeId, writeRequest);
+        api.write(storeId, writeRequest).get();
         ReadChangesResponse response = api.readChanges(storeId, null, null, null).get();
 
         // Then
