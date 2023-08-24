@@ -60,6 +60,10 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/Configuration.java",
       "templateType": "SupportingFiles"
     },
+    "config-ConfigurationOverride.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ConfigurationOverride.java",
+      "templateType": "SupportingFiles"
+    },
     "config-ConfigurationTest.java.mustache" : {
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/client/ConfigurationTest.java",
       "templateType": "SupportingFiles"

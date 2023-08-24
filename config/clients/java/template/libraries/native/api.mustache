@@ -5,7 +5,9 @@ import {{invokerPackage}}.ApiClient;
 import {{invokerPackage}}.ApiException;
 import {{invokerPackage}}.ApiResponse;
 import {{invokerPackage}}.Configuration;
+import {{invokerPackage}}.ConfigurationOverride;
 import {{invokerPackage}}.Pair;
+import dev.openfga.sdk.errors.FgaInvalidParameterException;
 
 {{#imports}}
 import {{import}};
@@ -53,9 +55,7 @@ import java.util.concurrent.CompletableFuture;
 public class {{classname}} {
   private final HttpClient memberVarHttpClient;
   private final ObjectMapper memberVarObjectMapper;
-  private final Configuration memberVarConfiguration;
-  private final String memberVarBaseUri;
-  private final Duration memberVarReadTimeout;
+  private final Configuration configuration;
   private final Consumer<HttpRequest.Builder> memberVarInterceptor;
   private final Consumer<HttpResponse<InputStream>> memberVarResponseInterceptor;
   private final Consumer<HttpResponse<String>> memberVarAsyncResponseInterceptor;
@@ -63,9 +63,7 @@ public class {{classname}} {
   public {{classname}}(ApiClient apiClient, Configuration configuration) {
     memberVarHttpClient = apiClient.getHttpClient();
     memberVarObjectMapper = apiClient.getObjectMapper();
-    memberVarConfiguration = configuration;
-    memberVarBaseUri = configuration.getApiUrl();
-    memberVarReadTimeout = configuration.getReadTimeout();
+    this.configuration = configuration;
     memberVarInterceptor = apiClient.getRequestInterceptor();
     memberVarResponseInterceptor = apiClient.getResponseInterceptor();
     memberVarAsyncResponseInterceptor = apiClient.getAsyncResponseInterceptor();
@@ -153,6 +151,7 @@ public class {{classname}} {
 
   {{/hasParams}}
   {{/vendorExtensions.x-group-parameters}}
+
   /**
    * {{summary}}
    * {{notes}}
@@ -179,7 +178,42 @@ public class {{classname}} {
   {{#isDeprecated}}
   @Deprecated
   {{/isDeprecated}}
-  public {{#returnType}}{{#asyncNative}}CompletableFuture<{{{returnType}}}>{{/asyncNative}}{{^asyncNative}}{{{returnType}}}{{/asyncNative}}{{/returnType}}{{^returnType}}{{#asyncNative}}CompletableFuture<Void>{{/asyncNative}}{{^asyncNative}}void{{/asyncNative}}{{/returnType}} {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}) throws ApiException {
+  public {{#returnType}}{{#asyncNative}}CompletableFuture<{{{returnType}}}>{{/asyncNative}}{{^asyncNative}}{{{returnType}}}{{/asyncNative}}{{/returnType}}{{^returnType}}{{#asyncNative}}CompletableFuture<Void>{{/asyncNative}}{{^asyncNative}}void{{/asyncNative}}{{/returnType}} {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}) throws ApiException, FgaInvalidParameterException {
+    return {{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, this.configuration);
+  }
+
+  /**
+   * {{summary}}
+   * {{notes}}
+   {{#allParams}}
+   * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{^isContainer}}{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/isContainer}}{{/required}}
+   {{/allParams}}
+   * @param configurationOverride Override the {@link Configuration} this {{classname}} was constructed with
+   {{#returnType}}
+   * @return {{#asyncNative}}CompletableFuture&lt;{{/asyncNative}}{{returnType}}{{#asyncNative}}&gt;{{/asyncNative}}
+   {{/returnType}}
+   {{^returnType}}
+   {{#asyncNative}}
+   * @return CompletableFuture&lt;Void&gt;
+   {{/asyncNative}}
+   {{/returnType}}
+   * @throws ApiException if fails to make API call
+   {{#isDeprecated}}
+   * @deprecated
+   {{/isDeprecated}}
+   {{#externalDocs}}
+   * {{description}}
+   * @see <a href="{{url}}">{{summary}} Documentation</a>
+   {{/externalDocs}}
+   */
+  {{#isDeprecated}}
+  @Deprecated
+  {{/isDeprecated}}
+  public {{#returnType}}{{#asyncNative}}CompletableFuture<{{{returnType}}}>{{/asyncNative}}{{^asyncNative}}{{{returnType}}}{{/asyncNative}}{{/returnType}}{{^returnType}}{{#asyncNative}}CompletableFuture<Void>{{/asyncNative}}{{^asyncNative}}void{{/asyncNative}}{{/returnType}} {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, ConfigurationOverride configurationOverride) throws ApiException, FgaInvalidParameterException {
+    return {{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, this.configuration.override(configurationOverride));
+  }
+
+  private {{#returnType}}{{#asyncNative}}CompletableFuture<{{{returnType}}}>{{/asyncNative}}{{^asyncNative}}{{{returnType}}}{{/asyncNative}}{{/returnType}}{{^returnType}}{{#asyncNative}}CompletableFuture<Void>{{/asyncNative}}{{^asyncNative}}void{{/asyncNative}}{{/returnType}} {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, Configuration configuration) throws ApiException, FgaInvalidParameterException {
     {{^asyncNative}}
     {{#returnType}}ApiResponse<{{{.}}}> localVarResponse = {{/returnType}}{{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
     {{#returnType}}
@@ -188,7 +222,7 @@ public class {{classname}} {
     {{/asyncNative}}
     {{#asyncNative}}
     try {
-      HttpRequest.Builder localVarRequestBuilder = {{operationId}}RequestBuilder({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
+      HttpRequest.Builder localVarRequestBuilder = {{operationId}}RequestBuilder({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, configuration);
       return memberVarHttpClient.sendAsync(
           localVarRequestBuilder.build(),
           HttpResponse.BodyHandlers.ofString()).thenComposeAsync(localVarResponse -> {
@@ -235,9 +269,37 @@ public class {{classname}} {
   {{#isDeprecated}}
   @Deprecated
   {{/isDeprecated}}
-  public {{#asyncNative}}CompletableFuture<{{/asyncNative}}ApiResponse<{{{returnType}}}{{^returnType}}Void{{/returnType}}>{{#asyncNative}}>{{/asyncNative}} {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}) throws ApiException {
+  public {{#asyncNative}}CompletableFuture<{{/asyncNative}}ApiResponse<{{{returnType}}}{{^returnType}}Void{{/returnType}}>{{#asyncNative}}>{{/asyncNative}} {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}) throws ApiException, FgaInvalidParameterException {
+    return {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, this.configuration);
+  }
+
+  /**
+   * {{summary}}
+   * {{notes}}
+   {{#allParams}}
+   * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{^isContainer}}{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/isContainer}}{{/required}}
+   {{/allParams}}
+   * @param configurationOverride Override the {@link Configuration} this {{classname}} was constructed with
+   * @return {{#asyncNative}}CompletableFuture&lt;{{/asyncNative}}ApiResponse&lt;{{returnType}}{{^returnType}}Void{{/returnType}}&gt;{{#asyncNative}}&gt;{{/asyncNative}}
+   * @throws ApiException if fails to make API call
+   {{#isDeprecated}}
+   * @deprecated
+   {{/isDeprecated}}
+   {{#externalDocs}}
+   * {{description}}
+   * @see <a href="{{url}}">{{summary}} Documentation</a>
+   {{/externalDocs}}
+   */
+  {{#isDeprecated}}
+  @Deprecated
+  {{/isDeprecated}}
+  public {{#asyncNative}}CompletableFuture<{{/asyncNative}}ApiResponse<{{{returnType}}}{{^returnType}}Void{{/returnType}}>{{#asyncNative}}>{{/asyncNative}} {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, ConfigurationOverride configurationOverride) throws ApiException, FgaInvalidParameterException {
+    return {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, this.configuration.override(configurationOverride));
+  }
+
+  private {{#asyncNative}}CompletableFuture<{{/asyncNative}}ApiResponse<{{{returnType}}}{{^returnType}}Void{{/returnType}}>{{#asyncNative}}>{{/asyncNative}} {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, Configuration configuration) throws ApiException, FgaInvalidParameterException {
     {{^asyncNative}}
-    HttpRequest.Builder localVarRequestBuilder = {{operationId}}RequestBuilder({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
+    HttpRequest.Builder localVarRequestBuilder = {{operationId}}RequestBuilder({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, configuration);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -295,7 +357,7 @@ public class {{classname}} {
     {{/asyncNative}}
     {{#asyncNative}}
     try {
-      HttpRequest.Builder localVarRequestBuilder = {{operationId}}RequestBuilder({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
+      HttpRequest.Builder localVarRequestBuilder = {{operationId}}RequestBuilder({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, configuration);
       return memberVarHttpClient.sendAsync(
           localVarRequestBuilder.build(),
           HttpResponse.BodyHandlers.ofString()).thenComposeAsync(localVarResponse -> {
@@ -332,7 +394,7 @@ public class {{classname}} {
     {{/asyncNative}}
   }
 
-  private HttpRequest.Builder {{operationId}}RequestBuilder({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}) throws ApiException {
+  private HttpRequest.Builder {{operationId}}RequestBuilder({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, Configuration configuration) throws ApiException, FgaInvalidParameterException {
     {{#allParams}}
     {{#required}}
     // verify the required parameter '{{paramName}}' is set
@@ -341,6 +403,9 @@ public class {{classname}} {
     }
     {{/required}}
     {{/allParams}}
+
+    // verify the Configuration is valid
+    configuration.assertValid();
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
 
@@ -404,13 +469,13 @@ public class {{classname}} {
       if (localVarQueryStringJoiner.length() != 0) {
         queryJoiner.add(localVarQueryStringJoiner.toString());
       }
-      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+      localVarRequestBuilder.uri(URI.create(configuration.getApiUrl() + localVarPath + '?' + queryJoiner.toString()));
     } else {
-      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+      localVarRequestBuilder.uri(URI.create(configuration.getApiUrl() + localVarPath));
     }
     {{/hasQueryParams}}
     {{^hasQueryParams}}
-    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    localVarRequestBuilder.uri(URI.create(configuration.getApiUrl() + localVarPath));
     {{/hasQueryParams}}
 
     {{#headerParams}}
@@ -527,8 +592,9 @@ public class {{classname}} {
     localVarRequestBuilder.method("{{httpMethod}}", HttpRequest.BodyPublishers.noBody());
     {{/hasFormParams}}
     {{/bodyParam}}
-    if (memberVarReadTimeout != null) {
-      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    Duration readTimeout = configuration.getReadTimeout();
+    if (readTimeout != null) {
+      localVarRequestBuilder.timeout(readTimeout);
     }
     if (memberVarInterceptor != null) {
       memberVarInterceptor.accept(localVarRequestBuilder);
