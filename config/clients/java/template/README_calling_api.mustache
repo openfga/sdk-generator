@@ -1,0 +1,191 @@
+#### Stores
+
+##### List Stores
+
+Get a paginated list of stores.
+
+[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/ListStores)
+
+```java
+```
+
+##### Create Store
+
+Initialize a store.
+
+[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/CreateStore)
+
+```java
+```
+
+##### Get Store
+
+Get information about the current store.
+
+[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/GetStore)
+
+> Requires a client initialized with a storeId
+
+```java
+```
+
+##### Delete Store
+
+Delete a store.
+
+[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/DeleteStore)
+
+> Requires a client initialized with a storeId
+
+```java
+```
+
+#### Authorization Models
+
+##### Read Authorization Models
+
+Read all authorization models in the store.
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModels)
+
+```java
+```
+
+##### Write Authorization Model
+
+Create a new authorization model.
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/WriteAuthorizationModel)
+
+> Note: To learn how to build your authorization model, check the Docs at {{docsUrl}}.
+
+> Learn more about [the {{appTitleCaseName}} configuration language]({{docsUrl}}/configuration-language).
+
+> You can use the OpenFGA [CLI](https://github.com/openfga/cli) or [Syntax Transformer](https://github.com/openfga/syntax-transformer) to convert between the OpenFGA DSL and the JSON authorization model.
+
+```java
+```
+
+#### Read a Single Authorization Model
+
+Read a particular authorization model.
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
+
+```java
+```
+
+##### Read the Latest Authorization Model
+
+Reads the latest authorization model (note: this ignores the model id in configuration).
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
+
+```java
+```
+
+#### Relationship Tuples
+
+##### Read Relationship Tuple Changes (Watch)
+
+Reads the list of historical relationship tuple writes and deletes.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/ReadChanges)
+
+```java
+```
+
+##### Read Relationship Tuples
+
+Reads the relationship tuples stored in the database. It does not evaluate nor exclude invalid tuples according to the authorization model.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Read)
+
+```java
+```
+
+##### Write (Create and Delete) Relationship Tuples
+
+Create and/or delete relationship tuples to update the system state.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
+
+###### Transaction mode (default)
+
+By default, write runs in a transaction mode where any invalid operation (deleting a non-existing tuple, creating an existing tuple, one of the tuples was invalid) or a server error will fail the entire operation.
+
+```java
+```
+
+Convenience `WriteTuples` and `DeleteTuples` methods are also available.
+
+###### Non-transaction mode
+
+The SDK will split the writes into separate requests and send them sequentially to avoid violating rate limits.
+
+```java
+```
+
+#### Relationship Queries
+
+##### Check
+
+Check if a user has a particular relation with an object.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Check)
+
+```java
+```
+
+##### Batch Check
+
+Run a set of [checks](#check). Batch Check will return `allowed: false` if it encounters an error, and will return the error in the body.
+If 429s or 5xxs are encountered, the underlying check will retry up to {{defaultMaxRetry}} times before giving up.
+
+```java
+```
+
+##### Expand
+
+Expands the relationships in userset tree format.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Expand)
+
+```java
+```
+
+##### List Objects
+
+List the objects of a particular type a user has access to.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/ListObjects)
+
+```java
+```
+
+##### List Relations
+
+List the relations a user has on an object.
+
+```java
+```
+
+#### Assertions
+
+##### Read Assertions
+
+Read assertions for a particular authorization model.
+
+[API Documentation]({{apiDocsUrl}}#/Assertions/Read%20Assertions)
+
+```java
+```
+
+##### Write Assertions
+
+Update the assertions for a particular authorization model.
+
+[API Documentation]({{apiDocsUrl}}#/Assertions/Write%20Assertions)
+
+```java
+```
