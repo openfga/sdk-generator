@@ -32,7 +32,7 @@ All URIs are relative to *{{basePath}}*
 // Import classes:
 import {{{invokerPackage}}}.ApiClient;
 import {{{invokerPackage}}}.ApiException;
-import {{{invokerPackage}}}.Configuration;{{#hasAuthMethods}}
+import {{{package}}}.configuration.Configuration;{{#hasAuthMethods}}
 import {{{invokerPackage}}}.auth.*;{{/hasAuthMethods}}
 import {{{invokerPackage}}}.models.*;
 import {{{package}}}.{{{classname}}};{{#vendorExtensions.x-group-parameters}}
@@ -153,7 +153,7 @@ public class Example {
 import {{{invokerPackage}}}.ApiClient;
 import {{{invokerPackage}}}.ApiException;
 import {{{invokerPackage}}}.ApiResponse;
-import {{{invokerPackage}}}.Configuration;{{#hasAuthMethods}}
+import {{{apiPackage}}}.configuration.Configuration;{{#hasAuthMethods}}
 import {{{invokerPackage}}}.auth.*;{{/hasAuthMethods}}
 import {{{invokerPackage}}}.models.*;
 import {{{package}}}.{{{classname}}};{{#vendorExtensions.x-group-parameters}}

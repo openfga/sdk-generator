@@ -1,11 +1,11 @@
 {{>licenseInfo}}
 package {{package}};
 
+import {{apiPackage}}.configuration.Configuration;
+import {{apiPackage}}.configuration.ConfigurationOverride;
 import {{invokerPackage}}.ApiClient;
 import {{invokerPackage}}.ApiException;
 import {{invokerPackage}}.ApiResponse;
-import {{invokerPackage}}.Configuration;
-import {{invokerPackage}}.ConfigurationOverride;
 import {{invokerPackage}}.Pair;
 import dev.openfga.sdk.errors.FgaInvalidParameterException;
 
@@ -50,7 +50,6 @@ import java.util.function.Consumer;
 import java.util.concurrent.CompletableFuture;
 {{/asyncNative}}
 
-{{>generatedAnnotation}}
 {{#operations}}
 public class {{classname}} {
   private final HttpClient memberVarHttpClient;
