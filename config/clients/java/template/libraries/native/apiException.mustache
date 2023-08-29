@@ -4,7 +4,6 @@ package {{invokerPackage}};
 
 import java.net.http.HttpHeaders;
 
-{{>generatedAnnotation}}
 public class ApiException extends{{#useRuntimeException}} RuntimeException {{/useRuntimeException}}{{^useRuntimeException}} Exception {{/useRuntimeException}}{
     private int code = 0;
     private HttpHeaders responseHeaders = null;
