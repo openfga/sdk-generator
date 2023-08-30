@@ -7,6 +7,7 @@
 **/ServerConfiguration.java
 **/ServerVariable.java
 **/JSON.java
+**/RFC3339DateFormat.java
 src/main/AndroidManifest.xml
 build.sbt
 pom.xml
