@@ -28,6 +28,8 @@ public class Configuration implements BaseConfiguration {
     private Duration readTimeout;
     private Duration connectTimeout;
 
+    // TODO: Add Credentials, which should wrap CredentialsMethod and ClientCredentials
+
     public Configuration() {
         this.apiUrl = DEFAULT_API_URL;
         this.userAgent = DEFAULT_USER_AGENT;

@@ -59,6 +59,9 @@ public class {{classname}} {
   private final Consumer<HttpResponse<InputStream>> memberVarResponseInterceptor;
   private final Consumer<HttpResponse<String>> memberVarAsyncResponseInterceptor;
 
+  // TODO: Add OAuth2Client
+  // TODO: In every request, get access token, (Assuming plain access token, or OAuth2 CredentialsMethod)
+
   public {{classname}}(ApiClient apiClient, Configuration configuration) {
     memberVarHttpClient = apiClient.getHttpClient();
     memberVarObjectMapper = apiClient.getObjectMapper();
@@ -66,28 +69,6 @@ public class {{classname}} {
     memberVarInterceptor = apiClient.getRequestInterceptor();
     memberVarResponseInterceptor = apiClient.getResponseInterceptor();
     memberVarAsyncResponseInterceptor = apiClient.getAsyncResponseInterceptor();
-  }
-  {{#asyncNative}}
-
-  private ApiException getApiException(String operationId, HttpResponse<String> response) {
-    String message = formatExceptionMessage(operationId, response.statusCode(), response.body());
-    return new ApiException(response.statusCode(), message, response.headers(), response.body());
-  }
-  {{/asyncNative}}
-  {{^asyncNative}}
-
-  protected ApiException getApiException(String operationId, HttpResponse<InputStream> response) throws IOException {
-    String body = response.body() == null ? null : new String(response.body().readAllBytes());
-    String message = formatExceptionMessage(operationId, response.statusCode(), body);
-    return new ApiException(response.statusCode(), message, response.headers(), body);
-  }
-  {{/asyncNative}}
-
-  private String formatExceptionMessage(String operationId, int statusCode, String body) {
-    if (body == null || body.isEmpty()) {
-      body = "[no body]";
-    }
-    return operationId + " call failed with: " + statusCode + " - " + body;
   }
 
   {{#operation}}
@@ -226,7 +207,7 @@ public class {{classname}} {
           localVarRequestBuilder.build(),
           HttpResponse.BodyHandlers.ofString()).thenComposeAsync(localVarResponse -> {
             if (localVarResponse.statusCode()/ 100 != 2) {
-              return CompletableFuture.failedFuture(getApiException("{{operationId}}", localVarResponse));
+              return CompletableFuture.failedFuture(new ApiException("{{operationId}}", localVarResponse));
             }
             {{#returnType}}
             try {
@@ -308,7 +289,7 @@ public class {{classname}} {
       }
       try {
         if (localVarResponse.statusCode()/ 100 != 2) {
-          throw getApiException("{{operationId}}", localVarResponse);
+          throw new ApiException("{{operationId}}", localVarResponse);
         }
         {{#vendorExtensions.x-java-text-plain-string}}
         // for plain text response
@@ -364,7 +345,7 @@ public class {{classname}} {
               memberVarAsyncResponseInterceptor.accept(localVarResponse);
             }
             if (localVarResponse.statusCode()/ 100 != 2) {
-              return CompletableFuture.failedFuture(getApiException("{{operationId}}", localVarResponse));
+              return CompletableFuture.failedFuture(new ApiException("{{operationId}}", localVarResponse));
             }
             {{#returnType}}
             try {
