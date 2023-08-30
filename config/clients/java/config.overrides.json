@@ -38,19 +38,19 @@
       "templateType": "SupportingFiles"
     },
     "creds-CredentialsMethod.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/CredentialsMethod.java",
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/CredentialsMethod.java",
       "templateType": "SupportingFiles"
     },
     "creds-ApiBearerToken.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ApiBearerToken.java",
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/ApiBearerToken.java",
       "templateType": "SupportingFiles"
     },
     "creds-ClientCredentials.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientCredentials.java",
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/ClientCredentials.java",
       "templateType": "SupportingFiles"
     },
     "creds-ClientCredentialsTest.java.mustache" : {
-      "destinationFilename": "src/test/java/dev/openfga/sdk/api/client/ClientCredentialsTest.java",
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/ClientCredentialsTest.java",
       "templateType": "SupportingFiles"
     },
     "config-BaseConfiguration.java.mustache" : {
