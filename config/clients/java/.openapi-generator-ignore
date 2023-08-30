@@ -1,7 +1,12 @@
+# Used but at a different location
+**/client/Configuration.java
+**/client/Pair.java
+**/client/ApiException.java
+
+# Unused
 **/ServerConfiguration.java
 **/ServerVariable.java
 **/JSON.java
-**/client/Configuration.java
 src/main/AndroidManifest.xml
 build.sbt
 pom.xml

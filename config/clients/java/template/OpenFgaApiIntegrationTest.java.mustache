@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import {{invokerPackage}}.*;
 import {{modelPackage}}.*;
 import {{apiPackage}}.configuration.*;
+import dev.openfga.errors.ApiException;
 import java.net.http.HttpClient;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -270,7 +271,7 @@ public class OpenFgaApiIntegrationTest {
                 .assertions(List.of(new Assertion().tupleKey(DEFAULT_TUPLE_KEY).expectation(true)));
 
         // When
-        api.writeAssertions(storeId, authModelId, writeRequest);
+        api.writeAssertions(storeId, authModelId, writeRequest).get();
         ReadAssertionsResponse response = api.readAssertions(storeId, authModelId).get();
 
         // Then
