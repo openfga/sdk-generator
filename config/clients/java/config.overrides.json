@@ -53,6 +53,22 @@
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/ClientCredentialsTest.java",
       "templateType": "SupportingFiles"
     },
+    "creds-AuthToken.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/AuthToken.java",
+      "templateType": "SupportingFiles"
+    },
+    "creds-CredentialsFlowRequest.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/CredentialsFlowRequest.java",
+      "templateType": "SupportingFiles"
+    },
+    "creds-CredentialsFlowResponse.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/CredentialsFlowResponse.java",
+      "templateType": "SupportingFiles"
+    },
+    "creds-OAuth2Client.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/OAuth2Client.java",
+      "templateType": "SupportingFiles"
+    },
     "config-BaseConfiguration.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/BaseConfiguration.java",
       "templateType": "SupportingFiles"
