@@ -75,6 +75,10 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/OAuth2Client.java",
       "templateType": "SupportingFiles"
     },
+    "creds-OAuth2ClientTest.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/OAuth2ClientTest.java",
+      "templateType": "SupportingFiles"
+    },
     "config-BaseConfiguration.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/BaseConfiguration.java",
       "templateType": "SupportingFiles"
