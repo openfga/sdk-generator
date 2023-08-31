@@ -7,6 +7,7 @@ import {{errorsPackage}}.ApiException;
 import {{configPackage}}.Configuration;
 import {{errorsPackage}}.FgaInvalidParameterException;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -16,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 public class OAuth2Client {
     private final HttpClient httpClient;
     private final ObjectMapper mapper;
-    private final AuthToken authToken = new AuthToken();
+    private final AccessToken token = new AccessToken();
     private final CredentialsFlowRequest authRequest;
     private final String apiTokenIssuer;
 
@@ -46,15 +47,15 @@ public class OAuth2Client {
      * @return An access token in a {@link CompletableFuture}
      */
     public CompletableFuture<String> getAccessToken() throws FgaInvalidParameterException, ApiException {
-        if (!authToken.isValid()) {
+        if (!token.isValid()) {
             return exchangeToken().thenCompose(response -> {
-                authToken.setAccessToken(response.getAccessToken());
-                authToken.setExpiresAt(Instant.now().plusSeconds(response.getExpiresInSeconds()));
-                return CompletableFuture.completedFuture(authToken.getAccessToken());
+                token.setToken(response.getAccessToken());
+                token.setExpiresAt(Instant.now().plusSeconds(response.getExpiresInSeconds()));
+                return CompletableFuture.completedFuture(token.getToken());
             });
         }
 
-        return CompletableFuture.completedFuture(authToken.getAccessToken());
+        return CompletableFuture.completedFuture(token.getToken());
     }
 
     /**
@@ -74,7 +75,7 @@ public class OAuth2Client {
             return httpClient
                     .sendAsync(request, HttpResponse.BodyHandlers.ofString())
                     .thenCompose(httpResponse -> {
-                        if (httpResponse.statusCode() / 100 != 2) {
+                        if (httpResponse.statusCode() != HttpURLConnection.HTTP_OK) {
                             return CompletableFuture.failedFuture(new ApiException("exchangeToken", httpResponse));
                         }
                         try {
