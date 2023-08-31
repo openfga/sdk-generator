@@ -7,6 +7,10 @@
   "artifactVersion": "0.0.1",
   "packageVersion": "0.0.1",
   "apiPackage": "dev.openfga.sdk.api",
+  "authPackage": "dev.openfga.sdk.api.auth",
+  "configPackage": "dev.openfga.sdk.api.configuration",
+  "errorsPackage": "dev.openfga.sdk.errors",
+  "utilPackage": "dev.openfga.sdk.util",
   "invokerPackage": "dev.openfga.sdk.api.client",
   "modelPackage": "dev.openfga.sdk.api.model",
   "snapshotVersion": false,
@@ -28,6 +32,8 @@
   "enumUnknownDefaultCase": true,
   "allowUnicodeIdentifiers": true,
   "caseInsensitiveResponseHeaders": true,
+  "tokenExpiryThresholdBufferInSec": 300,
+  "tokenExpiryJitterInSec": 300,
   "files": {
     "build.gradle.mustache" : {
       "destinationFilename": "build.gradle",
@@ -54,19 +60,19 @@
       "templateType": "SupportingFiles"
     },
     "creds-AuthToken.java.mustache" : {
-      "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/AuthToken.java",
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/AuthToken.java",
       "templateType": "SupportingFiles"
     },
     "creds-CredentialsFlowRequest.java.mustache" : {
-      "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/CredentialsFlowRequest.java",
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/CredentialsFlowRequest.java",
       "templateType": "SupportingFiles"
     },
     "creds-CredentialsFlowResponse.java.mustache" : {
-      "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/CredentialsFlowResponse.java",
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/CredentialsFlowResponse.java",
       "templateType": "SupportingFiles"
     },
     "creds-OAuth2Client.java.mustache" : {
-      "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/OAuth2Client.java",
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/OAuth2Client.java",
       "templateType": "SupportingFiles"
     },
     "config-BaseConfiguration.java.mustache" : {

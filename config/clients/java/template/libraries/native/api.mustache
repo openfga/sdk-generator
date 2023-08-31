@@ -1,13 +1,13 @@
 {{>licenseInfo}}
 package {{package}};
 
-import {{apiPackage}}.configuration.Configuration;
-import {{apiPackage}}.configuration.ConfigurationOverride;
+import {{configPackage}}.Configuration;
+import {{configPackage}}.ConfigurationOverride;
 import {{invokerPackage}}.ApiClient;
 import {{invokerPackage}}.ApiResponse;
-import dev.openfga.util.Pair;
-import dev.openfga.sdk.errors.ApiException;
-import dev.openfga.sdk.errors.FgaInvalidParameterException;
+import {{utilPackage}}.Pair;
+import {{errorsPackage}}.ApiException;
+import {{errorsPackage}}.FgaInvalidParameterException;
 
 {{#imports}}
 import {{import}};

@@ -1,12 +1,12 @@
-package {{invokerPackage}}.auth;
+{{>licenseInfo}}
+package {{authPackage}};
 
-import static dev.openfga.util.StringUtil.isNullOrWhitespace;
+import static {{utilPackage}}.StringUtil.isNullOrWhitespace;
 
 import java.time.Instant;
 import java.util.Random;
 
 class AuthToken {
-    // TODO: Check where these comes from
     private static final int TOKEN_EXPIRY_BUFFER_THRESHOLD_IN_SEC = {{tokenExpiryThresholdBufferInSec}};
     private static final int TOKEN_EXPIRY_JITTER_IN_SEC = {{tokenExpiryJitterInSec}}; // We add some jitter so that token refreshes are less likely to collide
 
