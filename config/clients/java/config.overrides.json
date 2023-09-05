@@ -43,22 +43,6 @@
       "destinationFilename": ".github/workflows/main.yml",
       "templateType": "SupportingFiles"
     },
-    "creds-CredentialsMethod.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/CredentialsMethod.java",
-      "templateType": "SupportingFiles"
-    },
-    "creds-ApiToken.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/ApiToken.java",
-      "templateType": "SupportingFiles"
-    },
-    "creds-ClientCredentials.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/ClientCredentials.java",
-      "templateType": "SupportingFiles"
-    },
-    "creds-ClientCredentialsTest.java.mustache" : {
-      "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/ClientCredentialsTest.java",
-      "templateType": "SupportingFiles"
-    },
     "creds-AccessToken.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/AccessToken.java",
       "templateType": "SupportingFiles"
@@ -79,8 +63,20 @@
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/OAuth2ClientTest.java",
       "templateType": "SupportingFiles"
     },
+    "config-ApiToken.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ApiToken.java",
+      "templateType": "SupportingFiles"
+    },
     "config-BaseConfiguration.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/BaseConfiguration.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientCredentials.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientCredentials.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientCredentialsTest.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/configuration/ClientCredentialsTest.java",
       "templateType": "SupportingFiles"
     },
     "config-Configuration.java.mustache" : {
@@ -93,6 +89,10 @@
     },
     "config-ConfigurationTest.java.mustache" : {
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/configuration/ConfigurationTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-CredentialsMethod.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/CredentialsMethod.java",
       "templateType": "SupportingFiles"
     },
     "Pair.mustache" : {
