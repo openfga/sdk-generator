@@ -228,3 +228,12 @@ shellcheck:
 .PHONY: setup-new-sdk
 setup-new-sdk:
 	./scripts/setup_new_sdk.sh
+
+.PHONY: build-client-rust
+build-client-rust:
+	make build-client sdk_language=rust tmpdir=${TMP_DIR}
+	# ... any other custom build steps ...
+
+.PHONY: test-client-rust
+test-client-rust: build-client-rust
+	# ... any custom test code ...
