@@ -472,6 +472,11 @@ public class {{classname}} {
     {{/bodyParam}}
     localVarRequestBuilder.header("Accept", "{{#hasProduces}}{{#produces}}{{mediaType}}{{^-last}}, {{/-last}}{{/produces}}{{/hasProduces}}{{#hasProduces}}{{^produces}}application/json{{/produces}}{{/hasProduces}}{{^hasProduces}}application/json{{/hasProduces}}");
 
+    if (configuration.getCredentials().getCredentialsMethod() != CredentialsMethod.NONE) {
+      String accessToken = getAccessToken(configuration);
+      localVarRequestBuilder.header("Authorization", "Bearer " + accessToken);
+    }
+
     {{#bodyParam}}
     {{#isString}}
     localVarRequestBuilder.method("{{httpMethod}}", HttpRequest.BodyPublishers.ofString({{paramName}}));
@@ -636,5 +641,30 @@ public class {{classname}} {
   {{/hasParams}}
   {{/vendorExtensions.x-group-parameters}}
   {{/operation}}
+
+  /**
+    * Get an access token. Expects that configuration is valid (meaning it can
+    * pass {@link Configuration#assertValid()}) and expects that if the
+    * CredentialsMethod is CLIENT_CREDENTIALS that a valid {@link OAuth2Client}
+    * has been initialized. Otherwise, it will throw an IllegalStateException.
+    * @throws IllegalStateException when the configuration is invalid
+    */
+  private String getAccessToken(Configuration configuration) throws ApiException {
+    CredentialsMethod credentialsMethod = configuration.getCredentials().getCredentialsMethod();
+
+    if (credentialsMethod == CredentialsMethod.API_TOKEN) {
+      return configuration.getCredentials().getApiToken().getToken();
+    }
+
+    if (credentialsMethod == CredentialsMethod.CLIENT_CREDENTIALS) {
+      try {
+        return oAuth2Client.getAccessToken().get();
+      } catch (Exception e) {
+        throw new ApiException(e);
+      }
+    }
+
+    throw new IllegalStateException("Configuration is invalid.");
+  }
 }
 {{/operations}}
