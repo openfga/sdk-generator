@@ -1,13 +1,11 @@
 {{>licenseInfo}}
 package {{package}};
 
-import {{configPackage}}.Configuration;
-import {{configPackage}}.ConfigurationOverride;
-import {{invokerPackage}}.ApiClient;
-import {{invokerPackage}}.ApiResponse;
+import {{authPackage}}.*;
+import {{configPackage}}.*;
+import {{invokerPackage}}.*;
 import {{utilPackage}}.Pair;
-import {{errorsPackage}}.ApiException;
-import {{errorsPackage}}.FgaInvalidParameterException;
+import {{errorsPackage}}.*;
 
 {{#imports}}
 import {{import}};
@@ -55,20 +53,26 @@ public class {{classname}} {
   private final HttpClient memberVarHttpClient;
   private final ObjectMapper memberVarObjectMapper;
   private final Configuration configuration;
+  private final OAuth2Client oAuth2Client;
   private final Consumer<HttpRequest.Builder> memberVarInterceptor;
   private final Consumer<HttpResponse<InputStream>> memberVarResponseInterceptor;
   private final Consumer<HttpResponse<String>> memberVarAsyncResponseInterceptor;
 
-  // TODO: Add OAuth2Client
   // TODO: In every request, get access token, (Assuming plain access token, or OAuth2 CredentialsMethod)
 
-  public {{classname}}(ApiClient apiClient, Configuration configuration) {
+  public {{classname}}(ApiClient apiClient, Configuration configuration) throws FgaInvalidParameterException {
     memberVarHttpClient = apiClient.getHttpClient();
     memberVarObjectMapper = apiClient.getObjectMapper();
     this.configuration = configuration;
     memberVarInterceptor = apiClient.getRequestInterceptor();
     memberVarResponseInterceptor = apiClient.getResponseInterceptor();
     memberVarAsyncResponseInterceptor = apiClient.getAsyncResponseInterceptor();
+
+    if (configuration.getCredentials().getCredentialsMethod() == CredentialsMethod.CLIENT_CREDENTIALS) {
+      this.oAuth2Client = new OAuth2Client(configuration, apiClient.getHttpClient(), apiClient.getObjectMapper());
+    } else {
+      this.oAuth2Client = null;
+    }
   }
 
   {{#operation}}

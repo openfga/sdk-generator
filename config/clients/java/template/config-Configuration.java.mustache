@@ -148,6 +148,30 @@ public class Configuration implements BaseConfiguration {
     }
 
     /**
+     * Set the credentials.
+     *
+     * @param credentials The credentials.
+     * @return This object.
+     */
+    public Configuration credentials(Credentials credentials) {
+        this.credentials = credentials;
+        return this;
+    }
+
+    /**
+     * Get the credentials.
+     *
+     * @return The credentials.
+     */
+    public Credentials getCredentials() {
+        if (this.credentials == null) {
+            return new Credentials();
+        }
+
+        return credentials;
+    }
+
+    /**
      * Set the read timeout for the http client.
      *
      * <p>This is the value used by default for each request, though it can be

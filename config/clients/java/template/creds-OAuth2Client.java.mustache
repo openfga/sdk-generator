@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class OAuth2Client {
     private final HttpClient httpClient;
+    private final Credentials credentials;
     private final ObjectMapper mapper;
     private final AccessToken token = new AccessToken();
     private final CredentialsFlowRequest authRequest;
@@ -24,19 +25,23 @@ public class OAuth2Client {
     /**
      * Initializes a new instance of the {@link OAuth2Client} class
      *
-     * @param clientCredentials Credentials that can be used to retrieve an access token
+     * @param configuration Configuration, including credentials, that can be used to retrieve an access tokens
      * @param httpClient Http client
      */
-    public OAuth2Client(ClientCredentials clientCredentials, HttpClient httpClient, ObjectMapper mapper) throws FgaInvalidParameterException {
-        clientCredentials.assertValid();
+    public OAuth2Client(Configuration configuration, HttpClient httpClient, ObjectMapper mapper) throws FgaInvalidParameterException {
+        this.credentials = configuration.getCredentials();
+
+        {{! if (this.credentials.getCredentialsMethod() != CredentialsMethod.CLIENT_CREDENTIALS) {
+            return new FgaInvalidParameterException()
+        } }}
 
         this.httpClient = httpClient;
         this.mapper = mapper;
-        this.apiTokenIssuer = clientCredentials.getApiTokenIssuer();
+        this.apiTokenIssuer = credentials.getClientCredentials().getApiTokenIssuer();
         this.authRequest = new CredentialsFlowRequest();
-        this.authRequest.setClientId(clientCredentials.getClientId());
-        this.authRequest.setClientSecret(clientCredentials.getClientSecret());
-        this.authRequest.setAudience(clientCredentials.getApiAudience());
+        this.authRequest.setClientId(credentials.getClientCredentials().getClientId());
+        this.authRequest.setClientSecret(credentials.getClientCredentials().getClientSecret());
+        this.authRequest.setAudience(credentials.getClientCredentials().getApiAudience());
         this.authRequest.setGrantType("client_credentials");
     }
 
