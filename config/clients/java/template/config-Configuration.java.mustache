@@ -75,6 +75,10 @@ public class Configuration implements BaseConfiguration {
                 throw new FgaInvalidParameterException("hostname", "Configuration");
             }
         }
+
+        if (credentials != null) {
+            credentials.assertValid();
+        }
     }
 
     /**
