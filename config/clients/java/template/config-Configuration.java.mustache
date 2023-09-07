@@ -93,6 +93,9 @@ public class Configuration implements BaseConfiguration {
         String overrideApiUrl = configurationOverride.getApiUrl();
         result.apiUrl(overrideApiUrl != null ? overrideApiUrl : apiUrl);
 
+        Credentials overrideCredentials = configurationOverride.getCredentials();
+        result.credentials(overrideCredentials != null ? overrideCredentials : credentials);
+
         String overrideUserAgent = configurationOverride.getUserAgent();
         result.userAgent(overrideUserAgent != null ? overrideUserAgent : userAgent);
 
