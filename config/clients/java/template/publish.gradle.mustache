@@ -1,0 +1,54 @@
+// Configuration for Maven Central by Sonatype.
+// See: https://github.com/gradle-nexus/publish-plugin
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri('https://s01.oss.sonatype.org/service/local/'))
+            snapshotRepositoryUrl.set(uri('https://s01.oss.sonatype.org/content/repositories/snapshots/'))
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+
+            pom {
+                group = '{{groupId}}'
+                name = '{{artifactId}}'
+                version = '{{packageVersion}}'
+                description = '{{packageDetailedDescription}}'
+                url = '{{developerOrganizationUrl}}'
+                licenses {
+                    license {
+                        name = '{{licenseName}}'
+                        url = '{{licenseUrl}}'
+                    }
+                }
+                developers {
+                    developer {
+                        name = '{{author}}'
+                        url = '{{developerOrganizationUrl}}'
+                    }
+                }
+                contributors {
+                    contributor {
+                        id = 'booniepepper'
+                        name = 'J.R. Hill'
+                        url = 'https://so.dang.cool'
+                    }
+                }
+                scm {
+                    url = '{{scmUrl}}'
+                    connection = '{{scmConnection}}'
+                    developerConnection = '{{scmDeveloperConnection}}'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.maven
+}
