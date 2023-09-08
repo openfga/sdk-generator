@@ -1,8 +1,9 @@
 {{>licenseInfo}}
 
-package {{invokerPackage}};
+package {{errorsPackage}};
 
 import java.net.http.HttpHeaders;
+import java.net.http.HttpResponse;
 
 public class ApiException extends{{#useRuntimeException}} RuntimeException {{/useRuntimeException}}{{^useRuntimeException}} Exception {{/useRuntimeException}}{
     private int code = 0;
@@ -49,6 +50,10 @@ public class ApiException extends{{#useRuntimeException}} RuntimeException {{/us
         this.responseBody = responseBody;
     }
 
+    public ApiException(String operationId, HttpResponse<String> response) {
+        this(response.statusCode(), formatExceptionMessage(operationId, response.statusCode(), response.body()), response.headers(), response.body());
+    }
+
     /**
      * Get the HTTP status code.
      *
@@ -74,5 +79,12 @@ public class ApiException extends{{#useRuntimeException}} RuntimeException {{/us
      */
     public String getResponseBody() {
         return responseBody;
+    }
+
+    private static String formatExceptionMessage(String operationId, int statusCode, String body) {
+        if (body == null || body.isEmpty()) {
+            body = "[no body]";
+        }
+        return operationId + " call failed with: " + statusCode + " - " + body;
     }
 }

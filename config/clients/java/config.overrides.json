@@ -7,6 +7,10 @@
   "artifactVersion": "0.0.1",
   "packageVersion": "0.0.1",
   "apiPackage": "dev.openfga.sdk.api",
+  "authPackage": "dev.openfga.sdk.api.auth",
+  "configPackage": "dev.openfga.sdk.api.configuration",
+  "errorsPackage": "dev.openfga.sdk.errors",
+  "utilPackage": "dev.openfga.sdk.util",
   "invokerPackage": "dev.openfga.sdk.api.client",
   "modelPackage": "dev.openfga.sdk.api.model",
   "snapshotVersion": false,
@@ -28,6 +32,8 @@
   "enumUnknownDefaultCase": true,
   "allowUnicodeIdentifiers": true,
   "caseInsensitiveResponseHeaders": true,
+  "tokenExpiryThresholdBufferInSec": 300,
+  "tokenExpiryJitterInSec": 300,
   "files": {
     "build.gradle.mustache" : {
       "destinationFilename": "build.gradle",
@@ -37,24 +43,40 @@
       "destinationFilename": ".github/workflows/main.yml",
       "templateType": "SupportingFiles"
     },
-    "creds-CredentialsMethod.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/CredentialsMethod.java",
+    "creds-AccessToken.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/AccessToken.java",
       "templateType": "SupportingFiles"
     },
-    "creds-ApiBearerToken.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ApiBearerToken.java",
+    "creds-CredentialsFlowRequest.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/CredentialsFlowRequest.java",
       "templateType": "SupportingFiles"
     },
-    "creds-ClientCredentials.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientCredentials.java",
+    "creds-CredentialsFlowResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/CredentialsFlowResponse.java",
       "templateType": "SupportingFiles"
     },
-    "creds-ClientCredentialsTest.java.mustache" : {
-      "destinationFilename": "src/test/java/dev/openfga/sdk/api/client/ClientCredentialsTest.java",
+    "creds-OAuth2Client.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/OAuth2Client.java",
+      "templateType": "SupportingFiles"
+    },
+    "creds-OAuth2ClientTest.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/OAuth2ClientTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ApiToken.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ApiToken.java",
       "templateType": "SupportingFiles"
     },
     "config-BaseConfiguration.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/BaseConfiguration.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientCredentials.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientCredentials.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientCredentialsTest.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/configuration/ClientCredentialsTest.java",
       "templateType": "SupportingFiles"
     },
     "config-Configuration.java.mustache" : {
@@ -69,12 +91,28 @@
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/configuration/ConfigurationTest.java",
       "templateType": "SupportingFiles"
     },
+    "config-Credentials.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/Credentials.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-CredentialsMethod.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/CredentialsMethod.java",
+      "templateType": "SupportingFiles"
+    },
+    "Pair.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/util/Pair.java",
+      "templateType": "SupportingFiles"
+    },
     "util-StringUtil.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/util/StringUtil.java",
+      "destinationFilename": "src/main/java/dev/openfga/sdk/util/StringUtil.java",
       "templateType": "SupportingFiles"
     },
     "util-StringUtilTest.java.mustache" : {
-      "destinationFilename": "src/test/java/dev/openfga/util/StringUtilTest.java",
+      "destinationFilename": "src/test/java/dev/openfga/sdk/util/StringUtilTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "libraries/native/apiException.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/errors/ApiException.java",
       "templateType": "SupportingFiles"
     },
     "FgaInvalidParameterException.java.mustache" : {
