@@ -168,3 +168,48 @@ jobs:
           GITHUB_ORG_ID: ${{ secrets.PYTHON_SDK_GITHUB_ORG_ID }}
           GITHUB_REPO_ID: ${{ secrets.PYTHON_SDK_GITHUB_REPO_ID }}
           SSH_KEY: ${{ secrets.PYTHON_SDK_SSH_KEY }}
+
+  build-and-test-java-sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 11
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Setup git
+        run: ./scripts/setup_git.sh
+        env:
+          GIT_USER_NAME: ${{ secrets.GIT_USER_NAME }}
+          GIT_USER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
+
+      - name: Clone the existing SDK
+        run: ./scripts/clone_sdk.sh
+        env:
+          GITHUB_ORG_ID: ${{ secrets.JAVA_SDK_GITHUB_ORG_ID }}
+          GITHUB_REPO_ID: ${{ secrets.JAVA_SDK_GITHUB_REPO_ID }}
+          SSH_KEY: ${{ secrets.JAVA_SDK_SSH_KEY }}
+          SDK_PATH: clients/fga-java-sdk
+          KNOWN_HOSTS: ${{secrets.KNOWN_HOSTS}}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Run All Tests
+        run: |-
+          make test-integration-client-java
+
+      - name: Check for SDK changes
+        run: ./scripts/commit_push_changes.sh
+        env:
+          SDK_PATH: clients/fga-java-sdk
+          DRY_RUN: 1
+          TAGGING_DISABLE: 1
+          GITHUB_ORG_ID: ${{ secrets.JAVA_SDK_GITHUB_ORG_ID }}
+          GITHUB_REPO_ID: ${{ secrets.JAVA_SDK_GITHUB_REPO_ID }}
+          SSH_KEY: ${{ secrets.JAVA_SDK_SSH_KEY }}

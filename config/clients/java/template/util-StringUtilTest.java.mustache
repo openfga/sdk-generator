@@ -1,0 +1,39 @@
+{{>licenseInfo}}
+package {{utilPackage}};
+
+import org.junit.jupiter.api.Test;
+
+import static {{utilPackage}}.StringUtil.isNullOrWhitespace;
+import static org.junit.jupiter.api.Assertions.*;
+
+class StringUtilTest {
+    @Test
+    public void isNullOrWhitespace_someContent_false() {
+        assertFalse(isNullOrWhitespace("abc"));
+    }
+
+    @Test
+    public void isNullOrWhitespace_null_true() {
+        assertTrue(isNullOrWhitespace(null));
+    }
+
+    @Test
+    public void isNullOrWhitespace_empty_true() {
+        assertTrue(isNullOrWhitespace(""));
+    }
+
+    @Test
+    public void isNullOrWhitespace_singleSpace_true() {
+        assertTrue(isNullOrWhitespace(" "));
+    }
+
+    @Test
+    public void isNullOrWhitespace_multipleSpace_true() {
+        assertTrue(isNullOrWhitespace(" "));
+    }
+
+    @Test
+    public void isNullOrWhitespace_multipleOtherWhitespace_true() {
+        assertTrue(isNullOrWhitespace(" \t\r\n"));
+    }
+}

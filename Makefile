@@ -1,4 +1,5 @@
 # Main config
+OPENFGA_DOCKER_TAG = latest
 OPEN_API_URL = https://raw.githubusercontent.com/openfga/api/main/docs/openapiv2/apidocs.swagger.json
 OPENAPI_GENERATOR_CLI_DOCKER_TAG = v6.4.0
 NODE_DOCKER_TAG = 18-alpine
@@ -6,6 +7,7 @@ GO_DOCKER_TAG = 1
 DOTNET_DOCKER_TAG = 6.0
 GOLINT_DOCKER_TAG = v1.51-alpine
 BUSYBOX_DOCKER_TAG = 1
+GRADLE_DOCKER_TAG = 8.2
 PYTHON_DOCKER_TAG = 3.10
 # Other config
 CONFIG_DIR = ${PWD}/config
@@ -22,12 +24,14 @@ all: test-all-clients
 
 ## Refresh Docker Images
 pull-docker-images:
+	docker pull openfga/openfga:${OPENFGA_DOCKER_TAG}
 	docker pull openapitools/openapi-generator-cli:${OPENAPI_GENERATOR_CLI_DOCKER_TAG}
 	docker pull node:${NODE_DOCKER_TAG}
 	docker pull golang:${GO_DOCKER_TAG}
 	docker pull golangci/golangci-lint:${GOLINT_DOCKER_TAG}
 	docker pull mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG}
 	docker pull busybox:${BUSYBOX_DOCKER_TAG}
+	docker pull gradle:${GRADLE_DOCKER_TAG}
 
 ## Publishing
 publish-client-dotnet: build-client-dotnet
@@ -42,10 +46,10 @@ test: test-all-clients
 build: build-all-clients
 
 .PHONY: test-all-clients
-test-all-clients: test-client-js test-client-go test-client-dotnet test-client-python
+test-all-clients: test-client-js test-client-go test-client-dotnet test-client-python test-client-java
 
 .PHONY: build-all-clients
-build-all-clients: build-client-js build-client-go build-client-dotnet build-client-python
+build-all-clients: build-client-js build-client-go build-client-dotnet build-client-python build-client-java
 
 ### JavaScript
 .PHONY: tag-client-js
@@ -123,12 +127,34 @@ test-client-python: build-client-python
 	# Need to ignore E402 (import order) to avoid circular dependency
 	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; python -m flake8 --ignore E501 test'"
 
+### Java
+.PHONY: tag-client-java
+tag-client-java: test-client-java
+	make utils-tag-client sdk_language=java
+
+.PHONY: build-client-java
+build-client-java:
+	make build-client sdk_language=java tmpdir=${TMP_DIR}
+	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c 'chmod +x ./gradlew && gradle fmt build'"
+
+.PHONY: test-client-java
+test-client-java: build-client-java
+	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c 'gradle test'"
+
+.PHONY: test-integration-client-java
+test-integration-client-java: test-client-java
+	docker container rm --force openfga-for-java-client || true
+	docker run --detach --name openfga-for-java-client -p 8080:8080 openfga/openfga:${OPENFGA_DOCKER_TAG} run
+	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c 'gradle test-integration'"
+	docker container rm --force openfga-for-java-client
+
 .PHONY: run-in-docker
 run-in-docker:
 	docker run --rm \
 		-v "${CLIENTS_OUTPUT_DIR}/fga-${sdk_language}-sdk":/module \
 		-v ${CONFIG_DIR}:/config \
 		-w /module \
+		--net="host" \
 		${image} \
 		${command}
 
