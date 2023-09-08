@@ -188,36 +188,30 @@ jobs:
           GIT_USER_NAME: ${{ secrets.GIT_USER_NAME }}
           GIT_USER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
 
-      # - name: Clone the existing SDK
-      #   run: ./scripts/clone_sdk.sh
-      #   env:
-      #     GITHUB_ORG_ID: ${{ secrets.JAVA_SDK_GITHUB_ORG_ID }}
-      #     GITHUB_REPO_ID: ${{ secrets.JAVA_SDK_GITHUB_REPO_ID }}
-      #     SSH_KEY: ${{ secrets.JAVA_SDK_SSH_KEY }}
-      #     SDK_PATH: clients/fga-java-sdk
-      #     KNOWN_HOSTS: ${{secrets.KNOWN_HOSTS}}
+      - name: Clone the existing SDK
+        run: ./scripts/clone_sdk.sh
+        env:
+          GITHUB_ORG_ID: ${{ secrets.JAVA_SDK_GITHUB_ORG_ID }}
+          GITHUB_REPO_ID: ${{ secrets.JAVA_SDK_GITHUB_REPO_ID }}
+          SSH_KEY: ${{ secrets.JAVA_SDK_SSH_KEY }}
+          SDK_PATH: clients/fga-java-sdk
+          KNOWN_HOSTS: ${{secrets.KNOWN_HOSTS}}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-      
-      # TODO: Don't run this twice. For some reason, the initial run of
-      # `make build-client-java` doesn't work, but subsequent runs do.
+
       - name: Build Java SDK
         continue-on-error: true
         run: |-
-          mkdir -p clients/fga-java-sdk
-          make build-client-java
-
-      - name: Run All Tests
-        run: |-
+          make test-client-java
           make test-integration-client-java
 
-      # - name: Check for SDK changes
-      #   run: ./scripts/commit_push_changes.sh
-      #   env:
-      #     SDK_PATH: clients/fga-java-sdk
-      #     DRY_RUN: 1
-      #     TAGGING_DISABLE: 1
-      #     GITHUB_ORG_ID: ${{ secrets.JAVA_SDK_GITHUB_ORG_ID }}
-      #     GITHUB_REPO_ID: ${{ secrets.JAVA_SDK_GITHUB_REPO_ID }}
-      #     SSH_KEY: ${{ secrets.JAVA_SDK_SSH_KEY }}
+      - name: Check for SDK changes
+        run: ./scripts/commit_push_changes.sh
+        env:
+          SDK_PATH: clients/fga-java-sdk
+          DRY_RUN: 1
+          TAGGING_DISABLE: 1
+          GITHUB_ORG_ID: ${{ secrets.JAVA_SDK_GITHUB_ORG_ID }}
+          GITHUB_REPO_ID: ${{ secrets.JAVA_SDK_GITHUB_REPO_ID }}
+          SSH_KEY: ${{ secrets.JAVA_SDK_SSH_KEY }}
