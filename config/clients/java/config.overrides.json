@@ -2,7 +2,7 @@
   "sdkId": "java",
   "gitRepoId": "java-sdk",
   "artifactId": "openfga-sdk",
-  "groupId": "dev.openfga",
+  "groupId": "dev.openfga.sdk",
   "packageVersion": "0.0.1",
   "apiPackage": "dev.openfga.sdk.api",
   "authPackage": "dev.openfga.sdk.api.auth",
