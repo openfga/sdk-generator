@@ -28,8 +28,11 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [test]
+    needs: [build]
 
     steps:
     - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.2
@@ -39,11 +42,6 @@ jobs:
       with:
         java-version: 11
         distribution: 'temurin'
-        cache: gradle
-
-    - name: Build with Gradle
-      run: |
-        ./gradlew build
 
     - name: Validate Gradle wrapper
       uses: gradle/wrapper-validation-action@56b90f209b02bf6d1deae490e9ef18b21a389cd4 # v1.1.0
@@ -55,6 +53,7 @@ jobs:
       env:
         MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   create-release:
     runs-on: ubuntu-latest
