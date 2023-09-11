@@ -34,18 +34,21 @@ publishing {
                         url = '{{developerOrganizationUrl}}'
                     }
                 }
-                contributors {
-                    contributor {
-                        id = 'booniepepper'
-                        name = 'J.R. Hill'
-                        url = 'https://so.dang.cool'
-                    }
-                }
                 scm {
                     url = '{{scmUrl}}'
                     connection = '{{scmConnection}}'
                     developerConnection = '{{scmDeveloperConnection}}'
                 }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = 'GitHubPackages'
+            url = 'https://maven.pkg.github.com/{{gitUserId}}/{{gitRepoId}}'
+            credentials {
+                username = System.getenv('GITHUB_ACTOR')
+                password = System.getenv('GITHUB_TOKEN')
             }
         }
     }
