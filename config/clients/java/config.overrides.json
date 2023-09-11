@@ -31,8 +31,6 @@
   "enumUnknownDefaultCase": true,
   "allowUnicodeIdentifiers": true,
   "caseInsensitiveResponseHeaders": true,
-  "tokenExpiryThresholdBufferInSec": 300,
-  "tokenExpiryJitterInSec": 300,
   "files": {
     "build.gradle.mustache" : {
       "destinationFilename": "build.gradle",

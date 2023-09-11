@@ -83,6 +83,8 @@
   "defaultMinWaitInMs": 100,
   "clientMaxMethodParallelRequests": 10,
   "defaultConnectionTimeoutInMs": 10000,
+  "tokenExpiryThresholdBufferInSec": 300,
+  "tokenExpiryJitterInSec": 300,
   "clientMethodHeader": "X-OpenFGA-Client-Method",
   "clientBulkRequestIdHeader": "X-OpenFGA-Client-Bulk-Request-Id"
 }

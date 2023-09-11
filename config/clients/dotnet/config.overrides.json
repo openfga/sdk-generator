@@ -31,8 +31,6 @@
   "targetFramework": "net6.0",
   "validatable": true,
   "enablePostProcessFile": true,
-  "tokenExpiryThresholdBufferInSec": 300,
-  "tokenExpiryJitterInSec": 300,
   "hashCodeBasePrimeNumber": 9661,
   "hashCodeMultiplierPrimeNumber": 9923,
   "files": {
