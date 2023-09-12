@@ -1,0 +1,54 @@
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+
+            pom {
+                group = '{{groupId}}'
+                name = '{{artifactId}}'
+                version = '{{packageVersion}}'
+                description = '{{packageDetailedDescription}}'
+                url = '{{developerOrganizationUrl}}'
+                licenses {
+                    license {
+                        name = '{{licenseName}}'
+                        url = 'https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/blob/main/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        name = '{{author}}'
+                        url = '{{developerOrganizationUrl}}'
+                    }
+                }
+                scm {
+                    url = '{{scmUrl}}'
+                    connection = '{{scmConnection}}'
+                    developerConnection = '{{scmDeveloperConnection}}'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = 'SonatypeOSSRH' // AKA: "Maven Central"
+            url = 'https://s01.oss.sonatype.org/service/local/'
+            credentials {
+                username = System.getenv('MAVEN_USERNAME')
+                password = System.getenv('MAVEN_PASSWORD')
+            }
+        }
+        maven {
+            name = 'GitHubPackages'
+            url = 'https://maven.pkg.github.com/{{gitUserId}}/{{gitRepoId}}'
+            credentials {
+                username = System.getenv('GITHUB_ACTOR')
+                password = System.getenv('GITHUB_TOKEN')
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.maven
+}
