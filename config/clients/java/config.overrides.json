@@ -20,7 +20,6 @@
   "developerOrganization": "OpenFGA",
   "developerOrganizationUrl": "https://openfga.dev",
   "licenseName": "Apache-2.0",
-  "licenseUrl": "https://github.com/openfga/java-sdk/blob/main/LICENSE",
   "scmConnection": "scm:git:git@github.com:openfga/java-sdk.git",
   "scmDeveloperConnection": "scm:git:git@github.com:openfga/java-sdk.git",
   "scmUrl": "https://github.com/openfga/java-sdk",
