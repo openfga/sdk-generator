@@ -1,0 +1,224 @@
+{{>licenseInfo}}
+package {{invokerPackage}};
+
+import {{apiPackage}}.*;
+import {{configPackage}}.*;
+import {{modelPackage}}.*;
+import {{errorsPackage}}.*;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
+public class OpenFgaClient {
+    private final ClientConfiguration configuration;
+    private final OpenFgaApi api;
+
+    private static final String CLIENT_BULK_REQUEST_ID_HEADER = "{{clientBulkRequestIdHeader}}";
+    private static final String CLIENT_METHOD_HEADER = "{{clientMethodHeader}}";
+    private static final int DEFAULT_MAX_METHOD_PARALLEL_REQS = {{clientMaxMethodParallelRequests}};
+
+    public OpenFgaClient(ApiClient apiClient, ClientConfiguration configuration) throws FgaInvalidParameterException {
+        this.configuration = configuration;
+        this.api = new OpenFgaApi(apiClient, configuration);
+    }
+
+    /* ********
+     * Stores *
+     **********/
+
+    /**
+     * ListStores - Get a paginated list of stores.
+     */
+    public CompletableFuture<ListStoresResponse> listStores() throws FgaInvalidParameterException, ApiException {
+        return api.listStores(null, null);
+    }
+
+    public CompletableFuture<ListStoresResponse> listStores(ListStoresOptions options)
+            throws FgaInvalidParameterException, ApiException {
+        return api.listStores(options.getPageSize(), options.getContinuationToken());
+    }
+
+    /**
+     * CreateStore - Initialize a store
+     */
+    public CompletableFuture<CreateStoreResponse> createStore(CreateStoreRequest request)
+            throws FgaInvalidParameterException, ApiException {
+        return api.createStore(request);
+    }
+
+    /**
+     * GetStore - Get information about the current store
+     */
+    public CompletableFuture<GetStoreResponse> getStore(String storeId)
+            throws FgaInvalidParameterException, ApiException {
+        return api.getStore(storeId);
+    }
+
+    /**
+     * DeleteStore - Delete a store
+     */
+    public CompletableFuture<Void> deleteStore(String storeId) throws FgaInvalidParameterException, ApiException {
+        return api.deleteStore(storeId);
+    }
+
+    /* **********************
+     * Authorization Models *
+     ************************/
+
+    /**
+     * ReadAuthorizationModels - Read all authorization models
+     */
+    public CompletableFuture<ReadAuthorizationModelsResponse> ReadAuthorizationModels(
+            String storeId, ReadAuthorizationModelsOptions options) throws FgaInvalidParameterException, ApiException {
+        return api.readAuthorizationModels(storeId, options.getPageSize(), options.getContinuationToken());
+    }
+
+    /**
+     * WriteAuthorizationModel - Create a new version of the authorization model
+     */
+    public CompletableFuture<WriteAuthorizationModelResponse> writeAuthorizationModel(
+            String storeId, WriteAuthorizationModelRequest request) throws FgaInvalidParameterException, ApiException {
+        return api.writeAuthorizationModel(storeId, request);
+    }
+
+    /**
+     * ReadAuthorizationModel - Read the current authorization model
+     */
+    public CompletableFuture<ReadAuthorizationModelResponse> readAuthorizationModel(String storeId)
+            throws FgaInvalidParameterException, ApiException {
+        var authorizationModelId = authorizationModelId();
+        if (authorizationModelId.isEmpty()) {
+            throw new FgaInvalidParameterException("authorizationModelId", "ClientConfiguration");
+        }
+
+        return api.readAuthorizationModel(storeId, authorizationModelId.get());
+    }
+
+    /**
+     * ReadLatestAuthorizationModel - Read the latest authorization model for the current store
+     */
+    public CompletableFuture<ReadAuthorizationModelResponse> readLatestAuthorizationModel(String storeId)
+            throws FgaInvalidParameterException, ApiException {
+        return api.readAuthorizationModels(storeId, 1, null).thenApply(response -> new ReadAuthorizationModelResponse()
+                .authorizationModel(response.getAuthorizationModels().get(0)));
+    }
+
+    /* *********************
+     * Relationship Tuples *
+     ***********************/
+
+    /**
+     * Read Changes - Read the list of historical relationship tuple writes and deletes
+     */
+    public CompletableFuture<ReadChangesResponse> ReadChanges(String storeId, ReadChangesOptions options)
+            throws FgaInvalidParameterException, ApiException {
+        return api.readChanges(storeId, options.getType(), options.getPageSize(), options.getContinuationToken());
+    }
+
+    /**
+     * Read - Read tuples previously written to the store (does not evaluate)
+     */
+    public CompletableFuture<ReadResponse> read(String storeId, ReadRequest body)
+            throws FgaInvalidParameterException, ApiException {
+        return api.read(storeId, body);
+    }
+
+    /**
+     * Write - Create or delete relationship tuples
+     */
+    public CompletableFuture<Object> write(String storeId, WriteRequest request)
+            throws FgaInvalidParameterException, ApiException {
+        return api.write(storeId, request);
+    }
+
+    /**
+     * WriteTuples - Utility method to write tuples, wraps Write
+     */
+    public CompletableFuture<Object> writeTuples(String storeId, TupleKeys tupleKeys)
+            throws FgaInvalidParameterException, ApiException {
+        var request = new WriteRequest().writes(tupleKeys);
+        authorizationModelId().ifPresent(request::authorizationModelId);
+        return write(storeId, request);
+    }
+
+    /**
+     * DeleteTuples - Utility method to delete tuples, wraps Write
+     */
+    public CompletableFuture<Object> deleteTuples(String storeId, TupleKeys tupleKeys)
+            throws FgaInvalidParameterException, ApiException {
+        var request = new WriteRequest().deletes(tupleKeys);
+        authorizationModelId().ifPresent(request::authorizationModelId);
+        return write(storeId, request);
+    }
+
+    /* **********************
+     * Relationship Queries *
+     ***********************/
+
+    /**
+     * Check - Check if a user has a particular relation with an object (evaluates)
+     */
+    public CompletableFuture<CheckResponse> check(String storeId, CheckRequest request)
+            throws FgaInvalidParameterException, ApiException {
+        return api.check(storeId, request);
+    }
+
+    /*
+     * BatchCheck - Run a set of checks (evaluates)
+     */
+    // TODO
+
+    /**
+     * Expand - Expands the relationships in userset tree format (evaluates)
+     */
+    public CompletableFuture<ExpandResponse> expand(String storeId, ExpandRequest request)
+            throws FgaInvalidParameterException, ApiException {
+        return api.expand(storeId, request);
+    }
+
+    /**
+     * ListObjects - List the objects of a particular type that the user has a certain relation to (evaluates)
+     */
+    public CompletableFuture<ListObjectsResponse> listObjects(String storeId, ListObjectsRequest request)
+            throws FgaInvalidParameterException, ApiException {
+        return api.listObjects(storeId, request);
+    }
+
+    /*
+     * ListRelations - List all the relations a user has with an object (evaluates)
+     */
+    // TODO
+
+    /* ************
+     * Assertions *
+     **************/
+
+    /**
+     * ReadAssertions - Read assertions for a particular authorization model
+     */
+    public CompletableFuture<ReadAssertionsResponse> readAssertions(String storeId)
+            throws FgaInvalidParameterException, ApiException {
+        var authorizationModelId = authorizationModelId();
+        if (authorizationModelId.isEmpty()) {
+            throw new FgaInvalidParameterException("authorizationModelId", "ClientConfiguration");
+        }
+
+        return api.readAssertions(storeId, authorizationModelId.get());
+    }
+
+    /**
+     * WriteAssertions - Updates assertions for a particular authorization model
+     */
+    public CompletableFuture<Void> writeAssertions(String storeId, WriteAssertionsRequest request)
+            throws FgaInvalidParameterException, ApiException {
+        var authorizationModelId = authorizationModelId();
+        if (authorizationModelId.isEmpty()) {
+            throw new FgaInvalidParameterException("authorizationModelId", "ClientConfiguration");
+        }
+
+        return api.writeAssertions(storeId, authorizationModelId.get(), request);
+    }
+
+    private Optional<String> authorizationModelId() {
+        return configuration.getAuthorizationModelId();
+    }
+}

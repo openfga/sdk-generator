@@ -42,6 +42,22 @@
       "destinationFilename": ".github/workflows/main.yml",
       "templateType": "SupportingFiles"
     },
+    "client-ListStoresOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ListStoresOptions.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-OpenFgaClient.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/OpenFgaClient.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ReadAuthorizationModelsOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ReadAuthorizationModelsOptions.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ReadChangesOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ReadChangesOptions.java",
+      "templateType": "SupportingFiles"
+    },
     "creds-AccessToken.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/AccessToken.java",
       "templateType": "SupportingFiles"
@@ -68,6 +84,10 @@
     },
     "config-BaseConfiguration.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/BaseConfiguration.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientConfiguration.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientConfiguration.java",
       "templateType": "SupportingFiles"
     },
     "config-ClientCredentials.java.mustache" : {
