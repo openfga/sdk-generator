@@ -6,6 +6,7 @@
   "packageVersion": "0.0.4",
   "apiPackage": "dev.openfga.sdk.api",
   "authPackage": "dev.openfga.sdk.api.auth",
+  "clientPackage": "dev.openfga.sdk.api.client",
   "configPackage": "dev.openfga.sdk.api.configuration",
   "errorsPackage": "dev.openfga.sdk.errors",
   "utilPackage": "dev.openfga.sdk.util",
@@ -144,6 +145,10 @@
     },
     "OpenFgaApiIntegrationTest.java.mustache" : {
       "destinationFilename": "src/test-integration/java/dev/openfga/sdk/api/OpenFgaApiIntegrationTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "package-info.java.mustache" : {
+      "destinationFilename": "src/test-integration/java/package-info.java",
       "templateType": "SupportingFiles"
     },
     "gradle-wrapper.properties.mustache" : {
