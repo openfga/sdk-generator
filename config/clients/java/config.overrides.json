@@ -51,6 +51,14 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/OpenFgaClient.java",
       "templateType": "SupportingFiles"
     },
+    "client-OpenFgaClientTest.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/client/OpenFgaClientTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-OpenFgaClientIntegrationTest.java.mustache" : {
+      "destinationFilename": "src/test-integration/java/dev/openfga/sdk/api/client/OpenFgaClientIntegrationTest.java",
+      "templateType": "SupportingFiles"
+    },
     "client-ReadAuthorizationModelsOptions.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ReadAuthorizationModelsOptions.java",
       "templateType": "SupportingFiles"
