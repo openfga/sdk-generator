@@ -110,10 +110,18 @@ type ClientTupleKey struct {
 
 func (tupleKey ClientTupleKey) ToTupleKey() {{packageName}}.TupleKey {
 	return {{packageName}}.TupleKey{
-		User:     {{packageName}}.PtrString(tupleKey.User),
-		Relation: {{packageName}}.PtrString(tupleKey.Relation),
-		Object:   {{packageName}}.PtrString(tupleKey.Object),
+		User:     tupleKey.User,
+		Relation: tupleKey.Relation,
+		Object:   tupleKey.Object,
 	}
+}
+
+func (tupleKey ClientTupleKey) ToWriteRequestTupleKey() {{packageName}}.WriteRequestTupleKey {
+    return {{packageName}}.WriteRequestTupleKey{
+        User:     tupleKey.User,
+        Relation: tupleKey.Relation,
+        Object:   tupleKey.Object,
+    }
 }
 
 type ClientPaginationOptions struct {
@@ -1120,7 +1128,7 @@ func (client *{{appShortName}}Client) ReadExecute(request SdkClientReadRequestIn
 		ContinuationToken: getContinuationTokenFromRequest((*ClientPaginationOptions)(request.GetOptions())),
 	}
 	if request.GetBody() != nil && (request.GetBody().User != nil || request.GetBody().Relation != nil || request.GetBody().Object != nil) {
-		body.TupleKey = &openfga.TupleKey{
+		body.TupleKey = &openfga.ReadRequestTupleKey{
 			User:     request.GetBody().User,
 			Relation: request.GetBody().Relation,
 			Object:   request.GetBody().Object,
@@ -1284,16 +1292,16 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 			AuthorizationModelId: authorizationModelId,
 		}
 		if request.GetBody().Writes != nil && len(*request.GetBody().Writes) > 0 {
-			writes := {{packageName}}.TupleKeys{}
+			writes := {{packageName}}.WriteRequestTupleKeys{}
 			for index := 0; index < len(*request.GetBody().Writes); index++ {
-				writes.TupleKeys = append(writes.TupleKeys, (*request.GetBody().Writes)[index].ToTupleKey())
+				writes.TupleKeys = append(writes.TupleKeys, (*request.GetBody().Writes)[index].ToWriteRequestTupleKey())
 			}
 			writeRequest.Writes = &writes
 		}
 		if request.GetBody().Deletes != nil && len(*request.GetBody().Deletes) > 0 {
-			deletes := {{packageName}}.TupleKeys{}
+			deletes := {{packageName}}.WriteRequestTupleKeys{}
 			for index := 0; index < len(*request.GetBody().Deletes); index++ {
-				deletes.TupleKeys = append(deletes.TupleKeys, (*request.GetBody().Deletes)[index].ToTupleKey())
+				deletes.TupleKeys = append(deletes.TupleKeys, (*request.GetBody().Deletes)[index].ToWriteRequestTupleKey())
 			}
 			writeRequest.Deletes = &deletes
 		}
@@ -1644,10 +1652,10 @@ func (client *{{appShortName}}Client) CheckExecute(request SdkClientCheckRequest
 		return nil, err
 	}
 	requestBody := {{packageName}}.CheckRequest{
-		TupleKey: {{packageName}}.TupleKey{
-			User:     {{packageName}}.PtrString(request.GetBody().User),
-			Relation: {{packageName}}.PtrString(request.GetBody().Relation),
-			Object:   {{packageName}}.PtrString(request.GetBody().Object),
+		TupleKey: {{packageName}}.CheckRequestTupleKey{
+			User:     request.GetBody().User,
+			Relation: request.GetBody().Relation,
+			Object:   request.GetBody().Object,
 		},
 		ContextualTuples:     {{packageName}}.NewContextualTupleKeys(contextualTuples),
 		AuthorizationModelId: authorizationModelId,
@@ -1861,9 +1869,9 @@ func (client *{{appShortName}}Client) ExpandExecute(request SdkClientExpandReque
 	}
 
 	data, _, err := client.{{appShortName}}Api.Expand(request.GetContext()).Body({{packageName}}.ExpandRequest{
-		TupleKey: {{packageName}}.TupleKey{
-			Relation: &request.GetBody().Relation,
-			Object:   &request.GetBody().Object,
+		TupleKey: {{packageName}}.ExpandRequestTupleKey{
+			Relation: request.GetBody().Relation,
+			Object:   request.GetBody().Object,
 		},
 		AuthorizationModelId: authorizationModelId,
 	}).Execute()
@@ -2194,10 +2202,10 @@ type ClientWriteAssertionsRequest = []ClientAssertion
 
 func (clientAssertion ClientAssertion) ToAssertion() {{packageName}}.Assertion {
 	return {{packageName}}.Assertion{
-		TupleKey: {{packageName}}.TupleKey{
-			User:     {{packageName}}.PtrString(clientAssertion.User),
-			Relation: {{packageName}}.PtrString(clientAssertion.Relation),
-			Object:   {{packageName}}.PtrString(clientAssertion.Object),
+		TupleKey: {{packageName}}.CheckRequestTupleKey{
+			User:     clientAssertion.User,
+			Relation: clientAssertion.Relation,
+			Object:   clientAssertion.Object,
 		},
 		Expectation: clientAssertion.Expectation,
 	}
