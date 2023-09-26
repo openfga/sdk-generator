@@ -43,6 +43,10 @@
       "destinationFilename": ".github/workflows/main.yml",
       "templateType": "SupportingFiles"
     },
+    "client-ClientReadRequest.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientReadRequest.java",
+      "templateType": "SupportingFiles"
+    },
     "client-ListStoresOptions.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ListStoresOptions.java",
       "templateType": "SupportingFiles"
