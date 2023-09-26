@@ -7,6 +7,12 @@ Get a paginated list of stores.
 [API Documentation]({{apiDocsUrl}}/docs/api#/Stores/ListStores)
 
 ```java
+var options = new ListStoresOptions()
+    .pageSize(10)
+    .continuationToken("...");
+var stores = fgaClient.listStores(options);
+
+// stores = [{ "id": "01FQH7V8BEG3GPQW93KTRFR8JB", "name": "FGA Demo Store", "created_at": "2022-01-01T00:00:00.000Z", "updated_at": "2022-01-01T00:00:00.000Z" }]
 ```
 
 ##### Create Store
