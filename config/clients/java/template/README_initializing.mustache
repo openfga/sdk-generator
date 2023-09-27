@@ -1,14 +1,82 @@
 #### No Credentials
 
-```cjava
+```java
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.openfga.sdk.api.client.ApiClient;
+import dev.openfga.sdk.api.client.OpenFgaClient;
+import dev.openfga.sdk.api.configuration.ClientConfiguration;
+import java.net.http.HttpClient;
+
+public class Example {
+    public static void main(String[] args) throws Exception {
+        var clientConfig = new ClientConfiguration()
+                .apiUrl(System.getenv("{{appUpperCaseName}}_API_URL")) // If not specified, will default to "https://localhost:8080"
+                .storeId(System.getenv("{{appUpperCaseName}}_STORE_ID")) // Not required when calling createStore() or listStores()
+                .authorizationModelId(System.getenv("{{appUpperCaseName}}_AUTHORIZATION_MODEL_ID")); // Optional, can be overridden per request
+        var apiClient = new ApiClient(HttpClient.newBuilder(), new ObjectMapper());
+
+        var fgaClient = new OpenFgaClient(apiClient, clientConfig);
+        var response = fgaClient.readAuthorizationModels().get();
+    }
+}
 ```
 
 #### API Token
 
 ```java
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.openfga.sdk.api.client.ApiClient;
+import dev.openfga.sdk.api.client.OpenFgaClient;
+import dev.openfga.sdk.api.configuration.ApiToken;
+import dev.openfga.sdk.api.configuration.ClientConfiguration;
+import dev.openfga.sdk.api.configuration.Credentials;
+import java.net.http.HttpClient;
+
+public class Example {
+    public static void main(String[] args) throws Exception {
+        var clientConfig = new ClientConfiguration()
+                .apiUrl(System.getenv("{{appUpperCaseName}}_API_URL")) // If not specified, will default to "https://localhost:8080"
+                .storeId(System.getenv("{{appUpperCaseName}}_STORE_ID")) // Not required when calling createStore() or listStores()
+                .authorizationModelId(System.getenv("{{appUpperCaseName}}_AUTHORIZATION_MODEL_ID")) // Optional, can be overridden per request
+                .credentials(new Credentials(
+                    new ApiToken(System.getenv("{{appUpperCaseName}}_API_TOKEN")) // will be passed as the "Authorization: Bearer ${ApiToken}" request header
+                ));
+        var apiClient = new ApiClient(HttpClient.newBuilder(), new ObjectMapper());
+
+        var fgaClient = new OpenFgaClient(apiClient, clientConfig);
+        var response = fgaClient.readAuthorizationModels().get();
+    }
+}
 ```
 
 #### Client Credentials
 
 ```java
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.openfga.sdk.api.client.ApiClient;
+import dev.openfga.sdk.api.client.OpenFgaClient;
+import dev.openfga.sdk.api.configuration.ClientConfiguration;
+import dev.openfga.sdk.api.configuration.ClientCredentials;
+import dev.openfga.sdk.api.configuration.Credentials;
+import java.net.http.HttpClient;
+
+public class Example {
+    public static void main(String[] args) throws Exception {
+        var clientConfig = new ClientConfiguration()
+                .apiUrl(System.getenv("{{appUpperCaseName}}_API_URL")) // If not specified, will default to "https://localhost:8080"
+                .storeId(System.getenv("{{appUpperCaseName}}_STORE_ID")) // Not required when calling createStore() or listStores()
+                .authorizationModelId(System.getenv("{{appUpperCaseName}}_AUTHORIZATION_MODEL_ID")) // Optional, can be overridden per request
+                .credentials(new Credentials(
+                    new ClientCredentials()
+                            .apiTokenIssuer(System.getenv("{{appUpperCaseName}}_API_TOKEN_ISSUER"))
+                            .apiAudience(System.getenv("{{appUpperCaseName}}_API_AUDIENCE"))
+                            .clientId(System.getenv("{{appUpperCaseName}}_CLIENT_ID"))
+                            .clientSecret(System.getenv("{{appUpperCaseName}}_CLIENT_SECRET"))
+                ));
+        var apiClient = new ApiClient(HttpClient.newBuilder(), new ObjectMapper());
+
+        var fgaClient = new OpenFgaClient(apiClient, clientConfig);
+        var response = fgaClient.readAuthorizationModels().get();
+    }
+}
 ```
