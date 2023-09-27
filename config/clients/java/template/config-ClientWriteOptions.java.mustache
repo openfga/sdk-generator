@@ -1,0 +1,15 @@
+{{>licenseInfo}}
+package {{configPackage}};
+
+public class ClientWriteOptions {
+    private String authorizationModelId;
+
+    public ClientWriteOptions authorizationModelId(String authorizationModelId) {
+        this.authorizationModelId = authorizationModelId;
+        return this;
+    }
+
+    public String getAuthorizationModelId() {
+        return authorizationModelId;
+    }
+}

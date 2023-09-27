@@ -1,11 +1,11 @@
 {{>licenseInfo}}
-package {{invokerPackage}};
+package {{configPackage}};
 
-public class ReadAuthorizationModelsOptions {
+public class ClientReadOptions {
     private Integer pageSize;
     private String continuationToken;
 
-    public ReadAuthorizationModelsOptions pageSize(Integer pageSize) {
+    public ClientReadOptions pageSize(Integer pageSize) {
         this.pageSize = pageSize;
         return this;
     }
@@ -14,7 +14,7 @@ public class ReadAuthorizationModelsOptions {
         return pageSize;
     }
 
-    public ReadAuthorizationModelsOptions continuationToken(String continuationToken) {
+    public ClientReadOptions continuationToken(String continuationToken) {
         this.continuationToken = continuationToken;
         return this;
     }
