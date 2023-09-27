@@ -43,6 +43,10 @@
       "destinationFilename": ".github/workflows/main.yml",
       "templateType": "SupportingFiles"
     },
+    "client-ClientAssertion.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientAssertion.java",
+      "templateType": "SupportingFiles"
+    },
     "client-ClientCheckRequest.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientCheckRequest.java",
       "templateType": "SupportingFiles"
@@ -51,8 +55,20 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientExpandRequest.java",
       "templateType": "SupportingFiles"
     },
+    "client-ClientListObjectsRequest.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientListObjectsRequest.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientListRelationsRequest.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientListRelationsRequest.java",
+      "templateType": "SupportingFiles"
+    },
     "client-ClientReadRequest.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientReadRequest.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientTupleKey.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientTupleKey.java",
       "templateType": "SupportingFiles"
     },
     "client-ClientWriteRequest.java.mustache" : {
@@ -145,6 +161,10 @@
     },
     "config-ClientExpandOptions.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientExpandOptions.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientListObjectsOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientListObjectsOptions.java",
       "templateType": "SupportingFiles"
     },
     "config-ListStoresOptions.java.mustache" : {
