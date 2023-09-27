@@ -47,6 +47,10 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientCheckRequest.java",
       "templateType": "SupportingFiles"
     },
+    "client-ClientExpandRequest.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientExpandRequest.java",
+      "templateType": "SupportingFiles"
+    },
     "client-ClientReadRequest.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientReadRequest.java",
       "templateType": "SupportingFiles"
@@ -137,6 +141,10 @@
     },
     "config-CredentialsMethod.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/CredentialsMethod.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientExpandOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientExpandOptions.java",
       "templateType": "SupportingFiles"
     },
     "config-ListStoresOptions.java.mustache" : {

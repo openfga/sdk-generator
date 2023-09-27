@@ -1,0 +1,15 @@
+{{>licenseInfo}}
+package {{configPackage}};
+
+public class ClientExpandOptions {
+    private String authorizationModelId;
+
+    public ClientExpandOptions authorizationModelId(String authorizationModelId) {
+        this.authorizationModelId = authorizationModelId;
+        return this;
+    }
+
+    public String getAuthorizationModelId() {
+        return authorizationModelId;
+    }
+}

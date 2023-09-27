@@ -1279,15 +1279,15 @@ public class OpenFgaClientTest {
                 "{\"tree\":{\"root\":{\"union\":{\"nodes\":[{\"leaf\":{\"users\":{\"users\":[\"%s\"]}}}]}}}}",
                 DEFAULT_USER);
         mockHttpClient.onPost(postPath).withBody(is(expectedBody)).doReturn(200, responseBody);
-        ExpandRequest request = new ExpandRequest()
-                .authorizationModelId(DEFAULT_AUTH_MODEL_ID)
-                .tupleKey(new TupleKey()
-                        ._object(DEFAULT_OBJECT)
-                        .relation(DEFAULT_RELATION)
-                        .user(DEFAULT_USER));
+        ClientExpandRequest request = new ClientExpandRequest()
+                .user(DEFAULT_USER)
+                .relation(DEFAULT_RELATION)
+                ._object(DEFAULT_OBJECT);
+        ClientExpandOptions options = new ClientExpandOptions()
+                .authorizationModelId(DEFAULT_AUTH_MODEL_ID);
 
         // When
-        ExpandResponse response = fga.expand(request).get();
+        ExpandResponse response = fga.expand(request, options).get();
 
         // Then
         mockHttpClient.verify().post(postPath).withBody(is(expectedBody)).called(1);
@@ -1311,23 +1311,12 @@ public class OpenFgaClientTest {
         clientConfiguration.storeId(null);
 
         // When
-        var exception = assertThrows(FgaInvalidParameterException.class, () -> fga.expand(new ExpandRequest())
+        var exception = assertThrows(FgaInvalidParameterException.class, () -> fga.expand(new ClientExpandRequest())
                 .get());
 
         // Then
         assertEquals(
                 "Required parameter storeId was invalid when calling ClientConfiguration.", exception.getMessage());
-    }
-
-    @Test
-    public void expand_bodyRequired() {
-        // When
-        ExecutionException execException =
-                assertThrows(ExecutionException.class, () -> fga.expand(null).get());
-
-        // Then
-        ApiException exception = assertInstanceOf(ApiException.class, execException.getCause());
-        assertEquals("Missing the required parameter 'body' when calling expand", exception.getMessage());
     }
 
     @Test
@@ -1340,7 +1329,7 @@ public class OpenFgaClientTest {
 
         // When
         ExecutionException execException = assertThrows(
-                ExecutionException.class, () -> fga.expand(new ExpandRequest()).get());
+                ExecutionException.class, () -> fga.expand(new ClientExpandRequest()).get());
 
         // Then
         mockHttpClient.verify().post(postUrl).called(1);
@@ -1361,7 +1350,7 @@ public class OpenFgaClientTest {
 
         // When
         ExecutionException execException = assertThrows(
-                ExecutionException.class, () -> fga.expand(new ExpandRequest()).get());
+                ExecutionException.class, () -> fga.expand(new ClientExpandRequest()).get());
 
         // Then
         mockHttpClient.verify().post(postUrl).called(1);
@@ -1381,7 +1370,7 @@ public class OpenFgaClientTest {
 
         // When
         ExecutionException execException = assertThrows(
-                ExecutionException.class, () -> fga.expand(new ExpandRequest()).get());
+                ExecutionException.class, () -> fga.expand(new ClientExpandRequest()).get());
 
         // Then
         mockHttpClient.verify().post(postUrl).called(1);
