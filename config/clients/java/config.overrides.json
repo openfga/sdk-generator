@@ -43,6 +43,10 @@
       "destinationFilename": ".github/workflows/main.yml",
       "templateType": "SupportingFiles"
     },
+    "client-ClientCheckRequest.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientCheckRequest.java",
+      "templateType": "SupportingFiles"
+    },
     "client-ClientReadRequest.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientReadRequest.java",
       "templateType": "SupportingFiles"
@@ -89,6 +93,10 @@
     },
     "config-BaseConfiguration.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/BaseConfiguration.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientCheckOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientCheckOptions.java",
       "templateType": "SupportingFiles"
     },
     "config-ClientConfiguration.java.mustache" : {
