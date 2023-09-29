@@ -131,8 +131,40 @@
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/configuration/ClientCredentialsTest.java",
       "templateType": "SupportingFiles"
     },
+    "config-ClientExpandOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientExpandOptions.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientListObjectsOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientListObjectsOptions.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientListStoresOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientListStoresOptions.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientReadAssertionsOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientReadAssertionsOptions.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientReadAuthorizationModelOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientReadAuthorizationModelOptions.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientReadAuthorizationModelsOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientReadAuthorizationModelsOptions.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientReadChangesOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientReadChangesOptions.java",
+      "templateType": "SupportingFiles"
+    },
     "config-ClientReadOptions.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientReadOptions.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientWriteAssertionsOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientWriteAssertionsOptions.java",
       "templateType": "SupportingFiles"
     },
     "config-ClientWriteOptions.java.mustache" : {
@@ -157,30 +189,6 @@
     },
     "config-CredentialsMethod.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/CredentialsMethod.java",
-      "templateType": "SupportingFiles"
-    },
-    "config-ClientExpandOptions.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientExpandOptions.java",
-      "templateType": "SupportingFiles"
-    },
-    "config-ClientListObjectsOptions.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientListObjectsOptions.java",
-      "templateType": "SupportingFiles"
-    },
-    "config-ListStoresOptions.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ListStoresOptions.java",
-      "templateType": "SupportingFiles"
-    },
-    "config-ReadAuthorizationModelOptions.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ReadAuthorizationModelOptions.java",
-      "templateType": "SupportingFiles"
-    },
-    "config-ReadAuthorizationModelsOptions.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ReadAuthorizationModelsOptions.java",
-      "templateType": "SupportingFiles"
-    },
-    "config-ReadChangesOptions.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ReadChangesOptions.java",
       "templateType": "SupportingFiles"
     },
     "Pair.mustache" : {

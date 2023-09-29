@@ -1,12 +1,12 @@
 {{>licenseInfo}}
 package {{configPackage}};
 
-public class ReadChangesOptions {
+public class ClientReadChangesOptions {
     private String type;
     private Integer pageSize;
     private String continuationToken;
 
-    public ReadChangesOptions type(String type) {
+    public ClientReadChangesOptions type(String type) {
         this.type = type;
         return this;
     }
@@ -15,7 +15,7 @@ public class ReadChangesOptions {
         return type;
     }
 
-    public ReadChangesOptions pageSize(Integer pageSize) {
+    public ClientReadChangesOptions pageSize(Integer pageSize) {
         this.pageSize = pageSize;
         return this;
     }
@@ -24,7 +24,7 @@ public class ReadChangesOptions {
         return pageSize;
     }
 
-    public ReadChangesOptions continuationToken(String continuationToken) {
+    public ClientReadChangesOptions continuationToken(String continuationToken) {
         this.continuationToken = continuationToken;
         return this;
     }
