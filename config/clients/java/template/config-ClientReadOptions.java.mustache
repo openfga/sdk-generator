@@ -1,0 +1,25 @@
+{{>licenseInfo}}
+package {{configPackage}};
+
+public class ClientReadOptions {
+    private Integer pageSize;
+    private String continuationToken;
+
+    public ClientReadOptions pageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+        return this;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public ClientReadOptions continuationToken(String continuationToken) {
+        this.continuationToken = continuationToken;
+        return this;
+    }
+
+    public String getContinuationToken() {
+        return continuationToken;
+    }
+}

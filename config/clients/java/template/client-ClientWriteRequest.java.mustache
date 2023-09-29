@@ -1,0 +1,27 @@
+{{>licenseInfo}}
+package {{invokerPackage}};
+
+import java.util.List;
+
+public class ClientWriteRequest {
+    private List<ClientTupleKey> writes;
+    private List<ClientTupleKey> deletes;
+
+    public ClientWriteRequest writes(List<ClientTupleKey> writes) {
+        this.writes = writes;
+        return this;
+    }
+
+    public List<ClientTupleKey> getWrites() {
+        return writes;
+    }
+
+    public ClientWriteRequest deletes(List<ClientTupleKey> deletes) {
+        this.deletes = deletes;
+        return this;
+    }
+
+    public List<ClientTupleKey> getDeletes() {
+        return deletes;
+    }
+}

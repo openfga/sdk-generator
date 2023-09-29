@@ -1,0 +1,15 @@
+{{>licenseInfo}}
+package {{configPackage}};
+
+public class ClientListObjectsOptions {
+    private String authorizationModelId;
+
+    public ClientListObjectsOptions authorizationModelId(String authorizationModelId) {
+        this.authorizationModelId = authorizationModelId;
+        return this;
+    }
+
+    public String getAuthorizationModelId() {
+        return authorizationModelId;
+    }
+}

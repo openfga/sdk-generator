@@ -17,7 +17,7 @@ class ConfigurationTest {
     void apiUrl_nullDefaults() throws FgaInvalidParameterException {
         // Given
         String apiUrl = null;
-        var config = new Configuration(apiUrl);
+        var config = new Configuration().apiUrl(apiUrl);
 
         // When
         config.assertValid();
@@ -30,7 +30,7 @@ class ConfigurationTest {
     void apiUrl_emptyStringDefaults() throws FgaInvalidParameterException {
         // Given
         String apiUrl = "";
-        var config = new Configuration(apiUrl);
+        var config = new Configuration().apiUrl(apiUrl);
 
         // When
         config.assertValid();
@@ -43,7 +43,7 @@ class ConfigurationTest {
     void apiUrl_whitespaceStringDefaults() throws FgaInvalidParameterException {
         // Given
         String apiUrl = " \t\r\n";
-        var config = new Configuration(apiUrl);
+        var config = new Configuration().apiUrl(apiUrl);
 
         // When
         config.assertValid();
@@ -59,7 +59,7 @@ class ConfigurationTest {
 
         // When
         FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
-            var config = new Configuration(apiUrl);
+            var config = new Configuration().apiUrl(apiUrl);
             config.assertValid();
         });
 
@@ -74,7 +74,7 @@ class ConfigurationTest {
 
         // When
         FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
-            var config = new Configuration(apiUrl);
+            var config = new Configuration().apiUrl(apiUrl);
             config.assertValid();
         });
 
@@ -89,7 +89,7 @@ class ConfigurationTest {
 
         // When
         FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
-            var config = new Configuration(apiUrl);
+            var config = new Configuration().apiUrl(apiUrl);
             config.assertValid();
         });
 
@@ -104,7 +104,7 @@ class ConfigurationTest {
 
         // When
         FgaInvalidParameterException e = assertThrows(FgaInvalidParameterException.class, () -> {
-            var config = new Configuration(apiUrl);
+            var config = new Configuration().apiUrl(apiUrl);
             config.assertValid();
         });
 
@@ -152,7 +152,10 @@ class ConfigurationTest {
 
         // Then
         assertEquals("override-agent", result.getUserAgent());
-        assertEquals(DEFAULT_USER_AGENT, original.getUserAgent(), "The Configuration's default userAgent should be unmodified.");
+        assertEquals(
+                DEFAULT_USER_AGENT,
+                original.getUserAgent(),
+                "The Configuration's default userAgent should be unmodified.");
     }
 
     @Test
@@ -166,7 +169,10 @@ class ConfigurationTest {
 
         // Then
         assertEquals(Duration.ofDays(7), result.getReadTimeout());
-        assertEquals(DEFAULT_READ_TIMEOUT, original.getReadTimeout(), "The Configuration's default readTimeout should be unmodified.");
+        assertEquals(
+                DEFAULT_READ_TIMEOUT,
+                original.getReadTimeout(),
+                "The Configuration's default readTimeout should be unmodified.");
     }
 
     @Test
@@ -180,6 +186,9 @@ class ConfigurationTest {
 
         // Then
         assertEquals(Duration.ofDays(7), result.getConnectTimeout());
-        assertEquals(DEFAULT_CONNECT_TIMEOUT, original.getConnectTimeout(), "The Configuration's default connectTimeout should be unmodified.");
+        assertEquals(
+                DEFAULT_CONNECT_TIMEOUT,
+                original.getConnectTimeout(),
+                "The Configuration's default connectTimeout should be unmodified.");
     }
 }
