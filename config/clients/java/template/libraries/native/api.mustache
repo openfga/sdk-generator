@@ -64,19 +64,23 @@ public class {{classname}} {
   private final Consumer<HttpResponse<InputStream>> memberVarResponseInterceptor;
   private final Consumer<HttpResponse<String>> memberVarAsyncResponseInterceptor;
 
-  public {{classname}}(ApiClient apiClient, Configuration configuration) throws FgaInvalidParameterException {
-    memberVarHttpClient = apiClient.getHttpClient();
-    memberVarObjectMapper = apiClient.getObjectMapper();
-    this.configuration = configuration;
-    memberVarInterceptor = apiClient.getRequestInterceptor();
-    memberVarResponseInterceptor = apiClient.getResponseInterceptor();
-    memberVarAsyncResponseInterceptor = apiClient.getAsyncResponseInterceptor();
+  public OpenFgaApi(Configuration configuration) throws FgaInvalidParameterException {
+      this(configuration, new ApiClient());
+  }
 
-    if (configuration.getCredentials().getCredentialsMethod() == CredentialsMethod.CLIENT_CREDENTIALS) {
-      this.oAuth2Client = new OAuth2Client(configuration, apiClient.getHttpClient(), apiClient.getObjectMapper());
-    } else {
-      this.oAuth2Client = null;
-    }
+  public OpenFgaApi(Configuration configuration, ApiClient apiClient) throws FgaInvalidParameterException {
+      memberVarHttpClient = apiClient.getHttpClient();
+      memberVarObjectMapper = apiClient.getObjectMapper();
+      this.configuration = configuration;
+      memberVarInterceptor = apiClient.getRequestInterceptor();
+      memberVarResponseInterceptor = apiClient.getResponseInterceptor();
+      memberVarAsyncResponseInterceptor = apiClient.getAsyncResponseInterceptor();
+
+      if (configuration.getCredentials().getCredentialsMethod() == CredentialsMethod.CLIENT_CREDENTIALS) {
+          this.oAuth2Client = new OAuth2Client(configuration, apiClient.getHttpClient(), apiClient.getObjectMapper());
+      } else {
+          this.oAuth2Client = null;
+      }
   }
 
   {{#operation}}

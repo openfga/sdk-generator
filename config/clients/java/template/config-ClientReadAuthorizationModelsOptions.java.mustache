@@ -1,11 +1,11 @@
 {{>licenseInfo}}
 package {{configPackage}};
 
-public class ListStoresOptions {
+public class ClientReadAuthorizationModelsOptions {
     private Integer pageSize;
     private String continuationToken;
 
-    public ListStoresOptions pageSize(Integer pageSize) {
+    public ClientReadAuthorizationModelsOptions pageSize(Integer pageSize) {
         this.pageSize = pageSize;
         return this;
     }
@@ -14,7 +14,7 @@ public class ListStoresOptions {
         return pageSize;
     }
 
-    public ListStoresOptions continuationToken(String continuationToken) {
+    public ClientReadAuthorizationModelsOptions continuationToken(String continuationToken) {
         this.continuationToken = continuationToken;
         return this;
     }

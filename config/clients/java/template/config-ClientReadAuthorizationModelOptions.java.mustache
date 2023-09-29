@@ -5,20 +5,16 @@ import static {{utilPackage}}.StringUtil.isNullOrWhitespace;
 
 import {{errorsPackage}}.FgaInvalidParameterException;
 
-public class ClientReadAssertionsOptions {
+public class ClientReadAuthorizationModelOptions {
     private String authorizationModelId;
 
-    public boolean hasValidAuthorizationModelId() throws FgaInvalidParameterException {
-        return !isNullOrWhitespace(authorizationModelId);
-    }
-
     public void assertValidAuthorizationModelId() throws FgaInvalidParameterException {
-        if (!hasValidAuthorizationModelId()) {
+        if (isNullOrWhitespace(authorizationModelId)) {
             throw new FgaInvalidParameterException("authorizationModelId", "ClientConfiguration");
         }
     }
 
-    public ClientReadAssertionsOptions authorizationModelId(String authorizationModelId) {
+    public ClientReadAuthorizationModelOptions authorizationModelId(String authorizationModelId) {
         this.authorizationModelId = authorizationModelId;
         return this;
     }
