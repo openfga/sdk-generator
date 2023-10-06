@@ -55,32 +55,25 @@ import java.util.concurrent.CompletableFuture;
  * <p>
  * Most code should favor the simpler and higher-level {@link OpenFgaClient} when calling an OpenFGA server.
  */
-public class {{classname}} {
-  private final HttpClient memberVarHttpClient;
-  private final ObjectMapper memberVarObjectMapper;
+public class OpenFgaApi {
   private final Configuration configuration;
+
+  private final ApiClient apiClient;
   private final OAuth2Client oAuth2Client;
-  private final Consumer<HttpRequest.Builder> memberVarInterceptor;
-  private final Consumer<HttpResponse<InputStream>> memberVarResponseInterceptor;
-  private final Consumer<HttpResponse<String>> memberVarAsyncResponseInterceptor;
 
   public OpenFgaApi(Configuration configuration) throws FgaInvalidParameterException {
-      this(configuration, new ApiClient());
+    this(configuration, new ApiClient());
   }
 
   public OpenFgaApi(Configuration configuration, ApiClient apiClient) throws FgaInvalidParameterException {
-      memberVarHttpClient = apiClient.getHttpClient();
-      memberVarObjectMapper = apiClient.getObjectMapper();
-      this.configuration = configuration;
-      memberVarInterceptor = apiClient.getRequestInterceptor();
-      memberVarResponseInterceptor = apiClient.getResponseInterceptor();
-      memberVarAsyncResponseInterceptor = apiClient.getAsyncResponseInterceptor();
+    this.apiClient = apiClient;
+    this.configuration = configuration;
 
-      if (configuration.getCredentials().getCredentialsMethod() == CredentialsMethod.CLIENT_CREDENTIALS) {
-          this.oAuth2Client = new OAuth2Client(configuration, apiClient.getHttpClient(), apiClient.getObjectMapper());
-      } else {
-          this.oAuth2Client = null;
-      }
+    if (configuration.getCredentials().getCredentialsMethod() == CredentialsMethod.CLIENT_CREDENTIALS) {
+      this.oAuth2Client = new OAuth2Client(configuration, apiClient);
+    } else {
+      this.oAuth2Client = null;
+    }
   }
 
   {{#operation}}
@@ -214,27 +207,8 @@ public class {{classname}} {
     {{/asyncNative}}
     {{#asyncNative}}
     try {
-      HttpRequest.Builder localVarRequestBuilder = {{operationId}}RequestBuilder({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, configuration);
-      return memberVarHttpClient.sendAsync(
-          localVarRequestBuilder.build(),
-          HttpResponse.BodyHandlers.ofString()).thenComposeAsync(localVarResponse -> {
-            if (localVarResponse.statusCode()/ 100 != 2) {
-              return CompletableFuture.failedFuture(new ApiException("{{operationId}}", localVarResponse));
-            }
-            {{#returnType}}
-            try {
-              String responseBody = localVarResponse.body();
-              return CompletableFuture.completedFuture(
-                  responseBody == null || responseBody.isBlank() ? null : memberVarObjectMapper.readValue(responseBody, new TypeReference<{{{returnType}}}>() {})
-              );
-            } catch (IOException e) {
-              return CompletableFuture.failedFuture(new ApiException(e));
-            }
-            {{/returnType}}
-            {{^returnType}}
-            return CompletableFuture.completedFuture(null);
-            {{/returnType}}
-      });
+      HttpRequest request = {{operationId}}RequestBuilder({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, configuration).build();
+      return new HttpRequestAttempt<>(request, "{{operationId}}", {{{returnType}}}{{^returnType}}Void{{/returnType}}.class, apiClient, configuration).attemptHttpRequest();
     }
     catch (ApiException e) {
       return CompletableFuture.failedFuture(e);
@@ -293,7 +267,7 @@ public class {{classname}} {
     {{^asyncNative}}
     HttpRequest.Builder localVarRequestBuilder = {{operationId}}RequestBuilder({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, configuration);
     try {
-      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+      HttpResponse<InputStream> localVarResponse = apiClient.getHttpClient().send(
           localVarRequestBuilder.build(),
           HttpResponse.BodyHandlers.ofInputStream());
       if (memberVarResponseInterceptor != null) {
@@ -323,7 +297,7 @@ public class {{classname}} {
           localVarResponse.statusCode(),
           localVarResponse.headers().map(),
           {{#returnType}}
-          localVarResponse.body() == null ? null : memberVarObjectMapper.readValue(localVarResponse.body(), new TypeReference<{{{returnType}}}>() {}) // closes the InputStream
+          localVarResponse.body() == null ? null :apiClient.getObjectMapper().readValue(localVarResponse.body(), new TypeReference<{{{returnType}}}>() {}) // closes the InputStream
           {{/returnType}}
           {{^returnType}}
           null
@@ -350,11 +324,12 @@ public class {{classname}} {
     {{#asyncNative}}
     try {
       HttpRequest.Builder localVarRequestBuilder = {{operationId}}RequestBuilder({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, configuration);
-      return memberVarHttpClient.sendAsync(
+      return apiClient.getHttpClient().sendAsync(
           localVarRequestBuilder.build(),
           HttpResponse.BodyHandlers.ofString()).thenComposeAsync(localVarResponse -> {
-            if (memberVarAsyncResponseInterceptor != null) {
-              memberVarAsyncResponseInterceptor.accept(localVarResponse);
+            var responseInterceptor = apiClient.getAsyncResponseInterceptor();
+            if (responseInterceptor != null) {
+              responseInterceptor.accept(localVarResponse);
             }
             if (localVarResponse.statusCode()/ 100 != 2) {
               return CompletableFuture.failedFuture(new ApiException("{{operationId}}", localVarResponse));
@@ -366,7 +341,7 @@ public class {{classname}} {
                   new ApiResponse<{{{returnType}}}>(
                       localVarResponse.statusCode(),
                       localVarResponse.headers().map(),
-                      responseBody == null || responseBody.isBlank() ? null : memberVarObjectMapper.readValue(responseBody, new TypeReference<{{{returnType}}}>() {}))
+                      responseBody == null || responseBody.isBlank() ? null : apiClient.getObjectMapper().readValue(responseBody, new TypeReference<{{{returnType}}}>() {}))
               );
             } catch (IOException e) {
               return CompletableFuture.failedFuture(new ApiException(e));
@@ -491,7 +466,7 @@ public class {{classname}} {
     {{/isString}}
     {{^isString}}
     try {
-      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes({{paramName}});
+      byte[] localVarPostBody =apiClient.getObjectMapper().writeValueAsBytes({{paramName}});
       localVarRequestBuilder.method("{{httpMethod}}", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
     } catch (IOException e) {
       throw new ApiException(e);
@@ -593,8 +568,8 @@ public class {{classname}} {
     if (readTimeout != null) {
       localVarRequestBuilder.timeout(readTimeout);
     }
-    if (memberVarInterceptor != null) {
-      memberVarInterceptor.accept(localVarRequestBuilder);
+    if (apiClient.getRequestInterceptor() != null) {
+      apiClient.getRequestInterceptor().accept(localVarRequestBuilder);
     }
     return localVarRequestBuilder;
   }

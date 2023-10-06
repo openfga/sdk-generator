@@ -75,6 +75,10 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientWriteRequest.java",
       "templateType": "SupportingFiles"
     },
+    "client-HttpRequestAttempt.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/HttpRequestAttempt.java",
+      "templateType": "SupportingFiles"
+    },
     "client-OpenFgaClient.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/OpenFgaClient.java",
       "templateType": "SupportingFiles"
@@ -189,6 +193,26 @@
     },
     "config-CredentialsMethod.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/CredentialsMethod.java",
+      "templateType": "SupportingFiles"
+    },
+    "errors-FgaApiAuthenticationError.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaApiAuthenticationError.java",
+      "templateType": "SupportingFiles"
+    },
+    "errors-FgaApiInternalError.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaApiInternalError.java",
+      "templateType": "SupportingFiles"
+    },
+    "errors-FgaApiNotFoundError.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaApiNotFoundError.java",
+      "templateType": "SupportingFiles"
+    },
+    "errors-FgaApiRateLimitExceededError.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaApiRateLimitExceededError.java",
+      "templateType": "SupportingFiles"
+    },
+    "errors-FgaApiValidationError.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaApiValidationError.java",
       "templateType": "SupportingFiles"
     },
     "Pair.mustache" : {
