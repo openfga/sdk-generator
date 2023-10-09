@@ -2,10 +2,9 @@
 package {{authPackage}};
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import {{invokerPackage}}.ApiClient;
-import {{invokerPackage}}.HttpRequestAttempt;
-import {{errorsPackage}}.ApiException;
+import {{invokerPackage}}.*;
 import {{configPackage}}.*;
+import {{errorsPackage}}.ApiException;
 import {{errorsPackage}}.FgaInvalidParameterException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -72,7 +71,8 @@ public class OAuth2Client {
                     .build();
 
             return new HttpRequestAttempt<>(request, "exchangeToken", CredentialsFlowResponse.class, apiClient, config)
-                    .attemptHttpRequest();
+                    .attemptHttpRequest()
+                    .thenApply(ApiResponse::getData);
         } catch (IOException e) {
             throw new ApiException(e);
         }
