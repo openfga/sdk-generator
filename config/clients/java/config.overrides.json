@@ -275,6 +275,18 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaApiValidationError.java",
       "templateType": "SupportingFiles"
     },
+    "errors-FgaError.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaError.java",
+      "templateType": "SupportingFiles"
+    },
+    "errors-FgaInvalidParameterException.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaInvalidParameterException.java",
+      "templateType": "SupportingFiles"
+    },
+    "errors-HttpStatusCode.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/errors/HttpStatusCode.java",
+      "templateType": "SupportingFiles"
+    },
     "Pair.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/util/Pair.java",
       "templateType": "SupportingFiles"
@@ -289,10 +301,6 @@
     },
     "libraries/native/apiException.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/ApiException.java",
-      "templateType": "SupportingFiles"
-    },
-    "FgaInvalidParameterException.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaInvalidParameterException.java",
       "templateType": "SupportingFiles"
     },
     "OpenFgaApiTest.java.mustache" : {
