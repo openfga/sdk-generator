@@ -3,7 +3,7 @@
   "gitRepoId": "java-sdk",
   "artifactId": "openfga-sdk",
   "groupId": "dev.openfga",
-  "packageVersion": "0.1.0",
+  "packageVersion": "0.2.0",
   "apiPackage": "dev.openfga.sdk.api",
   "authPackage": "dev.openfga.sdk.api.auth",
   "clientPackage": "dev.openfga.sdk.api.client",
@@ -51,28 +51,88 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientCheckRequest.java",
       "templateType": "SupportingFiles"
     },
+    "client-ClientCheckResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientCheckResponse.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientCreateStoreResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientCreateStoreResponse.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientDeleteStoreResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientDeleteStoreResponse.java",
+      "templateType": "SupportingFiles"
+    },
     "client-ClientExpandRequest.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientExpandRequest.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientExpandResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientExpandResponse.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientGetStoreResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientGetStoreResponse.java",
       "templateType": "SupportingFiles"
     },
     "client-ClientListObjectsRequest.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientListObjectsRequest.java",
       "templateType": "SupportingFiles"
     },
+    "client-ClientListObjectsResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientListObjectsResponse.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientListStoresResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientListStoresResponse.java",
+      "templateType": "SupportingFiles"
+    },
     "client-ClientListRelationsRequest.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientListRelationsRequest.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientReadAssertionsResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientReadAssertionsResponse.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientReadAuthorizationModelResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientReadAuthorizationModelResponse.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientReadAuthorizationModelsResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientReadAuthorizationModelsResponse.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientReadChangesResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientReadChangesResponse.java",
       "templateType": "SupportingFiles"
     },
     "client-ClientReadRequest.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientReadRequest.java",
       "templateType": "SupportingFiles"
     },
+    "client-ClientReadResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientReadResponse.java",
+      "templateType": "SupportingFiles"
+    },
     "client-ClientTupleKey.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientTupleKey.java",
       "templateType": "SupportingFiles"
     },
+    "client-ClientWriteAssertionsResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientWriteAssertionsResponse.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientWriteAuthorizationModelResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientWriteAuthorizationModelResponse.java",
+      "templateType": "SupportingFiles"
+    },
     "client-ClientWriteRequest.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientWriteRequest.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientWriteResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientWriteResponse.java",
       "templateType": "SupportingFiles"
     },
     "client-HttpRequestAttempt.java.mustache" : {
@@ -215,6 +275,18 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaApiValidationError.java",
       "templateType": "SupportingFiles"
     },
+    "errors-FgaError.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaError.java",
+      "templateType": "SupportingFiles"
+    },
+    "errors-FgaInvalidParameterException.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaInvalidParameterException.java",
+      "templateType": "SupportingFiles"
+    },
+    "errors-HttpStatusCode.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/errors/HttpStatusCode.java",
+      "templateType": "SupportingFiles"
+    },
     "Pair.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/util/Pair.java",
       "templateType": "SupportingFiles"
@@ -229,10 +301,6 @@
     },
     "libraries/native/apiException.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/ApiException.java",
-      "templateType": "SupportingFiles"
-    },
-    "FgaInvalidParameterException.java.mustache" : {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaInvalidParameterException.java",
       "templateType": "SupportingFiles"
     },
     "OpenFgaApiTest.java.mustache" : {
