@@ -793,7 +793,7 @@ func (request *SdkClientWriteAuthorizationModelRequest) GetContext() _context.Co
 func (client *{{appShortName}}Client) WriteAuthorizationModelExecute(request SdkClientWriteAuthorizationModelRequestInterface) (*ClientWriteAuthorizationModelResponse, error) {
 	data, _, err := client.{{appShortName}}Api.WriteAuthorizationModel(request.GetContext()).Body({{packageName}}.WriteAuthorizationModelRequest{
 		TypeDefinitions: request.GetBody().TypeDefinitions,
-		SchemaVersion:   {{packageName}}.PtrString(request.GetBody().SchemaVersion),
+		SchemaVersion:   request.GetBody().SchemaVersion,
 	}).Execute()
 	if err != nil {
 		return nil, err
@@ -946,8 +946,8 @@ func (client *{{appShortName}}Client) ReadLatestAuthorizationModelExecute(reques
 
 	var authorizationModel *{{packageName}}.AuthorizationModel
 
-	if len(*response.AuthorizationModels) > 0 {
-		authorizationModels := *response.AuthorizationModels
+	if len(response.AuthorizationModels) > 0 {
+		authorizationModels := response.AuthorizationModels
 		authorizationModel = &(authorizationModels)[0]
 	}
 
