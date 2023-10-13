@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ '11', '17', '21' ]
+        java: [ '11', '17', '20' ]
     steps:
     - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.2
     - name: Set up JDK
@@ -92,7 +92,7 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: publish
+    needs: [publish-maven-central, publish-github-packages]
 
     steps:
       - uses: actions/checkout@v3
