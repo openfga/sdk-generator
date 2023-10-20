@@ -88,7 +88,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
 
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_list_stores(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_list_stores(self, mock_request):
         """Test case for list_stores
 
         Get all stores  # noqa: E501
@@ -116,8 +116,8 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             '''
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
-        async with OpenFgaClient(configuration) as api_client:
-            api_response = await api_client.list_stores(
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.list_stores(
                 options={"page_size": 1, "continuation_token": "continuation_token_example"}
             )
             self.assertIsInstance(api_response, ListStoresResponse)
@@ -149,10 +149,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_create_store(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_create_store(self, mock_request):
         """Test case for create_store
 
         Create a store  # noqa: E501
@@ -165,8 +165,8 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             '''
         mock_request.return_value = mock_response(response_body, 201)
         configuration = self.configuration
-        async with OpenFgaClient(configuration) as api_client:
-            api_response = await api_client.create_store(
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.create_store(
                 CreateStoreRequest(name="test-store"),
                 options={}
             )
@@ -182,11 +182,11 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_get_store(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_get_store(self, mock_request):
         """Test case for get_store
 
         Get all stores  # noqa: E501
@@ -202,8 +202,8 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
-            api_response = await api_client.get_store(
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.get_store(
                 options={}
             )
             self.assertIsInstance(api_response, GetStoreResponse)
@@ -217,10 +217,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_delete_store(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_delete_store(self, mock_request):
         """Test case for delete_store
 
         Get all stores  # noqa: E501
@@ -228,8 +228,8 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response('', 201)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
-            await api_client.delete_store(
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
+            {{#asyncio}}await {{/asyncio}}api_client.delete_store(
                 options={}
             )
             mock_request.assert_called_once_with(
@@ -241,10 +241,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_read_authorization_models(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_read_authorization_models(self, mock_request):
         """Test case for read_authorization_models
 
         Return all authorization models configured for the store  # noqa: E501
@@ -287,10 +287,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
 
             # Return a particular version of an authorization model
-            api_response = await api_client.read_authorization_models(
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.read_authorization_models(
                 options={}
             )
             self.assertIsInstance(api_response, ReadAuthorizationModelsResponse)
@@ -329,7 +329,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_write_authorization_model(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_write_authorization_model(self, mock_request):
         """Test case for write_authorization_model
 
         Create a new authorization model  # noqa: E501
@@ -338,7 +338,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 201)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
             # example passing only required values which don't have defaults set
             body = WriteAuthorizationModelRequest(
                 schema_version="1.1",
@@ -365,7 +365,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 ],
             )
             # Create a new authorization model
-            api_response = await api_client.write_authorization_model(
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.write_authorization_model(
                 body,
                 options={}
             )
@@ -388,7 +388,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
 
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_read_authorization_model(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_read_authorization_model(self, mock_request):
         """Test case for read_authorization_model
 
         Return a particular version of an authorization model  # noqa: E501
@@ -430,10 +430,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
 
             # Return a particular version of an authorization model
-            api_response = await api_client.read_authorization_model(
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.read_authorization_model(
                 options={"authorization_model_id": "01G5JAVJ41T49E9TT3SKVS7X1J"}
             )
             self.assertIsInstance(api_response, ReadAuthorizationModelResponse)
@@ -471,7 +471,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_read_latest_authorization_model(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_read_latest_authorization_model(self, mock_request):
         """Test case for read_latest_authorization_model
 
         Return the latest authorization models configured for the store  # noqa: E501
@@ -514,10 +514,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
 
             # Return a particular version of an authorization model
-            api_response = await api_client.read_latest_authorization_model(
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.read_latest_authorization_model(
                 options={}
             )
             self.assertIsInstance(api_response, ReadAuthorizationModelResponse)
@@ -556,7 +556,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
 
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_read_changes(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_read_changes(self, mock_request):
         """Test case for read_changes
 
         Return a list of all the tuple changes  # noqa: E501
@@ -581,10 +581,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
 
             # Return a particular version of an authorization model
-            api_response = await api_client.read_changes(
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.read_changes(
                 ClientReadChangesRequest("document"),
                 options={"page_size":1, "continuation_token":"abcdefg"}
             )
@@ -610,7 +610,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_read(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_read(self, mock_request):
         """Test case for read
 
         Get tuples from the store that matches a query, without following userset rewrite rules  # noqa: E501
@@ -633,13 +633,13 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
             body = TupleKey(
                 object="document:2021-budget",
                 relation="reader",
                 user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             )
-            api_response = await api_client.read(
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.read(
                 body=body,
                 options={"page_size":50, "continuation_token":"eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="}
             )
@@ -663,7 +663,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
 
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_read_empty_options(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_read_empty_options(self, mock_request):
         """Test case for read with empty options
 
         Get tuples from the store that matches a query, without following userset rewrite rules  # noqa: E501
@@ -686,13 +686,13 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
             body = TupleKey(
                 object="document:2021-budget",
                 relation="reader",
                 user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             )
-            api_response = await api_client.read(
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.read(
                 body=body,
                 options={}
             )
@@ -714,7 +714,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_write(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_write(self, mock_request):
         """Test case for write
 
         Add tuples from the store with transaction enabled
@@ -723,7 +723,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
 
             body = ClientWriteRequest(
                 writes=
@@ -745,7 +745,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                         )
                     ],
             )
-            await api_client.write(
+            {{#asyncio}}await {{/asyncio}}api_client.write(
                 body,
                 options={"authorization_model_id": "01G5JAVJ41T49E9TT3SKVS7X1J"}
             )
@@ -761,7 +761,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_delete(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_delete(self, mock_request):
         """Test case for delete
 
         Delete tuples from the store with transaction enabled
@@ -770,7 +770,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
 
             body = ClientWriteRequest(
                 deletes=
@@ -782,7 +782,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                         )
                     ],
             )
-            await api_client.write(
+            {{#asyncio}}await {{/asyncio}}api_client.write(
                 body,
                 options={"authorization_model_id": "01G5JAVJ41T49E9TT3SKVS7X1J"}
             )
@@ -798,7 +798,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_write_batch(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_write_batch(self, mock_request):
         """Test case for write
 
         Add tuples from the store with transaction disabled
@@ -811,7 +811,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         ]
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
 
             body = ClientWriteRequest(
                 writes=
@@ -834,7 +834,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                     ],
             )
             transaction = WriteTransactionOpts(disabled=True, max_per_chunk=1, max_parallel_requests=10)
-            response = await api_client.write(
+            response = {{#asyncio}}await {{/asyncio}}api_client.write(
                 body,
                 options={"authorization_model_id": "01G5JAVJ41T49E9TT3SKVS7X1J", "transaction": transaction}
             )
@@ -909,7 +909,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_write_batch_min_parallel(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_write_batch_min_parallel(self, mock_request):
         """Test case for write
 
         Add tuples from the store with transaction disabled and minimum parallel request
@@ -922,7 +922,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         ]
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
 
             body = ClientWriteRequest(
                 writes=
@@ -945,7 +945,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                     ],
             )
             transaction = WriteTransactionOpts(disabled=True, max_per_chunk=1, max_parallel_requests=1)
-            response = await api_client.write(
+            response = {{#asyncio}}await {{/asyncio}}api_client.write(
                 body,
                 options={"authorization_model_id": "01G5JAVJ41T49E9TT3SKVS7X1J", "transaction": transaction}
             )
@@ -1021,7 +1021,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
 
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_write_batch_larger_chunk(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_write_batch_larger_chunk(self, mock_request):
         """Test case for write
 
         Add tuples from the store with transaction disabled and minimum parallel request
@@ -1033,7 +1033,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         ]
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
 
             body = ClientWriteRequest(
                 writes=
@@ -1056,7 +1056,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                     ],
             )
             transaction = WriteTransactionOpts(disabled=True, max_per_chunk=2, max_parallel_requests=2)
-            response = await api_client.write(
+            response = {{#asyncio}}await {{/asyncio}}api_client.write(
                 body,
                 options={"authorization_model_id": "01G5JAVJ41T49E9TT3SKVS7X1J", "transaction": transaction}
             )
@@ -1121,7 +1121,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_write_batch_failed(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_write_batch_failed(self, mock_request):
         """Test case for write
 
         Add tuples from the store with transaction disabled where one of the request failed
@@ -1141,7 +1141,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         ]
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
 
             body = ClientWriteRequest(
                 writes=
@@ -1164,7 +1164,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                     ],
             )
             transaction = WriteTransactionOpts(disabled=True, max_per_chunk=1, max_parallel_requests=10)
-            response = await api_client.write(
+            response = {{#asyncio}}await {{/asyncio}}api_client.write(
                 body,
                 options={"authorization_model_id": "01G5JAVJ41T49E9TT3SKVS7X1J", "transaction": transaction}
             )
@@ -1239,7 +1239,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_delete_batch(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_delete_batch(self, mock_request):
         """Test case for delete
 
         Delete tuples from the store with transaction disabled but there is only 1 relationship tuple
@@ -1250,7 +1250,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         ]
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
 
             body = ClientWriteRequest(
                 deletes=
@@ -1263,7 +1263,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                     ],
             )
             transaction = WriteTransactionOpts(disabled=True, max_per_chunk=1, max_parallel_requests=10)
-            await api_client.write(
+            {{#asyncio}}await {{/asyncio}}api_client.write(
                 body,
                 options={"authorization_model_id": "01G5JAVJ41T49E9TT3SKVS7X1J", "transaction": transaction}
             )
@@ -1287,7 +1287,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_write_tuples(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_write_tuples(self, mock_request):
         """Test case for write tuples
 
         Add tuples from the store with transaction enabled
@@ -1296,9 +1296,9 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
 
-            await api_client.write_tuples(
+            {{#asyncio}}await {{/asyncio}}api_client.write_tuples(
                 [
                     ClientTuple(
                         object="document:2021-budget",
@@ -1330,7 +1330,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_delete_tuples(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_delete_tuples(self, mock_request):
         """Test case for delete tuples
 
         Add tuples from the store with transaction enabled
@@ -1339,9 +1339,9 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
 
-            await api_client.delete_tuples(
+            {{#asyncio}}await {{/asyncio}}api_client.delete_tuples(
                 [
                     ClientTuple(
                         object="document:2021-budget",
@@ -1373,7 +1373,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_write_batch_unauthorized(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_write_batch_unauthorized(self, mock_request):
         """Test case for write with 401 response
         """
 
@@ -1382,7 +1382,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         )
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
             with self.assertRaises(UnauthorizedException) as api_exception:
                 body = ClientWriteRequest(
                     writes=[
@@ -1395,7 +1395,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 )
                 transaction = WriteTransactionOpts(
                     disabled=True, max_per_chunk=1, max_parallel_requests=10)
-                await api_client.write(
+                {{#asyncio}}await {{/asyncio}}api_client.write(
                     body,
                     options={"authorization_model_id": "01G5JAVJ41T49E9TT3SKVS7X1J",
                              "transaction": transaction}
@@ -1413,10 +1413,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_check(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_check(self, mock_request):
         """Test case for check
 
         Check whether a user is authorized to access an object  # noqa: E501
@@ -1439,8 +1439,8 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
-            api_response = await api_client.check(
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.check(
                 body=body,
                 options={"authorization_model_id": "01GXSA8YR785C4FYS3C0RTG7B1"}
             )
@@ -1459,10 +1459,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_check_config_auth_model(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_check_config_auth_model(self, mock_request):
         """Test case for check
 
         Check whether a user is authorized to access an object and the auth model is already encoded in store  # noqa: E501
@@ -1479,8 +1479,8 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         configuration.authorization_model_id = "01GXSA8YR785C4FYS3C0RTG7B1"
-        async with OpenFgaClient(configuration) as api_client:
-            api_response = await api_client.check(
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.check(
                 body=body,
                 options={}
             )
@@ -1498,10 +1498,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_batch_check_single_request(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_batch_check_single_request(self, mock_request):
         """Test case for check with single request
 
         Check whether a user is authorized to access an object  # noqa: E501
@@ -1520,8 +1520,8 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
-            api_response = await api_client.batch_check(
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.batch_check(
                 body=[body],
                 options={"authorization_model_id": "01GXSA8YR785C4FYS3C0RTG7B1"}
             )
@@ -1550,10 +1550,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_batch_check_multiple_request(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_batch_check_multiple_request(self, mock_request):
         """Test case for check with multiple request
 
         Check whether a user is authorized to access an object  # noqa: E501
@@ -1583,8 +1583,8 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
-            api_response = await api_client.batch_check(
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.batch_check(
                 body=[body1, body2, body3],
                 options={"authorization_model_id": "01GXSA8YR785C4FYS3C0RTG7B1", "max_parallel_requests": 2}
             )
@@ -1641,11 +1641,11 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_batch_check_multiple_request_fail(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_batch_check_multiple_request_fail(self, mock_request):
         """Test case for check with multiple request with one request failed
 
         Check whether a user is authorized to access an object  # noqa: E501
@@ -1681,8 +1681,8 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
-            api_response = await api_client.batch_check(
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.batch_check(
                 body=[body1, body2, body3],
                 options={"authorization_model_id": "01GXSA8YR785C4FYS3C0RTG7B1", "max_parallel_requests": 2}
             )
@@ -1740,11 +1740,11 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_expand(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_expand(self, mock_request):
         """Test case for expand
 
         Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason about and debug a certain relationship  # noqa: E501
@@ -1755,12 +1755,12 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
             body = ClientExpandRequest(
                 object="document:budget",
                 relation="reader",
             )
-            api_response = await api_client.expand(
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.expand(
                 body=body,
                 options={"authorization_model_id": "01GXSA8YR785C4FYS3C0RTG7B1"}
             )
@@ -1782,10 +1782,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_list_objects(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_list_objects(self, mock_request):
         """Test case for list_objects
 
         List objects  # noqa: E501
@@ -1800,14 +1800,14 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
             body = ClientListObjectsRequest(
                 type="document",
                 relation="reader",
                 user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             )
             # Get all stores
-            api_response = await api_client.list_objects(body, options={"authorization_model_id": "01GXSA8YR785C4FYS3C0RTG7B1"})
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.list_objects(body, options={"authorization_model_id": "01GXSA8YR785C4FYS3C0RTG7B1"})
             self.assertIsInstance(api_response, ListObjectsResponse)
             self.assertEqual(api_response.objects, ['document:abcd1234'])
             mock_request.assert_called_once_with(
@@ -1821,11 +1821,11 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_list_objects_contextual_tuples(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_list_objects_contextual_tuples(self, mock_request):
         """Test case for list_objects
 
         List objects  # noqa: E501
@@ -1840,7 +1840,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
             body = ClientListObjectsRequest(
                 type="document",
                 relation="reader",
@@ -1854,7 +1854,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 ],
             )
             # Get all stores
-            api_response = await api_client.list_objects(body, options={"authorization_model_id": "01GXSA8YR785C4FYS3C0RTG7B1"})
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.list_objects(body, options={"authorization_model_id": "01GXSA8YR785C4FYS3C0RTG7B1"})
             self.assertIsInstance(api_response, ListObjectsResponse)
             self.assertEqual(api_response.objects, ['document:abcd1234'])
             mock_request.assert_called_once_with(
@@ -1869,10 +1869,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_list_relations(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_list_relations(self, mock_request):
         """Test case for list relations
 
         Check whether a user is authorized to access an object  # noqa: E501
@@ -1887,8 +1887,8 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         ]
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
-            api_response = await api_client.list_relations(
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.list_relations(
                 body=ClientListRelationsRequest(user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                     relations=["reader", "owner", "viewer"],
                     object="document:2021-budget"),
@@ -1938,10 +1938,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_list_relations_unauthorized(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_list_relations_unauthorized(self, mock_request):
         """Test case for list relations with 401 response
         """
 
@@ -1950,9 +1950,9 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         )
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
             with self.assertRaises(UnauthorizedException) as api_exception:
-                await api_client.list_relations(
+                {{#asyncio}}await {{/asyncio}}api_client.list_relations(
                     body=ClientListRelationsRequest(user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                                                   relations=["reader", "owner", "viewer"],
                                                   object="document:2021-budget"),
@@ -1971,10 +1971,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_read_assertions(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_read_assertions(self, mock_request):
         """Test case for read assertions
 
         """
@@ -1997,8 +1997,8 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        async with OpenFgaClient(configuration) as api_client:
-            api_response = await api_client.read_assertions(
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
+            api_response = {{#asyncio}}await {{/asyncio}}api_client.read_assertions(
                 options={"authorization_model_id":"01G5JAVJ41T49E9TT3SKVS7X1J"}
             )
             self.assertEqual(api_response, ReadAssertionsResponse(
@@ -2019,7 +2019,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_write_assertions(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_write_assertions(self, mock_request):
         """Test case for write assertions
 
         Get all stores  # noqa: E501
@@ -2027,8 +2027,8 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response('', 204)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
-            await api_client.write_assertions(
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
+            {{#asyncio}}await {{/asyncio}}api_client.write_assertions(
                 [ClientAssertion(user="user:anne", relation="reader", object="document:2021-budget", expectation=True)],
                 options={"authorization_model_id":"01G5JAVJ41T49E9TT3SKVS7X1J"}
             )
@@ -2044,7 +2044,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_set_store_id(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_set_store_id(self, mock_request):
         """Test case for write assertions
 
         Get all stores  # noqa: E501
@@ -2052,10 +2052,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response('', 204)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
             api_client.set_store_id("01YCP46JKYM8FJCQ37NMBYHE5Y")
 
-            await api_client.write_assertions(
+            {{#asyncio}}await {{/asyncio}}api_client.write_assertions(
                 [ClientAssertion(user="user:anne", relation="reader",
                                  object="document:2021-budget", expectation=True)],
                 options={"authorization_model_id": "01G5JAVJ41T49E9TT3SKVS7X1J"}
@@ -2074,7 +2074,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
 
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_config_auth_model(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_config_auth_model(self, mock_request):
         """Test case for write assertions
 
         Get all stores  # noqa: E501
@@ -2083,8 +2083,8 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         configuration.authorization_model_id = "01G5JAVJ41T49E9TT3SKVS7X1J"
-        async with OpenFgaClient(configuration) as api_client:
-            await api_client.write_assertions(
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
+            {{#asyncio}}await {{/asyncio}}api_client.write_assertions(
                 [ClientAssertion(user="user:anne", relation="reader",
                                  object="document:2021-budget", expectation=True)],
                 options={}
@@ -2103,7 +2103,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
 
 
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_update_auth_model(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_update_auth_model(self, mock_request):
         """Test case for write assertions
 
         Get all stores  # noqa: E501
@@ -2112,10 +2112,10 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         configuration.authorization_model_id = "01G5JAVJ41T49E9TT3SKVS7X1J"
-        async with OpenFgaClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:
             api_client.set_authorization_model_id("01G5JAVJ41T49E9TT3SKVS7X2J")
 
-            await api_client.write_assertions(
+            {{#asyncio}}await {{/asyncio}}api_client.write_assertions(
                 [ClientAssertion(user="user:anne", relation="reader",
                                  object="document:2021-budget", expectation=True)],
                 options={}

@@ -4,6 +4,9 @@
 {{#asyncio}}
 import asyncio
 {{/asyncio}}
+{{^asyncio}}
+import time
+{{/asyncio}}
 import atexit
 import datetime
 from dateutil.parser import parse
@@ -222,7 +225,8 @@ class ApiClient(object):
                     _request_timeout=_request_timeout)
             except RateLimitExceededError as e:
                 if x < max_retry:
-                    {{#asyncio}}await asyncio{{/asyncio}}.sleep(random_time(x, min_wait_in_ms))
+                    {{#asyncio}}await asyncio.sleep(random_time(x, min_wait_in_ms)){{/asyncio}}
+                    {{^asyncio}}time.sleep(random_time(x, min_wait_in_ms)){{/asyncio}}
                     continue
                 e.body = e.body.decode('utf-8') if six.PY3 else e.body
                 response_type = response_types_map.get(e.status, None)

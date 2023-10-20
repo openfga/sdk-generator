@@ -38,6 +38,9 @@ cp "${CONFIG_DIR}/clients/${SDK_LANGUAGE}/.openapi-generator-ignore" "${CLIENTS_
 library=()
 [[ -n "$LIBRARY_TEMPLATE" ]] && library=(--library "$LIBRARY_TEMPLATE")
 
+package_name=()
+[[ -n "$PACKAGE_NAME" ]] && package_name=(--package-name "$PACKAGE_NAME")
+
 # Generate the SDK
 docker run --rm \
   -u "${CURRENT_UID}:${CURRENT_GID}" \
@@ -49,6 +52,7 @@ docker run --rm \
   -i /docs/openapi/openfga.openapiv2.json \
   --http-user-agent="$http_user_agent" \
   "${library[@]}" \
+  "${package_name[@]}" \
   -o "/clients/fga-${SDK_LANGUAGE}-sdk" \
   -c /config/config.json \
   -g "$(cat ./config/clients/"${SDK_LANGUAGE}"/generator.txt)"

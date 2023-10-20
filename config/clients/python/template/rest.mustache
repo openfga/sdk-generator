@@ -13,7 +13,7 @@ import six
 from six.moves.urllib.parse import urlencode
 import urllib3
 
-from {{packageName}}.exceptions import ApiException, UnauthorizedException, ForbiddenException, NotFoundException, ServiceException, ApiValueError
+from {{packageName}}.exceptions import ApiException, UnauthorizedException, ForbiddenException, NotFoundException, ServiceException, ApiValueError, ValidationException
 
 
 logger = logging.getLogger(__name__)
@@ -21,15 +21,15 @@ logger = logging.getLogger(__name__)
 
 class RESTResponse(io.IOBase):
 
-    def __init__(self, resp):
+    def __init__(self, resp, data):
         self.urllib3_response = resp
         self.status = resp.status
         self.reason = resp.reason
-        self.data = resp.data
+        self.data = data
 
     def getheaders(self):
         """Returns a dictionary of the response headers."""
-        return self.urllib3_response.getheaders()
+        return self.urllib3_response.headers
 
     def getheader(self, name, default=None):
         """Returns a given response header."""
@@ -90,6 +90,9 @@ class RESTClientObject(object):
                 key_file=configuration.key_file,
                 **addition_pool_args
             )
+
+    def close(self):
+        self.pool_manager.clear()
 
     def request(self, method, url, query_params=None, headers=None,
                 body=None, post_params=None, _preload_content=True,
@@ -200,7 +203,7 @@ class RESTClientObject(object):
             raise ApiException(status=0, reason=msg)
 
         if _preload_content:
-            r = RESTResponse(r)
+            r = RESTResponse(r, r.data)
 
             # log response body
             logger.debug("response body: %s", r.data)

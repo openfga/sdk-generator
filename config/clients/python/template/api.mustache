@@ -28,7 +28,7 @@ class {{classname}}(object):
             api_client = ApiClient()
         self.api_client = api_client
 
-    {{#asyncio}}
+{{#asyncio}}
     async def __aenter__(self):
         return self
 
@@ -37,7 +37,17 @@ class {{classname}}(object):
 
     async def close(self):
         await self.api_client.close()
-    {{/asyncio}}
+{{/asyncio}}
+{{^asyncio}}
+    def __enter__(self):
+        return self
+
+    def __exit__(self):
+        self.close()
+
+    def close(self):
+        self.api_client.close()
+{{/asyncio}}
 
 {{#operation}}
 
@@ -49,10 +59,10 @@ class {{classname}}(object):
 {{/notes}}
 
 {{#sortParamsByRequiredFlag}}
-        >>> thread = await api.{{operationId}}({{#allParams}}{{#required}}{{^-first}}{{paramName}}{{^-last}}, {{/-last}}{{/-first}}{{/required}}{{/allParams}})
+        >>> thread = {{#asyncio}}await {{/asyncio}}api.{{operationId}}({{#allParams}}{{#required}}{{^-first}}{{paramName}}{{^-last}}, {{/-last}}{{/-first}}{{/required}}{{/allParams}})
 {{/sortParamsByRequiredFlag}}
 {{^sortParamsByRequiredFlag}}
-        >>> thread = await api.{{operationId}}({{#allParams}}{{#required}}{{^-first}}{{paramName}}={{paramName}}_value{{^-last}}, {{/-last}} {{/-first}}{{/required}}{{/allParams}})
+        >>> thread = {{#asyncio}}await {{/asyncio}}api.{{operationId}}({{#allParams}}{{#required}}{{^-first}}{{paramName}}={{paramName}}_value{{^-last}}, {{/-last}} {{/-first}}{{/required}}{{/allParams}})
 {{/sortParamsByRequiredFlag}}
 
 {{#requiredParams}}
