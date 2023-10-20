@@ -10,7 +10,7 @@ from datetime import datetime
 
 import urllib3
 
-import {{packageName}}{{^asyncio}} as openfga_sdk{{/asyncio}}
+import {{packageName}}
 from {{packageName}} import rest
 from {{packageName}}.api import open_fga_api
 from {{packageName}}.credentials import Credentials, CredentialConfiguration
@@ -399,7 +399,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        {{#asyncio}}async {{/asyncio}}with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = ReadRequest(
                 tuple_key=TupleKey(
@@ -453,7 +453,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        {{#asyncio}}async {{/asyncio}}with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             api_response = {{#asyncio}}await {{/asyncio}}api_instance.read_assertions(
                 "01G5JAVJ41T49E9TT3SKVS7X1J",
@@ -521,7 +521,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        {{#asyncio}}async {{/asyncio}}with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -589,7 +589,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        {{#asyncio}}async {{/asyncio}}with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -628,7 +628,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        {{#asyncio}}async {{/asyncio}}with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -671,7 +671,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        {{#asyncio}}async {{/asyncio}}with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -714,7 +714,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        {{#asyncio}}async {{/asyncio}}with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -757,7 +757,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 201)
         configuration = self.configuration
         configuration.store_id = store_id
-        {{#asyncio}}async {{/asyncio}}with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -887,7 +887,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         """
         Test whether ApiValueError is raised if host has query
         """
-        configuration = openfga_sdk.Configuration(
+        configuration = {{packageName}}.Configuration(
             api_host='localhost',
             api_scheme='http',
             store_id="abcd"
@@ -905,7 +905,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         )
         configuration.store_id = 'xyz123'
         # Enter a context with an instance of the API client
-        {{#asyncio}}async {{/asyncio}}with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -927,7 +927,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         )
         # Notice the store_id is not set
         # Enter a context with an instance of the API client
-        {{#asyncio}}async {{/asyncio}}with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
