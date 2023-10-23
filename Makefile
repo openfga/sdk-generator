@@ -114,30 +114,16 @@ tag-client-python: test-client-python
 
 .PHONY: build-client-python
 build-client-python:
-	# Sync SDK
-	make build-client sdk_language=python tmpdir=${TMP_DIR} package_name=openfga_sdk_sync
-	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/openfga_sdk_sync/api/open_fga_api.py /config/clients/python/patches/open_fga_sync_api.py.patch'"
-	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'mv /module/openfga_sdk/* /module/openfga_sdk_sync/ && rmdir /module/openfga_sdk'"
-	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'cd /module/test && find * -name test\* -exec mv {} sync_{} \;'"
-	# Preserve sync SDK & tests
-	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'rm -rf /module/preserve && mkdir -p /module/preserve && mv /module/openfga_sdk_sync /module/preserve/openfga_sdk_sync && mv /module/test /module/preserve/'"
-
-	# Async SDK
 	make build-client sdk_language=python tmpdir=${TMP_DIR} library="asyncio"
 	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/openfga_sdk/api/open_fga_api.py /config/clients/python/patches/open_fga_api.py.patch'"
 	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/docs/OpenFgaApi.md /config/clients/python/patches/OpenFgaApi.md.patch'"
-	# Re-apply the preserved sync SDK
-	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'mv /module/preserve/openfga_sdk_sync /module/ && mv /module/preserve/test/sync_test* /module/test && rm -r preserve'"
-
 	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install pycodestyle==2.10.0 autopep8==2.0.2; autopep8 --in-place --ignore E402 --recursive openfga_sdk; autopep8 --in-place --recursive test'"
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install pycodestyle==2.10.0 autopep8==2.0.2; autopep8 --in-place --ignore E402 --recursive openfga_sdk_sync; autopep8 --in-place --recursive test'"
 	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'pip install setuptools wheel && python setup.py sdist bdist_wheel'"
 
 .PHONY: test-client-python
 test-client-python: build-client-python
 	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; python -m unittest test/*'"
 	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; python -m flake8 --ignore F401,E402,E501,W504 openfga_sdk'"
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; python -m flake8 --ignore F401,E402,E501,W504 openfga_sdk_sync'"
 	# Need to ignore E402 (import order) to avoid circular dependency
 	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; python -m flake8 --ignore E501 test'"
 
@@ -175,7 +161,7 @@ run-in-docker:
 .EXPORT_ALL_VARIABLES:
 .PHONY: build-client
 build-client: build-openapi
-	SDK_LANGUAGE="${sdk_language}" TMP_DIR="${tmpdir}" LIBRARY_TEMPLATE="${library}" PACKAGE_NAME="${package_name}"\
+	SDK_LANGUAGE="${sdk_language}" TMP_DIR="${tmpdir}" LIBRARY_TEMPLATE="${library}"\
 		./scripts/build_client.sh
 
 .PHONY: build-openapi

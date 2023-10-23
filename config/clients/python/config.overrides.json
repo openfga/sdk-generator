@@ -97,6 +97,38 @@
     "test_validation.mustache": {
       "destinationFilename": "test/test_validation.py",
       "templateType": "SupportingFiles"
+    },
+    "rest_sync.mustache": {
+      "destinationFilename": "openfga_sdk/sync/rest.py",
+      "templateType": "SupportingFiles"
+    },
+    "api_client_sync.mustache": {
+      "destinationFilename": "openfga_sdk/sync/api_client.py",
+      "templateType": "SupportingFiles"
+    },
+    "api_sync.mustache": {
+      "destinationFilename": "openfga_sdk/sync/api.py",
+      "templateType": "SupportingFiles"
+    },
+    "api_test_sync.mustache": {
+      "destinationFilename": "test/test_api_sync.py",
+      "templateType": "SupportingFiles"
+    },
+    "credentials_sync.mustache": {
+      "destinationFilename": "openfga_sdk/sync/credentials.py",
+      "templateType": "SupportingFiles"
+    },
+    "credentials_test_sync.mustache": {
+      "destinationFilename": "test/test_credentials_sync.py",
+      "templateType": "SupportingFiles"
+    },
+    "client/client_sync.mustache": {
+      "destinationFilename": "openfga_sdk/sync/client/client.py",
+      "templateType": "SupportingFiles"
+    },
+    "client/test_client_sync.mustache": {
+      "destinationFilename": "test/test_client_sync.py",
+      "templateType": "SupportingFiles"
     }
   }
 }
