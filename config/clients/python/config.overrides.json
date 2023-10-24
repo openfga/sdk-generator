@@ -98,6 +98,10 @@
       "destinationFilename": "test/test_validation.py",
       "templateType": "SupportingFiles"
     },
+    "__init__sync.mustache": {
+      "destinationFilename": "openfga_sdk/sync/__init__.py",
+      "templateType": "SupportingFiles"
+    },
     "rest_sync.mustache": {
       "destinationFilename": "openfga_sdk/sync/rest.py",
       "templateType": "SupportingFiles"
@@ -107,11 +111,12 @@
       "templateType": "SupportingFiles"
     },
     "api_sync.mustache": {
-      "destinationFilename": "openfga_sdk/sync/api.py",
-      "templateType": "SupportingFiles"
+      "folder": "openfga_sdk/sync",
+      "destinationFilename": "_sync.py",
+      "templateType": "API"
     },
     "api_test_sync.mustache": {
-      "destinationFilename": "test/test_api_sync.py",
+      "destinationFilename": "test/test_open_fga_api_sync.py",
       "templateType": "SupportingFiles"
     },
     "credentials_sync.mustache": {

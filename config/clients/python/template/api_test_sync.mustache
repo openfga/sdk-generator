@@ -10,10 +10,10 @@ from datetime import datetime
 
 import urllib3
 
-import {{packageName}}
-from {{packageName}} import rest
-from {{packageName}}.api import open_fga_api
-from {{packageName}}.credentials import Credentials, CredentialConfiguration
+import {{packageName}}.sync as {{packageName}}
+from {{packageName}}.sync import rest
+from {{packageName}}.sync import open_fga_api
+from {{packageName}}.sync.credentials import CredentialConfiguration, Credentials
 from {{packageName}}.exceptions import FgaValidationException, ApiValueError, NotFoundException, RateLimitExceededError, ServiceException, ValidationException, FGA_REQUEST_ID
 from {{packageName}}.models.assertion import Assertion
 from {{packageName}}.models.authorization_model import AuthorizationModel
@@ -77,8 +77,8 @@ def mock_response(body, status):
     obj = http_mock_response(body, status)
     return rest.RESTResponse(obj, obj.data)
 
-class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
-    """{{classname}} unit test stubs"""
+class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
+    """openfga_sdk.sync.OpenFgaApi unit test stubs"""
 
     def setUp(self):
         self.configuration = {{packageName}}.Configuration(
@@ -1189,8 +1189,6 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-
-{{/operations}}
 
 if __name__ == '__main__':
     unittest.main()

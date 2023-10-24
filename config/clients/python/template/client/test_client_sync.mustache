@@ -8,9 +8,9 @@ from datetime import datetime
 
 import urllib3
 
-from {{packageName}} import rest
+from {{packageName}}.sync.client.client import OpenFgaClient
+from {{packageName}}.sync import rest
 from {{packageName}}.client import ClientConfiguration
-from {{packageName}}.client.client import OpenFgaClient
 from {{packageName}}.client.models.assertion import ClientAssertion
 from {{packageName}}.client.models.check_request import ClientCheckRequest
 from {{packageName}}.client.models.tuple import ClientTuple
@@ -840,7 +840,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
             self.assertEqual(response.deletes, None)
-            self.assertEqual(response.writes, 
+            self.assertEqual(response.writes,
                 [
                     ClientWriteSingleResponse(
                         tuple_key=ClientTuple(
@@ -951,7 +951,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
             self.assertEqual(response.deletes, None)
-            self.assertEqual(response.writes, 
+            self.assertEqual(response.writes,
                 [
                     ClientWriteSingleResponse(
                         tuple_key=ClientTuple(
@@ -1062,7 +1062,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
             self.assertEqual(response.deletes, None)
-            self.assertEqual(response.writes, 
+            self.assertEqual(response.writes,
                 [
                     ClientWriteSingleResponse(
                         tuple_key=ClientTuple(
@@ -1171,7 +1171,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
 
             self.assertEqual(response.deletes, None)
             self.assertEqual(len(response.writes), 3)
-            self.assertEqual(response.writes[0], 
+            self.assertEqual(response.writes[0],
                 ClientWriteSingleResponse(
                     tuple_key=ClientTuple(
                         object="document:2021-budget",
@@ -1189,7 +1189,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertFalse(response.writes[1].success)
             self.assertIsInstance(response.writes[1].error, ValidationException)
             self.assertIsInstance(response.writes[1].error.parsed_exception, ValidationErrorMessageResponse)
-            self.assertEqual(response.writes[2], 
+            self.assertEqual(response.writes[2],
                 ClientWriteSingleResponse(
                     tuple_key=ClientTuple(
                         object="document:2021-budget",
