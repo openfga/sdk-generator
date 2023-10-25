@@ -10,10 +10,11 @@ from datetime import datetime
 
 import urllib3
 
-import {{packageName}}.sync as {{packageName}}
-from {{packageName}}.sync import rest
-from {{packageName}}.sync import open_fga_api
-from {{packageName}}.sync.credentials import CredentialConfiguration, Credentials
+import {{packageName}}.sync
+from {{packageName}}.sync import rest, open_fga_api, Credentials
+from {{packageName}}.sync.api_client import ApiClient
+from {{packageName}}.credentials import CredentialConfiguration
+from {{packageName}}.configuration import Configuration
 from {{packageName}}.exceptions import FgaValidationException, ApiValueError, NotFoundException, RateLimitExceededError, ServiceException, ValidationException, FGA_REQUEST_ID
 from {{packageName}}.models.assertion import Assertion
 from {{packageName}}.models.authorization_model import AuthorizationModel
@@ -81,7 +82,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
     """openfga_sdk.sync.OpenFgaApi unit test stubs"""
 
     def setUp(self):
-        self.configuration = {{packageName}}.Configuration(
+        self.configuration = Configuration(
             api_scheme='http',
             api_host="api.{{sampleApiDomain}}",
         )
@@ -102,7 +103,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
 
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(
                 tuple_key=TupleKey(
@@ -146,7 +147,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 201)
 
         configuration = self.configuration
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CreateStoreRequest(
                 name="test-store",
@@ -178,7 +179,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 201)
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             api_instance.delete_store()
             mock_request.assert_called_once_with(
@@ -204,7 +205,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = ExpandRequest(
                 tuple_key=TupleKey(
@@ -251,7 +252,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             # Get a store
             api_response = api_instance.get_store()
@@ -284,7 +285,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = ListObjectsRequest(
                 authorization_model_id="01G5JAVJ41T49E9TT3SKVS7X1J",
@@ -338,7 +339,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
             '''
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             # Get all stores
             api_response = api_instance.list_stores(
@@ -399,7 +400,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = ReadRequest(
                 tuple_key=TupleKey(
@@ -453,7 +454,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             api_response = api_instance.read_assertions(
                 "01G5JAVJ41T49E9TT3SKVS7X1J",
@@ -521,7 +522,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -589,7 +590,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -628,7 +629,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -671,7 +672,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -714,7 +715,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -757,7 +758,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 201)
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -810,7 +811,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         """
         Ensure default scheme is https
         """
-        configuration = {{packageName}}.Configuration(
+        configuration = Configuration(
             api_host='localhost'
         )
         self.assertEqual(configuration.api_scheme, 'https')
@@ -819,7 +820,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         """
         Ensure host has port will not raise error
         """
-        configuration = {{packageName}}.Configuration(
+        configuration = Configuration(
             api_host='localhost:3000'
         )
         self.assertEqual(configuration.api_host, 'localhost:3000')
@@ -828,7 +829,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         """
         Test whether FgaValidationException is raised if configuration does not have host specified
         """
-        configuration = {{packageName}}.Configuration(
+        configuration = Configuration(
             api_scheme='http'
         )
         self.assertRaises(FgaValidationException, configuration.is_valid)
@@ -837,7 +838,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         """
         Test whether FgaValidationException is raised if configuration does not have scheme specified
         """
-        configuration = {{packageName}}.Configuration(
+        configuration = Configuration(
             api_host='localhost'
         )
         configuration.api_scheme = None
@@ -847,7 +848,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         """
         Test whether ApiValueError is raised if scheme is bad
         """
-        configuration = {{packageName}}.Configuration(
+        configuration = Configuration(
             api_host='localhost',
             api_scheme='foo'
         )
@@ -857,7 +858,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         """
         Test whether ApiValueError is raised if host is bad
         """
-        configuration = {{packageName}}.Configuration(
+        configuration = Configuration(
             api_host='/',
             api_scheme='foo'
         )
@@ -867,7 +868,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         """
         Test whether ApiValueError is raised if host has path
         """
-        configuration = {{packageName}}.Configuration(
+        configuration = Configuration(
             api_host='localhost/mypath',
             api_scheme='http'
         )
@@ -877,7 +878,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         """
         Test whether ApiValueError is raised if host has query
         """
-        configuration = {{packageName}}.Configuration(
+        configuration = Configuration(
             api_host='localhost?mypath=foo',
             api_scheme='http'
         )
@@ -887,7 +888,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         """
         Test whether ApiValueError is raised if host has query
         """
-        configuration = {{packageName}}.Configuration(
+        configuration = Configuration(
             api_host='localhost',
             api_scheme='http',
             store_id="abcd"
@@ -899,13 +900,13 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         Test whether FgaValidationException is raised for API (reading authorization models)
         with configuration is having incorrect API scheme
         """
-        configuration = {{packageName}}.Configuration(
+        configuration = Configuration(
             api_scheme = 'bad',
             api_host = "api.{{sampleApiDomain}}",
         )
         configuration.store_id = 'xyz123'
         # Enter a context with an instance of the API client
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -921,13 +922,13 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         Test whether FgaValidationException is raised for API (reading authorization models)
         required store ID but configuration is missing store ID
         """
-        configuration = {{packageName}}.Configuration(
+        configuration = Configuration(
             api_scheme = 'http',
             api_host = "api.{{sampleApiDomain}}",
         )
         # Notice the store_id is not set
         # Enter a context with an instance of the API client
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -953,7 +954,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
 
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(
                 tuple_key=TupleKey(
@@ -987,7 +988,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
 
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(
                 tuple_key=TupleKey(
@@ -1022,7 +1023,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         configuration.retry_params = retry
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(
                 tuple_key=TupleKey(
@@ -1058,7 +1059,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         configuration.retry_params = retry
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(
                 tuple_key=TupleKey(
@@ -1091,7 +1092,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
 
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(
                 tuple_key=TupleKey(
@@ -1122,7 +1123,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         configuration.credentials = Credentials(method='api_token', configuration=CredentialConfiguration(api_token='TOKEN1'))
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(
                 tuple_key=TupleKey(
@@ -1162,7 +1163,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
 
         configuration = self.configuration
         configuration.store_id = store_id
-        with {{packageName}}.ApiClient(configuration) as api_client:
+        with ApiClient(configuration) as api_client:
             api_client.set_default_header("Custom Header", "custom value")
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(

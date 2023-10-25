@@ -5,21 +5,4 @@
 
 from {{packageName}}.sync.client.client import OpenFgaClient
 from {{packageName}}.sync.api_client import ApiClient
-
-from {{packageName}}.client.configuration import ClientConfiguration
-import {{packageName}}.configuration as configuration
-from {{packageName}}.configuration import Configuration
-
-from {{packageName}}.exceptions import OpenApiException
-from {{packageName}}.exceptions import FgaValidationException
-from {{packageName}}.exceptions import ApiValueError
-from {{packageName}}.exceptions import ApiAttributeError
-from {{packageName}}.exceptions import ApiKeyError
-from {{packageName}}.exceptions import ApiException
-from {{packageName}}.exceptions import NotFoundException
-from {{packageName}}.exceptions import UnauthorizedException
-from {{packageName}}.exceptions import ForbiddenException
-from {{packageName}}.exceptions import ServiceException
-from {{packageName}}.exceptions import ValidationException
-from {{packageName}}.exceptions import AuthenticationError
-from {{packageName}}.exceptions import RateLimitExceededError
+from {{packageName}}.sync.credentials import Credentials

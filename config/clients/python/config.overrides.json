@@ -102,6 +102,10 @@
       "destinationFilename": "openfga_sdk/sync/__init__.py",
       "templateType": "SupportingFiles"
     },
+    "__init__sync_client.mustache": {
+      "destinationFilename": "openfga_sdk/sync/client/__init__.py",
+      "templateType": "SupportingFiles"
+    },
     "rest_sync.mustache": {
       "destinationFilename": "openfga_sdk/sync/rest.py",
       "templateType": "SupportingFiles"
