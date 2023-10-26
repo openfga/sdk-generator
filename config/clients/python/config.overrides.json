@@ -123,20 +123,28 @@
       "destinationFilename": "test/test_open_fga_api_sync.py",
       "templateType": "SupportingFiles"
     },
-    "credentials_sync.mustache": {
-      "destinationFilename": "openfga_sdk/sync/credentials.py",
-      "templateType": "SupportingFiles"
-    },
-    "credentials_test_sync.mustache": {
-      "destinationFilename": "test/test_credentials_sync.py",
-      "templateType": "SupportingFiles"
-    },
     "client/client_sync.mustache": {
       "destinationFilename": "openfga_sdk/sync/client/client.py",
       "templateType": "SupportingFiles"
     },
     "client/test_client_sync.mustache": {
       "destinationFilename": "test/test_client_sync.py",
+      "templateType": "SupportingFiles"
+    },
+    "oauth2.mustache": {
+      "destinationFilename": "openfga_sdk/oauth2.py",
+      "templateType": "SupportingFiles"
+    },
+    "oauth2_test.mustache": {
+      "destinationFilename": "test/test_oauth2.py",
+      "templateType": "SupportingFiles"
+    },
+    "oauth2_sync.mustache": {
+      "destinationFilename": "openfga_sdk/sync/oauth2.py",
+      "templateType": "SupportingFiles"
+    },
+    "oauth2_test_sync.mustache": {
+      "destinationFilename": "test/test_oauth2_sync.py",
       "templateType": "SupportingFiles"
     }
   }

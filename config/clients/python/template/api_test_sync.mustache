@@ -11,9 +11,9 @@ from datetime import datetime
 import urllib3
 
 import {{packageName}}.sync
-from {{packageName}}.sync import rest, open_fga_api, Credentials
+from {{packageName}}.sync import rest, open_fga_api
 from {{packageName}}.sync.api_client import ApiClient
-from {{packageName}}.credentials import CredentialConfiguration
+from {{packageName}}.credentials import Credentials, CredentialConfiguration
 from {{packageName}}.configuration import Configuration
 from {{packageName}}.exceptions import FgaValidationException, ApiValueError, NotFoundException, RateLimitExceededError, ServiceException, ValidationException, FGA_REQUEST_ID
 from {{packageName}}.models.assertion import Assertion

@@ -1,8 +1,8 @@
 --- clients/fga-python-sdk/openfga_sdk/api/open_fga_api.py	2022-09-13 14:15:46.000000000 -0400
 +++ open_fga_api.py	2022-09-13 14:14:01.000000000 -0400
 @@ -193,13 +193,15 @@
-             collection_formats=collection_formats,
-             _request_auth=local_var_params.get('_request_auth')))
+             _request_auth=local_var_params.get('_request_auth'),
+             _oauth2_client=self._oauth2_client))
  
 -    async def create_store(self, **kwargs):  # noqa: E501
 +    async def create_store(self, body, **kwargs):  # noqa: E501
