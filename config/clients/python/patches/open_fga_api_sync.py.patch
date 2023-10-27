@@ -1,17 +1,17 @@
---- clients/fga-python-sdk/openfga_sdk/api/open_fga_api.py	2022-09-13 14:15:46.000000000 -0400
+--- clients/fga-python-sdk/openfga_sdk/sync/open_fga_api.py	2022-09-13 14:15:46.000000000 -0400
 +++ open_fga_api.py	2022-09-13 14:14:01.000000000 -0400
 @@ -193,13 +193,15 @@
              _request_auth=local_var_params.get('_request_auth'),
-             _oauth2_client=self._oauth2_client))
+             _oauth2_client=self._oauth2_client)
  
--    async def create_store(self, **kwargs):  # noqa: E501
-+    async def create_store(self, body, **kwargs):  # noqa: E501
+-    def create_store(self, **kwargs):  # noqa: E501
++    def create_store(self, body, **kwargs):  # noqa: E501
          """Create a store  # noqa: E501
  
          Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.  # noqa: E501
  
--        >>> thread = await api.create_store()
-+        >>> thread = await api.create_store(body)
+-        >>> thread = api.create_store()
++        >>> thread = api.create_store(body)
  
 +        :param body: (required)
 +        :type body: CreateStoreRequest
@@ -22,11 +22,11 @@
          :rtype: CreateStoreResponse
          """
          kwargs['_return_http_data_only'] = True
--        return await(self.create_store_with_http_info(**kwargs))  # noqa: E501
-+        return await(self.create_store_with_http_info(body, **kwargs))  # noqa: E501
+-        return self.create_store_with_http_info(**kwargs)  # noqa: E501
++        return self.create_store_with_http_info(body, **kwargs)  # noqa: E501
  
--    async def create_store_with_http_info(self, **kwargs):  # noqa: E501
-+    async def create_store_with_http_info(self, body, **kwargs):  # noqa: E501
+-    def create_store_with_http_info(self, **kwargs):  # noqa: E501
++    def create_store_with_http_info(self, body, **kwargs):  # noqa: E501
          """Create a store  # noqa: E501
  
          Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.  # noqa: E501
@@ -51,7 +51,7 @@
 @@ -312,7 +318,7 @@
          }
  
-         return await(self.api_client.call_api(
+         return self.api_client.call_api(
 -            '/stores'.replace('{store_id}', store_id), 'POST',
 +            '/stores', 'POST',
              path_params,
@@ -60,7 +60,7 @@
 @@ -998,7 +1004,7 @@
          }
  
-         return await(self.api_client.call_api(
+         return self.api_client.call_api(
 -            '/stores'.replace('{store_id}', store_id), 'GET',
 +            '/stores', 'GET',
              path_params,

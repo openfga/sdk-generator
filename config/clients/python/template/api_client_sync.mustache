@@ -1,12 +1,7 @@
 # coding: utf-8
 {{>partial_header}}
 
-{{#asyncio}}
-import asyncio
-{{/asyncio}}
-{{^asyncio}}
 import time
-{{/asyncio}}
 import atexit
 import datetime
 from dateutil.parser import parse
@@ -28,7 +23,7 @@ import tornado.gen
 
 from {{packageName}}.configuration import Configuration
 import {{modelPackage}}
-from {{packageName}} import rest, oauth2
+from {{packageName}}.sync import rest, oauth2
 from {{packageName}}.exceptions import ApiValueError, ApiException, FgaValidationException, RateLimitExceededError
 
 
@@ -95,25 +90,13 @@ class ApiClient(object):
         self.user_agent = DEFAULT_USER_AGENT
         self.client_side_validation = configuration.client_side_validation
 
-    {{#asyncio}}
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc_value, traceback):
-        await self.close()
-    {{/asyncio}}
-    {{^asyncio}}
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
-    {{/asyncio}}
 
-    {{#asyncio}}async {{/asyncio}}def close(self):
-        {{#asyncio}}
-        await self.rest_client.close()
-        {{/asyncio}}
+    def close(self):
         if self._pool:
             self._pool.close()
             self._pool.join()
@@ -146,7 +129,7 @@ class ApiClient(object):
     {{#tornado}}
     @tornado.gen.coroutine
     {{/tornado}}
-    {{#asyncio}}async {{/asyncio}}def __call_api(
+    def __call_api(
             self, resource_path, method, path_params=None,
             query_params=None, header_params=None, body=None, post_params=None,
             response_types_map=None, auth_settings=None,
@@ -193,7 +176,7 @@ class ApiClient(object):
                                                     collection_formats)
 
         # auth setting
-        {{#asyncio}}await {{/asyncio}}self.update_params_for_auth(
+        self.update_params_for_auth(
             header_params, query_params, auth_settings,
             request_auth=_request_auth, oauth2_client=_oauth2_client)
 
@@ -218,15 +201,14 @@ class ApiClient(object):
         for x in range(max_retry+1):
             try:
                 # perform request and return response
-                response_data = {{#asyncio}}await {{/asyncio}}{{#tornado}}yield {{/tornado}}self.request(
+                response_data = {{#tornado}}yield {{/tornado}}self.request(
                     method, url, query_params=query_params, headers=header_params,
                     post_params=post_params, body=body,
                     _preload_content=_preload_content,
                     _request_timeout=_request_timeout)
             except RateLimitExceededError as e:
                 if x < max_retry:
-                    {{#asyncio}}await asyncio.sleep(random_time(x, min_wait_in_ms)){{/asyncio}}
-                    {{^asyncio}}time.sleep(random_time(x, min_wait_in_ms)){{/asyncio}}
+                    time.sleep(random_time(x, min_wait_in_ms))
                     continue
                 e.body = e.body.decode('utf-8') if six.PY3 else e.body
                 response_type = response_types_map.get(e.status, None)
@@ -386,7 +368,7 @@ class ApiClient(object):
         else:
             return self.__deserialize_model(data, klass)
 
-    {{#asyncio}}async {{/asyncio}}def call_api(self, resource_path, method,
+    def call_api(self, resource_path, method,
                  path_params=None, query_params=None, header_params=None,
                  body=None, post_params=None, files=None,
                  response_types_map=None, auth_settings=None,
@@ -435,13 +417,13 @@ class ApiClient(object):
             then the method will return the response directly.
         """
         if not async_req:
-            return {{#asyncio}}await({{/asyncio}}self.__call_api(resource_path, method,
+            return self.__call_api(resource_path, method,
                                    path_params, query_params, header_params,
                                    body, post_params,
                                    response_types_map, auth_settings,
                                    _return_http_data_only, collection_formats,
                                    _preload_content, _request_timeout, _host,
-                                   _request_auth, _retry_params, _oauth2_client){{#asyncio}}){{/asyncio}}
+                                   _request_auth, _retry_params, _oauth2_client)
 
         return self.pool.apply_async(self.__call_api, (resource_path,
                                                        method, path_params,
@@ -458,59 +440,59 @@ class ApiClient(object):
                                                        _retry_params,
                                                        _oauth2_client))
 
-    {{#asyncio}}async {{/asyncio}}def request(self, method, url, query_params=None, headers=None,
+    def request(self, method, url, query_params=None, headers=None,
                 post_params=None, body=None, _preload_content=True,
                 _request_timeout=None):
         """Makes the HTTP request using RESTClient."""
         if method == "GET":
-            return {{#asyncio}}await({{/asyncio}}self.rest_client.GET(url,
+            return self.rest_client.GET(url,
                                         query_params=query_params,
                                         _preload_content=_preload_content,
                                         _request_timeout=_request_timeout,
-                                        headers=headers){{#asyncio}}){{/asyncio}}
+                                        headers=headers)
         elif method == "HEAD":
-            return {{#asyncio}}await({{/asyncio}}self.rest_client.HEAD(url,
+            return self.rest_client.HEAD(url,
                                          query_params=query_params,
                                          _preload_content=_preload_content,
                                          _request_timeout=_request_timeout,
-                                         headers=headers){{#asyncio}}){{/asyncio}}
+                                         headers=headers)
         elif method == "OPTIONS":
-            return {{#asyncio}}await({{/asyncio}}self.rest_client.OPTIONS(url,
+            return self.rest_client.OPTIONS(url,
                                             query_params=query_params,
                                             headers=headers,
                                             _preload_content=_preload_content,
-                                            _request_timeout=_request_timeout){{#asyncio}}){{/asyncio}}
+                                            _request_timeout=_request_timeout)
         elif method == "POST":
-            return {{#asyncio}}await({{/asyncio}}self.rest_client.POST(url,
+            return self.rest_client.POST(url,
                                          query_params=query_params,
                                          headers=headers,
                                          post_params=post_params,
                                          _preload_content=_preload_content,
                                          _request_timeout=_request_timeout,
-                                         body=body){{#asyncio}}){{/asyncio}}
+                                         body=body)
         elif method == "PUT":
-            return {{#asyncio}}await({{/asyncio}}self.rest_client.PUT(url,
+            return self.rest_client.PUT(url,
                                         query_params=query_params,
                                         headers=headers,
                                         post_params=post_params,
                                         _preload_content=_preload_content,
                                         _request_timeout=_request_timeout,
-                                        body=body){{#asyncio}}){{/asyncio}}
+                                        body=body)
         elif method == "PATCH":
-            return {{#asyncio}}await({{/asyncio}}self.rest_client.PATCH(url,
+            return self.rest_client.PATCH(url,
                                           query_params=query_params,
                                           headers=headers,
                                           post_params=post_params,
                                           _preload_content=_preload_content,
                                           _request_timeout=_request_timeout,
-                                          body=body){{#asyncio}}){{/asyncio}}
+                                          body=body)
         elif method == "DELETE":
-            return {{#asyncio}}await({{/asyncio}}self.rest_client.DELETE(url,
+            return self.rest_client.DELETE(url,
                                            query_params=query_params,
                                            headers=headers,
                                            _preload_content=_preload_content,
                                            _request_timeout=_request_timeout,
-                                           body=body){{#asyncio}}){{/asyncio}}
+                                           body=body)
         else:
             raise ApiValueError(
                 "http method must be `GET`, `HEAD`, `OPTIONS`,"
@@ -586,7 +568,7 @@ class ApiClient(object):
         else:
             return content_types[0]
 
-    {{#asyncio}}async {{/asyncio}}def update_params_for_auth(self, headers, queries, auth_settings,
+    def update_params_for_auth(self, headers, queries, auth_settings,
                                request_auth=None, oauth2_client=None):
         """Updates header and query params based on authentication setting.
 
@@ -606,7 +588,7 @@ class ApiClient(object):
             if credentials.method == 'client_credentials':
                 if oauth2_client is None:
                     oauth2_client = oauth2.OAuth2Client(credentials)
-                oauth2_headers = await oauth2_client.get_authentication_header(self.rest_client)
+                oauth2_headers = oauth2_client.get_authentication_header(self.rest_client)
                 for key, value in oauth2_headers.items():
                     headers[key] = value
 
