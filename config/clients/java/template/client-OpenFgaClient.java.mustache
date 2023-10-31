@@ -397,7 +397,6 @@ public class OpenFgaClient {
 
         if (request != null) {
             body.tupleKey(new TupleKey()
-                    .user(request.getUser())
                     .relation(request.getRelation())
                     ._object(request.getObject()));
         }
