@@ -6,7 +6,7 @@ The documentation below refers to the `{{appShortName}}Client`, to read the docu
 
 ```python
 import {{packageName}}
-from {{packageName}}.client import OpenFgaClient
+from {{packageName}}.client.client import OpenFgaClient
 
 
 async def main():
@@ -27,7 +27,7 @@ async def main():
 
 ```python
 import {{packageName}}
-from {{packageName}}.client import OpenFgaClient
+from {{packageName}}.client.client import OpenFgaClient
 from {{packageName}}.credentials import Credentials, CredentialConfiguration
 
 
@@ -55,7 +55,7 @@ async def main():
 
 ```python
 import {{packageName}}
-from {{packageName}}.client import OpenFgaClient
+from {{packageName}}.client.client import OpenFgaClient
 from {{packageName}}.credentials import Credentials, CredentialConfiguration
 
 
@@ -90,7 +90,7 @@ without requiring async/await.
 
 ```python
 import {{packageName}}
-from {{packageName}}.sync.client import OpenFgaClient
+from {{packageName}}.sync.client.client import OpenFgaClient
 
 
 def main():
