@@ -205,6 +205,7 @@
         {{^conditionalSerialization}}
         [DataMember(Name = "{{baseName}}"{{#required}}, IsRequired = true{{/required}}, EmitDefaultValue = {{#vendorExtensions.x-emit-default-value}}true{{/vendorExtensions.x-emit-default-value}}{{^vendorExtensions.x-emit-default-value}}{{#isBoolean}}true{{/isBoolean}}{{^isBoolean}}{{#isNullable}}true{{/isNullable}}{{^isNullable}}false{{/isNullable}}{{/isBoolean}}{{/vendorExtensions.x-emit-default-value}})]
         [JsonPropertyName("{{baseName}}")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         {{#isDate}}
         [JsonConverter(typeof(OpenAPIDateConverter))]
         {{/isDate}}
