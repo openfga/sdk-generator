@@ -1,0 +1,29 @@
+{{>licenseInfo}}
+package {{configPackage}};
+
+public class ClientBatchCheckOptions {
+    private Integer maxParallelRequests;
+    private String authorizationModelId;
+
+    public ClientBatchCheckOptions maxParallelRequests(Integer maxParallelRequests) {
+        this.maxParallelRequests = maxParallelRequests;
+        return this;
+    }
+
+    public Integer getMaxParallelRequests() {
+        return maxParallelRequests;
+    }
+
+    public ClientBatchCheckOptions authorizationModelId(String authorizationModelId) {
+        this.authorizationModelId = authorizationModelId;
+        return this;
+    }
+
+    public String getAuthorizationModelId() {
+        return authorizationModelId;
+    }
+
+    public ClientCheckOptions asClientCheckOptions() {
+        return new ClientCheckOptions().authorizationModelId(authorizationModelId);
+    }
+}
