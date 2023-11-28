@@ -31,6 +31,8 @@ public class OpenFgaClientIntegrationTest {
 
     @BeforeEach
     public void initializeApi() throws Exception {
+        System.setProperty("HttpRequestAttempt.debug-logging", "enable");
+
         ClientConfiguration apiConfig = new ClientConfiguration().apiUrl("http://localhost:8080");
         fga = new OpenFgaClient(apiConfig);
     }
@@ -121,7 +123,7 @@ public class OpenFgaClientIntegrationTest {
         assertEquals(authModelId, response.getAuthorizationModel().getId());
         String typeDefsJson = mapper.writeValueAsString(authModel.getTypeDefinitions());
         assertEquals(
-                "[{\"type\":\"user\",\"relations\":{},\"metadata\":null},{\"type\":\"document\",\"relations\":{\"owner\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null},\"reader\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null},\"writer\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null}},\"metadata\":{\"relations\":{\"owner\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null}]},\"reader\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null}]},\"writer\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null}]}}}}]",
+                "[{\"type\":\"user\",\"relations\":{},\"metadata\":null},{\"type\":\"document\",\"relations\":{\"owner\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null},\"reader\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null},\"writer\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null}},\"metadata\":{\"relations\":{\"owner\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null,\"condition\":null}]},\"reader\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null,\"condition\":null}]},\"writer\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null,\"condition\":null}]}}}}]",
                 typeDefsJson);
     }
 
@@ -149,7 +151,7 @@ public class OpenFgaClientIntegrationTest {
                         String typeDefsJson = mapper.writeValueAsString(authModel.getTypeDefinitions());
 
                         assertEquals(
-                                "[{\"type\":\"user\",\"relations\":{},\"metadata\":null},{\"type\":\"document\",\"relations\":{\"owner\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null},\"reader\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null},\"writer\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null}},\"metadata\":{\"relations\":{\"owner\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null}]},\"reader\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null}]},\"writer\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null}]}}}}]",
+                                "[{\"type\":\"user\",\"relations\":{},\"metadata\":null},{\"type\":\"document\",\"relations\":{\"owner\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null},\"reader\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null},\"writer\":{\"this\":{},\"computedUserset\":null,\"tupleToUserset\":null,\"union\":null,\"intersection\":null,\"difference\":null}},\"metadata\":{\"relations\":{\"owner\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null,\"condition\":null}]},\"reader\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null,\"condition\":null}]},\"writer\":{\"directly_related_user_types\":[{\"type\":\"user\",\"relation\":null,\"wildcard\":null,\"condition\":null}]}}}}]",
                                 typeDefsJson);
                     } catch (JsonProcessingException ex) {
                         assertNull(ex);
@@ -291,7 +293,7 @@ public class OpenFgaClientIntegrationTest {
         // Then
         String responseJson = mapper.writeValueAsString(response.getAssertions());
         assertEquals(
-                "[{\"tuple_key\":{\"object\":\"document:2021-budget\",\"relation\":\"reader\",\"user\":\"user:81684243-9356-4421-8fbf-a4f8d36aa31b\"},\"expectation\":true}]",
+                "[{\"tuple_key\":{\"user\":\"user:81684243-9356-4421-8fbf-a4f8d36aa31b\",\"relation\":\"reader\",\"object\":\"document:2021-budget\"},\"expectation\":true}]",
                 responseJson);
     }
 

@@ -1,13 +1,6 @@
 {{>licenseInfo}}
 package {{invokerPackage}};
 
-import {{modelPackage}}.ContextualTupleKeys;
-import {{modelPackage}}.TupleKey;
-import {{modelPackage}}.TupleKeys;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 public class ClientTupleKey {
     private String user;
     private String relation;
@@ -50,29 +43,5 @@ public class ClientTupleKey {
      **/
     public String getUser() {
         return user;
-    }
-
-    public TupleKey asTupleKey() {
-        return new TupleKey().user(user).relation(relation)._object(_object);
-    }
-
-    public static Optional<TupleKeys> asTupleKeys(List<ClientTupleKey> clientTupleKeys) {
-        if (clientTupleKeys == null || clientTupleKeys.size() == 0) {
-            return Optional.empty();
-        }
-
-        return Optional.of(new TupleKeys().tupleKeys(asListOfTupleKey(clientTupleKeys)));
-    }
-
-    public static ContextualTupleKeys asContextualTupleKeys(List<ClientTupleKey> clientTupleKeys) {
-        if (clientTupleKeys == null || clientTupleKeys.size() == 0) {
-            return new ContextualTupleKeys();
-        }
-
-        return new ContextualTupleKeys().tupleKeys(asListOfTupleKey(clientTupleKeys));
-    }
-
-    private static List<TupleKey> asListOfTupleKey(List<ClientTupleKey> clientTupleKeys) {
-        return clientTupleKeys.stream().map(ClientTupleKey::asTupleKey).collect(Collectors.toList());
     }
 }
