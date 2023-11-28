@@ -3,7 +3,7 @@
   "gitRepoId": "java-sdk",
   "artifactId": "openfga-sdk",
   "groupId": "dev.openfga",
-  "packageVersion": "0.2.2",
+  "packageVersion": "0.2.3",
   "apiPackage": "dev.openfga.sdk.api",
   "authPackage": "dev.openfga.sdk.api.auth",
   "clientPackage": "dev.openfga.sdk.api.client",
@@ -45,6 +45,10 @@
     },
     "client-ClientAssertion.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientAssertion.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientBatchCheckResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientBatchCheckResponse.java",
       "templateType": "SupportingFiles"
     },
     "client-ClientCheckRequest.java.mustache" : {
@@ -89,6 +93,10 @@
     },
     "client-ClientListRelationsRequest.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientListRelationsRequest.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientListRelationsResponse.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientListRelationsResponse.java",
       "templateType": "SupportingFiles"
     },
     "client-ClientReadAssertionsResponse.java.mustache" : {
@@ -179,6 +187,10 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/BaseConfiguration.java",
       "templateType": "SupportingFiles"
     },
+    "config-ClientBatchCheckOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientBatchCheckOptions.java",
+      "templateType": "SupportingFiles"
+    },
     "config-ClientCheckOptions.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientCheckOptions.java",
       "templateType": "SupportingFiles"
@@ -201,6 +213,10 @@
     },
     "config-ClientListObjectsOptions.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientListObjectsOptions.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientListRelationsOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientListRelationsOptions.java",
       "templateType": "SupportingFiles"
     },
     "config-ClientListStoresOptions.java.mustache" : {

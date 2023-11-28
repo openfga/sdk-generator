@@ -1,0 +1,31 @@
+{{>licenseInfo}}
+package {{configPackage}};
+
+public class ClientListRelationsOptions {
+    private Integer maxParallelRequests;
+    private String authorizationModelId;
+
+    public ClientListRelationsOptions maxParallelRequests(Integer maxParallelRequests) {
+        this.maxParallelRequests = maxParallelRequests;
+        return this;
+    }
+
+    public Integer getMaxParallelRequests() {
+        return maxParallelRequests;
+    }
+
+    public ClientListRelationsOptions authorizationModelId(String authorizationModelId) {
+        this.authorizationModelId = authorizationModelId;
+        return this;
+    }
+
+    public String getAuthorizationModelId() {
+        return authorizationModelId;
+    }
+
+    public ClientBatchCheckOptions asClientBatchCheckOptions() {
+        return new ClientBatchCheckOptions()
+                .authorizationModelId(authorizationModelId)
+                .maxParallelRequests(maxParallelRequests);
+    }
+}
