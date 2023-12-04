@@ -60,6 +60,7 @@
       "destinationFilename": ".fossa.yml",
       "templateType": "SupportingFiles"
     },
+    ".github/dependabot.yaml": {},
     ".github/CODEOWNERS.mustache": {
       "destinationFilename": ".github/CODEOWNERS",
       "templateType": "SupportingFiles"
