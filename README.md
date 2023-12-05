@@ -44,12 +44,14 @@ OpenFGA is designed to make it easy for application builders to model their perm
 
 ## Currently Supported SDKs
 
-| Language   | GitHub                                                      | Package Manager                                                                                                                                                 |
-|------------|-------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Javascript | [openfga/js-sdk](https://github.com/openfga/js-sdk)         | [![@openfga/sdk on npm](https://img.shields.io/npm/v/@openfga/sdk.svg?label=@openfga/sdk&style=flat-square)](https://www.npmjs.com/package/@openfga/sdk)        |
-| Go         | [openfga/go-sdk](https://github.com/openfga/go-sdk)         | [![OpenFGA Go SDK on GitHub](https://img.shields.io/github/v/release/openfga/go-sdk?label=openfga-go-sdk&style=flat-square)](https://github.com/openfga/go-sdk) |
-| .NET       | [openfga/dotnet-sdk](https://github.com/openfga/dotnet-sdk) | [![OpenFga.Sdk on NuGet](https://img.shields.io/nuget/v/OpenFga.Sdk?label=OpenFga.Sdk&style=flat-square)](https://www.nuget.org/packages/OpenFga.Sdk)           |
-| Python     | [openfga/python](https://github.com/openfga/python-sdk)     | [![openfga-sdk on PyPi](https://img.shields.io/pypi/v/openfga_sdk.svg?label=openfga-sdk&style=flat-square)](https://pypi.org/project/openfga_sdk)               |
+| Language   | GitHub                                                      | Package Manager                                                                                                                                                                                      |
+|------------|-------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Javascript | [openfga/js-sdk](https://github.com/openfga/js-sdk)         | [![@openfga/sdk on npm](https://img.shields.io/npm/v/@openfga/sdk.svg?label=@openfga/sdk&style=flat-square)](https://www.npmjs.com/package/@openfga/sdk)                                             |
+| Go         | [openfga/go-sdk](https://github.com/openfga/go-sdk)         | [![OpenFGA Go SDK on GitHub](https://img.shields.io/github/v/release/openfga/go-sdk?label=openfga-go-sdk&style=flat-square)](https://github.com/openfga/go-sdk)                                      |
+| .NET       | [openfga/dotnet-sdk](https://github.com/openfga/dotnet-sdk) | [![OpenFga.Sdk on NuGet](https://img.shields.io/nuget/v/OpenFga.Sdk?label=OpenFga.Sdk&style=flat-square)](https://www.nuget.org/packages/OpenFga.Sdk)                                                |
+| Python     | [openfga/python-sdk](https://github.com/openfga/python-sdk) | [![openfga-sdk on PyPi](https://img.shields.io/pypi/v/openfga_sdk.svg?label=openfga-sdk&style=flat-square)](https://pypi.org/project/openfga_sdk)                                                    |
+| Java       | [openfga/java-sdk](https://github.com/openfga/java-sdk)     | [![openfga-sdk on Maven Central](https://img.shields.io/maven-central/v/dev.openfga/openfga-sdk?style=flat-square&label=openfga-sdk)](https://central.sonatype.com/artifact/dev.openfga/openfga-sdk) |
+
 
 ## Getting Started
 
@@ -76,6 +78,7 @@ git clone git@github.com:openfga/go-sdk.git clients/fga-go-sdk
 git clone git@github.com:openfga/js-sdk.git clients/fga-js-sdk
 git clone git@github.com:openfga/dotnet-sdk.git clients/fga-dotnet-sdk
 git clone git@github.com:openfga/python-sdk.git clients/fga-python-sdk
+git clone git@github.com:openfga/java-sdk.git clients/fga-java-sdk
 ```
 
 3. Build and test the client sdks
@@ -185,6 +188,9 @@ Note: Semgrep will be automatically enabled - there is nothing you need to do fo
 | `PYTHON_SDK_GITHUB_ORG_ID`  | The GitHub org for the SDK                                                  |
 | `PYTHON_SDK_GITHUB_REPO_ID` | The GitHub repo id for the SDK                                              |
 | `PYTHON_SDK_SSH_KEY`        | The SSH private deploy key for the SDK (Not needed after the SDK is public) |
+| `JAVA_SDK_GITHUB_ORG_ID`    | The GitHub org for the SDK                                                  |
+| `JAVA_SDK_GITHUB_REPO_ID`   | The GitHub repo id for the SDK                                              |
+| `JAVA_SDK_SSH_KEY`          | The SSH private deploy key for the SDK (Not needed after the SDK is public) |
 
 ## Contributing
 Please review the [Contributing Guidelines](https://github.com/openfga/.github/blob/main/CONTRIBUTING.md) before sending a PR or opening an issue.
@@ -193,7 +199,7 @@ In addition, we ask that the SDKs:
 
 * be generated from the [openapiv2 swagger document](https://github.com/openfga/api/blob/main/docs/openapiv2/apidocs.swagger.json) using the sdk-generator.
 
-* have roughly the same consistent interface for configuration, such as [JS](https://github.com/openfga/js-sdk), [GoLang](https://github.com/openfga/go-sdk), [.NET](https://github.com/openfga/dotnet-sdk) and [Python](https://github.com/openfga/python-sdk) SDKs.
+* have roughly the same consistent interface for configuration, such as [JS](https://github.com/openfga/js-sdk), [GoLang](https://github.com/openfga/go-sdk), [.NET](https://github.com/openfga/dotnet-sdk), [Python](https://github.com/openfga/python-sdk) and [Java](https://github.com/openfga/java-sdk) SDKs.
 
 * support the same features with other existing SDKs, including: Retries, Error Handling, .
 
