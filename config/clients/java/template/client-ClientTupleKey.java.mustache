@@ -1,10 +1,26 @@
 {{>licenseInfo}}
 package {{invokerPackage}};
 
+import {{modelPackage}}.TupleKeyWithoutCondition;
+import {{modelPackage}}.WriteRequestDeletes;
+import java.util.Collection;
+import java.util.stream.Collectors;
+
 public class ClientTupleKey {
     private String user;
     private String relation;
     private String _object;
+
+    public TupleKeyWithoutCondition asTupleKeyWithoutCondition() {
+        return new TupleKeyWithoutCondition().user(user).relation(relation)._object(_object);
+    }
+
+    public static WriteRequestDeletes asWriteRequestDeletes(Collection<ClientTupleKey> tupleKeys) {
+        return new WriteRequestDeletes()
+                .tupleKeys(tupleKeys.stream()
+                        .map(ClientTupleKey::asTupleKeyWithoutCondition)
+                        .collect(Collectors.toList()));
+    }
 
     public ClientTupleKey _object(String _object) {
         this._object = _object;
@@ -43,5 +59,19 @@ public class ClientTupleKey {
      **/
     public String getUser() {
         return user;
+    }
+
+    /**
+     * Adds a condition to the tuple key.
+     * @param condition a {@link ClientRelationshipCondition}
+     * @return a new {@link  ClientTupleKeyWithCondition} with this {@link ClientTupleKey}'s
+     *         user, relation, and object, and the passed condition.
+     */
+    public ClientTupleKeyWithCondition condition(ClientRelationshipCondition condition) {
+        return new ClientTupleKeyWithCondition()
+                .user(user)
+                .relation(relation)
+                ._object(_object)
+                .condition(condition);
     }
 }

@@ -1,0 +1,65 @@
+{{>licenseInfo}}
+package {{invokerPackage}};
+
+import {{modelPackage}}.ContextualTupleKeys;
+import {{modelPackage}}.TupleKey;
+import {{modelPackage}}.WriteRequestWrites;
+import java.util.Collection;
+import java.util.stream.Collectors;
+
+public class ClientTupleKeyWithCondition extends ClientTupleKey {
+    private ClientRelationshipCondition condition;
+
+    public ClientTupleKeyWithCondition condition(ClientRelationshipCondition condition) {
+        this.condition = condition;
+        return this;
+    }
+
+    public ClientRelationshipCondition getCondition() {
+        return condition;
+    }
+
+    public TupleKey asTupleKey() {
+        var tupleKey = new TupleKey().user(getUser()).relation(getRelation())._object(getObject());
+
+        if (condition != null) {
+            tupleKey.condition(condition.asRelationshipCondition());
+        }
+
+        return tupleKey;
+    }
+
+    public static ContextualTupleKeys asContextualTupleKeys(Collection<ClientTupleKeyWithCondition> tupleKeys) {
+        return new ContextualTupleKeys()
+                .tupleKeys(tupleKeys.stream()
+                        .map(ClientTupleKeyWithCondition::asTupleKey)
+                        .collect(Collectors.toList()));
+    }
+
+    public static WriteRequestWrites asWriteRequestWrites(Collection<ClientTupleKeyWithCondition> tupleKeys) {
+        return new WriteRequestWrites()
+                .tupleKeys(tupleKeys.stream()
+                        .map(ClientTupleKeyWithCondition::asTupleKey)
+                        .collect(Collectors.toList()));
+    }
+
+    /* Overrides for correct typing */
+
+    @Override
+    public ClientTupleKeyWithCondition user(String user) {
+        super.user(user);
+        return this;
+    }
+
+    @Override
+    public ClientTupleKeyWithCondition relation(String relation) {
+        super.relation(relation);
+        return this;
+    }
+
+    @Override
+    public ClientTupleKeyWithCondition _object(String _object) {
+        super._object(_object);
+        return this;
+    }
+}

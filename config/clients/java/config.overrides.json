@@ -123,8 +123,16 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientReadResponse.java",
       "templateType": "SupportingFiles"
     },
+    "client-ClientRelationshipCondition.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientRelationshipCondition.java",
+      "templateType": "SupportingFiles"
+    },
     "client-ClientTupleKey.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientTupleKey.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientTupleKeyWithCondition.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientTupleKeyWithCondition.java",
       "templateType": "SupportingFiles"
     },
     "client-ClientWriteAssertionsResponse.java.mustache" : {
