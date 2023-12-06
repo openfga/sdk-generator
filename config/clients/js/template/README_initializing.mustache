@@ -8,10 +8,10 @@ The documentation below refers to the `{{appShortName}}Client`, to read the docu
 const { {{appShortName}}Client } = require('{{packageName}}'); // OR import { {{appShortName}}Client } from '{{packageName}}';
 
 const fgaClient = new {{appShortName}}Client({
-  apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
-  apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
-  storeId: {{appUpperCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
-  authorizationModelId: {{appUpperCaseName}}_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
+  apiScheme: process.env.FGA_API_SCHEME, // optional, defaults to "https"
+  apiHost: process.env.FGA_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+  storeId: process.env.FGA_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
+  authorizationModelId: process.env.FGA_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
 });
 ```
 
@@ -21,14 +21,14 @@ const fgaClient = new {{appShortName}}Client({
 const { {{appShortName}}Client } = require('{{packageName}}'); // OR import { {{appShortName}}Client } from '{{packageName}}';
 
 const fgaClient = new {{appShortName}}Client({
-  apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
-  apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
-  storeId: {{appUpperCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
-  authorizationModelId: {{appUpperCaseName}}_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
+  apiScheme: process.env.FGA_API_SCHEME, // optional, defaults to "https"
+  apiHost: process.env.FGA_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+  storeId: process.env.FGA_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
+  authorizationModelId: process.env.FGA_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
   credentials: {
     method: CredentialsMethod.ApiToken,
     config: {
-      token: {{appUpperCaseName}}_API_TOKEN, // will be passed as the "Authorization: Bearer ${ApiToken}" request header
+      token: process.env.FGA_API_TOKEN, // will be passed as the "Authorization: Bearer ${ApiToken}" request header
     }
   }
 });
@@ -40,17 +40,17 @@ const fgaClient = new {{appShortName}}Client({
 const { {{appShortName}}Client } = require('{{packageName}}'); // OR import { {{appShortName}}Client } from '{{packageName}}';
 
 const fgaClient = new {{appShortName}}Client({
-  apiScheme: {{appUpperCaseName}}_API_SCHEME, // optional, defaults to "https"
-  apiHost: {{appUpperCaseName}}_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
-  storeId: {{appUpperCaseName}}_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
-  authorizationModelId: {{appUpperCaseName}}_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
+  apiScheme: process.env.FGA_API_SCHEME, // optional, defaults to "https"
+  apiHost: process.env.FGA_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+  storeId: process.env.FGA_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
+  authorizationModelId: process.env.FGA_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
   credentials: {
     method: CredentialsMethod.ClientCredentials,
     config: {
-      apiTokenIssuer: {{appUpperCaseName}}_API_TOKEN_ISSUER,
-      apiAudience: {{appUpperCaseName}}_API_AUDIENCE,
-      clientId: {{appUpperCaseName}}_CLIENT_ID,
-      clientSecret: {{appUpperCaseName}}_CLIENT_SECRET,
+      apiTokenIssuer: process.env.FGA_API_TOKEN_ISSUER,
+      apiAudience: process.env.FGA_API_AUDIENCE,
+      clientId: process.env.FGA_CLIENT_ID,
+      clientSecret: process.env.FGA_CLIENT_SECRET,
     }
   }
 });

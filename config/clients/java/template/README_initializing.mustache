@@ -9,9 +9,9 @@ import java.net.http.HttpClient;
 public class Example {
     public static void main(String[] args) throws Exception {
         var config = new ClientConfiguration()
-                .apiUrl(System.getenv("{{appUpperCaseName}}_API_URL")) // If not specified, will default to "https://localhost:8080"
-                .storeId(System.getenv("{{appUpperCaseName}}_STORE_ID")) // Not required when calling createStore() or listStores()
-                .authorizationModelId(System.getenv("{{appUpperCaseName}}_AUTHORIZATION_MODEL_ID")); // Optional, can be overridden per request
+                .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "https://localhost:8080"
+                .storeId(System.getenv("FGA_STORE_ID")) // Not required when calling createStore() or listStores()
+                .authorizationModelId(System.getenv("FGA_AUTHORIZATION_MODEL_ID")); // Optional, can be overridden per request
 
         var fgaClient = new OpenFgaClient(config);
         var response = fgaClient.readAuthorizationModels().get();
@@ -32,11 +32,11 @@ import java.net.http.HttpClient;
 public class Example {
     public static void main(String[] args) throws Exception {
         var config = new ClientConfiguration()
-                .apiUrl(System.getenv("{{appUpperCaseName}}_API_URL")) // If not specified, will default to "https://localhost:8080"
-                .storeId(System.getenv("{{appUpperCaseName}}_STORE_ID")) // Not required when calling createStore() or listStores()
-                .authorizationModelId(System.getenv("{{appUpperCaseName}}_AUTHORIZATION_MODEL_ID")) // Optional, can be overridden per request
+                .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "https://localhost:8080"
+                .storeId(System.getenv("FGA_STORE_ID")) // Not required when calling createStore() or listStores()
+                .authorizationModelId(System.getenv("FGA_AUTHORIZATION_MODEL_ID")) // Optional, can be overridden per request
                 .credentials(new Credentials(
-                    new ApiToken(System.getenv("{{appUpperCaseName}}_API_TOKEN")) // will be passed as the "Authorization: Bearer ${ApiToken}" request header
+                    new ApiToken(System.getenv("FGA_API_TOKEN")) // will be passed as the "Authorization: Bearer ${ApiToken}" request header
                 ));
 
         var fgaClient = new OpenFgaClient(config);
@@ -58,15 +58,15 @@ import java.net.http.HttpClient;
 public class Example {
     public static void main(String[] args) throws Exception {
         var config = new ClientConfiguration()
-                .apiUrl(System.getenv("{{appUpperCaseName}}_API_URL")) // If not specified, will default to "https://localhost:8080"
-                .storeId(System.getenv("{{appUpperCaseName}}_STORE_ID")) // Not required when calling createStore() or listStores()
-                .authorizationModelId(System.getenv("{{appUpperCaseName}}_AUTHORIZATION_MODEL_ID")) // Optional, can be overridden per request
+                .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "https://localhost:8080"
+                .storeId(System.getenv("FGA_STORE_ID")) // Not required when calling createStore() or listStores()
+                .authorizationModelId(System.getenv("FGA_AUTHORIZATION_MODEL_ID")) // Optional, can be overridden per request
                 .credentials(new Credentials(
                     new ClientCredentials()
-                            .apiTokenIssuer(System.getenv("{{appUpperCaseName}}_API_TOKEN_ISSUER"))
-                            .apiAudience(System.getenv("{{appUpperCaseName}}_API_AUDIENCE"))
-                            .clientId(System.getenv("{{appUpperCaseName}}_CLIENT_ID"))
-                            .clientSecret(System.getenv("{{appUpperCaseName}}_CLIENT_SECRET"))
+                            .apiTokenIssuer(System.getenv("FGA_API_TOKEN_ISSUER"))
+                            .apiAudience(System.getenv("FGA_API_AUDIENCE"))
+                            .clientId(System.getenv("FGA_CLIENT_ID"))
+                            .clientSecret(System.getenv("FGA_CLIENT_SECRET"))
                 ));
 
         var fgaClient = new OpenFgaClient(config);
