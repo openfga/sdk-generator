@@ -15,7 +15,7 @@ namespace Example {
             try {
                 var configuration = new ClientConfiguration() {
                     ApiScheme = Environment.GetEnvironmentVariable("FGA_API_SCHEME"), // optional, defaults to "https"
-                    ApiHost = Environment.GetEnvironmentVariable("FGA_API_HOST"), // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
+                    ApiHost = Environment.GetEnvironmentVariable("FGA_API_HOST"), // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
                     StoreId = Environment.GetEnvironmentVariable("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
                     AuthorizationModelId = Environment.GetEnvironmentVariable("FGA_AUTHORIZATION_MODEL_ID"), // Optional, can be overridden per request
                 };
@@ -42,7 +42,7 @@ namespace Example {
             try {
                 var configuration = new ClientConfiguration() {
                     ApiScheme = Environment.GetEnvironmentVariable("FGA_API_SCHEME"), // optional, defaults to "https"
-                    ApiHost = Environment.GetEnvironmentVariable("FGA_API_HOST"), // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
+                    ApiHost = Environment.GetEnvironmentVariable("FGA_API_HOST"), // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
                     StoreId = Environment.GetEnvironmentVariable("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
                     AuthorizationModelId = Environment.GetEnvironmentVariable("FGA_AUTHORIZATION_MODEL_ID"), // Optional, can be overridden per request
                     Credentials = new Credentials() {
@@ -75,7 +75,7 @@ namespace Example {
             try {
                 var configuration = new ClientConfiguration() {
                     ApiScheme = Environment.GetEnvironmentVariable("FGA_API_SCHEME"), // optional, defaults to "https"
-                    ApiHost = Environment.GetEnvironmentVariable("FGA_API_HOST"), // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
+                    ApiHost = Environment.GetEnvironmentVariable("FGA_API_HOST"), // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
                     StoreId = Environment.GetEnvironmentVariable("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
                     AuthorizationModelId = Environment.GetEnvironmentVariable("FGA_AUTHORIZATION_MODEL_ID"), // Optional, can be overridden per request
                     Credentials = new Credentials() {

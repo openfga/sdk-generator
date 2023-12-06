@@ -142,7 +142,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(api_response.stores, stores)
             mock_request.assert_called_once_with(
                 'GET',
-                'http://api.fga.example/stores',
+                'http://api.{{sampleApiDomain}}/stores',
                 headers=ANY,
                 query_params=[('page_size', 1), ('continuation_token',
                                                  'continuation_token_example')],
@@ -174,7 +174,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(api_response.id, '01YCP46JKYM8FJCQ37NMBYHE5X')
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores',
+                'http://api.{{sampleApiDomain}}/stores',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -211,7 +211,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(api_response.name, "store1")
             mock_request.assert_called_once_with(
                 'GET',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X',
                 headers=ANY,
                 query_params=[],
                 _preload_content=ANY,
@@ -234,7 +234,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
             mock_request.assert_called_once_with(
                 'DELETE',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X',
                 headers=ANY,
                 query_params=[],
                 body=None,
@@ -321,7 +321,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(api_response.continuation_token, "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==")
             mock_request.assert_called_once_with(
                 'GET',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models',
                 headers=ANY,
                 query_params=[],
                 _preload_content=ANY,
@@ -376,7 +376,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(api_response, expected_response)
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -463,7 +463,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(api_response.authorization_model, authorization_model)
             mock_request.assert_called_once_with(
                 'GET',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J',
                 headers=ANY,
                 query_params=[],
                 _preload_content=ANY,
@@ -547,7 +547,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(api_response.authorization_model, authorization_model)
             mock_request.assert_called_once_with(
                 'GET',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models',
                 headers=ANY,
                 query_params=[('page_size', 1)],
                 _preload_content=ANY,
@@ -601,7 +601,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(api_response, read_changes)
             mock_request.assert_called_once_with(
                 'GET',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/changes',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/changes',
                 headers=ANY,
                 query_params=[('type', 'document'), ('page_size', 1),
                               ('continuation_token', 'abcdefg')],
@@ -651,7 +651,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(api_response, expected_data)
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/read',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/read',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -704,7 +704,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(api_response, expected_data)
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/read',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/read',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -982,7 +982,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(mock_request.call_count, 4)
             mock_request.assert_any_call(
                 'GET',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J',
                 headers=ANY,
                 query_params=[],
                 _preload_content=ANY,
@@ -1093,7 +1093,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(mock_request.call_count, 3)
             mock_request.assert_any_call(
                 'GET',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J',
                 headers=ANY,
                 query_params=[],
                 _preload_content=ANY,
@@ -1201,7 +1201,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(mock_request.call_count, 4)
             mock_request.assert_any_call(
                 'GET',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J',
                 headers=ANY,
                 query_params=[],
                 _preload_content=ANY,
@@ -1269,7 +1269,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
             mock_request.assert_any_call(
                 'GET',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J',
                 headers=ANY,
                 query_params=[],
                 _preload_content=ANY,
@@ -1407,7 +1407,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
 
             mock_request.assert_called_once_with(
                 'GET',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01G5JAVJ41T49E9TT3SKVS7X1J',
                 headers=ANY,
                 query_params=[],
                 _preload_content=ANY,
@@ -1449,7 +1449,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             # Make sure the API was called with the right data
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -1489,7 +1489,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             # Make sure the API was called with the right data
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -1533,7 +1533,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             # Make sure the API was called with the right data
             mock_request.assert_any_call(
                 'GET',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01GXSA8YR785C4FYS3C0RTG7B1',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01GXSA8YR785C4FYS3C0RTG7B1',
                 headers=ANY,
                 query_params=[],
                 _preload_content=ANY,
@@ -1541,7 +1541,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
             mock_request.assert_any_call(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -1602,7 +1602,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             # Make sure the API was called with the right data
             mock_request.assert_any_call(
                 'GET',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01GXSA8YR785C4FYS3C0RTG7B1',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01GXSA8YR785C4FYS3C0RTG7B1',
                 headers=ANY,
                 query_params=[],
                 _preload_content=ANY,
@@ -1610,7 +1610,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
             mock_request.assert_any_call(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -1621,7 +1621,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
             mock_request.assert_any_call(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -1632,7 +1632,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
             mock_request.assert_any_call(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -1701,7 +1701,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             # Make sure the API was called with the right data
             mock_request.assert_any_call(
                 'GET',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01GXSA8YR785C4FYS3C0RTG7B1',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01GXSA8YR785C4FYS3C0RTG7B1',
                 headers=ANY,
                 query_params=[],
                 _preload_content=ANY,
@@ -1709,7 +1709,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
             mock_request.assert_any_call(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -1720,7 +1720,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
             mock_request.assert_any_call(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -1731,7 +1731,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
             mock_request.assert_any_call(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -1773,7 +1773,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(api_response, expected_response)
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/expand',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/expand',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -1812,7 +1812,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(api_response.objects, ['document:abcd1234'])
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/list-objects',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/list-objects',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -1859,7 +1859,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(api_response.objects, ['document:abcd1234'])
             mock_request.assert_called_once_with(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/list-objects',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/list-objects',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -1899,7 +1899,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             # Make sure the API was called with the right data
             mock_request.assert_any_call(
                 'GET',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01GXSA8YR785C4FYS3C0RTG7B1',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01GXSA8YR785C4FYS3C0RTG7B1',
                 headers=ANY,
                 query_params=[],
                 _preload_content=ANY,
@@ -1907,7 +1907,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
             mock_request.assert_any_call(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -1918,7 +1918,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
             mock_request.assert_any_call(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -1929,7 +1929,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
             mock_request.assert_any_call(
                 'POST',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/check',
                 headers=ANY,
                 query_params=[],
                 post_params=[],
@@ -1965,7 +1965,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
 
             mock_request.assert_called_once_with(
                 'GET',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01GXSA8YR785C4FYS3C0RTG7B1',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/authorization-models/01GXSA8YR785C4FYS3C0RTG7B1',
                 headers=ANY,
                 query_params=[],
                 _preload_content=ANY,
@@ -2011,7 +2011,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             ))
             mock_request.assert_called_once_with(
                 'GET',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X1J',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X1J',
                 headers=ANY,
                 query_params=[],
                 _preload_content=ANY,
@@ -2034,7 +2034,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
             mock_request.assert_called_once_with(
                 'PUT',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X1J',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X1J',
                 headers=ANY,
                 body={"assertions": [{"tuple_key": {"object": "document:2021-budget","relation": "reader","user": "user:anne"},"expectation": True}]},
                 query_params=[],
@@ -2063,7 +2063,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(api_client.get_store_id(), "01YCP46JKYM8FJCQ37NMBYHE5Y")
             mock_request.assert_called_once_with(
                 'PUT',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5Y/assertions/01G5JAVJ41T49E9TT3SKVS7X1J',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5Y/assertions/01G5JAVJ41T49E9TT3SKVS7X1J',
                 headers=ANY,
                 body={"assertions": [{"tuple_key": {"object": "document:2021-budget","relation": "reader","user": "user:anne"},"expectation": True}]},
                 query_params=[],
@@ -2092,7 +2092,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertEqual(api_client.get_authorization_model_id(), "01G5JAVJ41T49E9TT3SKVS7X1J")
             mock_request.assert_called_once_with(
                 'PUT',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X1J',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X1J',
                 headers=ANY,
                 body={"assertions": [{"tuple_key": {"object": "document:2021-budget","relation": "reader","user": "user:anne"},"expectation": True}]},
                 query_params=[],
@@ -2122,7 +2122,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
             mock_request.assert_called_once_with(
                 'PUT',
-                'http://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X2J',
+                'http://api.{{sampleApiDomain}}/stores/01YCP46JKYM8FJCQ37NMBYHE5X/assertions/01G5JAVJ41T49E9TT3SKVS7X2J',
                 headers=ANY,
                 body={"assertions": [{"tuple_key": {"object": "document:2021-budget","relation": "reader","user": "user:anne"},"expectation": True}]},
                 query_params=[],
