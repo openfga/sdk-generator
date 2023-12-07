@@ -31,6 +31,10 @@
   "allowUnicodeIdentifiers": true,
   "caseInsensitiveResponseHeaders": true,
   "files": {
+    "auth-model.json" : {
+      "destinationFilename": "src/test-integration/resources/auth-model.json",
+      "templateType": "SupportingFiles"
+    },
     "build.gradle.mustache" : {
       "destinationFilename": "build.gradle",
       "templateType": "SupportingFiles"
