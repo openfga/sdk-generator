@@ -31,6 +31,10 @@
   "allowUnicodeIdentifiers": true,
   "caseInsensitiveResponseHeaders": true,
   "files": {
+    "auth-model.json" : {
+      "destinationFilename": "src/test-integration/resources/auth-model.json",
+      "templateType": "SupportingFiles"
+    },
     "build.gradle.mustache" : {
       "destinationFilename": "build.gradle",
       "templateType": "SupportingFiles"
@@ -123,8 +127,16 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientReadResponse.java",
       "templateType": "SupportingFiles"
     },
+    "client-ClientRelationshipCondition.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientRelationshipCondition.java",
+      "templateType": "SupportingFiles"
+    },
     "client-ClientTupleKey.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientTupleKey.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientTupleKeyWithoutCondition.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientTupleKeyWithoutCondition.java",
       "templateType": "SupportingFiles"
     },
     "client-ClientWriteAssertionsResponse.java.mustache" : {
