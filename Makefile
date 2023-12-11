@@ -2,7 +2,7 @@
 OPENFGA_DOCKER_TAG = v1.4.0-rc1
 OPEN_API_URL = https://raw.githubusercontent.com/openfga/api/main/docs/openapiv2/apidocs.swagger.json
 OPENAPI_GENERATOR_CLI_DOCKER_TAG = v6.4.0
-NODE_DOCKER_TAG = 18-alpine
+NODE_DOCKER_TAG = 20-alpine
 GO_DOCKER_TAG = 1
 DOTNET_DOCKER_TAG = 6.0
 GOLINT_DOCKER_TAG = v1.54-alpine
