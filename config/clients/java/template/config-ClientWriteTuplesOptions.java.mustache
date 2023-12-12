@@ -1,0 +1,18 @@
+{{>licenseInfo}}
+package {{configPackage}};
+
+import java.util.Map;
+
+public class ClientWriteTuplesOptions implements AdditionalHeadersSupplier {
+    private Map<String, String> additionalHeaders;
+
+    public ClientWriteTuplesOptions additionalHeaders(Map<String, String> additionalHeaders) {
+        this.additionalHeaders = additionalHeaders;
+        return this;
+    }
+
+    @Override
+    public Map<String, String> getAdditionalHeaders() {
+        return this.additionalHeaders;
+    }
+}

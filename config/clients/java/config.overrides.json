@@ -115,6 +115,10 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientReadAuthorizationModelsResponse.java",
       "templateType": "SupportingFiles"
     },
+    "client-ClientReadChangesRequest.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientReadChangesRequest.java",
+      "templateType": "SupportingFiles"
+    },
     "client-ClientReadChangesResponse.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientReadChangesResponse.java",
       "templateType": "SupportingFiles"
@@ -191,6 +195,10 @@
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/OAuth2ClientTest.java",
       "templateType": "SupportingFiles"
     },
+    "config-AdditionalHeadersSupplier.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/AdditionalHeadersSupplier.java",
+      "templateType": "SupportingFiles"
+    },
     "config-ApiToken.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ApiToken.java",
       "templateType": "SupportingFiles"
@@ -211,6 +219,10 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientConfiguration.java",
       "templateType": "SupportingFiles"
     },
+    "config-ClientCreateStoreOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientCreateStoreOptions.java",
+      "templateType": "SupportingFiles"
+    },
     "config-ClientCredentials.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientCredentials.java",
       "templateType": "SupportingFiles"
@@ -219,8 +231,20 @@
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/configuration/ClientCredentialsTest.java",
       "templateType": "SupportingFiles"
     },
+    "config-ClientDeleteStoreOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientDeleteStoreOptions.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientDeleteTuplesOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientDeleteTuplesOptions.java",
+      "templateType": "SupportingFiles"
+    },
     "config-ClientExpandOptions.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientExpandOptions.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientGetStoreOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientGetStoreOptions.java",
       "templateType": "SupportingFiles"
     },
     "config-ClientListObjectsOptions.java.mustache" : {
@@ -251,6 +275,10 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientReadChangesOptions.java",
       "templateType": "SupportingFiles"
     },
+    "config-ClientReadLatestAuthorizationModelOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientReadLatestAuthorizationModelOptions.java",
+      "templateType": "SupportingFiles"
+    },
     "config-ClientReadOptions.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientReadOptions.java",
       "templateType": "SupportingFiles"
@@ -259,8 +287,16 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientWriteAssertionsOptions.java",
       "templateType": "SupportingFiles"
     },
+    "config-ClientWriteAuthorizationModelOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientWriteAuthorizationModelOptions.java",
+      "templateType": "SupportingFiles"
+    },
     "config-ClientWriteOptions.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientWriteOptions.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientWriteTuplesOptions.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientWriteTuplesOptions.java",
       "templateType": "SupportingFiles"
     },
     "config-Configuration.java.mustache" : {
