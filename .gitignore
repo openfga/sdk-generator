@@ -8,3 +8,7 @@ docs/openapi/*.json-e
 .dccache
 
 clients/**/*
+
+# JetBrains IDEs
+.idea/
+*.iml
