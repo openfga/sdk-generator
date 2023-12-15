@@ -146,6 +146,9 @@
     "oauth2_test_sync.mustache": {
       "destinationFilename": "test/test_oauth2_sync.py",
       "templateType": "SupportingFiles"
+    },
+    "help.py": {
+      "destinationFilename": "openfga_sdk/help.py"
     }
   }
 }
