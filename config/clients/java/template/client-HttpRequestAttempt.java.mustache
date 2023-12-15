@@ -1,6 +1,7 @@
 package {{invokerPackage}};
 
 import static {{utilPackage}}.StringUtil.isNullOrWhitespace;
+import static {{utilPackage}}.Validation.assertParamExists;
 
 import {{clientPackage}}.ApiResponse;
 import {{configPackage}}.Configuration;
@@ -30,9 +31,7 @@ public class HttpRequestAttempt<T> {
     public HttpRequestAttempt(
             HttpRequest request, String name, Class<T> clazz, ApiClient apiClient, Configuration configuration)
             throws FgaInvalidParameterException {
-        if (configuration.getMaxRetries() == null) {
-            throw new FgaInvalidParameterException("maxRetries", "Configuration");
-        }
+        assertParamExists(configuration.getMaxRetries(), "maxRetries", "Configuration");
         this.apiClient = apiClient;
         this.configuration = configuration;
         this.name = name;

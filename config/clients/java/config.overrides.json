@@ -363,6 +363,10 @@
       "destinationFilename": "src/test/java/dev/openfga/sdk/util/StringUtilTest.java",
       "templateType": "SupportingFiles"
     },
+    "util-Validation.java.mustache" : {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/util/Validation.java",
+      "templateType": "SupportingFiles"
+    },
     "libraries/native/apiException.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/ApiException.java",
       "templateType": "SupportingFiles"

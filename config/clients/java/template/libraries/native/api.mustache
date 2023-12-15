@@ -3,6 +3,7 @@ package {{package}};
 
 import static {{clientPackage}}.ApiClient.urlEncode;
 import static {{utilPackage}}.StringUtil.isNullOrWhitespace;
+import static {{utilPackage}}.Validation.assertParamExists;
 
 import {{authPackage}}.*;
 import {{configPackage}}.*;
@@ -162,7 +163,7 @@ public class OpenFgaApi {
   private {{#asyncNative}}CompletableFuture<{{/asyncNative}}ApiResponse<{{{returnType}}}{{^returnType}}Void{{/returnType}}>{{#asyncNative}}>{{/asyncNative}} {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, Configuration configuration) throws ApiException, FgaInvalidParameterException {
 
     {{#allParams}}{{#required}}
-    validate({{paramName}}, "{{paramName}}", "{{operationId}}");
+    assertParamExists({{paramName}}, "{{paramName}}", "{{operationId}}");
     {{/required}}{{/allParams}}
 
     String path = "{{{path}}}"{{#pathParams}}.replace({{=<% %>=}}"{<%baseName%>}"<%={{ }}=%>, ApiClient.urlEncode({{{paramName}}}.toString())){{/pathParams}};
@@ -253,12 +254,6 @@ public class OpenFgaApi {
             path.append("?").append(parameters);
         }
         return path.toString();
-    }
-
-    private void validate(Object obj, String name, String context) throws FgaInvalidParameterException {
-        if (obj == null || obj instanceof String && isNullOrWhitespace((String) obj)) {
-            throw new FgaInvalidParameterException(name, context);
-        }
     }
 
   /**
