@@ -290,34 +290,39 @@ func Test{{appShortName}}ApiConfiguration(t *testing.T) {
 			t.Fatalf("Expected call to get authorization models to be made exactly once, saw: %d", numCalls)
 		}
     }
-	t.Run("should issue a network call to get the token at the first request if client id is provided", func(t *testing.T) {
-		t.Run("with Auth0 configuration", func(t *testing.T) {
-			clientCredentialsFirstRequestTest(t, Configuration{
-            ApiHost:         "api.{{sampleApiDomain}}",
-			StoreId:      "01GXSB9YR785C4FYS3C0RTG7B2",
-			Credentials: &credentials.Credentials{
-				Method: credentials.CredentialsMethodClientCredentials,
-				Config: &credentials.Config{
-					ClientCredentialsClientId:       "some-id",
-					ClientCredentialsClientSecret:   "some-secret",
-					ClientCredentialsApiAudience:    "some-audience",
-					ClientCredentialsApiTokenIssuer: "tokenissuer.{{sampleApiDomain}}",
-			})
-		})
-		t.Run("with OAuth2 configuration", func(t *testing.T) {
-			clientCredentialsFirstRequestTest(t, Configuration{
-            ApiHost:         "api.{{sampleApiDomain}}",
-			StoreId:      "01GXSB9YR785C4FYS3C0RTG7B2",
-			Credentials: &credentials.Credentials{
-				Method: credentials.CredentialsMethodClientCredentials,
-				Config: &credentials.Config{
-					ClientCredentialsClientId:       "some-id",
-					ClientCredentialsClientSecret:   "some-secret",
-                    ClientCredentialsScopes:         "scope1 scope2",
-					ClientCredentialsApiTokenIssuer: "tokenissuer.{{sampleApiDomain}}",
-			})
-		})
-	})
+
+    t.Run("should issue a network call to get the token at the first request if client id is provided", func(t *testing.T) {
+        t.Run("with Auth0 configuration", func(t *testing.T) {
+            clientCredentialsFirstRequestTest(t, Configuration{
+                ApiHost: "api.{{sampleApiDomain}}",
+                StoreId: "01GXSB9YR785C4FYS3C0RTG7B2",
+                Credentials: &credentials.Credentials{
+                    Method: credentials.CredentialsMethodClientCredentials,
+                    Config: &credentials.Config{
+                        ClientCredentialsClientId:       "some-id",
+                        ClientCredentialsClientSecret:   "some-secret",
+                        ClientCredentialsApiAudience:    "some-audience",
+                        ClientCredentialsApiTokenIssuer: "tokenissuer.{{sampleApiDomain}}",
+                    },
+                },
+            })
+        })
+        t.Run("with OAuth2 configuration", func(t *testing.T) {
+            clientCredentialsFirstRequestTest(t, Configuration{
+                ApiHost: "api.{{sampleApiDomain}}",
+                StoreId: "01GXSB9YR785C4FYS3C0RTG7B2",
+                Credentials: &credentials.Credentials{
+                    Method: credentials.CredentialsMethodClientCredentials,
+                    Config: &credentials.Config{
+                        ClientCredentialsClientId:       "some-id",
+                        ClientCredentialsClientSecret:   "some-secret",
+                        ClientCredentialsScopes:         "scope1 scope2",
+                        ClientCredentialsApiTokenIssuer: "tokenissuer.{{sampleApiDomain}}",
+                    },
+                },
+            })
+        })
+    })
 
 	t.Run("should not issue a network call to get the token at the first request if the clientId is not provided", func(t *testing.T) {
 		configuration, err := NewConfiguration(Configuration{
