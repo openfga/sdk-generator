@@ -4,9 +4,21 @@ package {{configPackage}};
 import static {{utilPackage}}.StringUtil.isNullOrWhitespace;
 
 import {{errorsPackage}}.FgaInvalidParameterException;
+import java.util.Map;
 
-public class ClientReadAssertionsOptions {
+public class ClientReadAssertionsOptions implements AdditionalHeadersSupplier {
+    private Map<String, String> additionalHeaders;
     private String authorizationModelId;
+
+    public ClientReadAssertionsOptions additionalHeaders(Map<String, String> additionalHeaders) {
+        this.additionalHeaders = additionalHeaders;
+        return this;
+    }
+
+    @Override
+    public Map<String, String> getAdditionalHeaders() {
+        return this.additionalHeaders;
+    }
 
     public boolean hasValidAuthorizationModelId() throws FgaInvalidParameterException {
         return !isNullOrWhitespace(authorizationModelId);

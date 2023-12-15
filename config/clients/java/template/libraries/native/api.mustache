@@ -74,6 +74,11 @@ public class OpenFgaApi {
     } else {
       this.oAuth2Client = null;
     }
+
+    var defaultHeaders = configuration.getDefaultHeaders();
+    if (defaultHeaders != null) {
+      apiClient.addRequestInterceptor(httpRequest -> defaultHeaders.forEach(httpRequest::setHeader));
+    }
   }
 
   {{#operation}}
@@ -260,6 +265,14 @@ public class OpenFgaApi {
     if (configuration.getCredentials().getCredentialsMethod() != CredentialsMethod.NONE) {
       String accessToken = getAccessToken(configuration);
       localVarRequestBuilder.header("Authorization", "Bearer " + accessToken);
+    }
+
+    if (configuration.getUserAgent() != null) {
+      localVarRequestBuilder.header("User-Agent", configuration.getUserAgent());
+    }
+
+    if (configuration.getDefaultHeaders() != null) {
+      configuration.getDefaultHeaders().forEach(localVarRequestBuilder::header);
     }
 
     {{#bodyParam}}
