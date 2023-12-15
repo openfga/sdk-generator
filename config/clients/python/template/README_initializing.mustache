@@ -33,14 +33,14 @@ from {{packageName}}.credentials import Credentials, CredentialConfiguration
 
 async def main():
     configuration = {{packageName}}.ClientConfiguration(
-        api_scheme = FGA__API_SCHEME, # optional, defaults to "https"
-        api_host = FGA__API_HOST, # required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
-        store_id = FGA__STORE_ID, # optional, not needed when calling `CreateStore` or `ListStores`
-        authorization_model_id = FGA__AUTHORIZATION_MODEL_ID, # Optional, can be overridden per request
+        api_scheme = FGA_API_SCHEME, # optional, defaults to "https"
+        api_host = FGA_API_HOST, # required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+        store_id = FGA_STORE_ID, # optional, not needed when calling `CreateStore` or `ListStores`
+        authorization_model_id = FGA_AUTHORIZATION_MODEL_ID, # Optional, can be overridden per request
         credentials = Credentials(
             method='api_token',
             configuration = CredentialConfiguration(
-                api_token = FGA__API_TOKEN,
+                api_token = FGA_API_TOKEN,
             )
         )
     )
@@ -61,17 +61,17 @@ from {{packageName}}.credentials import Credentials, CredentialConfiguration
 
 async def main():
     configuration = {{packageName}}.ClientConfiguration(
-        api_scheme = FGA__API_SCHEME, # optional, defaults to "https"
-        api_host = FGA__API_HOST, # required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
-        store_id = FGA__STORE_ID, # optional, not needed when calling `CreateStore` or `ListStores`
-        authorization_model_id = FGA__AUTHORIZATION_MODEL_ID, # Optional, can be overridden per request
+        api_scheme = FGA_API_SCHEME, # optional, defaults to "https"
+        api_host = FGA_API_HOST, # required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+        store_id = FGA_STORE_ID, # optional, not needed when calling `CreateStore` or `ListStores`
+        authorization_model_id = FGA_AUTHORIZATION_MODEL_ID, # Optional, can be overridden per request
         credentials = Credentials(
             method = 'client_credentials',
             configuration = CredentialConfiguration(
-                api_issuer = FGA__API_TOKEN_ISSUER,
-                api_audience = FGA__API_AUDIENCE,
-                client_id = FGA__CLIENT_ID,
-                client_secret = FGA__CLIENT_SECRET,
+                api_issuer = FGA_API_TOKEN_ISSUER,
+                api_audience = FGA_API_AUDIENCE,
+                client_id = FGA_CLIENT_ID,
+                client_secret = FGA_CLIENT_SECRET,
             )
         )
     )
@@ -95,10 +95,10 @@ from {{packageName}}.sync import OpenFgaClient
 
 def main():
     configuration = {{packageName}}.ClientConfiguration(
-        api_scheme = FGA__API_SCHEME, # optional, defaults to "https"
-        api_host = FGA__API_HOST, # required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
-        store_id = FGA__STORE_ID, # optional, not needed when calling `CreateStore` or `ListStores`
-        authorization_model_id = FGA__AUTHORIZATION_MODEL_ID, # optional, can be overridden per request
+        api_scheme = FGA_API_SCHEME, # optional, defaults to "https"
+        api_host = FGA_API_HOST, # required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+        store_id = FGA_STORE_ID, # optional, not needed when calling `CreateStore` or `ListStores`
+        authorization_model_id = FGA_AUTHORIZATION_MODEL_ID, # optional, can be overridden per request
     )
     # Enter a context with an instance of the OpenFgaClient
     with OpenFgaClient(configuration) as fga_client:
