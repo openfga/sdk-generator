@@ -166,6 +166,10 @@
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientTupleKey.cs",
       "templateType": "SupportingFiles"
     },
+    "Client/Model/ClientTupleKeyWithoutCondition.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientTupleKeyWithoutCondition.cs",
+      "templateType": "SupportingFiles"
+    },
     "Client/Model/ClientWriteAssertionsOptions.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientWriteAssertionsOptions.cs",
       "templateType": "SupportingFiles"
