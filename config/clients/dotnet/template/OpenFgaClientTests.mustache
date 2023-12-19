@@ -25,12 +25,12 @@ namespace {{packageName}}.Test.Client;
 
 public class {{appShortName}}ClientTests {
     private readonly string _storeId;
-    private readonly string _host = "api.{{sampleApiDomain}}";
+    private readonly string _apiUrl = "https://api.{{sampleApiDomain}}";
     private readonly ClientConfiguration _config;
 
     public {{appShortName}}ClientTests() {
         _storeId = "6c181474-aaa1-4df7-8929-6e7b3a992754-test";
-        _config = new ClientConfiguration() {StoreId = _storeId, ApiHost = _host};
+        _config = new ClientConfiguration() {StoreId = _storeId, ApiUrl = _apiUrl};
     }
 
     private HttpResponseMessage GetCheckResponse(CheckResponse content, bool shouldRetry = false) {
