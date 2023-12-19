@@ -1,5 +1,5 @@
 # Main config
-OPENFGA_DOCKER_TAG = v1.4.0-rc1
+OPENFGA_DOCKER_TAG = v1.4.0
 OPEN_API_URL = https://raw.githubusercontent.com/openfga/api/main/docs/openapiv2/apidocs.swagger.json
 OPENAPI_GENERATOR_CLI_DOCKER_TAG = v6.4.0
 NODE_DOCKER_TAG = 20-alpine
@@ -14,11 +14,8 @@ CONFIG_DIR = ${PWD}/config
 CLIENTS_OUTPUT_DIR = ${PWD}/clients
 DOCS_CACHE_DIR = ${PWD}/docs/openapi
 TMP_DIR = $(shell mktemp -d "$${TMPDIR:-/tmp}/tmp.XXXXX")
-dotnet_package_version = $(shell cat ./clients/fga-dotnet-sdk/VERSION.txt)
 CURRENT_UID := $(shell id -u)
 CURRENT_GID := $(shell id -g)
-
-dotnet_publish_api_key=
 
 all: test-all-clients
 
@@ -32,11 +29,6 @@ pull-docker-images:
 	docker pull mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG}
 	docker pull busybox:${BUSYBOX_DOCKER_TAG}
 	docker pull gradle:${GRADLE_DOCKER_TAG}
-
-## Publishing
-publish-client-dotnet: build-client-dotnet
-	## See: https://docs.microsoft.com/en-us/nuget/quickstart/create-and-publish-a-package-using-the-dotnet-cli
-	make run-in-docker sdk_language=dotnet image=mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet nuget push src/OpenFga.Sdk/bin/Release/OpenFga.Sdk.${dotnet_package_version}.nupkg --api-key ${dotnet_publish_api_key} --source https://api.nuget.org/v3/index.json'"
 
 ## Building and Testing
 .PHONY: test
