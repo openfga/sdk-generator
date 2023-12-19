@@ -270,6 +270,10 @@
       "destinationFilename": ".fossa.yml",
       "templateType": "SupportingFiles"
     },
+    "example/Makefile": {},
+    "example/README.md": {},
+    "example/Example1/Example1.cs": {},
+    "example/Example1/Example1.csproj": {},
     "assets/FGAIcon.png": {},
     ".editorconfig": {}
   }
