@@ -10,7 +10,7 @@
   "packageGuid": "b8d9e3e9-0156-4948-9de7-5e0d3f9c4d9e",
   "testPackageGuid": "d119dfae-509a-4eba-a973-645b739356fc",
   "packageName": "OpenFga.Sdk",
-  "packageVersion": "0.2.5",
+  "packageVersion": "0.3.0",
   "licenseUrl": "https://github.com/openfga/dotnet-sdk/blob/main/LICENSE",
   "fossaComplianceNoticeId": "f8ac2ec4-84fc-44f4-a617-5800cd3d180e",
   "termsOfService": "",
@@ -162,8 +162,16 @@
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientRequestOptsWithAuthZModelId.cs",
       "templateType": "SupportingFiles"
     },
+    "Client/Model/ClientRequestOptsWithStoreId.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientRequestOptsWithStoreId.cs",
+      "templateType": "SupportingFiles"
+    },
     "Client/Model/ClientTupleKey.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientTupleKey.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientTupleKeyWithoutCondition.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientTupleKeyWithoutCondition.cs",
       "templateType": "SupportingFiles"
     },
     "Client/Model/ClientWriteAssertionsOptions.mustache": {
@@ -196,6 +204,10 @@
     },
     "Client/Model/RetryParams.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/RetryParams.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/StoreIdOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/StoreIdOptions.cs",
       "templateType": "SupportingFiles"
     },
     "Configuration_Configuration.mustache": {
@@ -266,6 +278,10 @@
       "destinationFilename": ".fossa.yml",
       "templateType": "SupportingFiles"
     },
+    "example/Makefile": {},
+    "example/README.md": {},
+    "example/Example1/Example1.cs": {},
+    "example/Example1/Example1.csproj": {},
     "assets/FGAIcon.png": {},
     ".editorconfig": {}
   }
