@@ -1,11 +1,12 @@
 {{>partial_header}}
 
+using System.Collections.Concurrent;
+
 using {{packageName}}.Api;
 using {{packageName}}.Client.Model;
 using {{packageName}}.Exceptions;
 using {{packageName}}.Exceptions.Parsers;
 using {{packageName}}.Model;
-using System.Collections.Concurrent;
 
 namespace {{packageName}}.Client;
 
@@ -21,6 +22,7 @@ public class {{appShortName}}Client : IDisposable {
         ClientConfiguration configuration,
         HttpClient? httpClient = null
     ) {
+        configuration.IsValid();
         _configuration = configuration;
         api = new {{appShortName}}Api(_configuration, httpClient);
     }
@@ -47,13 +49,21 @@ public class {{appShortName}}Client : IDisposable {
         var storeId = options?.StoreId ?? StoreId;
         if (storeId == null) {
             throw new FgaRequiredParamError("ClientConfiguration", "StoreId");
+        } else if (!ClientConfiguration.IsWellFormedUlidString(storeId)) {
+            throw new FgaValidationError("StoreId is not in a valid ulid format");
         }
 
         return storeId;
     }
 
-    private string? GetAuthorizationModelId(AuthorizationModelIdOptions? options) =>
-        options?.AuthorizationModelId ?? AuthorizationModelId;
+    private string? GetAuthorizationModelId(AuthorizationModelIdOptions? options) {
+        var authorizationModelId = options?.AuthorizationModelId ?? AuthorizationModelId;
+        if (authorizationModelId != null && authorizationModelId != "" && !ClientConfiguration.IsWellFormedUlidString(authorizationModelId)) {
+            throw new FgaValidationError("AuthorizationModelId is not in a valid ulid format");
+        }
+
+        return authorizationModelId;
+    }
 
     /**********
      * Stores *

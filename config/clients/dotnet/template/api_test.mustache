@@ -31,8 +31,8 @@ namespace {{testPackageName}}.Api {
         private readonly Configuration.Configuration _config;
 
         public {{classname}}Tests() {
-            _storeId = "6c181474-aaa1-4df7-8929-6e7b3a992754-test";
-            _config = new Configuration.Configuration() {StoreId = _storeId, ApiHost = _host};
+            _storeId = "01H0H015178Y2V4CX10C2KGHF4";
+            _config = new Configuration.Configuration() {ApiHost = _host};
         }
 
         private HttpResponseMessage GetCheckResponse(CheckResponse content, bool shouldRetry = false) {
@@ -375,7 +375,6 @@ namespace {{testPackageName}}.Api {
         [Fact]
         public async Task ExchangeCredentialsAfterExpiryTest() {
             var config = new Configuration.Configuration() {
-                StoreId = _storeId,
                 ApiHost = _host,
                 Credentials = new Credentials() {
                     Method = CredentialsMethod.ClientCredentials,
@@ -467,19 +466,6 @@ namespace {{testPackageName}}.Api {
             );
         }
 
-        /// <summary>
-        /// Test that updating StoreId after initialization works
-        /// </summary>
-        [Fact]
-        public void UpdateStoreIdTest() {
-            var config = new Configuration.Configuration() { ApiHost = _host };
-            var {{appCamelCaseName}}Api = new {{appShortName}}Api(config);
-            Assert.Equal(null, {{appCamelCaseName}}Api.StoreId);
-            var storeId = "some-id";
-            {{appCamelCaseName}}Api.StoreId = storeId;
-            Assert.Equal(storeId, {{appCamelCaseName}}Api.StoreId);
-        }
-
         /**
          * Errors
          */
@@ -552,7 +538,7 @@ namespace {{testPackageName}}.Api {
             var httpClient = new HttpClient(mockHandler.Object);
 
             var config = new Configuration.Configuration() {
-                StoreId = _storeId, ApiHost = _host, MaxRetry = 1,
+                ApiHost = _host, MaxRetry = 1,
             };
             var {{appCamelCaseName}}Api = new {{classname}}(config, httpClient);
 
