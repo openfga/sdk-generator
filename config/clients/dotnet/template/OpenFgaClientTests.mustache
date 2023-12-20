@@ -453,6 +453,7 @@ public class {{appShortName}}ClientTests {
 
         var httpClient = new HttpClient(mockHandler.Object);
         var fgaClient = new {{appShortName}}Client(new ClientConfiguration(_config) {
+            StoreId = _storeId,
             AuthorizationModelId = authorizationModelId,
         }, httpClient);
 

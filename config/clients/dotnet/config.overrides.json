@@ -162,6 +162,10 @@
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientRequestOptsWithAuthZModelId.cs",
       "templateType": "SupportingFiles"
     },
+    "Client/Model/ClientRequestOptsWithStoreId.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientRequestOptsWithStoreId.cs",
+      "templateType": "SupportingFiles"
+    },
     "Client/Model/ClientTupleKey.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientTupleKey.cs",
       "templateType": "SupportingFiles"
@@ -200,6 +204,10 @@
     },
     "Client/Model/RetryParams.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/RetryParams.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/StoreIdOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/StoreIdOptions.cs",
       "templateType": "SupportingFiles"
     },
     "Configuration_Configuration.mustache": {

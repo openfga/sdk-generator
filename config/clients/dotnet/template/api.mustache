@@ -38,28 +38,25 @@ public class {{classname}} : IDisposable {
     /// </summary>
     /// <exception cref="{{packageName}}.Exceptions.ApiException">Thrown when fails to make API call</exception>
     {{#allParams}}
-    {{^-first}}
     /// <param name="{{paramName}}">{{description}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}</param>
-    {{/-first}}
     {{/allParams}}
     /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
     /// <returns>Task of {{returnType}}{{^returnType}}void{{/returnType}}</returns>
     {{#isDeprecated}}
     [Obsolete]
     {{/isDeprecated}}
-    {{#returnType}}public async Task<{{{.}}}>{{/returnType}}{{^returnType}}public async Task{{/returnType}} {{operationId}}({{#allParams}}{{^-first}}{{{dataType}}} {{paramName}}{{^required}}{{#optionalMethodArgument}} = default({{{dataType}}}){{/optionalMethodArgument}}{{/required}}{{^-last}}, {{/-last}}{{/-first}}{{/allParams}}{{#allParams.1}}, {{/allParams.1}}CancellationToken cancellationToken = default) {
+    {{#returnType}}public async Task<{{{.}}}>{{/returnType}}{{^returnType}}public async Task{{/returnType}} {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^required}}{{#optionalMethodArgument}} = default({{{dataType}}}){{/optionalMethodArgument}}{{/required}}{{^-last}}, {{/-last}}{{/allParams}}{{#allParams.0}}, {{/allParams.0}}CancellationToken cancellationToken = default) {
         var pathParams = new Dictionary<string, string> {};
         {{#pathParams.0}}
-        if (string.IsNullOrWhiteSpace(_configuration.StoreId)) {
-            throw new FgaRequiredParamError("{{operationId}}", nameof(_configuration.StoreId));
+        if (string.IsNullOrWhiteSpace(storeId)) {
+            throw new FgaRequiredParamError("{{operationId}}", "StoreId");
         }
-        pathParams.Add("store_id", _configuration.StoreId);
         {{/pathParams.0}}
 
         {{#pathParams}}
-        {{^-first}}if ({{paramName}} != null) {
+        if ({{paramName}} != null) {
             pathParams.Add("{{baseName}}", {{paramName}}.ToString());
-        }{{/-first}}
+        }
         {{/pathParams}}
         var queryParams = new Dictionary<string, string>();
         {{#queryParams}}
