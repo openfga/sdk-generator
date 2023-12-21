@@ -75,6 +75,11 @@
     "internal/utils/ulid_test.mustache": {
       "destinationFilename": "internal/utils/ulid_test.go",
       "templateType": "SupportingFiles"
-    }
+    },
+    "example/Makefile": {},
+    "example/README.md": {},
+    "example/example1/example1.go": {},
+    "example/example1/go.mod": {},
+    "example/example1/go.sum": {}
   }
 }
