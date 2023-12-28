@@ -386,6 +386,66 @@
     "gradle-wrapper.properties.mustache" : {
       "destinationFilename": "gradle/wrapper/gradle-wrapper.properties",
       "templateType": "SupportingFiles"
+    },
+    "example/Makefile" : {
+      "destinationFilename": "example/Makefile",
+      "templateType": "SupportingFiles"
+    },
+    "example/README.md" : {
+      "destinationFilename": "example/README.md",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/README.md" : {
+      "destinationFilename": "example/example1/README.md",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/gradle/wrapper/gradle-wrapper.jar" : {
+      "destinationFilename": "example/example1/gradle/wrapper/gradle-wrapper.jar",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/gradle/wrapper/gradle-wrapper.properties" : {
+      "destinationFilename": "example/example1/gradle/wrapper/gradle-wrapper.properties",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/gradlew" : {
+      "destinationFilename": "example/example1/gradlew",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/build.gradle" : {
+      "destinationFilename": "example/example1/build.gradle",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/gradle.properties" : {
+      "destinationFilename": "example/example1/gradle.properties",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/settings.gradle" : {
+      "destinationFilename": "example/example1/settings.gradle",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/src/main/resources/example1-auth-model.json" : {
+      "destinationFilename": "example/example1/src/main/resources/example1-auth-model.json",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/src/main/java/dev/openfga/sdk/example/Example1.java" : {
+      "destinationFilename": "example/example1/src/main/java/dev/openfga/sdk/example/Example1.java",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/src/main/kotlin/dev/openfga/sdk/example/KotlinExample1.kt" : {
+      "destinationFilename": "example/example1/src/main/kotlin/dev/openfga/sdk/example/KotlinExample1.kt",
+      "templateType": "SupportingFiles"
+    },
+    "ExampleTest.java" : {
+      "destinationFilename": "src/test-integration/java/dev/openfga/sdk/example/ExampleTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/links/Example1.java" : {
+      "destinationFilename": "src/test-integration/java/dev/openfga/sdk/example/Example1.java",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/links/example1-auth-model.json" : {
+      "destinationFilename": "src/test-integration/resources/example1-auth-model.json",
+      "templateType": "SupportingFiles"
     }
   }
 }
