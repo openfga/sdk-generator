@@ -338,9 +338,14 @@ class OpenFgaClient():
                 options.pop("continuation_token")
         kwargs = options_to_kwargs(options)
 
+        if body is None or (body.object is None and body.relation is None and body.user is None):
+            tuple_key = None
+        else:
+            tuple_key = body
+
         api_response = self._api.read(
             ReadRequest(
-                tuple_key=body,
+                tuple_key=tuple_key,
                 page_size=page_size,
                 continuation_token=continuation_token,
             ),
