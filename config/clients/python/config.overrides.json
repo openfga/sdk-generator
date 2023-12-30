@@ -149,6 +149,34 @@
     },
     "help.py": {
       "destinationFilename": "openfga_sdk/help.py"
+    },
+    "example/Makefile": {
+      "destinationFilename": "example/Makefile",
+      "templateType": "SupportingFiles"
+    },
+    "example/README.md": {
+      "destinationFilename": "example/README.md",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/auth-model.json": {
+      "destinationFilename": "example/example1/auth-model.json",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/example1.py": {
+      "destinationFilename": "example/example1/example1.py",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/requirements.txt": {
+      "destinationFilename": "example/example1/requirements.txt",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/setup.py": {
+      "destinationFilename": "example/example1/setup.py",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/setup.cfg": {
+      "destinationFilename": "example/example1/setup.cfg",
+      "templateType": "SupportingFiles"
     }
   }
 }
