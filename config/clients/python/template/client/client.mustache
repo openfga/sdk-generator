@@ -1,6 +1,15 @@
 # coding: utf-8
 {{>partial_header}}
 
+{{#asyncio}}
+import asyncio
+{{/asyncio}}
+{{^asyncio}}
+import time
+{{/asyncio}}
+import uuid
+from typing import List
+
 from {{packageName}}.api_client import ApiClient
 from {{packageName}}.api.open_fga_api import OpenFgaApi
 from {{packageName}}.client.configuration import ClientConfiguration
@@ -30,15 +39,6 @@ from {{packageName}}.models.write_assertions_request import WriteAssertionsReque
 from {{packageName}}.models.write_authorization_model_request import WriteAuthorizationModelRequest
 from {{packageName}}.models.write_request import WriteRequest
 from {{packageName}}.validation import is_well_formed_ulid_string
-
-{{#asyncio}}
-import asyncio
-{{/asyncio}}
-{{^asyncio}}
-import time
-{{/asyncio}}
-import uuid
-from typing import List
 
 CLIENT_METHOD_HEADER = "X-OpenFGA-Client-Method"
 CLIENT_BULK_REQUEST_ID_HEADER = "X-OpenFGA-Client-Bulk-Request-Id"
