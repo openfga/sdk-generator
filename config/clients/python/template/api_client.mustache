@@ -358,7 +358,7 @@ class ApiClient(object):
         if data is None:
             return None
 
-        if type(klass) == str:
+        if type(klass) is str:
             if klass.startswith('list['):
                 sub_kls = re.match(r'list\[(.*)\]', klass).group(1)
                 return [self.__deserialize(sub_data, sub_kls)
@@ -435,7 +435,7 @@ class ApiClient(object):
             then the method will return the response directly.
         """
         if not async_req:
-            return {{#asyncio}}await({{/asyncio}}self.__call_api(resource_path, method,
+            return {{#asyncio}}await ({{/asyncio}}self.__call_api(resource_path, method,
                                    path_params, query_params, header_params,
                                    body, post_params,
                                    response_types_map, auth_settings,
@@ -463,25 +463,25 @@ class ApiClient(object):
                 _request_timeout=None):
         """Makes the HTTP request using RESTClient."""
         if method == "GET":
-            return {{#asyncio}}await({{/asyncio}}self.rest_client.GET(url,
+            return {{#asyncio}}await ({{/asyncio}}self.rest_client.GET(url,
                                         query_params=query_params,
                                         _preload_content=_preload_content,
                                         _request_timeout=_request_timeout,
                                         headers=headers){{#asyncio}}){{/asyncio}}
         elif method == "HEAD":
-            return {{#asyncio}}await({{/asyncio}}self.rest_client.HEAD(url,
+            return {{#asyncio}}await ({{/asyncio}}self.rest_client.HEAD(url,
                                          query_params=query_params,
                                          _preload_content=_preload_content,
                                          _request_timeout=_request_timeout,
                                          headers=headers){{#asyncio}}){{/asyncio}}
         elif method == "OPTIONS":
-            return {{#asyncio}}await({{/asyncio}}self.rest_client.OPTIONS(url,
+            return {{#asyncio}}await ({{/asyncio}}self.rest_client.OPTIONS(url,
                                             query_params=query_params,
                                             headers=headers,
                                             _preload_content=_preload_content,
                                             _request_timeout=_request_timeout){{#asyncio}}){{/asyncio}}
         elif method == "POST":
-            return {{#asyncio}}await({{/asyncio}}self.rest_client.POST(url,
+            return {{#asyncio}}await ({{/asyncio}}self.rest_client.POST(url,
                                          query_params=query_params,
                                          headers=headers,
                                          post_params=post_params,
@@ -489,7 +489,7 @@ class ApiClient(object):
                                          _request_timeout=_request_timeout,
                                          body=body){{#asyncio}}){{/asyncio}}
         elif method == "PUT":
-            return {{#asyncio}}await({{/asyncio}}self.rest_client.PUT(url,
+            return {{#asyncio}}await ({{/asyncio}}self.rest_client.PUT(url,
                                         query_params=query_params,
                                         headers=headers,
                                         post_params=post_params,
@@ -497,7 +497,7 @@ class ApiClient(object):
                                         _request_timeout=_request_timeout,
                                         body=body){{#asyncio}}){{/asyncio}}
         elif method == "PATCH":
-            return {{#asyncio}}await({{/asyncio}}self.rest_client.PATCH(url,
+            return {{#asyncio}}await ({{/asyncio}}self.rest_client.PATCH(url,
                                           query_params=query_params,
                                           headers=headers,
                                           post_params=post_params,
@@ -505,7 +505,7 @@ class ApiClient(object):
                                           _request_timeout=_request_timeout,
                                           body=body){{#asyncio}}){{/asyncio}}
         elif method == "DELETE":
-            return {{#asyncio}}await({{/asyncio}}self.rest_client.DELETE(url,
+            return {{#asyncio}}await ({{/asyncio}}self.rest_client.DELETE(url,
                                            query_params=query_params,
                                            headers=headers,
                                            _preload_content=_preload_content,

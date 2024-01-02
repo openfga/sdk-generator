@@ -98,7 +98,7 @@ class {{classname}}(object):
         :rtype: {{returnType}}{{^returnType}}None{{/returnType}}
         """
         kwargs['_return_http_data_only'] = True
-        return {{#asyncio}}await({{/asyncio}}self.{{operationId}}_with_http_info({{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{^-first}}{{paramName}}, {{/-first}}{{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs){{#asyncio}}){{/asyncio}}  # noqa: E501
+        return {{#asyncio}}await ({{/asyncio}}self.{{operationId}}_with_http_info({{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{^-first}}{{paramName}}, {{/-first}}{{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs){{#asyncio}}){{/asyncio}}  # noqa: E501
 
     {{#asyncio}}async {{/asyncio}}def {{operationId}}_with_http_info(self, {{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{^-first}}{{paramName}}, {{/-first}}{{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs):  # noqa: E501
         """{{{summary}}}{{^summary}}{{operationId}}{{/summary}}  # noqa: E501
@@ -324,7 +324,7 @@ class {{classname}}(object):
         response_types_map = {}
         {{/returnType}}
 
-        return {{#asyncio}}await({{/asyncio}}self.api_client.call_api(
+        return {{#asyncio}}await ({{/asyncio}}self.api_client.call_api(
             '{{{path}}}'.replace('{store_id}', store_id), '{{httpMethod}}',
             path_params,
             query_params,
