@@ -162,7 +162,7 @@ jobs:
 
       - name: Run All Tests
         run: |-
-          make test-client-python
+          make test-client-python OPEN_API_REF=0f1d73e766d26ac5c004383d741ee0f815c9b1e6 # TODO: Remove OPEN_API_REF after support for conditions
 
       - name: Check for SDK changes
         run: ./scripts/commit_push_changes.sh
