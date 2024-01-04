@@ -36,6 +36,7 @@ jobs:
           SSH_KEY: ${{ secrets.JS_SDK_SSH_KEY }}
           SDK_PATH: clients/fga-js-sdk
           KNOWN_HOSTS: ${{secrets.KNOWN_HOSTS}}
+        continue-on-error: true
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -52,6 +53,7 @@ jobs:
           GITHUB_ORG_ID: ${{ secrets.JS_SDK_GITHUB_ORG_ID }}
           GITHUB_REPO_ID: ${{ secrets.JS_SDK_GITHUB_REPO_ID }}
           SSH_KEY: ${{ secrets.JS_SDK_SSH_KEY }}
+        continue-on-error: true
 
   build-and-test-go-sdk:
     runs-on: ubuntu-latest
@@ -75,6 +77,7 @@ jobs:
           SDK_PATH: clients/fga-go-sdk
           GIT_SSH_COMMAND: "ssh -o UserKnownHostsFile=$tmpdir/known_hosts"
           KNOWN_HOSTS: ${{secrets.KNOWN_HOSTS}}
+        continue-on-error: true
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -91,6 +94,7 @@ jobs:
           GITHUB_ORG_ID: ${{ secrets.GO_SDK_GITHUB_ORG_ID }}
           GITHUB_REPO_ID: ${{ secrets.GO_SDK_GITHUB_REPO_ID }}
           SSH_KEY: ${{ secrets.GO_SDK_SSH_KEY }}
+        continue-on-error: true
 
   build-and-test-dotnet-sdk:
     runs-on: ubuntu-latest
@@ -113,6 +117,7 @@ jobs:
           SSH_KEY: ${{ secrets.DOTNET_SDK_SSH_KEY }}
           SDK_PATH: clients/fga-dotnet-sdk
           KNOWN_HOSTS: ${{secrets.KNOWN_HOSTS}}
+        continue-on-error: true
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -129,6 +134,7 @@ jobs:
           GITHUB_ORG_ID: ${{ secrets.DOTNET_SDK_GITHUB_ORG_ID }}
           GITHUB_REPO_ID: ${{ secrets.DOTNET_SDK_GITHUB_REPO_ID }}
           SSH_KEY: ${{ secrets.DOTNET_SDK_SSH_KEY }}
+        continue-on-error: true
 
   build-and-test-python-sdk:
     runs-on: ubuntu-latest
@@ -156,6 +162,7 @@ jobs:
           SSH_KEY: ${{ secrets.PYTHON_SDK_SSH_KEY }}
           SDK_PATH: clients/fga-python-sdk
           KNOWN_HOSTS: ${{secrets.KNOWN_HOSTS}}
+        continue-on-error: true
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -173,6 +180,7 @@ jobs:
           GITHUB_ORG_ID: ${{ secrets.PYTHON_SDK_GITHUB_ORG_ID }}
           GITHUB_REPO_ID: ${{ secrets.PYTHON_SDK_GITHUB_REPO_ID }}
           SSH_KEY: ${{ secrets.PYTHON_SDK_SSH_KEY }}
+        continue-on-error: true
 
   build-and-test-java-sdk:
     runs-on: ubuntu-latest
@@ -202,6 +210,7 @@ jobs:
           SSH_KEY: ${{ secrets.JAVA_SDK_SSH_KEY }}
           SDK_PATH: clients/fga-java-sdk
           KNOWN_HOSTS: ${{secrets.KNOWN_HOSTS}}
+        continue-on-error: true
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -219,3 +228,5 @@ jobs:
           GITHUB_ORG_ID: ${{ secrets.JAVA_SDK_GITHUB_ORG_ID }}
           GITHUB_REPO_ID: ${{ secrets.JAVA_SDK_GITHUB_REPO_ID }}
           SSH_KEY: ${{ secrets.JAVA_SDK_SSH_KEY }}
+        continue-on-error: true
+
