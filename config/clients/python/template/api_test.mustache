@@ -23,6 +23,7 @@ from {{packageName}}.models.create_store_request import CreateStoreRequest
 from {{packageName}}.models.create_store_response import CreateStoreResponse
 from {{packageName}}.models.error_code import ErrorCode
 from {{packageName}}.models.expand_request import ExpandRequest
+from {{packageName}}.models.expand_request_tuple_key import ExpandRequestTupleKey
 from {{packageName}}.models.expand_response import ExpandResponse
 from {{packageName}}.models.get_store_response import GetStoreResponse
 from {{packageName}}.models.internal_error_code import InternalErrorCode
@@ -39,12 +40,15 @@ from {{packageName}}.models.read_assertions_response import ReadAssertionsRespon
 from {{packageName}}.models.read_authorization_model_response import ReadAuthorizationModelResponse
 from {{packageName}}.models.read_changes_response import ReadChangesResponse
 from {{packageName}}.models.read_request import ReadRequest
+from {{packageName}}.models.read_request_tuple_key import ReadRequestTupleKey
 from {{packageName}}.models.read_response import ReadResponse
 from {{packageName}}.models.store import Store
 from {{packageName}}.models.tuple import Tuple
 from {{packageName}}.models.tuple_change import TupleChange
 from {{packageName}}.models.tuple_key import TupleKey
-from {{packageName}}.models.tuple_keys import TupleKeys
+from {{packageName}}.models.tuple_key_without_condition import TupleKeyWithoutCondition
+from {{packageName}}.models.write_request_writes import WriteRequestWrites
+from {{packageName}}.models.write_request_deletes import WriteRequestDeletes
 from {{packageName}}.models.tuple_operation import TupleOperation
 from {{packageName}}.models.type_definition import TypeDefinition
 from {{packageName}}.models.users import Users
@@ -207,7 +211,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = ExpandRequest(
-                tuple_key=TupleKey(
+                tuple_key=ExpandRequestTupleKey(
                     object="document:budget",
                     relation="reader",
                 ),
@@ -217,8 +221,8 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 body=body,
             )
             self.assertIsInstance(api_response, ExpandResponse)
-            curUsers = Users(users=["user:81684243-9356-4421-8fbf-a4f8d36aa31b"])
-            leaf = Leaf(users=curUsers)
+            cur_users = Users(users=["user:81684243-9356-4421-8fbf-a4f8d36aa31b"])
+            leaf = Leaf(users=cur_users)
             node = Node(name="document:budget#reader", leaf=leaf)
             userTree = UsersetTree(node)
             expected_response = ExpandResponse(userTree)
@@ -393,7 +397,8 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
       },
       "timestamp": "2021-10-06T15:32:11.128Z"
     }
-  ]
+  ],
+  "continuation_token": ""
 }
         '''
         mock_request.return_value = mock_response(response_body, 200)
@@ -402,7 +407,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = ReadRequest(
-                tuple_key=TupleKey(
+                tuple_key=ReadRequestTupleKey(
                     object="document:2021-budget",
                     relation="reader",
                     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
@@ -416,7 +421,8 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             self.assertIsInstance(api_response, ReadResponse)
             key = TupleKey(user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",relation="reader",object="document:2021-budget")
             timestamp = datetime.fromisoformat("2021-10-06T15:32:11.128+00:00")
-            expected_data = ReadResponse(tuples=[Tuple(key=key, timestamp=timestamp)])
+            expected_data = ReadResponse(
+                tuples=[Tuple(key=key, timestamp=timestamp)], continuation_token='')
             self.assertEqual(api_response, expected_data)
             mock_request.assert_called_once_with(
                 'POST',
@@ -461,7 +467,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             self.assertIsInstance(api_response, ReadAssertionsResponse)
             self.assertEqual(api_response.authorization_model_id, '01G5JAVJ41T49E9TT3SKVS7X1J')
             assertion=Assertion(
-                tuple_key=TupleKey(
+                tuple_key=TupleKeyWithoutCondition(
                     object="document:2021-budget",
                     relation="reader",
                     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
@@ -635,7 +641,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             # example passing only required values which don't have defaults set
 
             body = WriteRequest(
-                writes=TupleKeys(
+                writes=WriteRequestWrites(
                     tuple_keys=[
                         TupleKey(
                             object="document:2021-budget",
@@ -678,7 +684,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             # example passing only required values which don't have defaults set
 
             body = WriteRequest(
-                deletes=TupleKeys(
+                deletes=WriteRequestDeletes(
                     tuple_keys=[
                         TupleKey(
                             object="document:2021-budget",
@@ -1137,11 +1143,11 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             self.assertIsInstance(api_response, CheckResponse)
             self.assertTrue(api_response.allowed)
             # Make sure the API was called with the right data
-            expectedHeader = urllib3.response.HTTPHeaderDict({'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'openfga-sdk {{sdkId}}/{{packageVersion}}', 'Authorization': 'Bearer TOKEN1'})
+            expected_headers = urllib3.response.HTTPHeaderDict({'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'openfga-sdk {{sdkId}}/{{packageVersion}}', 'Authorization': 'Bearer TOKEN1'})
             mock_request.assert_called_once_with(
                 'POST',
                 'http://api.{{sampleApiDomain}}/stores/01H0H015178Y2V4CX10C2KGHF4/check',
-                headers=expectedHeader,
+                headers=expected_headers,
                 query_params=[],
                 post_params=[],
                 body={"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b"}},
@@ -1178,11 +1184,11 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             self.assertIsInstance(api_response, CheckResponse)
             self.assertTrue(api_response.allowed)
             # Make sure the API was called with the right data
-            expectedHeader = urllib3.response.HTTPHeaderDict({'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'openfga-sdk {{sdkId}}/{{packageVersion}}', 'Custom Header': 'custom value'})
+            expected_headers = urllib3.response.HTTPHeaderDict({'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'openfga-sdk {{sdkId}}/{{packageVersion}}', 'Custom Header': 'custom value'})
             mock_request.assert_called_once_with(
                 'POST',
                 'http://api.{{sampleApiDomain}}/stores/01H0H015178Y2V4CX10C2KGHF4/check',
-                headers=expectedHeader,
+                headers=expected_headers,
                 query_params=[],
                 post_params=[],
                 body={"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b"}},
