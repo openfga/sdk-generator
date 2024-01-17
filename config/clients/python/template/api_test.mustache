@@ -23,6 +23,7 @@ from {{packageName}}.models.create_store_request import CreateStoreRequest
 from {{packageName}}.models.create_store_response import CreateStoreResponse
 from {{packageName}}.models.error_code import ErrorCode
 from {{packageName}}.models.expand_request import ExpandRequest
+from {{packageName}}.models.expand_request_tuple_key import ExpandRequestTupleKey
 from {{packageName}}.models.expand_response import ExpandResponse
 from {{packageName}}.models.get_store_response import GetStoreResponse
 from {{packageName}}.models.internal_error_code import InternalErrorCode
@@ -39,12 +40,15 @@ from {{packageName}}.models.read_assertions_response import ReadAssertionsRespon
 from {{packageName}}.models.read_authorization_model_response import ReadAuthorizationModelResponse
 from {{packageName}}.models.read_changes_response import ReadChangesResponse
 from {{packageName}}.models.read_request import ReadRequest
+from {{packageName}}.models.read_request_tuple_key import ReadRequestTupleKey
 from {{packageName}}.models.read_response import ReadResponse
 from {{packageName}}.models.store import Store
 from {{packageName}}.models.tuple import Tuple
 from {{packageName}}.models.tuple_change import TupleChange
 from {{packageName}}.models.tuple_key import TupleKey
-from {{packageName}}.models.tuple_keys import TupleKeys
+from {{packageName}}.models.tuple_key_without_condition import TupleKeyWithoutCondition
+from {{packageName}}.models.write_request_writes import WriteRequestWrites
+from {{packageName}}.models.write_request_deletes import WriteRequestDeletes
 from {{packageName}}.models.tuple_operation import TupleOperation
 from {{packageName}}.models.type_definition import TypeDefinition
 from {{packageName}}.models.users import Users
@@ -102,7 +106,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
 
         configuration = self.configuration
         configuration.store_id = store_id
-        async with {{packageName}}.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(
                 tuple_key=TupleKey(
@@ -112,7 +116,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 ),
                 authorization_model_id="01GXSA8YR785C4FYS3C0RTG7B1",
             )
-            api_response = await api_instance.check(
+            api_response = {{#asyncio}}await {{/asyncio}}api_instance.check(
                 body=body,
             )
             self.assertIsInstance(api_response, CheckResponse)
@@ -129,7 +133,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
     async def test_create_store(self, mock_request):
@@ -146,12 +150,12 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 201)
 
         configuration = self.configuration
-        async with {{packageName}}.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CreateStoreRequest(
                 name="test-store",
             )
-            api_response = await api_instance.create_store(
+            api_response = {{#asyncio}}await {{/asyncio}}api_instance.create_store(
                 body=body,
             )
             self.assertIsInstance(api_response, CreateStoreResponse)
@@ -166,7 +170,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
     async def test_delete_store(self, mock_request):
@@ -178,9 +182,9 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 201)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with {{packageName}}.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
-            await api_instance.delete_store()
+            {{#asyncio}}await {{/asyncio}}api_instance.delete_store()
             mock_request.assert_called_once_with(
                 'DELETE',
                 'http://api.{{sampleApiDomain}}/stores/01H0H015178Y2V4CX10C2KGHF4',
@@ -190,7 +194,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
     async def test_expand(self, mock_request):
@@ -204,21 +208,21 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with {{packageName}}.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = ExpandRequest(
-                tuple_key=TupleKey(
+                tuple_key=ExpandRequestTupleKey(
                     object="document:budget",
                     relation="reader",
                 ),
                 authorization_model_id="01GXSA8YR785C4FYS3C0RTG7B1",
             )
-            api_response = await api_instance.expand(
+            api_response = {{#asyncio}}await {{/asyncio}}api_instance.expand(
                 body=body,
             )
             self.assertIsInstance(api_response, ExpandResponse)
-            curUsers = Users(users=["user:81684243-9356-4421-8fbf-a4f8d36aa31b"])
-            leaf = Leaf(users=curUsers)
+            cur_users = Users(users=["user:81684243-9356-4421-8fbf-a4f8d36aa31b"])
+            leaf = Leaf(users=cur_users)
             node = Node(name="document:budget#reader", leaf=leaf)
             userTree = UsersetTree(node)
             expected_response = ExpandResponse(userTree)
@@ -233,7 +237,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
     async def test_get_store(self, mock_request):
@@ -251,10 +255,10 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with {{packageName}}.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             # Get a store
-            api_response = await api_instance.get_store()
+            api_response = {{#asyncio}}await {{/asyncio}}api_instance.get_store()
             self.assertIsInstance(api_response, GetStoreResponse)
             self.assertEqual(api_response.id, '01H0H015178Y2V4CX10C2KGHF4')
             self.assertEqual(api_response.name, 'test_store')
@@ -266,7 +270,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
     async def test_list_objects(self, mock_request):
@@ -284,7 +288,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with {{packageName}}.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = ListObjectsRequest(
                 authorization_model_id="01G5JAVJ41T49E9TT3SKVS7X1J",
@@ -293,7 +297,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             )
             # Get all stores
-            api_response = await api_instance.list_objects(body)
+            api_response = {{#asyncio}}await {{/asyncio}}api_instance.list_objects(body)
             self.assertIsInstance(api_response, ListObjectsResponse)
             self.assertEqual(api_response.objects, ['document:abcd1234'])
             mock_request.assert_called_once_with(
@@ -307,7 +311,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
     async def test_list_stores(self, mock_request):
@@ -338,10 +342,10 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             '''
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
-        async with {{packageName}}.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             # Get all stores
-            api_response = await api_instance.list_stores(
+            api_response = {{#asyncio}}await {{/asyncio}}api_instance.list_stores(
                 page_size=1,
                 continuation_token="continuation_token_example",
             )
@@ -374,7 +378,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 _preload_content=ANY,
                 _request_timeout=None
             )
-            await api_client.close()
+            {{#asyncio}}await {{/asyncio}}api_client.close()
 
     @patch.object(rest.RESTClientObject, 'request')
     async def test_read(self, mock_request):
@@ -393,16 +397,17 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
       },
       "timestamp": "2021-10-06T15:32:11.128Z"
     }
-  ]
+  ],
+  "continuation_token": ""
 }
         '''
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = ReadRequest(
-                tuple_key=TupleKey(
+                tuple_key=ReadRequestTupleKey(
                     object="document:2021-budget",
                     relation="reader",
                     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
@@ -410,13 +415,14 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 page_size=50,
                 continuation_token="eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==",
             )
-            api_response = await api_instance.read(
+            api_response = {{#asyncio}}await {{/asyncio}}api_instance.read(
                 body=body,
             )
             self.assertIsInstance(api_response, ReadResponse)
             key = TupleKey(user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",relation="reader",object="document:2021-budget")
             timestamp = datetime.fromisoformat("2021-10-06T15:32:11.128+00:00")
-            expected_data = ReadResponse(tuples=[Tuple(key=key, timestamp=timestamp)])
+            expected_data = ReadResponse(
+                tuples=[Tuple(key=key, timestamp=timestamp)], continuation_token='')
             self.assertEqual(api_response, expected_data)
             mock_request.assert_called_once_with(
                 'POST',
@@ -453,15 +459,15 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 200)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
-            api_response = await api_instance.read_assertions(
+            api_response = {{#asyncio}}await {{/asyncio}}api_instance.read_assertions(
                 "01G5JAVJ41T49E9TT3SKVS7X1J",
             )
             self.assertIsInstance(api_response, ReadAssertionsResponse)
             self.assertEqual(api_response.authorization_model_id, '01G5JAVJ41T49E9TT3SKVS7X1J')
             assertion=Assertion(
-                tuple_key=TupleKey(
+                tuple_key=TupleKeyWithoutCondition(
                     object="document:2021-budget",
                     relation="reader",
                     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
@@ -521,12 +527,12 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        async with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
             # Return a particular version of an authorization model
-            api_response = await api_instance.read_authorization_model(
+            api_response = {{#asyncio}}await {{/asyncio}}api_instance.read_authorization_model(
                 "01G5JAVJ41T49E9TT3SKVS7X1J",
             )
             self.assertIsInstance(api_response, ReadAuthorizationModelResponse)
@@ -589,12 +595,12 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        async with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
             # Return a particular version of an authorization model
-            api_response = await api_instance.read_changes(
+            api_response = {{#asyncio}}await {{/asyncio}}api_instance.read_changes(
                 page_size=1,
                 continuation_token="abcdefg",
                 type="document"
@@ -628,14 +634,14 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        async with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
             # example passing only required values which don't have defaults set
 
             body = WriteRequest(
-                writes=TupleKeys(
+                writes=WriteRequestWrites(
                     tuple_keys=[
                         TupleKey(
                             object="document:2021-budget",
@@ -646,7 +652,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 ),
                 authorization_model_id="01G5JAVJ41T49E9TT3SKVS7X1J",
             )
-            await api_instance.write(
+            {{#asyncio}}await {{/asyncio}}api_instance.write(
                 body,
             )
             mock_request.assert_called_once_with(
@@ -671,14 +677,14 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        async with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
             # example passing only required values which don't have defaults set
 
             body = WriteRequest(
-                deletes=TupleKeys(
+                deletes=WriteRequestDeletes(
                     tuple_keys=[
                         TupleKey(
                             object="document:2021-budget",
@@ -689,7 +695,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 ),
                 authorization_model_id="01G5JAVJ41T49E9TT3SKVS7X1J",
             )
-            await api_instance.write(
+            {{#asyncio}}await {{/asyncio}}api_instance.write(
                 body,
             )
             mock_request.assert_called_once_with(
@@ -714,7 +720,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
-        async with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -732,7 +738,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 ],
             )
             # Upsert assertions for an authorization model ID
-            await api_instance.write_assertions(
+            {{#asyncio}}await {{/asyncio}}api_instance.write_assertions(
                 authorization_model_id="xyz0123",
                 body=body,
             )
@@ -757,7 +763,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         mock_request.return_value = mock_response(response_body, 201)
         configuration = self.configuration
         configuration.store_id = store_id
-        async with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
@@ -787,7 +793,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 ],
             )
             # Create a new authorization model
-            api_response = await api_instance.write_authorization_model(
+            api_response = {{#asyncio}}await {{/asyncio}}api_instance.write_authorization_model(
                 body
             )
             self.assertIsInstance(api_response, WriteAuthorizationModelResponse)
@@ -887,7 +893,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         """
         Test whether ApiValueError is raised if host has query
         """
-        configuration = openfga_sdk.Configuration(
+        configuration = {{packageName}}.Configuration(
             api_host='localhost',
             api_scheme='http',
             store_id="abcd"
@@ -905,13 +911,13 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         )
         configuration.store_id = 'xyz123'
         # Enter a context with an instance of the API client
-        async with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
             # expects FgaValidationException to be thrown because api_scheme is bad
             with self.assertRaises(ApiValueError):
-                await api_instance.read_authorization_models(
+                {{#asyncio}}await {{/asyncio}}api_instance.read_authorization_models(
                     page_size= 1,
                     continuation_token= "abcdefg"
                 )
@@ -927,13 +933,13 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         )
         # Notice the store_id is not set
         # Enter a context with an instance of the API client
-        async with openfga_sdk.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
             # expects FgaValidationException to be thrown because store_id is not specified
             with self.assertRaises(FgaValidationException):
-                await api_instance.read_authorization_models(
+                {{#asyncio}}await {{/asyncio}}api_instance.read_authorization_models(
                     page_size= 1,
                     continuation_token= "abcdefg"
                 )
@@ -953,7 +959,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
 
         configuration = self.configuration
         configuration.store_id = store_id
-        async with {{packageName}}.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(
                 tuple_key=TupleKey(
@@ -963,7 +969,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 ),
             )
             with self.assertRaises(ValidationException) as api_exception:
-                await api_instance.check(
+                {{#asyncio}}await {{/asyncio}}api_instance.check(
                     body=body,
                 )
             self.assertIsInstance(api_exception.exception.parsed_exception, ValidationErrorMessageResponse)
@@ -987,7 +993,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
 
         configuration = self.configuration
         configuration.store_id = store_id
-        async with {{packageName}}.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(
                 tuple_key=TupleKey(
@@ -997,7 +1003,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 ),
             )
             with self.assertRaises(NotFoundException) as api_exception:
-                await api_instance.check(
+                {{#asyncio}}await {{/asyncio}}api_instance.check(
                     body=body,
                 )
             self.assertIsInstance(api_exception.exception.parsed_exception, PathUnknownErrorMessageResponse)
@@ -1022,7 +1028,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         configuration.retry_params = retry
-        async with {{packageName}}.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(
                 tuple_key=TupleKey(
@@ -1032,7 +1038,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 ),
             )
             with self.assertRaises(RateLimitExceededError) as api_exception:
-                await api_instance.check(
+                {{#asyncio}}await {{/asyncio}}api_instance.check(
                     body=body,
                 )
             self.assertIsInstance(api_exception.exception, RateLimitExceededError)
@@ -1058,7 +1064,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         configuration.retry_params = retry
-        async with {{packageName}}.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(
                 tuple_key=TupleKey(
@@ -1067,7 +1073,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 ),
             )
-            api_response = await api_instance.check(
+            api_response = {{#asyncio}}await {{/asyncio}}api_instance.check(
                 body=body,
             )
             self.assertIsInstance(api_response, CheckResponse)
@@ -1091,7 +1097,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
 
         configuration = self.configuration
         configuration.store_id = store_id
-        async with {{packageName}}.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(
                 tuple_key=TupleKey(
@@ -1101,7 +1107,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                 ),
             )
             with self.assertRaises(ServiceException) as api_exception:
-                await api_instance.check(
+                {{#asyncio}}await {{/asyncio}}api_instance.check(
                     body=body,
                 )
             self.assertIsInstance(api_exception.exception.parsed_exception, InternalErrorMessageResponse)
@@ -1122,7 +1128,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         configuration.credentials = Credentials(method='api_token', configuration=CredentialConfiguration(api_token='TOKEN1'))
-        async with {{packageName}}.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(
                 tuple_key=TupleKey(
@@ -1131,17 +1137,17 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 ),
             )
-            api_response = await api_instance.check(
+            api_response = {{#asyncio}}await {{/asyncio}}api_instance.check(
                 body=body,
             )
             self.assertIsInstance(api_response, CheckResponse)
             self.assertTrue(api_response.allowed)
             # Make sure the API was called with the right data
-            expectedHeader = urllib3.response.HTTPHeaderDict({'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'openfga-sdk {{sdkId}}/{{packageVersion}}', 'Authorization': 'Bearer TOKEN1'})
+            expected_headers = urllib3.response.HTTPHeaderDict({'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'openfga-sdk {{sdkId}}/{{packageVersion}}', 'Authorization': 'Bearer TOKEN1'})
             mock_request.assert_called_once_with(
                 'POST',
                 'http://api.{{sampleApiDomain}}/stores/01H0H015178Y2V4CX10C2KGHF4/check',
-                headers=expectedHeader,
+                headers=expected_headers,
                 query_params=[],
                 post_params=[],
                 body={"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b"}},
@@ -1162,7 +1168,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
 
         configuration = self.configuration
         configuration.store_id = store_id
-        async with {{packageName}}.ApiClient(configuration) as api_client:
+        {{#asyncio}}async {{/asyncio}}with {{packageName}}.ApiClient(configuration) as api_client:
             api_client.set_default_header("Custom Header", "custom value")
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(
@@ -1172,17 +1178,17 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
                     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 ),
             )
-            api_response = await api_instance.check(
+            api_response = {{#asyncio}}await {{/asyncio}}api_instance.check(
                 body=body,
             )
             self.assertIsInstance(api_response, CheckResponse)
             self.assertTrue(api_response.allowed)
             # Make sure the API was called with the right data
-            expectedHeader = urllib3.response.HTTPHeaderDict({'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'openfga-sdk {{sdkId}}/{{packageVersion}}', 'Custom Header': 'custom value'})
+            expected_headers = urllib3.response.HTTPHeaderDict({'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'openfga-sdk {{sdkId}}/{{packageVersion}}', 'Custom Header': 'custom value'})
             mock_request.assert_called_once_with(
                 'POST',
                 'http://api.{{sampleApiDomain}}/stores/01H0H015178Y2V4CX10C2KGHF4/check',
-                headers=expectedHeader,
+                headers=expected_headers,
                 query_params=[],
                 post_params=[],
                 body={"tuple_key":{"object":"document:2021-budget","relation":"reader","user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b"}},

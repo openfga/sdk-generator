@@ -10,12 +10,15 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Go
-      uses: actions/setup-go@v3
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.5.4
       with:
-        go-version: '>=1.20.5'
+        fetch-depth: 0
+
+    - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+      with:
+        cache-dependency-path: './go.sum'
+        check-latest: true
+        go-version: '>=1.21.1'
 
     - name: Build
       run: go build -v ./...
@@ -35,9 +38,11 @@ jobs:
     needs: [test]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.5.4
+        with:
+          fetch-depth: 0
 
-      - uses: Roang-zero1/github-create-release-action@5cf058ddffa6fa04e5cda07c98570c757dc4a0e1
+      - uses: Roang-zero1/github-create-release-action@57eb9bdce7a964e48788b9e78b5ac766cb684803
         with:
           version_regex: ^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+
         env:

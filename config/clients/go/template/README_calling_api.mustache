@@ -33,7 +33,7 @@ if err != nil {
 
 // store store.Id in database
 // update the storeId of the current instance
-fgaClient.SetStoreId(*store.Id)
+fgaClient.SetStoreId(store.Id)
 // continue calling the API normally, scoped to this store
 ```
 
@@ -267,7 +267,7 @@ body := ClientWriteRequest{
         Relation: "viewer",
         Object:   "document:budget",
     } },
-    Deletes: &[]ClientTupleKey{ {
+    Deletes: &[]ClientTupleKeyWithoutCondition{ {
         User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
         Relation: "writer",
         Object:   "document:roadmap",
@@ -298,7 +298,7 @@ body := ClientWriteRequest{
         Relation: "viewer",
         Object:   "document:budget",
     } },
-	  Deletes: &[]ClientTupleKey{ {
+	  Deletes: &[]ClientTupleKeyWithoutCondition{ {
       User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
       Relation: "writer",
       Object:   "document:roadmap",

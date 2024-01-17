@@ -2,6 +2,7 @@
 package {{configPackage}};
 
 import static {{utilPackage}}.StringUtil.isNullOrWhitespace;
+import static {{utilPackage}}.Validation.assertParamExists;
 
 import {{errorsPackage}}.FgaInvalidParameterException;
 import java.net.MalformedURLException;
@@ -11,6 +12,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpRequest;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Configurations for an api client.
@@ -28,24 +31,12 @@ public class Configuration implements BaseConfiguration {
     private String userAgent;
     private Duration readTimeout;
     private Duration connectTimeout;
+    private int maxRetries;
+    private Duration minimumRetryDelay;
+    private Map<String, String> defaultHeaders;
 
     public Configuration() {
         this.apiUrl = DEFAULT_API_URL;
-        this.userAgent = DEFAULT_USER_AGENT;
-        this.readTimeout = DEFAULT_READ_TIMEOUT;
-        this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
-    }
-
-    public Configuration(String apiUrl) {
-        this.apiUrl = apiUrl;
-        this.userAgent = DEFAULT_USER_AGENT;
-        this.readTimeout = DEFAULT_READ_TIMEOUT;
-        this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
-    }
-
-    public Configuration(String apiUrl, Credentials credentials) {
-        this.apiUrl = apiUrl;
-        this.credentials = credentials;
         this.userAgent = DEFAULT_USER_AGENT;
         this.readTimeout = DEFAULT_READ_TIMEOUT;
         this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
@@ -67,13 +58,8 @@ public class Configuration implements BaseConfiguration {
                 throw new FgaInvalidParameterException("apiUrl", "Configuration", cause);
             }
 
-            if (isNullOrWhitespace(uri.getScheme())) {
-                throw new FgaInvalidParameterException("scheme", "Configuration");
-            }
-
-            if (isNullOrWhitespace(uri.getHost())) {
-                throw new FgaInvalidParameterException("hostname", "Configuration");
-            }
+            assertParamExists(uri.getScheme(), "scheme", "Configuration");
+            assertParamExists(uri.getHost(), "hostname", "Configuration");
         }
 
         if (credentials != null) {
@@ -105,6 +91,28 @@ public class Configuration implements BaseConfiguration {
         Duration overrideConnectTimeout = configurationOverride.getConnectTimeout();
         result.connectTimeout(overrideConnectTimeout != null ? overrideConnectTimeout : connectTimeout);
 
+        Integer overrideMaxRetries = configurationOverride.getMaxRetries();
+        result.maxRetries(overrideMaxRetries != null ? overrideMaxRetries : maxRetries);
+
+        Duration overrideMinimumRetryDelay = configurationOverride.getMinimumRetryDelay();
+        result.minimumRetryDelay(overrideMinimumRetryDelay != null ? overrideMinimumRetryDelay : minimumRetryDelay);
+
+        Map<String, String> headers = new HashMap<>();
+        if (defaultHeaders != null) {
+            headers.putAll(defaultHeaders);
+        }
+        Map<String, String> additionalHeaders = configurationOverride.getAdditionalHeaders();
+        if (additionalHeaders != null) {
+            additionalHeaders.forEach((header, value) -> {
+                if (value == null) {
+                    headers.remove(header);
+                } else {
+                    headers.put(header, value);
+                }
+            });
+        }
+        result.defaultHeaders(headers);
+
         return result;
     }
 
@@ -135,6 +143,10 @@ public class Configuration implements BaseConfiguration {
 
     /**
      * Set the user agent.
+     *
+     * <p>Within the context of a single request, a "User-Agent" header from either
+     * {@link Configuration#defaultHeaders(Map)} or {@link ConfigurationOverride#additionalHeaders(Map)}
+     * will take precedence over this value.</p>
      *
      * @param userAgent The user agent.
      * @return This object.
@@ -234,5 +246,37 @@ public class Configuration implements BaseConfiguration {
     @Override
     public Duration getConnectTimeout() {
         return connectTimeout;
+    }
+
+    public Configuration maxRetries(int maxRetries) {
+        this.maxRetries = maxRetries;
+        return this;
+    }
+
+    @Override
+    public Integer getMaxRetries() {
+        return maxRetries;
+    }
+
+    public Configuration minimumRetryDelay(Duration minimumRetryDelay) {
+        this.minimumRetryDelay = minimumRetryDelay;
+        return this;
+    }
+
+    @Override
+    public Duration getMinimumRetryDelay() {
+        return minimumRetryDelay;
+    }
+
+    public Configuration defaultHeaders(Map<String, String> defaultHeaders) {
+        this.defaultHeaders = defaultHeaders;
+        return this;
+    }
+
+    public Map<String, String> getDefaultHeaders() {
+        if (this.defaultHeaders == null) {
+            this.defaultHeaders = Map.of();
+        }
+        return this.defaultHeaders;
     }
 }

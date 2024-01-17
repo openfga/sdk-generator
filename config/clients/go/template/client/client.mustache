@@ -8,38 +8,44 @@ import (
 	"math"
 	_nethttp "net/http"
 
-	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
+	fgaSdk "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
 	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
-	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/internal/utils"
+	internalutils "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/internal/utils"
 	"golang.org/x/sync/errgroup"
 )
 
 var (
 	_ _context.Context
-	// Ensure the SdkClient fits OpenFgaClient interface
-	_ SdkClient = (*OpenFgaClient)(nil)
+	// Ensure the SdkClient fits {{appShortName}}Client interface
+	_ SdkClient = (*{{appShortName}}Client)(nil)
 )
 
 var DEFAULT_MAX_METHOD_PARALLEL_REQS = int32({{clientMaxMethodParallelRequests}})
 
 type ClientConfiguration struct {
-	{{packageName}}.Configuration
-	ApiScheme            string                   `json:"api_scheme,omitempty"`
-	ApiHost              string                   `json:"api_host,omitempty"`
-	StoreId              string                   `json:"store_id,omitempty"`
-	AuthorizationModelId *string                  `json:"authorization_model_id,omitempty"`
-	Credentials          *credentials.Credentials `json:"credentials,omitempty"`
-	DefaultHeaders       map[string]string        `json:"default_headers,omitempty"`
-	UserAgent            string                   `json:"user_agent,omitempty"`
-	Debug                bool                     `json:"debug,omitempty"`
+	fgaSdk.Configuration
+	// ApiScheme - defines the scheme for the API: http or https
+	// Deprecated: use ApiUrl instead of ApiScheme and ApiHost
+	ApiScheme string `json:"api_scheme"`
+	// ApiHost - defines the host for the API without the scheme e.g. (api.{{sampleApiDomain}})
+	// Deprecated: use ApiUrl instead of ApiScheme and ApiHost
+	ApiHost              string                   `json:"api_host"`
+	ApiUrl               string                   `json:"api_url"`
+	StoreId              string                   `json:"store_id"`
+	AuthorizationModelId string                   `json:"authorization_model_id"`
+	Credentials          *credentials.Credentials `json:"credentials"`
+	DefaultHeaders       map[string]string        `json:"default_headers"`
+	UserAgent            string                   `json:"user_agent"`
+	Debug                bool                     `json:"debug"`
 	HTTPClient           *_nethttp.Client
-	RetryParams          *{{packageName}}.RetryParams
+	RetryParams          *fgaSdk.RetryParams
 }
 
-func newClientConfiguration(cfg *{{packageName}}.Configuration) ClientConfiguration {
+func newClientConfiguration(cfg *fgaSdk.Configuration) ClientConfiguration {
 	return ClientConfiguration{
 		ApiScheme:      cfg.ApiScheme,
 		ApiHost:        cfg.ApiHost,
+		ApiUrl:         cfg.ApiUrl,
 		StoreId:        cfg.StoreId,
 		Credentials:    cfg.Credentials,
 		DefaultHeaders: cfg.DefaultHeaders,
@@ -52,13 +58,14 @@ func newClientConfiguration(cfg *{{packageName}}.Configuration) ClientConfigurat
 type {{appShortName}}Client struct {
 	config ClientConfiguration
 	SdkClient
-	{{packageName}}.APIClient
+	fgaSdk.APIClient
 }
 
 func NewSdkClient(cfg *ClientConfiguration) (*{{appShortName}}Client, error) {
-	apiConfiguration, err := {{packageName}}.NewConfiguration({{packageName}}.Configuration{
+	apiConfiguration, err := fgaSdk.NewConfiguration(fgaSdk.Configuration{
 		ApiScheme:      cfg.ApiScheme,
 		ApiHost:        cfg.ApiHost,
+		ApiUrl:         cfg.ApiUrl,
 		StoreId:        cfg.StoreId,
 		Credentials:    cfg.Credentials,
 		DefaultHeaders: cfg.DefaultHeaders,
@@ -76,11 +83,11 @@ func NewSdkClient(cfg *ClientConfiguration) (*{{appShortName}}Client, error) {
 
 	// store id is already validate as part of configuration validation
 
-	if cfg.AuthorizationModelId != nil && *cfg.AuthorizationModelId != "" && !internalutils.IsWellFormedUlidString(*cfg.AuthorizationModelId) {
-		return nil, FgaInvalidError{param: "AuthorizationModelId", description: "ULID"}
-	}
+    if cfg.AuthorizationModelId != "" && !internalutils.IsWellFormedUlidString(cfg.AuthorizationModelId) {
+        return nil, FgaInvalidError{param: "AuthorizationModelId", description: "ULID"}
+    }
 
-	apiClient := {{packageName}}.NewAPIClient(apiConfiguration)
+	apiClient := fgaSdk.NewAPIClient(apiConfiguration)
 
 	return &{{appShortName}}Client{
 		config:    clientConfig,
@@ -102,19 +109,13 @@ type ClientRequestOptionsWithAuthZModelId struct {
 	AuthorizationModelIdOptions
 }
 
-type ClientTupleKey struct {
-	Object   string `json:"object,omitempty"`
-	Relation string `json:"relation,omitempty"`
-	User     string `json:"user,omitempty"`
-}
 
-func (tupleKey ClientTupleKey) ToTupleKey() {{packageName}}.TupleKey {
-	return {{packageName}}.TupleKey{
-		User:     {{packageName}}.PtrString(tupleKey.User),
-		Relation: {{packageName}}.PtrString(tupleKey.Relation),
-		Object:   {{packageName}}.PtrString(tupleKey.Object),
-	}
-}
+type ClientTupleKey = fgaSdk.TupleKey
+type ClientTupleKeyWithoutCondition = fgaSdk.TupleKeyWithoutCondition
+type ClientCheckRequestTupleKey = fgaSdk.CheckRequestTupleKey
+type ClientReadRequestTupleKey = fgaSdk.ReadRequestTupleKey
+type ClientExpandRequestTupleKey = fgaSdk.ExpandRequestTupleKey
+type ClientContextualTupleKey = ClientTupleKey
 
 type ClientPaginationOptions struct {
 	PageSize          *int32  `json:"page_size,omitempty"`
@@ -406,16 +407,35 @@ type SdkClient interface {
 	WriteAssertionsExecute(request SdkClientWriteAssertionsRequestInterface) (*ClientWriteAssertionsResponse, error)
 }
 
-func (client *{{appShortName}}Client) getAuthorizationModelId(authorizationModelId *string) (*string, error) {
-	modelId := client.config.AuthorizationModelId
-	if authorizationModelId != nil && *authorizationModelId != "" {
-		modelId = authorizationModelId
+func (client *OpenFgaClient) SetAuthorizationModelId(authorizationModelId string) error {
+	if authorizationModelId != "" && !internalutils.IsWellFormedUlidString(authorizationModelId) {
+		return FgaInvalidError{param: "AuthorizationModelId", description: "ULID"}
 	}
 
-	if modelId != nil && *modelId != "" && !internalutils.IsWellFormedUlidString(*modelId) {
-		return nil, FgaInvalidError{param: "AuthorizationModelId", description: "ULID"}
+	client.config.AuthorizationModelId = authorizationModelId
+
+	return nil
+}
+
+func (client *OpenFgaClient) GetAuthorizationModelId() (string, error) {
+	modelId := client.config.AuthorizationModelId
+	if modelId != "" && !internalutils.IsWellFormedUlidString(modelId) {
+		return "", FgaInvalidError{param: "AuthorizationModelId", description: "ULID"}
 	}
+
 	return modelId, nil
+}
+
+func (client *{{appShortName}}Client) getAuthorizationModelId(authorizationModelId *string) (*string, error) {
+    modelId := client.config.AuthorizationModelId
+    if authorizationModelId != nil && *authorizationModelId != "" {
+        modelId = *authorizationModelId
+    }
+
+    if modelId != "" && !internalutils.IsWellFormedUlidString(modelId) {
+        return nil, FgaInvalidError{param: "AuthorizationModelId", description: "ULID"}
+    }
+    return &modelId, nil
 }
 
 // helper function to validate the connection (i.e., get token)
@@ -425,7 +445,7 @@ func (client *{{appShortName}}Client) checkValidApiConnection(ctx _context.Conte
 		return err
 	} else {
 		_, err := client.ReadAuthorizationModels(ctx).Options(ClientReadAuthorizationModelsOptions{
-		    PageSize: {{packageName}}.PtrInt32(1),
+		    PageSize: fgaSdk.PtrInt32(1),
 	    }).Execute()
 		return err
 	}
@@ -453,7 +473,7 @@ type ClientListStoresOptions struct {
 	ContinuationToken *string `json:"continuation_token,omitempty"`
 }
 
-type ClientListStoresResponse = {{packageName}}.ListStoresResponse
+type ClientListStoresResponse = fgaSdk.ListStoresResponse
 
 func (request *SdkClientListStoresRequest) Options(options ClientListStoresOptions) SdkClientListStoresRequestInterface {
 	request.options = &options
@@ -522,7 +542,7 @@ type ClientCreateStoreRequest struct {
 type ClientCreateStoreOptions struct {
 }
 
-type ClientCreateStoreResponse = {{packageName}}.CreateStoreResponse
+type ClientCreateStoreResponse = fgaSdk.CreateStoreResponse
 
 func (request *SdkClientCreateStoreRequest) Options(options ClientCreateStoreOptions) SdkClientCreateStoreRequestInterface {
 	request.options = &options
@@ -551,7 +571,7 @@ func (request *SdkClientCreateStoreRequest) GetBody() *ClientCreateStoreRequest{
 }
 
 func (client *{{appShortName}}Client) CreateStoreExecute(request SdkClientCreateStoreRequestInterface) (*ClientCreateStoreResponse, error) {
-	data, _, err := client.{{appShortName}}Api.CreateStore(request.GetContext()).Body({{packageName}}.CreateStoreRequest{
+	data, _, err := client.{{appShortName}}Api.CreateStore(request.GetContext()).Body(fgaSdk.CreateStoreRequest{
 		Name: request.GetBody().Name,
 	}).Execute()
 	if err != nil {
@@ -586,7 +606,7 @@ type SdkClientGetStoreRequestInterface interface{
 type ClientGetStoreOptions struct {
 }
 
-type ClientGetStoreResponse = {{packageName}}.GetStoreResponse
+type ClientGetStoreResponse = fgaSdk.GetStoreResponse
 
 func (request *SdkClientGetStoreRequest) Options(options ClientGetStoreOptions) SdkClientGetStoreRequestInterface {
 	request.options = &options
@@ -697,7 +717,7 @@ type ClientReadAuthorizationModelsOptions struct {
 	ContinuationToken *string `json:"continuation_token,omitempty"`
 }
 
-type ClientReadAuthorizationModelsResponse = {{packageName}}.ReadAuthorizationModelsResponse
+type ClientReadAuthorizationModelsResponse = fgaSdk.ReadAuthorizationModelsResponse
 
 func (request *SdkClientReadAuthorizationModelsRequest) Options(options ClientReadAuthorizationModelsOptions) SdkClientReadAuthorizationModelsRequestInterface {
 	request.options = &options
@@ -759,16 +779,12 @@ type SdkClientWriteAuthorizationModelRequestInterface interface {
 	GetContext() _context.Context
 }
 
-
-type ClientWriteAuthorizationModelRequest struct {
-	TypeDefinitions []{{packageName}}.TypeDefinition `json:"type_definitions"`
-	SchemaVersion   string                   `json:"schema_version,omitempty"`
-}
+type ClientWriteAuthorizationModelRequest = fgaSdk.WriteAuthorizationModelRequest;
 
 type ClientWriteAuthorizationModelOptions struct {
 }
 
-type ClientWriteAuthorizationModelResponse = {{packageName}}.WriteAuthorizationModelResponse
+type ClientWriteAuthorizationModelResponse = fgaSdk.WriteAuthorizationModelResponse
 
 func (request *SdkClientWriteAuthorizationModelRequest) Options(options ClientWriteAuthorizationModelOptions) SdkClientWriteAuthorizationModelRequestInterface {
 	request.options = &options
@@ -797,9 +813,9 @@ func (request *SdkClientWriteAuthorizationModelRequest) GetContext() _context.Co
 }
 
 func (client *{{appShortName}}Client) WriteAuthorizationModelExecute(request SdkClientWriteAuthorizationModelRequestInterface) (*ClientWriteAuthorizationModelResponse, error) {
-	data, _, err := client.{{appShortName}}Api.WriteAuthorizationModel(request.GetContext()).Body({{packageName}}.WriteAuthorizationModelRequest{
+	data, _, err := client.{{appShortName}}Api.WriteAuthorizationModel(request.GetContext()).Body(fgaSdk.WriteAuthorizationModelRequest{
 		TypeDefinitions: request.GetBody().TypeDefinitions,
-		SchemaVersion:   {{packageName}}.PtrString(request.GetBody().SchemaVersion),
+		SchemaVersion:   request.GetBody().SchemaVersion,
 	}).Execute()
 	if err != nil {
 		return nil, err
@@ -841,7 +857,7 @@ type ClientReadAuthorizationModelOptions struct {
 	AuthorizationModelId *string `json:"authorization_model_id,omitempty"`
 }
 
-type ClientReadAuthorizationModelResponse = {{packageName}}.ReadAuthorizationModelResponse
+type ClientReadAuthorizationModelResponse = fgaSdk.ReadAuthorizationModelResponse
 
 func (request *SdkClientReadAuthorizationModelRequest) Options(options ClientReadAuthorizationModelOptions) SdkClientReadAuthorizationModelRequestInterface {
 	request.options = &options
@@ -944,20 +960,20 @@ func (request *SdkClientReadLatestAuthorizationModelRequest) GetOptions() *Clien
 
 func (client *{{appShortName}}Client) ReadLatestAuthorizationModelExecute(request SdkClientReadLatestAuthorizationModelRequestInterface) (*ClientReadAuthorizationModelResponse, error) {
 	response, err := client.ReadAuthorizationModels(request.GetContext()).Options(ClientReadAuthorizationModelsOptions{
-		PageSize: {{packageName}}.PtrInt32(1),
+		PageSize: fgaSdk.PtrInt32(1),
 	}).Execute()
 	if err != nil {
 		return nil, err
 	}
 
-	var authorizationModel *{{packageName}}.AuthorizationModel
+	var authorizationModel *fgaSdk.AuthorizationModel
 
-	if len(*response.AuthorizationModels) > 0 {
-		authorizationModels := *response.AuthorizationModels
+	if len(response.AuthorizationModels) > 0 {
+		authorizationModels := response.AuthorizationModels
 		authorizationModel = &(authorizationModels)[0]
 	}
 
-	return &{{packageName}}.ReadAuthorizationModelResponse{
+	return &fgaSdk.ReadAuthorizationModelResponse{
 		AuthorizationModel: authorizationModel,
 	}, nil
 }
@@ -992,7 +1008,7 @@ type ClientReadChangesOptions struct {
 	ContinuationToken *string `json:"continuation_token,omitempty"`
 }
 
-type ClientReadChangesResponse = {{packageName}}.ReadChangesResponse
+type ClientReadChangesResponse = fgaSdk.ReadChangesResponse
 
 func (client *{{appShortName}}Client) ReadChanges(ctx _context.Context) SdkClientReadChangesRequestInterface {
 	return &SdkClientReadChangesRequest{
@@ -1079,7 +1095,7 @@ type ClientReadOptions struct {
 	ContinuationToken *string `json:"continuation_token,omitempty"`
 }
 
-type ClientReadResponse = {{packageName}}.ReadResponse
+type ClientReadResponse = fgaSdk.ReadResponse
 
 func (client *{{appShortName}}Client) Read(ctx _context.Context) SdkClientReadRequestInterface {
 	return &SdkClientReadRequest{
@@ -1115,18 +1131,18 @@ func (request *SdkClientReadRequest) GetOptions() *ClientReadOptions {
 }
 
 func (client *{{appShortName}}Client) ReadExecute(request SdkClientReadRequestInterface) (*ClientReadResponse, error) {
-	body := openfga.ReadRequest{
+	body := fgaSdk.ReadRequest{
 		PageSize:          getPageSizeFromRequest((*ClientPaginationOptions)(request.GetOptions())),
 		ContinuationToken: getContinuationTokenFromRequest((*ClientPaginationOptions)(request.GetOptions())),
 	}
 	if request.GetBody() != nil && (request.GetBody().User != nil || request.GetBody().Relation != nil || request.GetBody().Object != nil) {
-		body.TupleKey = &openfga.TupleKey{
+		body.TupleKey = &fgaSdk.ReadRequestTupleKey{
 			User:     request.GetBody().User,
 			Relation: request.GetBody().Relation,
 			Object:   request.GetBody().Object,
 		}
 	}
-	data, _, err := client.OpenFgaApi.Read(request.GetContext()).Body(body).Execute()
+	data, _, err := client.{{appShortName}}Api.Read(request.GetContext()).Body(body).Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -1155,8 +1171,8 @@ type SdkClientWriteRequestInterface interface {
 }
 
 type ClientWriteRequest struct {
-	Writes  *[]ClientTupleKey
-	Deletes *[]ClientTupleKey
+	Writes  []ClientTupleKey
+	Deletes []ClientTupleKeyWithoutCondition
 }
 
 type TransactionOptions struct {
@@ -1181,14 +1197,34 @@ const (
 	FAILURE ClientWriteStatus = "CLIENT_WRITE_STATUS_FAILURE"
 )
 
-type ClientWriteSingleResponse struct {
+type ClientWriteRequestWriteResponse struct {
 	TupleKey     ClientTupleKey     `json:"tuple_key,omitempty"`
 	Status       ClientWriteStatus  `json:"status,omitempty"`
 	HttpResponse *_nethttp.Response `json:"http_response,omitempty"`
 	Error        error              `json:"error,omitempty"`
 }
 
-func (o ClientWriteSingleResponse) MarshalJSON() ([]byte, error) {
+func (o ClientWriteRequestWriteResponse) MarshalJSON() ([]byte, error) {
+	toSerialize := map[string]interface{}{}
+	toSerialize["tuple_key"] = o.TupleKey
+	toSerialize["status"] = o.Status
+	if o.HttpResponse != nil {
+		toSerialize["http_response"] = o.HttpResponse
+	}
+	if o.Error != nil {
+		toSerialize["error"] = o.Error
+	}
+	return json.Marshal(toSerialize)
+}
+
+type ClientWriteRequestDeleteResponse struct {
+	TupleKey     ClientTupleKeyWithoutCondition `json:"tuple_key,omitempty"`
+	Status       ClientWriteStatus              `json:"status,omitempty"`
+	HttpResponse *_nethttp.Response             `json:"http_response,omitempty"`
+	Error        error                          `json:"error,omitempty"`
+}
+
+func (o ClientWriteRequestDeleteResponse) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["tuple_key"] = o.TupleKey
 	toSerialize["status"] = o.Status
@@ -1202,8 +1238,8 @@ func (o ClientWriteSingleResponse) MarshalJSON() ([]byte, error) {
 }
 
 type ClientWriteResponse struct {
-	Writes  []ClientWriteSingleResponse `json:"writes,omitempty"`
-	Deletes []ClientWriteSingleResponse `json:"deletes,omitempty"`
+	Writes  []ClientWriteRequestWriteResponse `json:"writes,omitempty"`
+	Deletes []ClientWriteRequestDeleteResponse `json:"deletes,omitempty"`
 }
 
 func (o ClientWriteResponse) MarshalJSON() ([]byte, error) {
@@ -1268,8 +1304,8 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 	}
 
 	response := ClientWriteResponse{
-		Writes:  []ClientWriteSingleResponse{},
-		Deletes: []ClientWriteSingleResponse{},
+		Writes:  []ClientWriteRequestWriteResponse{},
+		Deletes: []ClientWriteRequestDeleteResponse{},
 	}
 
 	authorizationModelId, err := client.getAuthorizationModelId(request.GetAuthorizationModelIdOverride())
@@ -1280,20 +1316,20 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 	// Unless explicitly disabled, transaction mode is enabled
 	// In transaction mode, the client will send the request to the server as is
 	if request.GetOptions() == nil || request.GetOptions().Transaction == nil || !request.GetOptions().Transaction.Disable {
-		writeRequest := {{packageName}}.WriteRequest{
+		writeRequest := fgaSdk.WriteRequest{
 			AuthorizationModelId: authorizationModelId,
 		}
-		if request.GetBody().Writes != nil && len(*request.GetBody().Writes) > 0 {
-			writes := {{packageName}}.TupleKeys{}
-			for index := 0; index < len(*request.GetBody().Writes); index++ {
-				writes.TupleKeys = append(writes.TupleKeys, (*request.GetBody().Writes)[index].ToTupleKey())
+		if request.GetBody().Writes != nil && len(request.GetBody().Writes) > 0 {
+			writes := fgaSdk.WriteRequestWrites{}
+			for index := 0; index < len(request.GetBody().Writes); index++ {
+				writes.TupleKeys = append(writes.TupleKeys, (request.GetBody().Writes)[index])
 			}
 			writeRequest.Writes = &writes
 		}
-		if request.GetBody().Deletes != nil && len(*request.GetBody().Deletes) > 0 {
-			deletes := {{packageName}}.TupleKeys{}
-			for index := 0; index < len(*request.GetBody().Deletes); index++ {
-				deletes.TupleKeys = append(deletes.TupleKeys, (*request.GetBody().Deletes)[index].ToTupleKey())
+		if request.GetBody().Deletes != nil && len(request.GetBody().Deletes) > 0 {
+			deletes := fgaSdk.WriteRequestDeletes{}
+			for index := 0; index < len(request.GetBody().Deletes); index++ {
+				deletes.TupleKeys = append(deletes.TupleKeys, (request.GetBody().Deletes)[index])
 			}
 			writeRequest.Deletes = &deletes
 		}
@@ -1305,9 +1341,9 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 		}
 
 		if request.GetBody() != nil && request.GetBody().Writes != nil {
-			writeRequestTupleKeys := *request.GetBody().Writes
+			writeRequestTupleKeys := request.GetBody().Writes
 			for index := 0; index < len(writeRequestTupleKeys); index++ {
-				response.Writes = append(response.Writes, ClientWriteSingleResponse{
+				response.Writes = append(response.Writes, ClientWriteRequestWriteResponse{
 					TupleKey:     writeRequestTupleKeys[index],
 					HttpResponse: httpResponse,
 					Status:       clientWriteStatus,
@@ -1317,9 +1353,9 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 		}
 
 		if request.GetBody() != nil && request.GetBody().Deletes != nil {
-			deleteRequestTupleKeys := *request.GetBody().Deletes
+			deleteRequestTupleKeys := request.GetBody().Deletes
 			for index := 0; index < len(deleteRequestTupleKeys); index++ {
-				response.Deletes = append(response.Deletes, ClientWriteSingleResponse{
+				response.Deletes = append(response.Deletes, ClientWriteRequestDeleteResponse{
 					TupleKey:     deleteRequestTupleKeys[index],
 					HttpResponse: httpResponse,
 					Status:       clientWriteStatus,
@@ -1338,10 +1374,10 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 	var writeChunkSize = int(maxPerChunk)
 	var writeChunks [][]ClientTupleKey
     if request.GetBody() != nil {
-        for i := 0; i < len(*request.GetBody().Writes); i += writeChunkSize {
-            end := int(math.Min(float64(i+writeChunkSize), float64(len(*request.GetBody().Writes))))
+        for i := 0; i < len(request.GetBody().Writes); i += writeChunkSize {
+            end := int(math.Min(float64(i+writeChunkSize), float64(len(request.GetBody().Writes))))
 
-            writeChunks = append(writeChunks, (*request.GetBody().Writes)[i:end])
+            writeChunks = append(writeChunks, (request.GetBody().Writes)[i:end])
         }
     }
 
@@ -1360,7 +1396,7 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 				ctx:    ctx,
 				Client: client,
 				body: &ClientWriteRequest{
-					Writes: &writeBody,
+					Writes: writeBody,
 				},
 				options: &ClientWriteOptions{
 					AuthorizationModelId: authorizationModelId,
@@ -1376,12 +1412,12 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 	_ = writeGroup.Wait()
 
 	var deleteChunkSize = int(maxPerChunk)
-	var deleteChunks [][]ClientTupleKey
+	var deleteChunks [][]ClientTupleKeyWithoutCondition
     if request.GetBody() != nil {
-        for i := 0; i < len(*request.GetBody().Deletes); i += deleteChunkSize {
-            end := int(math.Min(float64(i+writeChunkSize), float64(len(*request.GetBody().Deletes))))
+        for i := 0; i < len(request.GetBody().Deletes); i += deleteChunkSize {
+            end := int(math.Min(float64(i+writeChunkSize), float64(len(request.GetBody().Deletes))))
 
-            deleteChunks = append(deleteChunks, (*request.GetBody().Deletes)[i:end])
+            deleteChunks = append(deleteChunks, (request.GetBody().Deletes)[i:end])
         }
     }
 
@@ -1395,7 +1431,7 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 				ctx:    ctx,
 				Client: client,
 				body: &ClientWriteRequest{
-					Deletes: &deleteBody,
+					Deletes: deleteBody,
 				},
 				options: &ClientWriteOptions{
 					AuthorizationModelId: authorizationModelId,
@@ -1481,7 +1517,7 @@ func (request *SdkClientWriteTuplesRequest) GetOptions() *ClientWriteOptions {
 
 func (client *{{appShortName}}Client) WriteTuplesExecute(request SdkClientWriteTuplesRequestInterface) (*ClientWriteResponse, error) {
 	baseReq := client.Write(request.GetContext()).Body(ClientWriteRequest{
-		Writes: request.GetBody(),
+		Writes: *request.GetBody(),
 	})
 	if request.GetOptions() != nil {
 		baseReq = baseReq.Options(*request.GetOptions())
@@ -1508,7 +1544,7 @@ type SdkClientDeleteTuplesRequestInterface interface {
 	GetOptions() *ClientWriteOptions
 }
 
-type ClientDeleteTuplesBody = []ClientTupleKey
+type ClientDeleteTuplesBody = []ClientTupleKeyWithoutCondition
 
 func (client *{{appShortName}}Client) DeleteTuples(ctx _context.Context) SdkClientDeleteTuplesRequestInterface {
 	return &SdkClientDeleteTuplesRequest{
@@ -1545,7 +1581,7 @@ func (request *SdkClientDeleteTuplesRequest) GetOptions() *ClientWriteOptions {
 
 func (client *{{appShortName}}Client) DeleteTuplesExecute(request SdkClientDeleteTuplesRequestInterface) (*ClientWriteResponse, error) {
 	baseReq := client.Write(request.GetContext()).Body(ClientWriteRequest{
-		Deletes: request.GetBody(),
+		Deletes: *request.GetBody(),
 	})
 	if request.GetOptions() != nil {
 		baseReq = baseReq.Options(*request.GetOptions())
@@ -1580,7 +1616,8 @@ type ClientCheckRequest struct {
 	User             string            `json:"user,omitempty"`
 	Relation         string            `json:"relation,omitempty"`
 	Object           string            `json:"object,omitempty"`
-	ContextualTuples *[]ClientTupleKey `json:"contextual_tuples,omitempty"`
+    Context          *map[string]interface{}    `json:"context,omitempty"`
+	ContextualTuples []ClientContextualTupleKey `json:"contextual_tuples,omitempty"`
 }
 
 type ClientCheckOptions struct {
@@ -1588,7 +1625,7 @@ type ClientCheckOptions struct {
 }
 
 type ClientCheckResponse struct {
-	{{packageName}}.CheckResponse
+	fgaSdk.CheckResponse
 	HttpResponse *_nethttp.Response
 }
 
@@ -1633,23 +1670,24 @@ func (request *SdkClientCheckRequest) GetOptions() *ClientCheckOptions {
 }
 
 func (client *{{appShortName}}Client) CheckExecute(request SdkClientCheckRequestInterface) (*ClientCheckResponse, error) {
-	var contextualTuples []{{packageName}}.TupleKey
+	var contextualTuples []ClientContextualTupleKey
 	if request.GetBody().ContextualTuples != nil {
-		for index := 0; index < len(*request.GetBody().ContextualTuples); index++ {
-			contextualTuples = append(contextualTuples, (*request.GetBody().ContextualTuples)[index].ToTupleKey())
+		for index := 0; index < len(request.GetBody().ContextualTuples); index++ {
+			contextualTuples = append(contextualTuples, (request.GetBody().ContextualTuples)[index])
 		}
 	}
 	authorizationModelId, err := client.getAuthorizationModelId(request.GetAuthorizationModelIdOverride())
 	if err != nil {
 		return nil, err
 	}
-	requestBody := {{packageName}}.CheckRequest{
-		TupleKey: {{packageName}}.TupleKey{
-			User:     {{packageName}}.PtrString(request.GetBody().User),
-			Relation: {{packageName}}.PtrString(request.GetBody().Relation),
-			Object:   {{packageName}}.PtrString(request.GetBody().Object),
+	requestBody := fgaSdk.CheckRequest{
+		TupleKey: fgaSdk.CheckRequestTupleKey{
+			User:     request.GetBody().User,
+			Relation: request.GetBody().Relation,
+			Object:   request.GetBody().Object,
 		},
-		ContextualTuples:     {{packageName}}.NewContextualTupleKeys(contextualTuples),
+		Context:              request.GetBody().Context,
+		ContextualTuples:     fgaSdk.NewContextualTupleKeys(contextualTuples),
 		AuthorizationModelId: authorizationModelId,
 	}
 
@@ -1812,7 +1850,7 @@ type ClientExpandOptions struct {
 	AuthorizationModelId *string `json:"authorization_model_id,omitempty"`
 }
 
-type ClientExpandResponse = {{packageName}}.ExpandResponse
+type ClientExpandResponse = fgaSdk.ExpandResponse
 
 func (client *{{appShortName}}Client) Expand(ctx _context.Context) SdkClientExpandRequestInterface {
 	return &SdkClientExpandRequest{
@@ -1860,10 +1898,10 @@ func (client *{{appShortName}}Client) ExpandExecute(request SdkClientExpandReque
 		return nil, err
 	}
 
-	data, _, err := client.{{appShortName}}Api.Expand(request.GetContext()).Body({{packageName}}.ExpandRequest{
-		TupleKey: {{packageName}}.TupleKey{
-			Relation: &request.GetBody().Relation,
-			Object:   &request.GetBody().Object,
+	data, _, err := client.{{appShortName}}Api.Expand(request.GetContext()).Body(fgaSdk.ExpandRequest{
+		TupleKey: fgaSdk.ExpandRequestTupleKey{
+			Relation: request.GetBody().Relation,
+			Object:   request.GetBody().Object,
 		},
 		AuthorizationModelId: authorizationModelId,
 	}).Execute()
@@ -1897,14 +1935,15 @@ type ClientListObjectsRequest struct {
 	User             string            `json:"user,omitempty"`
 	Relation         string            `json:"relation,omitempty"`
 	Type             string            `json:"type,omitempty"`
-	ContextualTuples *[]ClientTupleKey `json:"contextual_tuples,omitempty"`
+    Context          *map[string]interface{}    `json:"context,omitempty"`
+	ContextualTuples []ClientContextualTupleKey `json:"contextual_tuples,omitempty"`
 }
 
 type ClientListObjectsOptions struct {
 	AuthorizationModelId *string `json:"authorization_model_id,omitempty"`
 }
 
-type ClientListObjectsResponse = {{packageName}}.ListObjectsResponse
+type ClientListObjectsResponse = fgaSdk.ListObjectsResponse
 
 func (client *{{appShortName}}Client) ListObjects(ctx _context.Context) SdkClientListObjectsRequestInterface {
 	return &SdkClientListObjectsRequest{
@@ -1947,21 +1986,22 @@ func (request *SdkClientListObjectsRequest)	GetOptions() *ClientListObjectsOptio
 }
 
 func (client *{{appShortName}}Client) ListObjectsExecute(request SdkClientListObjectsRequestInterface) (*ClientListObjectsResponse, error) {
-	var contextualTuples []{{packageName}}.TupleKey
+	var contextualTuples []ClientContextualTupleKey
 	if request.GetBody().ContextualTuples != nil {
-		for index := 0; index < len(*request.GetBody().ContextualTuples); index++ {
-			contextualTuples = append(contextualTuples, (*request.GetBody().ContextualTuples)[index].ToTupleKey())
+		for index := 0; index < len(request.GetBody().ContextualTuples); index++ {
+			contextualTuples = append(contextualTuples, (request.GetBody().ContextualTuples)[index])
 		}
 	}
 	authorizationModelId, err := client.getAuthorizationModelId(request.GetAuthorizationModelIdOverride())
 	if err != nil {
 		return nil, err
 	}
-	data, _, err := client.{{appShortName}}Api.ListObjects(request.GetContext()).Body({{packageName}}.ListObjectsRequest{
+	data, _, err := client.{{appShortName}}Api.ListObjects(request.GetContext()).Body(fgaSdk.ListObjectsRequest{
 		User:                 request.GetBody().User,
 		Relation:             request.GetBody().Relation,
 		Type:                 request.GetBody().Type,
-		ContextualTuples:     {{packageName}}.NewContextualTupleKeys(contextualTuples),
+		ContextualTuples:     fgaSdk.NewContextualTupleKeys(contextualTuples),
+		Context:              request.GetBody().Context,
 		AuthorizationModelId: authorizationModelId,
 	}).Execute()
 	if err != nil {
@@ -1995,7 +2035,8 @@ type ClientListRelationsRequest struct {
 	User             string            `json:"user,omitempty"`
 	Object           string            `json:"object,omitempty"`
 	Relations        []string          `json:"relations,omitempty"`
-	ContextualTuples *[]ClientTupleKey `json:"contextual_tuples,omitempty"`
+    Context          *map[string]interface{}    `json:"context,omitempty"`
+	ContextualTuples []ClientContextualTupleKey `json:"contextual_tuples,omitempty"`
 }
 
 type ClientListRelationsOptions struct {
@@ -2063,6 +2104,7 @@ func (client *{{appShortName}}Client) ListRelationsExecute(request SdkClientList
 			User:             request.GetBody().User,
 			Relation:         request.GetBody().Relations[index],
 			Object:           request.GetBody().Object,
+            Context:          request.GetBody().Context,
 			ContextualTuples: request.GetBody().ContextualTuples,
 		})
 	}
@@ -2114,7 +2156,7 @@ type ClientReadAssertionsOptions struct {
 	AuthorizationModelId *string `json:"authorization_model_id,omitempty"`
 }
 
-type ClientReadAssertionsResponse = {{packageName}}.ReadAssertionsResponse
+type ClientReadAssertionsResponse = fgaSdk.ReadAssertionsResponse
 
 func (client *{{appShortName}}Client) ReadAssertions(ctx _context.Context) SdkClientReadAssertionsRequestInterface {
 	return &SdkClientReadAssertionsRequest{
@@ -2192,12 +2234,12 @@ type ClientAssertion struct {
 
 type ClientWriteAssertionsRequest = []ClientAssertion
 
-func (clientAssertion ClientAssertion) ToAssertion() {{packageName}}.Assertion {
-	return {{packageName}}.Assertion{
-		TupleKey: {{packageName}}.TupleKey{
-			User:     {{packageName}}.PtrString(clientAssertion.User),
-			Relation: {{packageName}}.PtrString(clientAssertion.Relation),
-			Object:   {{packageName}}.PtrString(clientAssertion.Object),
+func (clientAssertion ClientAssertion) ToAssertion() fgaSdk.Assertion {
+	return fgaSdk.Assertion{
+		TupleKey: fgaSdk.AssertionTupleKey{
+			User:     clientAssertion.User,
+			Relation: clientAssertion.Relation,
+			Object:   clientAssertion.Object,
 		},
 		Expectation: clientAssertion.Expectation,
 	}
@@ -2251,7 +2293,7 @@ func (request *SdkClientWriteAssertionsRequest) GetOptions() *ClientWriteAsserti
 }
 
 func (client *{{appShortName}}Client) WriteAssertionsExecute(request SdkClientWriteAssertionsRequestInterface) (*ClientWriteAssertionsResponse, error) {
-	writeAssertionsRequest := {{packageName}}.WriteAssertionsRequest{}
+	writeAssertionsRequest := fgaSdk.WriteAssertionsRequest{}
 	authorizationModelId, err := client.getAuthorizationModelId(request.GetAuthorizationModelIdOverride())
 	if err != nil {
 		return nil, err

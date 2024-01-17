@@ -7,7 +7,7 @@ import datetime
 
 {{#models}}
 {{#model}}
-import {{packageName}}
+import {{packageName}}{{^asyncio}} as openfga_sdk{{/asyncio}}
 from {{modelPackage}}.{{classFilename}} import {{classname}}  # noqa: E501
 from {{packageName}}.rest import ApiException
 

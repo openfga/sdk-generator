@@ -1,9 +1,13 @@
 {{>licenseInfo}}
 package {{package}};
 
+import static {{clientPackage}}.ApiClient.urlEncode;
+import static {{utilPackage}}.StringUtil.isNullOrWhitespace;
+import static {{utilPackage}}.Validation.assertParamExists;
+
 import {{authPackage}}.*;
 import {{configPackage}}.*;
-import {{invokerPackage}}.*;
+import {{clientPackage}}.*;
 import {{utilPackage}}.Pair;
 import {{errorsPackage}}.*;
 
@@ -36,42 +40,46 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-
-import java.util.ArrayList;
-import java.util.StringJoiner;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-{{#asyncNative}}
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+{{#asyncNative}}
 import java.util.concurrent.CompletableFuture;
 {{/asyncNative}}
 
 {{#operations}}
-public class {{classname}} {
-  private final HttpClient memberVarHttpClient;
-  private final ObjectMapper memberVarObjectMapper;
+
+/**
+ * A low-level API representation of an OpenFGA server.
+ * <p>
+ * Most code should favor the simpler and higher-level {@link OpenFgaClient} when calling an OpenFGA server.
+ */
+public class OpenFgaApi {
   private final Configuration configuration;
+
+  private final ApiClient apiClient;
   private final OAuth2Client oAuth2Client;
-  private final Consumer<HttpRequest.Builder> memberVarInterceptor;
-  private final Consumer<HttpResponse<InputStream>> memberVarResponseInterceptor;
-  private final Consumer<HttpResponse<String>> memberVarAsyncResponseInterceptor;
 
-  // TODO: In every request, get access token, (Assuming plain access token, or OAuth2 CredentialsMethod)
+  public OpenFgaApi(Configuration configuration) throws FgaInvalidParameterException {
+    this(configuration, new ApiClient());
+  }
 
-  public {{classname}}(ApiClient apiClient, Configuration configuration) throws FgaInvalidParameterException {
-    memberVarHttpClient = apiClient.getHttpClient();
-    memberVarObjectMapper = apiClient.getObjectMapper();
+  public OpenFgaApi(Configuration configuration, ApiClient apiClient) throws FgaInvalidParameterException {
+    this.apiClient = apiClient;
     this.configuration = configuration;
-    memberVarInterceptor = apiClient.getRequestInterceptor();
-    memberVarResponseInterceptor = apiClient.getResponseInterceptor();
-    memberVarAsyncResponseInterceptor = apiClient.getAsyncResponseInterceptor();
 
     if (configuration.getCredentials().getCredentialsMethod() == CredentialsMethod.CLIENT_CREDENTIALS) {
-      this.oAuth2Client = new OAuth2Client(configuration, apiClient.getHttpClient(), apiClient.getObjectMapper());
+      this.oAuth2Client = new OAuth2Client(configuration, apiClient);
     } else {
       this.oAuth2Client = null;
+    }
+
+    var defaultHeaders = configuration.getDefaultHeaders();
+    if (defaultHeaders != null) {
+      apiClient.addRequestInterceptor(httpRequest -> defaultHeaders.forEach(httpRequest::setHeader));
     }
   }
 
@@ -82,14 +90,7 @@ public class {{classname}} {
    * {{summary}}
    * {{notes}}
    * @param apiRequest {@link API{{operationId}}Request}
-   {{#returnType}}
-   * @return {{#asyncNative}}CompletableFuture&lt;{{/asyncNative}}{{returnType}}{{#asyncNative}}&gt;{{/asyncNative}}
-   {{/returnType}}
-   {{^returnType}}
-   {{#asyncNative}}
-   * @return CompletableFuture&lt;Void&gt;
-   {{/asyncNative}}
-   {{/returnType}}
+   * @return {{#asyncNative}}CompletableFuture&lt;{{/asyncNative}}ApiResponse&lt;{{{returnType}}}{{^returnType}}Void{{/returnType}}&gt;{{#asyncNative}}&gt;{{/asyncNative}}
    * @throws ApiException if fails to make API call
    {{#isDeprecated}}
    * @deprecated
@@ -102,35 +103,11 @@ public class {{classname}} {
   {{#isDeprecated}}
   @Deprecated
   {{/isDeprecated}}
-  public {{#returnType}}{{#asyncNative}}CompletableFuture<{{{returnType}}}>{{/asyncNative}}{{^asyncNative}}{{{returnType}}}{{/asyncNative}}{{/returnType}}{{^returnType}}{{#asyncNative}}CompletableFuture<Void>{{/asyncNative}}{{^asyncNative}}void{{/asyncNative}}{{/returnType}} {{operationId}}(API{{operationId}}Request apiRequest) throws ApiException {
+  public {{#asyncNative}}CompletableFuture<{{/asyncNative}}ApiResponse<{{{returnType}}}{{^returnType}}Void{{/returnType}}>{{#asyncNative}}>{{/asyncNative}} {{operationId}}(API{{operationId}}Request apiRequest) throws ApiException {
     {{#allParams}}
     {{{dataType}}} {{paramName}} = apiRequest.{{paramName}}();
     {{/allParams}}
     {{#returnType}}return {{/returnType}}{{^returnType}}{{#asyncNative}}return {{/asyncNative}}{{/returnType}}{{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
-  }
-
-  /**
-   * {{summary}}
-   * {{notes}}
-   * @param apiRequest {@link API{{operationId}}Request}
-   * @return {{#asyncNative}}CompletableFuture&lt;{{/asyncNative}}ApiResponse&lt;{{returnType}}{{^returnType}}Void{{/returnType}}&gt;{{#asyncNative}}&gt;{{/asyncNative}}
-   * @throws ApiException if fails to make API call
-   {{#isDeprecated}}
-   * @deprecated
-   {{/isDeprecated}}
-   {{#externalDocs}}
-   * {{description}}
-   * @see <a href="{{url}}">{{summary}} Documentation</a>
-   {{/externalDocs}}
-   */
-  {{#isDeprecated}}
-  @Deprecated
-  {{/isDeprecated}}
-  public {{#asyncNative}}CompletableFuture<{{/asyncNative}}ApiResponse<{{{returnType}}}{{^returnType}}Void{{/returnType}}>{{#asyncNative}}>{{/asyncNative}} {{operationId}}WithHttpInfo(API{{operationId}}Request apiRequest) throws ApiException {
-    {{#allParams}}
-    {{{dataType}}} {{paramName}} = apiRequest.{{paramName}}();
-    {{/allParams}}
-    return {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
   }
 
   {{/hasParams}}
@@ -142,14 +119,7 @@ public class {{classname}} {
    {{#allParams}}
    * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{^isContainer}}{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/isContainer}}{{/required}}
    {{/allParams}}
-   {{#returnType}}
-   * @return {{#asyncNative}}CompletableFuture&lt;{{/asyncNative}}{{returnType}}{{#asyncNative}}&gt;{{/asyncNative}}
-   {{/returnType}}
-   {{^returnType}}
-   {{#asyncNative}}
-   * @return CompletableFuture&lt;Void&gt;
-   {{/asyncNative}}
-   {{/returnType}}
+   * @return {{#asyncNative}}CompletableFuture&lt;{{/asyncNative}}ApiResponse&lt;{{{returnType}}}{{^returnType}}Void{{/returnType}}&gt;{{#asyncNative}}&gt;{{/asyncNative}}
    * @throws ApiException if fails to make API call
    {{#isDeprecated}}
    * @deprecated
@@ -162,7 +132,7 @@ public class {{classname}} {
   {{#isDeprecated}}
   @Deprecated
   {{/isDeprecated}}
-  public {{#returnType}}{{#asyncNative}}CompletableFuture<{{{returnType}}}>{{/asyncNative}}{{^asyncNative}}{{{returnType}}}{{/asyncNative}}{{/returnType}}{{^returnType}}{{#asyncNative}}CompletableFuture<Void>{{/asyncNative}}{{^asyncNative}}void{{/asyncNative}}{{/returnType}} {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}) throws ApiException, FgaInvalidParameterException {
+  public {{#asyncNative}}CompletableFuture<{{/asyncNative}}ApiResponse<{{{returnType}}}{{^returnType}}Void{{/returnType}}>{{#asyncNative}}>{{/asyncNative}} {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}) throws ApiException, FgaInvalidParameterException {
     return {{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, this.configuration);
   }
 
@@ -173,14 +143,7 @@ public class {{classname}} {
    * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{^isContainer}}{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/isContainer}}{{/required}}
    {{/allParams}}
    * @param configurationOverride Override the {@link Configuration} this {{classname}} was constructed with
-   {{#returnType}}
-   * @return {{#asyncNative}}CompletableFuture&lt;{{/asyncNative}}{{returnType}}{{#asyncNative}}&gt;{{/asyncNative}}
-   {{/returnType}}
-   {{^returnType}}
-   {{#asyncNative}}
-   * @return CompletableFuture&lt;Void&gt;
-   {{/asyncNative}}
-   {{/returnType}}
+   * @return {{#asyncNative}}CompletableFuture&lt;{{/asyncNative}}ApiResponse&lt;{{{returnType}}}{{^returnType}}Void{{/returnType}}&gt;{{#asyncNative}}&gt;{{/asyncNative}}
    * @throws ApiException if fails to make API call
    {{#isDeprecated}}
    * @deprecated
@@ -193,454 +156,105 @@ public class {{classname}} {
   {{#isDeprecated}}
   @Deprecated
   {{/isDeprecated}}
-  public {{#returnType}}{{#asyncNative}}CompletableFuture<{{{returnType}}}>{{/asyncNative}}{{^asyncNative}}{{{returnType}}}{{/asyncNative}}{{/returnType}}{{^returnType}}{{#asyncNative}}CompletableFuture<Void>{{/asyncNative}}{{^asyncNative}}void{{/asyncNative}}{{/returnType}} {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, ConfigurationOverride configurationOverride) throws ApiException, FgaInvalidParameterException {
+  public {{#asyncNative}}CompletableFuture<{{/asyncNative}}ApiResponse<{{{returnType}}}{{^returnType}}Void{{/returnType}}>{{#asyncNative}}>{{/asyncNative}} {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, ConfigurationOverride configurationOverride) throws ApiException, FgaInvalidParameterException {
     return {{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, this.configuration.override(configurationOverride));
   }
 
-  private {{#returnType}}{{#asyncNative}}CompletableFuture<{{{returnType}}}>{{/asyncNative}}{{^asyncNative}}{{{returnType}}}{{/asyncNative}}{{/returnType}}{{^returnType}}{{#asyncNative}}CompletableFuture<Void>{{/asyncNative}}{{^asyncNative}}void{{/asyncNative}}{{/returnType}} {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, Configuration configuration) throws ApiException, FgaInvalidParameterException {
-    {{^asyncNative}}
-    {{#returnType}}ApiResponse<{{{.}}}> localVarResponse = {{/returnType}}{{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
-    {{#returnType}}
-    return localVarResponse.getData();
-    {{/returnType}}
-    {{/asyncNative}}
-    {{#asyncNative}}
-    try {
-      HttpRequest.Builder localVarRequestBuilder = {{operationId}}RequestBuilder({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, configuration);
-      return memberVarHttpClient.sendAsync(
-          localVarRequestBuilder.build(),
-          HttpResponse.BodyHandlers.ofString()).thenComposeAsync(localVarResponse -> {
-            if (localVarResponse.statusCode()/ 100 != 2) {
-              return CompletableFuture.failedFuture(new ApiException("{{operationId}}", localVarResponse));
-            }
-            {{#returnType}}
-            try {
-              String responseBody = localVarResponse.body();
-              return CompletableFuture.completedFuture(
-                  responseBody == null || responseBody.isBlank() ? null : memberVarObjectMapper.readValue(responseBody, new TypeReference<{{{returnType}}}>() {})
-              );
-            } catch (IOException e) {
-              return CompletableFuture.failedFuture(new ApiException(e));
-            }
-            {{/returnType}}
-            {{^returnType}}
-            return CompletableFuture.completedFuture(null);
-            {{/returnType}}
-      });
-    }
-    catch (ApiException e) {
-      return CompletableFuture.failedFuture(e);
-    }
-    {{/asyncNative}}
-  }
+  private {{#asyncNative}}CompletableFuture<{{/asyncNative}}ApiResponse<{{{returnType}}}{{^returnType}}Void{{/returnType}}>{{#asyncNative}}>{{/asyncNative}} {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, Configuration configuration) throws ApiException, FgaInvalidParameterException {
 
-  /**
-   * {{summary}}
-   * {{notes}}
-   {{#allParams}}
-   * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{^isContainer}}{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/isContainer}}{{/required}}
-   {{/allParams}}
-   * @return {{#asyncNative}}CompletableFuture&lt;{{/asyncNative}}ApiResponse&lt;{{returnType}}{{^returnType}}Void{{/returnType}}&gt;{{#asyncNative}}&gt;{{/asyncNative}}
-   * @throws ApiException if fails to make API call
-   {{#isDeprecated}}
-   * @deprecated
-   {{/isDeprecated}}
-   {{#externalDocs}}
-   * {{description}}
-   * @see <a href="{{url}}">{{summary}} Documentation</a>
-   {{/externalDocs}}
-   */
-  {{#isDeprecated}}
-  @Deprecated
-  {{/isDeprecated}}
-  public {{#asyncNative}}CompletableFuture<{{/asyncNative}}ApiResponse<{{{returnType}}}{{^returnType}}Void{{/returnType}}>{{#asyncNative}}>{{/asyncNative}} {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}) throws ApiException, FgaInvalidParameterException {
-    return {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, this.configuration);
-  }
+    {{#allParams}}{{#required}}
+    assertParamExists({{paramName}}, "{{paramName}}", "{{operationId}}");
+    {{/required}}{{/allParams}}
 
-  /**
-   * {{summary}}
-   * {{notes}}
-   {{#allParams}}
-   * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{^isContainer}}{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/isContainer}}{{/required}}
-   {{/allParams}}
-   * @param configurationOverride Override the {@link Configuration} this {{classname}} was constructed with
-   * @return {{#asyncNative}}CompletableFuture&lt;{{/asyncNative}}ApiResponse&lt;{{returnType}}{{^returnType}}Void{{/returnType}}&gt;{{#asyncNative}}&gt;{{/asyncNative}}
-   * @throws ApiException if fails to make API call
-   {{#isDeprecated}}
-   * @deprecated
-   {{/isDeprecated}}
-   {{#externalDocs}}
-   * {{description}}
-   * @see <a href="{{url}}">{{summary}} Documentation</a>
-   {{/externalDocs}}
-   */
-  {{#isDeprecated}}
-  @Deprecated
-  {{/isDeprecated}}
-  public {{#asyncNative}}CompletableFuture<{{/asyncNative}}ApiResponse<{{{returnType}}}{{^returnType}}Void{{/returnType}}>{{#asyncNative}}>{{/asyncNative}} {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, ConfigurationOverride configurationOverride) throws ApiException, FgaInvalidParameterException {
-    return {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, this.configuration.override(configurationOverride));
-  }
-
-  private {{#asyncNative}}CompletableFuture<{{/asyncNative}}ApiResponse<{{{returnType}}}{{^returnType}}Void{{/returnType}}>{{#asyncNative}}>{{/asyncNative}} {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, Configuration configuration) throws ApiException, FgaInvalidParameterException {
-    {{^asyncNative}}
-    HttpRequest.Builder localVarRequestBuilder = {{operationId}}RequestBuilder({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, configuration);
-    try {
-      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
-          localVarRequestBuilder.build(),
-          HttpResponse.BodyHandlers.ofInputStream());
-      if (memberVarResponseInterceptor != null) {
-        memberVarResponseInterceptor.accept(localVarResponse);
-      }
-      try {
-        if (localVarResponse.statusCode()/ 100 != 2) {
-          throw new ApiException("{{operationId}}", localVarResponse);
-        }
-        {{#vendorExtensions.x-java-text-plain-string}}
-        // for plain text response
-        if (localVarResponse.headers().map().containsKey("Content-Type") &&
-                "text/plain".equalsIgnoreCase(localVarResponse.headers().map().get("Content-Type").get(0).split(";")[0].trim())) {
-          java.util.Scanner s = new java.util.Scanner(localVarResponse.body()).useDelimiter("\\A");
-          String responseBodyText = s.hasNext() ? s.next() : "";
-          return new ApiResponse<String>(
-                  localVarResponse.statusCode(),
-                  localVarResponse.headers().map(),
-                  responseBodyText
-          );
-        } else {
-            throw new RuntimeException("Error! The response Content-Type is supposed to be `text/plain` but it's not: " + localVarResponse);
-        }
-        {{/vendorExtensions.x-java-text-plain-string}}
-        {{^vendorExtensions.x-java-text-plain-string}}
-        return new ApiResponse<{{{returnType}}}{{^returnType}}Void{{/returnType}}>(
-          localVarResponse.statusCode(),
-          localVarResponse.headers().map(),
-          {{#returnType}}
-          localVarResponse.body() == null ? null : memberVarObjectMapper.readValue(localVarResponse.body(), new TypeReference<{{{returnType}}}>() {}) // closes the InputStream
-          {{/returnType}}
-          {{^returnType}}
-          null
-          {{/returnType}}
-        );
-        {{/vendorExtensions.x-java-text-plain-string}}
-      } finally {
-        {{^returnType}}
-        // Drain the InputStream
-        while (localVarResponse.body().read() != -1) {
-            // Ignore
-        }
-        localVarResponse.body().close();
-        {{/returnType}}
-      }
-    } catch (IOException e) {
-      throw new ApiException(e);
-    }
-    catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new ApiException(e);
-    }
-    {{/asyncNative}}
-    {{#asyncNative}}
-    try {
-      HttpRequest.Builder localVarRequestBuilder = {{operationId}}RequestBuilder({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, configuration);
-      return memberVarHttpClient.sendAsync(
-          localVarRequestBuilder.build(),
-          HttpResponse.BodyHandlers.ofString()).thenComposeAsync(localVarResponse -> {
-            if (memberVarAsyncResponseInterceptor != null) {
-              memberVarAsyncResponseInterceptor.accept(localVarResponse);
-            }
-            if (localVarResponse.statusCode()/ 100 != 2) {
-              return CompletableFuture.failedFuture(new ApiException("{{operationId}}", localVarResponse));
-            }
-            {{#returnType}}
-            try {
-              String responseBody = localVarResponse.body();
-              return CompletableFuture.completedFuture(
-                  new ApiResponse<{{{returnType}}}>(
-                      localVarResponse.statusCode(),
-                      localVarResponse.headers().map(),
-                      responseBody == null || responseBody.isBlank() ? null : memberVarObjectMapper.readValue(responseBody, new TypeReference<{{{returnType}}}>() {}))
-              );
-            } catch (IOException e) {
-              return CompletableFuture.failedFuture(new ApiException(e));
-            }
-            {{/returnType}}
-            {{^returnType}}
-            return CompletableFuture.completedFuture(
-                new ApiResponse<Void>(localVarResponse.statusCode(), localVarResponse.headers().map(), null)
-            );
-            {{/returnType}}
-        }
-      );
-    }
-    catch (ApiException e) {
-      return CompletableFuture.failedFuture(e);
-    }
-    {{/asyncNative}}
-  }
-
-  private HttpRequest.Builder {{operationId}}RequestBuilder({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}, Configuration configuration) throws ApiException, FgaInvalidParameterException {
-    {{#allParams}}
-    {{#required}}
-    // verify the required parameter '{{paramName}}' is set
-    if ({{paramName}} == null) {
-      throw new ApiException(400, "Missing the required parameter '{{paramName}}' when calling {{operationId}}");
-    }
-    {{/required}}
-    {{/allParams}}
-
-    // verify the Configuration is valid
-    configuration.assertValid();
-
-    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
-
-    {{! Switch delimiters for baseName so we can write constants like "{query}" }}
-    String localVarPath = "{{{path}}}"{{#pathParams}}
-        .replace({{=<% %>=}}"{<%baseName%>}"<%={{ }}=%>, ApiClient.urlEncode({{{paramName}}}.toString())){{/pathParams}};
-
+    String path = "{{{path}}}"{{#pathParams}}.replace({{=<% %>=}}"{<%baseName%>}"<%={{ }}=%>, ApiClient.urlEncode({{{paramName}}}.toString())){{/pathParams}};
     {{#hasQueryParams}}
-    List<Pair> localVarQueryParams = new ArrayList<>();
-    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
-    String localVarQueryParameterBaseName;
-    {{#queryParams}}
-    localVarQueryParameterBaseName = "{{{baseName}}}";
-      {{#collectionFormat}}
-    localVarQueryParams.addAll(ApiClient.parameterToPairs("{{{collectionFormat}}}", "{{baseName}}", {{paramName}}));
-      {{/collectionFormat}}
-      {{^collectionFormat}}
-        {{#isDeepObject}}
-    if ({{paramName}} != null) {
-            {{#isArray}}
-      for (int i=0; i < {{paramName}}.size(); i++) {
-        localVarQueryStringJoiner.add({{paramName}}.get(i).toUrlQueryString(String.format("{{baseName}}[%d]", i)));
-      }
-            {{/isArray}}
-            {{^isArray}}
-      localVarQueryStringJoiner.add({{paramName}}.toUrlQueryString("{{baseName}}"));
-            {{/isArray}}
-    }
-        {{/isDeepObject}}
-        {{^isDeepObject}}
-            {{#isExplode}}
-                {{#hasVars}}
-                    {{#vars}}
-                        {{#isArray}}
-    localVarQueryParams.addAll(ApiClient.parameterToPairs("multi", "{{baseName}}", {{paramName}}.{{getter}}()));
-                        {{/isArray}}
-                        {{^isArray}}
-    localVarQueryParams.addAll(ApiClient.parameterToPairs("{{baseName}}", {{paramName}}.{{getter}}()));
-                        {{/isArray}}
-                    {{/vars}}
-                {{/hasVars}}
-                {{^hasVars}}
-                {{#isModel}}
-    localVarQueryStringJoiner.add({{paramName}}.toUrlQueryString());
-                {{/isModel}}
-                {{^isModel}}
-    localVarQueryParams.addAll(ApiClient.parameterToPairs("{{baseName}}", {{paramName}}));
-                {{/isModel}}
-                {{/hasVars}}
-            {{/isExplode}}
-            {{^isExplode}}
-    localVarQueryParams.addAll(ApiClient.parameterToPairs("{{baseName}}", {{paramName}}));
-            {{/isExplode}}
-        {{/isDeepObject}}
-      {{/collectionFormat}}
-    {{/queryParams}}
-
-    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
-      StringJoiner queryJoiner = new StringJoiner("&");
-      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
-      if (localVarQueryStringJoiner.length() != 0) {
-        queryJoiner.add(localVarQueryStringJoiner.toString());
-      }
-      localVarRequestBuilder.uri(URI.create(configuration.getApiUrl() + localVarPath + '?' + queryJoiner.toString()));
-    } else {
-      localVarRequestBuilder.uri(URI.create(configuration.getApiUrl() + localVarPath));
-    }
-    {{/hasQueryParams}}
-    {{^hasQueryParams}}
-    localVarRequestBuilder.uri(URI.create(configuration.getApiUrl() + localVarPath));
+    path = pathWithParams(path, {{#queryParams}}"{{baseName}}", {{paramName}}{{^-last}}, {{/-last}}{{/queryParams}});
     {{/hasQueryParams}}
 
-    {{#headerParams}}
-    if ({{paramName}} != null) {
-      localVarRequestBuilder.header("{{baseName}}", {{paramName}}.toString());
-    }
-    {{/headerParams}}
-    {{#bodyParam}}
-    localVarRequestBuilder.header("Content-Type", "{{#hasConsumes}}{{#consumes}}{{#-first}}{{mediaType}}{{/-first}}{{/consumes}}{{/hasConsumes}}{{#hasConsumes}}{{^consumes}}application/json{{/consumes}}{{/hasConsumes}}{{^hasConsumes}}application/json{{/hasConsumes}}");
-    {{/bodyParam}}
-    localVarRequestBuilder.header("Accept", "{{#hasProduces}}{{#produces}}{{mediaType}}{{^-last}}, {{/-last}}{{/produces}}{{/hasProduces}}{{#hasProduces}}{{^produces}}application/json{{/produces}}{{/hasProduces}}{{^hasProduces}}application/json{{/hasProduces}}");
-
-    if (configuration.getCredentials().getCredentialsMethod() != CredentialsMethod.NONE) {
-      String accessToken = getAccessToken(configuration);
-      localVarRequestBuilder.header("Authorization", "Bearer " + accessToken);
-    }
-
-    {{#bodyParam}}
-    {{#isString}}
-    localVarRequestBuilder.method("{{httpMethod}}", HttpRequest.BodyPublishers.ofString({{paramName}}));
-    {{/isString}}
-    {{^isString}}
     try {
-      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes({{paramName}});
-      localVarRequestBuilder.method("{{httpMethod}}", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
-    } catch (IOException e) {
-      throw new ApiException(e);
+      HttpRequest request = buildHttpRequest("{{httpMethod}}", path, {{#bodyParam}}{{paramName}}, {{/bodyParam}}configuration);
+      return new HttpRequestAttempt<>(request, "{{operationId}}", {{{returnType}}}{{^returnType}}Void{{/returnType}}.class, apiClient, configuration).attemptHttpRequest();
     }
-    {{/isString}}
-    {{/bodyParam}}
-    {{^bodyParam}}
-    {{#hasFormParams}}
-    {{#isMultipart}}
-    MultipartEntityBuilder multiPartBuilder = MultipartEntityBuilder.create();
-    boolean hasFiles = false;
-    {{#formParams}}
-    {{#isArray}}
-    for (int i=0; i < {{paramName}}.size(); i++) {
-        {{#isFile}}
-        multiPartBuilder.addBinaryBody("{{{baseName}}}", {{paramName}}.get(i));
-        hasFiles = true;
-        {{/isFile}}
-        {{^isFile}}
-        multiPartBuilder.addTextBody("{{{baseName}}}", {{paramName}}.get(i).toString());
-        {{/isFile}}
-    }
-    {{/isArray}}
-    {{^isArray}}
-    {{#isFile}}
-    multiPartBuilder.addBinaryBody("{{{baseName}}}", {{paramName}});
-    hasFiles = true;
-    {{/isFile}}
-    {{^isFile}}
-    multiPartBuilder.addTextBody("{{{baseName}}}", {{paramName}}.toString());
-    {{/isFile}}
-    {{/isArray}}
-    {{/formParams}}
-    HttpEntity entity = multiPartBuilder.build();
-    HttpRequest.BodyPublisher formDataPublisher;
-    if (hasFiles) {
-        Pipe pipe;
-        try {
-            pipe = Pipe.open();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        new Thread(() -> {
-            try (OutputStream outputStream = Channels.newOutputStream(pipe.sink())) {
-                entity.writeTo(outputStream);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
-        formDataPublisher = HttpRequest.BodyPublishers.ofInputStream(() -> Channels.newInputStream(pipe.source()));
-    } else {
-        ByteArrayOutputStream formOutputStream = new ByteArrayOutputStream();
-        try {
-            entity.writeTo(formOutputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        formDataPublisher = HttpRequest.BodyPublishers
-            .ofInputStream(() -> new ByteArrayInputStream(formOutputStream.toByteArray()));
-    }
-    localVarRequestBuilder
-        .header("Content-Type", entity.getContentType().getValue())
-        .method("{{httpMethod}}", formDataPublisher);
-    {{/isMultipart}}
-    {{^isMultipart}}
-    List<NameValuePair> formValues = new ArrayList<>();
-    {{#formParams}}
-    {{#isArray}}
-    for (int i=0; i < {{paramName}}.size(); i++) {
-        if ({{paramName}}.get(i) != null) {
-            formValues.add(new BasicNameValuePair("{{{baseName}}}", {{paramName}}.get(i).toString()));
-        }
-    }
-    {{/isArray}}
-    {{^isArray}}
-    if ({{paramName}} != null) {
-        formValues.add(new BasicNameValuePair("{{{baseName}}}", {{paramName}}.toString()));
-    }
-    {{/isArray}}
-    {{/formParams}}
-    HttpEntity entity = new UrlEncodedFormEntity(formValues, java.nio.charset.StandardCharsets.UTF_8);
-    ByteArrayOutputStream formOutputStream = new ByteArrayOutputStream();
-    try {
-        entity.writeTo(formOutputStream);
-    } catch (IOException e) {
-        throw new RuntimeException(e);
-    }
-    localVarRequestBuilder
-        .header("Content-Type", entity.getContentType().getValue())
-        .method("{{httpMethod}}", HttpRequest.BodyPublishers
-            .ofInputStream(() -> new ByteArrayInputStream(formOutputStream.toByteArray())));
-    {{/isMultipart}}
-    {{/hasFormParams}}
-    {{^hasFormParams}}
-    localVarRequestBuilder.method("{{httpMethod}}", HttpRequest.BodyPublishers.noBody());
-    {{/hasFormParams}}
-    {{/bodyParam}}
-    Duration readTimeout = configuration.getReadTimeout();
-    if (readTimeout != null) {
-      localVarRequestBuilder.timeout(readTimeout);
-    }
-    if (memberVarInterceptor != null) {
-      memberVarInterceptor.accept(localVarRequestBuilder);
-    }
-    return localVarRequestBuilder;
-  }
-  {{#vendorExtensions.x-group-parameters}}
-  {{#hasParams}}
-
-  public static final class API{{operationId}}Request {
-    {{#requiredParams}}
-    private {{{dataType}}} {{paramName}}; // {{description}} (required)
-    {{/requiredParams}}
-    {{#optionalParams}}
-    private {{{dataType}}} {{paramName}}; // {{description}} (optional{{^isContainer}}{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/isContainer}}
-    {{/optionalParams}}
-
-    private API{{operationId}}Request(Builder builder) {
-      {{#requiredParams}}
-      this.{{paramName}} = builder.{{paramName}};
-      {{/requiredParams}}
-      {{#optionalParams}}
-      this.{{paramName}} = builder.{{paramName}};
-      {{/optionalParams}}
-    }
-    {{#allParams}}
-    public {{{dataType}}} {{paramName}}() {
-      return {{paramName}};
-    }
-    {{/allParams}}
-    public static Builder newBuilder() {
-      return new Builder();
-    }
-
-    public static class Builder {
-      {{#requiredParams}}
-      private {{{dataType}}} {{paramName}};
-      {{/requiredParams}}
-      {{#optionalParams}}
-      private {{{dataType}}} {{paramName}};
-      {{/optionalParams}}
-
-      {{#allParams}}
-      public Builder {{paramName}}({{{dataType}}} {{paramName}}) {
-        this.{{paramName}} = {{paramName}};
-        return this;
-      }
-      {{/allParams}}
-      public API{{operationId}}Request build() {
-        return new API{{operationId}}Request(this);
-      }
+    catch (ApiException e) {
+      return CompletableFuture.failedFuture(e);
     }
   }
 
-  {{/hasParams}}
-  {{/vendorExtensions.x-group-parameters}}
   {{/operation}}
+  {{/operations}}
+
+    private HttpRequest buildHttpRequest(String method, String path, Configuration configuration)
+            throws ApiException, FgaInvalidParameterException {
+        return buildHttpRequestWithPublisher(method, path, HttpRequest.BodyPublishers.noBody(), configuration);
+    }
+
+    private <T> HttpRequest buildHttpRequest(String method, String path, T body, Configuration configuration)
+            throws ApiException, FgaInvalidParameterException {
+        try {
+            byte[] localVarPostBody = apiClient.getObjectMapper().writeValueAsBytes(body);
+            var bodyPublisher = HttpRequest.BodyPublishers.ofByteArray(localVarPostBody);
+            return buildHttpRequestWithPublisher(method, path, bodyPublisher, configuration);
+        } catch (IOException e) {
+            throw new ApiException(e);
+        }
+    }
+
+    private HttpRequest buildHttpRequestWithPublisher(
+            String method, String path, HttpRequest.BodyPublisher bodyPublisher, Configuration configuration)
+            throws ApiException, FgaInvalidParameterException {
+        // verify the Configuration is valid
+        configuration.assertValid();
+
+        var httpRequest = HttpRequest.newBuilder();
+
+        httpRequest.uri(URI.create(configuration.getApiUrl() + path));
+
+        httpRequest.header("Content-Type", "application/json");
+        httpRequest.header("Accept", "application/json");
+
+        if (configuration.getCredentials().getCredentialsMethod() != CredentialsMethod.NONE) {
+            String accessToken = getAccessToken(configuration);
+            httpRequest.header("Authorization", "Bearer " + accessToken);
+        }
+
+        if (configuration.getUserAgent() != null) {
+            httpRequest.header("User-Agent", configuration.getUserAgent());
+        }
+
+        if (configuration.getDefaultHeaders() != null) {
+            configuration.getDefaultHeaders().forEach(httpRequest::header);
+        }
+
+        httpRequest.method(method, bodyPublisher);
+
+        Duration readTimeout = configuration.getReadTimeout();
+        if (readTimeout != null) {
+            httpRequest.timeout(readTimeout);
+        }
+        if (apiClient.getRequestInterceptor() != null) {
+            apiClient.getRequestInterceptor().accept(httpRequest);
+        }
+
+        return httpRequest.build();
+    }
+
+    private String pathWithParams(String basePath, Object... params) {
+        var path = new StringBuilder().append(basePath);
+        var paramStream = Stream.<String>builder();
+        for (int i = 0; i < params.length - 1; i += 2) {
+            if (params[i] == null || params[i + 1] == null) {
+                continue;
+            }
+            Pair.of(params[i].toString(), params[i + 1].toString())
+                    .map(Pair::asQueryStringPair)
+                    .ifPresent(paramStream::add);
+        }
+        String parameters = paramStream.build().collect(Collectors.joining("&"));
+        if (!isNullOrWhitespace(parameters)) {
+            path.append("?").append(parameters);
+        }
+        return path.toString();
+    }
 
   /**
     * Get an access token. Expects that configuration is valid (meaning it can
@@ -667,4 +281,3 @@ public class {{classname}} {
     throw new IllegalStateException("Configuration is invalid.");
   }
 }
-{{/operations}}

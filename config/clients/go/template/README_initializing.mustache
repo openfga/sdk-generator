@@ -12,9 +12,9 @@ import (
 
 func main() {
     fgaClient, err := NewSdkClient(&ClientConfiguration{
-        ApiScheme:      os.Getenv("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
-        ApiHost:        os.Getenv("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
-        StoreId:        os.Getenv("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+        ApiUrl:  os.Getenv("FGA_API_URL"), // required, e.g. https://api.{{sampleApiDomain}}
+        StoreId: os.Getenv("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+        AuthorizationModelId: os.Getenv("FGA_AUTHORIZATION_MODEL_ID"), // optional, recommended to be set for production
     })
 
 	if err != nil {
@@ -34,13 +34,13 @@ import (
 
 func main() {
     fgaClient, err := NewSdkClient(&ClientConfiguration{
-        ApiScheme:      os.Getenv("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
-        ApiHost:        os.Getenv("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
-        StoreId:        os.Getenv("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+        ApiUrl:      os.Getenv("FGA_API_URL"), // required, e.g. https://api.{{sampleApiDomain}}
+        StoreId:     os.Getenv("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+        AuthorizationModelId: os.Getenv("FGA_AUTHORIZATION_MODEL_ID"), // optional, recommended to be set for production
         Credentials: &credentials.Credentials{
             Method: credentials.CredentialsMethodApiToken,
             Config: &credentials.Config{
-                ApiToken: os.Getenv("{{appUpperCaseName}}_API_TOKEN"), // will be passed as the "Authorization: Bearer ${ApiToken}" request header
+                ApiToken: os.Getenv("FGA_API_TOKEN"), // will be passed as the "Authorization: Bearer ${ApiToken}" request header
             },
         },
     })
@@ -51,7 +51,7 @@ func main() {
 }
 ```
 
-#### Client Credentials
+#### Auth0 Client Credentials
 
 ```golang
 import (
@@ -63,17 +63,48 @@ import (
 
 func main() {
     fgaClient, err := NewSdkClient(&ClientConfiguration{
-        ApiScheme:              os.Getenv("{{appUpperCaseName}}_API_SCHEME"), // optional, defaults to "https"
-        ApiHost:                os.Getenv("{{appUpperCaseName}}_API_HOST"), // required, define without the scheme (e.g. api.fga.example instead of https://api.fga.example)
-        StoreId:                os.Getenv("{{appUpperCaseName}}_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
-        AuthorizationModelId:   {{packageName}}.PtrString("{{appUpperCaseName}}_AUTHORIZATION_MODEL_ID"),
+        ApiUrl:               os.Getenv("FGA_API_URL"), // required, e.g. https://api.{{sampleApiDomain}}
+        StoreId:              os.Getenv("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+        AuthorizationModelId: os.Getenv("FGA_AUTHORIZATION_MODEL_ID"), // optional, recommended to be set for production
         Credentials: &credentials.Credentials{
             Method: credentials.CredentialsMethodClientCredentials,
             Config: &credentials.Config{
-                ClientCredentialsClientId:       os.Getenv("{{appUpperCaseName}}_CLIENT_ID"),
-                ClientCredentialsClientSecret:   os.Getenv("{{appUpperCaseName}}_CLIENT_SECRET"),
-                ClientCredentialsApiAudience:    os.Getenv("{{appUpperCaseName}}_API_AUDIENCE"),
-                ClientCredentialsApiTokenIssuer: os.Getenv("{{appUpperCaseName}}_API_TOKEN_ISSUER"),
+                ClientCredentialsClientId:       os.Getenv("FGA_CLIENT_ID"),
+                ClientCredentialsClientSecret:   os.Getenv("FGA_CLIENT_SECRET"),
+                ClientCredentialsApiAudience:    os.Getenv("FGA_API_AUDIENCE"),
+                ClientCredentialsApiTokenIssuer: os.Getenv("FGA_API_TOKEN_ISSUER"),
+            },
+        },
+    })
+
+    if err != nil {
+        // .. Handle error
+    }
+}
+```
+
+#### OAuth2 Client Credentials
+
+```golang
+import (
+    {{packageName}} "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
+    . "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/client"
+    "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
+    "os"
+)
+
+func main() {
+    fgaClient, err := NewSdkClient(&ClientConfiguration{
+        ApiUrl:               os.Getenv("FGA_API_URL"), // required, e.g. https://api.{{sampleApiDomain}}
+        StoreId:              os.Getenv("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+        AuthorizationModelId: os.Getenv("FGA_AUTHORIZATION_MODEL_ID"), // optional, recommended to be set for production
+        Credentials: &credentials.Credentials{
+            Method: credentials.CredentialsMethodClientCredentials,
+            Config: &credentials.Config{
+                ClientCredentialsClientId:       os.Getenv("FGA_CLIENT_ID"),
+                ClientCredentialsClientSecret:   os.Getenv("FGA_CLIENT_SECRET"),
+                ClientCredentialsScopes:         os.Getenv("FGA_API_SCOPES"), // optional space separated scopes
+                ClientCredentialsApiTokenIssuer: os.Getenv("FGA_API_TOKEN_ISSUER"),
             },
         },
     })

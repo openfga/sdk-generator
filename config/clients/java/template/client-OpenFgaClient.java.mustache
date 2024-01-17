@@ -1,0 +1,831 @@
+{{>licenseInfo}}
+package {{clientPackage}};
+
+import static {{utilPackage}}.StringUtil.isNullOrWhitespace;
+import static java.util.UUID.randomUUID;
+
+import {{apiPackage}}.*;
+import {{clientPackage}}.model.*;
+import {{configPackage}}.*;
+import {{modelPackage}}.*;
+import {{errorsPackage}}.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class OpenFgaClient {
+    private final ApiClient apiClient;
+    private ClientConfiguration configuration;
+    private OpenFgaApi api;
+
+    private static final String CLIENT_BULK_REQUEST_ID_HEADER = "{{clientBulkRequestIdHeader}}";
+    private static final String CLIENT_METHOD_HEADER = "{{clientMethodHeader}}";
+    private static final int DEFAULT_MAX_METHOD_PARALLEL_REQS = {{clientMaxMethodParallelRequests}};
+
+    public OpenFgaClient(ClientConfiguration configuration) throws FgaInvalidParameterException {
+        this(configuration, new ApiClient());
+    }
+
+    public OpenFgaClient(ClientConfiguration configuration, ApiClient apiClient) throws FgaInvalidParameterException {
+        this.apiClient = apiClient;
+        this.configuration = configuration;
+        this.api = new OpenFgaApi(configuration, apiClient);
+    }
+
+    /* ***********
+     * Utilities *
+     *************/
+
+    public void setStoreId(String storeId) {
+        configuration.storeId(storeId);
+    }
+
+    public void setAuthorizationModelId(String authorizationModelId) {
+        configuration.authorizationModelId(authorizationModelId);
+    }
+    
+    public void setConfiguration(ClientConfiguration configuration) throws FgaInvalidParameterException {
+        this.configuration = configuration;
+        this.api = new OpenFgaApi(configuration, apiClient);
+    }
+
+    /* ********
+     * Stores *
+     **********/
+
+    /**
+     * ListStores - Get a paginated list of stores.
+     */
+    public CompletableFuture<ClientListStoresResponse> listStores() throws FgaInvalidParameterException {
+        configuration.assertValid();
+        return call(() -> api.listStores(null, null)).thenApply(ClientListStoresResponse::new);
+    }
+
+    /**
+     * ListStores - Get a paginated list of stores.
+     */
+    public CompletableFuture<ClientListStoresResponse> listStores(ClientListStoresOptions options)
+            throws FgaInvalidParameterException {
+        configuration.assertValid();
+        var overrides = new ConfigurationOverride().addHeaders(options);
+        return call(() -> api.listStores(options.getPageSize(), options.getContinuationToken(), overrides))
+                .thenApply(ClientListStoresResponse::new);
+    }
+
+    /**
+     * CreateStore - Initialize a store
+     */
+    public CompletableFuture<ClientCreateStoreResponse> createStore(CreateStoreRequest request)
+            throws FgaInvalidParameterException {
+        return createStore(request, null);
+    }
+
+    /**
+     * CreateStore - Initialize a store
+     */
+    public CompletableFuture<ClientCreateStoreResponse> createStore(
+            CreateStoreRequest request, ClientCreateStoreOptions options) throws FgaInvalidParameterException {
+        configuration.assertValid();
+        var overrides = new ConfigurationOverride().addHeaders(options);
+        return call(() -> api.createStore(request, overrides)).thenApply(ClientCreateStoreResponse::new);
+    }
+
+    /**
+     * GetStore - Get information about the current store.
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientGetStoreResponse> getStore() throws FgaInvalidParameterException {
+        return getStore(null);
+    }
+
+    /**
+     * GetStore - Get information about the current store.
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientGetStoreResponse> getStore(ClientGetStoreOptions options)
+            throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+        var overrides = new ConfigurationOverride().addHeaders(options);
+        return call(() -> api.getStore(storeId, overrides)).thenApply(ClientGetStoreResponse::new);
+    }
+
+    /**
+     * DeleteStore - Delete a store
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientDeleteStoreResponse> deleteStore() throws FgaInvalidParameterException {
+        return deleteStore(null);
+    }
+
+    /**
+     * DeleteStore - Delete a store
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientDeleteStoreResponse> deleteStore(ClientDeleteStoreOptions options)
+            throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+        var overrides = new ConfigurationOverride().addHeaders(options);
+        return call(() -> api.deleteStore(storeId, overrides)).thenApply(ClientDeleteStoreResponse::new);
+    }
+
+    /* **********************
+     * Authorization Models *
+     ************************/
+
+    /**
+     * ReadAuthorizationModels - Read all authorization models
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientReadAuthorizationModelsResponse> readAuthorizationModels()
+            throws FgaInvalidParameterException {
+        return readAuthorizationModels(null);
+    }
+
+    /**
+     * ReadAuthorizationModels - Read all authorization models
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientReadAuthorizationModelsResponse> readAuthorizationModels(
+            ClientReadAuthorizationModelsOptions options) throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+
+        Integer pageSize;
+        String continuationToken;
+
+        if (options != null) {
+            pageSize = options.getPageSize();
+            continuationToken = options.getContinuationToken();
+        } else {
+            // null are valid for these values
+            continuationToken = null;
+            pageSize = null;
+        }
+
+        var overrides = new ConfigurationOverride().addHeaders(options);
+
+        return call(() -> api.readAuthorizationModels(storeId, pageSize, continuationToken, overrides))
+                .thenApply(ClientReadAuthorizationModelsResponse::new);
+    }
+
+    /**
+     * WriteAuthorizationModel - Create a new version of the authorization model
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientWriteAuthorizationModelResponse> writeAuthorizationModel(
+            WriteAuthorizationModelRequest request) throws FgaInvalidParameterException {
+        return writeAuthorizationModel(request, null);
+    }
+
+    /**
+     * WriteAuthorizationModel - Create a new version of the authorization model
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientWriteAuthorizationModelResponse> writeAuthorizationModel(
+            WriteAuthorizationModelRequest request, ClientWriteAuthorizationModelOptions options)
+            throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+        var overrides = new ConfigurationOverride().addHeaders(options);
+        return call(() -> api.writeAuthorizationModel(storeId, request, overrides))
+                .thenApply(ClientWriteAuthorizationModelResponse::new);
+    }
+
+    /**
+     * ReadAuthorizationModel - Read the current authorization model
+     *
+     * @throws FgaInvalidParameterException When either the Store ID or Authorization Model ID are null, empty, or whitespace
+     */
+    public CompletableFuture<ClientReadAuthorizationModelResponse> readAuthorizationModel()
+            throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+        String authorizationModelId = configuration.getAuthorizationModelIdChecked();
+        return call(() -> api.readAuthorizationModel(storeId, authorizationModelId))
+                .thenApply(ClientReadAuthorizationModelResponse::new);
+    }
+
+    /**
+     * ReadAuthorizationModel - Read the current authorization model
+     *
+     * @throws FgaInvalidParameterException When either the Store ID or Authorization Model ID are null, empty, or whitespace
+     */
+    public CompletableFuture<ClientReadAuthorizationModelResponse> readAuthorizationModel(
+            ClientReadAuthorizationModelOptions options) throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+        String authorizationModelId = options.getAuthorizationModelIdChecked();
+        var overrides = new ConfigurationOverride().addHeaders(options);
+        return call(() -> api.readAuthorizationModel(storeId, authorizationModelId, overrides))
+                .thenApply(ClientReadAuthorizationModelResponse::new);
+    }
+
+    /**
+     * ReadLatestAuthorizationModel - Read the latest authorization model for the current store
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientReadAuthorizationModelResponse> readLatestAuthorizationModel()
+            throws FgaInvalidParameterException {
+        return readLatestAuthorizationModel(null);
+    }
+
+    /**
+     * ReadLatestAuthorizationModel - Read the latest authorization model for the current store
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientReadAuthorizationModelResponse> readLatestAuthorizationModel(
+            ClientReadLatestAuthorizationModelOptions options) throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+        var overrides = new ConfigurationOverride().addHeaders(options);
+        return call(() -> api.readAuthorizationModels(storeId, 1, null, overrides))
+                .thenApply(ClientReadAuthorizationModelResponse::latestOf);
+    }
+
+    /* *********************
+     * Relationship Tuples *
+     ***********************/
+
+    /**
+     * Read Changes - Read the list of historical relationship tuple writes and deletes
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientReadChangesResponse> readChanges(ClientReadChangesRequest request)
+            throws FgaInvalidParameterException {
+        return readChanges(request, null);
+    }
+
+    /**
+     * Read Changes - Read the list of historical relationship tuple writes and deletes
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientReadChangesResponse> readChanges(
+            ClientReadChangesRequest request, ClientReadChangesOptions readChangesOptions)
+            throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+        var options = readChangesOptions != null ? readChangesOptions : new ClientReadChangesOptions();
+        var overrides = new ConfigurationOverride().addHeaders(options);
+        return call(() -> api.readChanges(
+                        storeId, request.getType(), options.getPageSize(), options.getContinuationToken(), overrides))
+                .thenApply(ClientReadChangesResponse::new);
+    }
+
+    /**
+     * Read - Read tuples previously written to the store (does not evaluate)
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientReadResponse> read(ClientReadRequest request) throws FgaInvalidParameterException {
+        return read(request, null);
+    }
+
+    /**
+     * Read - Read tuples previously written to the store (does not evaluate)
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientReadResponse> read(ClientReadRequest request, ClientReadOptions options)
+            throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+
+        ReadRequest body = new ReadRequest();
+
+        if (request != null && (request.getUser() != null || request.getRelation() != null || request.getObject() != null)) {
+            body.tupleKey(new ReadRequestTupleKey()
+                    .user(request.getUser())
+                    .relation(request.getRelation())
+                    ._object(request.getObject()));
+        }
+
+        if (options != null) {
+            body.pageSize(options.getPageSize()).continuationToken(options.getContinuationToken());
+        }
+
+        var overrides = new ConfigurationOverride().addHeaders(options);
+
+        return call(() -> api.read(storeId, body, overrides)).thenApply(ClientReadResponse::new);
+    }
+
+    /**
+     * Write - Create or delete relationship tuples
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientWriteResponse> write(ClientWriteRequest request)
+            throws FgaInvalidParameterException {
+        return write(request, null);
+    }
+
+    /**
+     * Write - Create or delete relationship tuples
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientWriteResponse> write(ClientWriteRequest request, ClientWriteOptions options)
+            throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+
+        if (options != null && options.disableTransactions()) {
+            return writeNonTransaction(storeId, request, options);
+        }
+
+        return writeTransactions(storeId, request, options);
+    }
+
+    private CompletableFuture<ClientWriteResponse> writeNonTransaction(
+            String storeId, ClientWriteRequest request, ClientWriteOptions options) {
+
+        WriteRequest body = new WriteRequest();
+
+        var writeTuples = request.getWrites();
+        if (writeTuples != null && !writeTuples.isEmpty()) {
+            body.writes(ClientTupleKey.asWriteRequestWrites(writeTuples));
+        }
+
+        var deleteTuples = request.getDeletes();
+        if (deleteTuples != null && !deleteTuples.isEmpty()) {
+            body.deletes(ClientTupleKeyWithoutCondition.asWriteRequestDeletes(deleteTuples));
+        }
+
+        if (options != null && !isNullOrWhitespace(options.getAuthorizationModelId())) {
+            body.authorizationModelId(options.getAuthorizationModelId());
+        } else {
+            String authorizationModelId = configuration.getAuthorizationModelId();
+            body.authorizationModelId(authorizationModelId);
+        }
+
+        var overrides = new ConfigurationOverride().addHeaders(options);
+
+        return call(() -> api.write(storeId, body, overrides)).thenApply(ClientWriteResponse::new);
+    }
+
+    private CompletableFuture<ClientWriteResponse> writeTransactions(
+            String storeId, ClientWriteRequest request, ClientWriteOptions writeOptions) {
+
+        var options = writeOptions != null
+                ? writeOptions
+                : new ClientWriteOptions().transactionChunkSize(DEFAULT_MAX_METHOD_PARALLEL_REQS);
+
+        if (options.getAdditionalHeaders() == null) {
+            options.additionalHeaders(new HashMap<>());
+        }
+        options.getAdditionalHeaders().putIfAbsent(CLIENT_METHOD_HEADER, "Write");
+        options.getAdditionalHeaders()
+                .putIfAbsent(CLIENT_BULK_REQUEST_ID_HEADER, randomUUID().toString());
+
+        int chunkSize = options.getTransactionChunkSize();
+        var writeTransactions = chunksOf(chunkSize, request.getWrites()).map(ClientWriteRequest::ofWrites);
+        var deleteTransactions = chunksOf(chunkSize, request.getDeletes()).map(ClientWriteRequest::ofDeletes);
+
+        var transactions = Stream.concat(writeTransactions, deleteTransactions).collect(Collectors.toList());
+        var futureResponse = this.writeNonTransaction(storeId, transactions.get(0), options);
+
+        for (int i = 1; i < transactions.size(); i++) {
+            final int index = i; // Must be final in this scope for closure.
+
+            // The resulting completable future of this chain will result in either:
+            // 1. The first exception thrown in a failed completion. Other thenCompose() will not be evaluated.
+            // 2. The final successful ClientWriteResponse.
+            futureResponse = futureResponse.thenCompose(
+                    _response -> this.writeNonTransaction(storeId, transactions.get(index), options));
+        }
+
+        return futureResponse;
+    }
+
+    private <T> Stream<List<T>> chunksOf(int chunkSize, List<T> list) {
+        if (list == null || list.isEmpty()) {
+            return Stream.empty();
+        }
+
+        int nChunks = (int) Math.ceil(list.size() / (double) chunkSize);
+
+        int finalEndExclusive = list.size();
+        Stream.Builder<List<T>> chunks = Stream.builder();
+
+        for (int i = 0; i < nChunks; i++) {
+            List<T> chunk = list.subList(i * chunkSize, Math.min((i + 1) * chunkSize, finalEndExclusive));
+            chunks.add(chunk);
+        }
+
+        return chunks.build();
+    }
+
+    /**
+     * WriteTuples - Utility method to write tuples, wraps Write
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientWriteResponse> writeTuples(List<ClientTupleKey> tupleKeys)
+            throws FgaInvalidParameterException {
+        return writeTuples(tupleKeys, null);
+    }
+
+    /**
+     * WriteTuples - Utility method to write tuples, wraps Write
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientWriteResponse> writeTuples(
+            List<ClientTupleKey> tupleKeys, ClientWriteTuplesOptions options) throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+
+        var body = new WriteRequest();
+
+        body.writes(ClientTupleKey.asWriteRequestWrites(tupleKeys));
+
+        String authorizationModelId = configuration.getAuthorizationModelId();
+        if (!isNullOrWhitespace(authorizationModelId)) {
+            body.authorizationModelId(authorizationModelId);
+        }
+
+        var overrides = new ConfigurationOverride().addHeaders(options);
+
+        return call(() -> api.write(storeId, body, overrides)).thenApply(ClientWriteResponse::new);
+    }
+
+    /**
+     * DeleteTuples - Utility method to delete tuples, wraps Write
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientWriteResponse> deleteTuples(List<ClientTupleKeyWithoutCondition> tupleKeys)
+            throws FgaInvalidParameterException {
+        return deleteTuples(tupleKeys, null);
+    }
+
+    /**
+     * DeleteTuples - Utility method to delete tuples, wraps Write
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientWriteResponse> deleteTuples(
+            List<ClientTupleKeyWithoutCondition> tupleKeys, ClientDeleteTuplesOptions options)
+            throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+
+        var body = new WriteRequest();
+
+        body.deletes(ClientTupleKeyWithoutCondition.asWriteRequestDeletes(tupleKeys));
+
+        String authorizationModelId = configuration.getAuthorizationModelId();
+        if (!isNullOrWhitespace(authorizationModelId)) {
+            body.authorizationModelId(authorizationModelId);
+        }
+
+        var overrides = new ConfigurationOverride().addHeaders(options);
+
+        return call(() -> api.write(storeId, body, overrides)).thenApply(ClientWriteResponse::new);
+    }
+
+    /* **********************
+     * Relationship Queries *
+     ***********************/
+
+    /**
+     * Check - Check if a user has a particular relation with an object (evaluates)
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientCheckResponse> check(ClientCheckRequest request)
+            throws FgaInvalidParameterException {
+        return check(request, null);
+    }
+
+    /**
+     * Check - Check if a user has a particular relation with an object (evaluates)
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientCheckResponse> check(ClientCheckRequest request, ClientCheckOptions options)
+            throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+
+        CheckRequest body = request.asCheckRequest();
+
+        if (options != null && !isNullOrWhitespace(options.getAuthorizationModelId())) {
+            body.authorizationModelId(options.getAuthorizationModelId());
+        } else {
+            String authorizationModelId = configuration.getAuthorizationModelId();
+            body.authorizationModelId(authorizationModelId);
+        }
+
+        var overrides = new ConfigurationOverride().addHeaders(options);
+
+        return call(() -> api.check(storeId, body, overrides)).thenApply(ClientCheckResponse::new);
+    }
+
+    /**
+     * BatchCheck - Run a set of checks (evaluates)
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<List<ClientBatchCheckResponse>> batchCheck(List<ClientCheckRequest> requests)
+            throws FgaInvalidParameterException {
+        return batchCheck(requests, null);
+    }
+
+    /**
+     * BatchCheck - Run a set of checks (evaluates)
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<List<ClientBatchCheckResponse>> batchCheck(
+            List<ClientCheckRequest> requests, ClientBatchCheckOptions batchCheckOptions)
+            throws FgaInvalidParameterException {
+        configuration.assertValid();
+        configuration.assertValidStoreId();
+
+        var options = batchCheckOptions != null
+                ? batchCheckOptions
+                : new ClientBatchCheckOptions().maxParallelRequests(DEFAULT_MAX_METHOD_PARALLEL_REQS);
+        if (options.getAdditionalHeaders() == null) {
+            options.additionalHeaders(new HashMap<>());
+        }
+        options.getAdditionalHeaders().putIfAbsent(CLIENT_METHOD_HEADER, "BatchCheck");
+        options.getAdditionalHeaders()
+                .putIfAbsent(CLIENT_BULK_REQUEST_ID_HEADER, randomUUID().toString());
+
+        int maxParallelRequests = options.getMaxParallelRequests() != null
+                ? options.getMaxParallelRequests()
+                : DEFAULT_MAX_METHOD_PARALLEL_REQS;
+        var executor = Executors.newScheduledThreadPool(maxParallelRequests);
+        var latch = new CountDownLatch(requests.size());
+
+        var responses = new ConcurrentLinkedQueue<ClientBatchCheckResponse>();
+
+        final var clientCheckOptions = options.asClientCheckOptions();
+
+        Consumer<ClientCheckRequest> singleClientCheckRequest =
+                request -> call(() -> this.check(request, clientCheckOptions))
+                        .handleAsync(ClientBatchCheckResponse.asyncHandler(request))
+                        .thenAccept(responses::add)
+                        .thenRun(latch::countDown);
+
+        try {
+            requests.forEach(request -> executor.execute(() -> singleClientCheckRequest.accept(request)));
+            latch.await();
+            return CompletableFuture.completedFuture(new ArrayList<>(responses));
+        } catch (Exception e) {
+            return CompletableFuture.failedFuture(e);
+        }
+    }
+
+    /**
+     * Expand - Expands the relationships in userset tree format (evaluates)
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientExpandResponse> expand(ClientExpandRequest request)
+            throws FgaInvalidParameterException {
+        return expand(request, null);
+    }
+
+    /**
+     * Expand - Expands the relationships in userset tree format (evaluates)
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientExpandResponse> expand(ClientExpandRequest request, ClientExpandOptions options)
+            throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+
+        ExpandRequest body = new ExpandRequest();
+
+        if (request != null) {
+            body.tupleKey(
+                    new ExpandRequestTupleKey().relation(request.getRelation())._object(request.getObject()));
+        }
+
+        if (options != null && !isNullOrWhitespace(options.getAuthorizationModelId())) {
+            body.authorizationModelId(options.getAuthorizationModelId());
+        } else {
+            String authorizationModelId = configuration.getAuthorizationModelId();
+            body.authorizationModelId(authorizationModelId);
+        }
+
+        var overrides = new ConfigurationOverride().addHeaders(options);
+
+        return call(() -> api.expand(storeId, body, overrides)).thenApply(ClientExpandResponse::new);
+    }
+
+    /**
+     * ListObjects - List the objects of a particular type that the user has a certain relation to (evaluates)
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientListObjectsResponse> listObjects(ClientListObjectsRequest request)
+            throws FgaInvalidParameterException {
+        return listObjects(request, null);
+    }
+
+    /**
+     * ListObjects - List the objects of a particular type that the user has a certain relation to (evaluates)
+     *
+     * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientListObjectsResponse> listObjects(
+            ClientListObjectsRequest request, ClientListObjectsOptions options) throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+
+        ListObjectsRequest body = new ListObjectsRequest();
+
+        if (request != null) {
+            body.user(request.getUser()).relation(request.getRelation()).type(request.getType());
+            if (request.getContextualTupleKeys() != null) {
+                var contextualTuples = request.getContextualTupleKeys();
+                var bodyContextualTuples = ClientTupleKey.asContextualTupleKeys(contextualTuples);
+                body.contextualTuples(bodyContextualTuples);
+            }
+        }
+
+        if (options != null && !isNullOrWhitespace(options.getAuthorizationModelId())) {
+            body.authorizationModelId(options.getAuthorizationModelId());
+        } else {
+            String authorizationModelId = configuration.getAuthorizationModelId();
+            body.authorizationModelId(authorizationModelId);
+        }
+
+        var overrides = new ConfigurationOverride().addHeaders(options);
+
+        return call(() -> api.listObjects(storeId, body, overrides)).thenApply(ClientListObjectsResponse::new);
+    }
+
+    /**
+     * ListRelations - List allowed relations a user has with an object (evaluates)
+     */
+    public CompletableFuture<ClientListRelationsResponse> listRelations(ClientListRelationsRequest request)
+            throws FgaInvalidParameterException {
+        return listRelations(request, null);
+    }
+
+    /**
+     * ListRelations - List allowed relations a user has with an object (evaluates)
+     */
+    public CompletableFuture<ClientListRelationsResponse> listRelations(
+            ClientListRelationsRequest request, ClientListRelationsOptions listRelationsOptions)
+            throws FgaInvalidParameterException {
+        if (request.getRelations() == null || request.getRelations().isEmpty()) {
+            throw new FgaInvalidParameterException(
+                    "At least 1 relation to check has to be provided when calling ListRelations");
+        }
+
+        var options = listRelationsOptions != null
+                ? listRelationsOptions
+                : new ClientListRelationsOptions().maxParallelRequests(DEFAULT_MAX_METHOD_PARALLEL_REQS);
+        if (options.getAdditionalHeaders() == null) {
+            options.additionalHeaders(new HashMap<>());
+        }
+        options.getAdditionalHeaders().putIfAbsent(CLIENT_METHOD_HEADER, "ListRelations");
+        options.getAdditionalHeaders()
+                .putIfAbsent(CLIENT_BULK_REQUEST_ID_HEADER, randomUUID().toString());
+
+        var batchCheckRequests = request.getRelations().stream()
+                .map(relation -> new ClientCheckRequest()
+                        .user(request.getUser())
+                        .relation(relation)
+                        ._object(request.getObject()))
+                .collect(Collectors.toList());
+
+        return this.batchCheck(batchCheckRequests, options.asClientBatchCheckOptions())
+                .thenCompose(responses -> call(() -> ClientListRelationsResponse.fromBatchCheckResponses(responses)));
+    }
+
+    /* ************
+     * Assertions *
+     **************/
+
+    /**
+     * ReadAssertions - Read assertions for a particular authorization model
+     *
+     * @throws FgaInvalidParameterException When either the Store ID or Authorization Model ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientReadAssertionsResponse> readAssertions() throws FgaInvalidParameterException {
+        return readAssertions(null);
+    }
+
+    /**
+     * ReadAssertions - Read assertions for a particular authorization model
+     *
+     * @throws FgaInvalidParameterException When either the Store ID or Authorization Model ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientReadAssertionsResponse> readAssertions(ClientReadAssertionsOptions options)
+            throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+
+        String authorizationModelId;
+        if (options != null && options.hasValidAuthorizationModelId()) {
+            authorizationModelId = options.getAuthorizationModelId();
+        } else {
+            authorizationModelId = configuration.getAuthorizationModelIdChecked();
+        }
+
+        var overrides = new ConfigurationOverride().addHeaders(options);
+
+        return call(() -> api.readAssertions(storeId, authorizationModelId, overrides))
+                .thenApply(ClientReadAssertionsResponse::new);
+    }
+
+    /**
+     * WriteAssertions - Updates assertions for a particular authorization model
+     *
+     * @throws FgaInvalidParameterException When either the Store ID or Authorization Model ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientWriteAssertionsResponse> writeAssertions(List<ClientAssertion> assertions)
+            throws FgaInvalidParameterException {
+        return writeAssertions(assertions, null);
+    }
+
+    /**
+     * WriteAssertions - Updates assertions for a particular authorization model
+     *
+     * @throws FgaInvalidParameterException When either the Store ID or Authorization Model ID is null, empty, or whitespace
+     */
+    public CompletableFuture<ClientWriteAssertionsResponse> writeAssertions(
+            List<ClientAssertion> assertions, ClientWriteAssertionsOptions options)
+            throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+
+        String authorizationModelId;
+        if (options != null && options.hasValidAuthorizationModelId()) {
+            authorizationModelId = options.getAuthorizationModelId();
+        } else {
+            authorizationModelId = configuration.getAuthorizationModelIdChecked();
+        }
+
+        WriteAssertionsRequest body = new WriteAssertionsRequest().assertions(ClientAssertion.asAssertions(assertions));
+
+        var overrides = new ConfigurationOverride().addHeaders(options);
+
+        return call(() -> api.writeAssertions(storeId, authorizationModelId, body, overrides))
+                .thenApply(ClientWriteAssertionsResponse::new);
+    }
+
+    /**
+     * A {@link FunctionalInterface} for calling a low-level API from {@link OpenFgaApi}. It wraps exceptions
+     * encountered with {@link CompletableFuture#failedFuture(Throwable)}
+     *
+     * @param <R> The type of API response
+     */
+    @FunctionalInterface
+    private interface CheckedAsyncInvocation<R> {
+        CompletableFuture<R> call() throws Throwable;
+    }
+
+    private <T> CompletableFuture<T> call(CheckedAsyncInvocation<T> action) {
+        try {
+            return action.call();
+        } catch (CompletionException completionException) {
+            return CompletableFuture.failedFuture(completionException.getCause());
+        } catch (Throwable throwable) {
+            return CompletableFuture.failedFuture(throwable);
+        }
+    }
+
+    /**
+     * A {@link FunctionalInterface} for calling any function that could throw an exception.
+     * It wraps exceptions encountered with {@link CompletableFuture#failedFuture(Throwable)}
+     *
+     * @param <R> The return type
+     */
+    @FunctionalInterface
+    private interface CheckedInvocation<R> {
+        R call() throws Throwable;
+    }
+
+    private <T> CompletableFuture<T> call(CheckedInvocation<T> action) {
+        try {
+            return CompletableFuture.completedFuture(action.call());
+        } catch (CompletionException completionException) {
+            return CompletableFuture.failedFuture(completionException.getCause());
+        } catch (Throwable throwable) {
+            return CompletableFuture.failedFuture(throwable);
+        }
+    }
+}

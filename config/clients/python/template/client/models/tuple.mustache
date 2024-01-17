@@ -1,6 +1,7 @@
 # coding: utf-8
 {{>partial_header}}
 
+from {{packageName}}.models.relationship_condition import RelationshipCondition
 from {{packageName}}.models.tuple_key import TupleKey
 
 from typing import List
@@ -10,10 +11,11 @@ class ClientTuple():
     ClientTuple encapsulates the client tuple
     """
 
-    def __init__(self, user: str, relation: str, object: str):
+    def __init__(self, user: str, relation: str, object: str, condition: RelationshipCondition = None):
         self._user = user
         self._relation = relation
         self._object = object
+        self._condition = condition
 
     def __eq__(self, other):
         return self.user == other.user and self.relation == other.relation and self.object == other.object
@@ -39,6 +41,13 @@ class ClientTuple():
         """
         return self._object
 
+    @property
+    def condition(self):
+        """
+        Return condition
+        """
+        return self._condition
+
     @user.setter
     def user(self, value):
         """
@@ -60,6 +69,13 @@ class ClientTuple():
         """
         self._object = value
 
+    @condition.setter
+    def condition(self, value):
+        """
+        Set condition
+        """
+        self._condition = value
+
     @property
     def tuple_key(self):
         """
@@ -69,6 +85,7 @@ class ClientTuple():
             object=self.object,
             relation=self.relation,
             user=self.user,
+            condition=self.condition
         )
 
 

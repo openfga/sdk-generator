@@ -8,8 +8,9 @@ jobs:
   test-generator:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-depth: 0
 
       - name: Shellcheck
         run: make shellcheck
@@ -17,8 +18,9 @@ jobs:
   build-and-test-js-sdk:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-depth: 0
 
       - name: Setup git
         run: ./scripts/setup_git.sh
@@ -54,8 +56,9 @@ jobs:
   build-and-test-go-sdk:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-depth: 0
 
       - name: Setup git
         run: ./scripts/setup_git.sh
@@ -92,8 +95,9 @@ jobs:
   build-and-test-dotnet-sdk:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-depth: 0
 
       - name: Setup git
         run: ./scripts/setup_git.sh
@@ -129,8 +133,9 @@ jobs:
   build-and-test-python-sdk:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-depth: 0
 
       - name: Specify python version
         uses: actions/setup-python@v4
@@ -172,8 +177,9 @@ jobs:
   build-and-test-java-sdk:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK
         uses: actions/setup-java@v2

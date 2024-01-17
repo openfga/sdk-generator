@@ -9,6 +9,7 @@ import re  # noqa: F401
 import six
 
 from {{packageName}}.api_client import ApiClient
+from {{packageName}}.oauth2 import OAuth2Client
 from {{packageName}}.exceptions import (  # noqa: F401
     FgaValidationException,
     ApiValueError
@@ -28,7 +29,13 @@ class {{classname}}(object):
             api_client = ApiClient()
         self.api_client = api_client
 
-    {{#asyncio}}
+        self._oauth2_client = None
+        if api_client.configuration is not None:
+            credentials = api_client.configuration.credentials
+            if credentials is not None and credentials.method == 'client_credentials':
+                self._oauth2_client = OAuth2Client(credentials)
+
+{{#asyncio}}
     async def __aenter__(self):
         return self
 
@@ -37,7 +44,17 @@ class {{classname}}(object):
 
     async def close(self):
         await self.api_client.close()
-    {{/asyncio}}
+{{/asyncio}}
+{{^asyncio}}
+    def __enter__(self):
+        return self
+
+    def __exit__(self):
+        self.close()
+
+    def close(self):
+        self.api_client.close()
+{{/asyncio}}
 
 {{#operation}}
 
@@ -49,10 +66,10 @@ class {{classname}}(object):
 {{/notes}}
 
 {{#sortParamsByRequiredFlag}}
-        >>> thread = await api.{{operationId}}({{#allParams}}{{#required}}{{^-first}}{{paramName}}{{^-last}}, {{/-last}}{{/-first}}{{/required}}{{/allParams}})
+        >>> thread = {{#asyncio}}await {{/asyncio}}api.{{operationId}}({{#allParams}}{{#required}}{{^-first}}{{paramName}}{{^-last}}, {{/-last}}{{/-first}}{{/required}}{{/allParams}})
 {{/sortParamsByRequiredFlag}}
 {{^sortParamsByRequiredFlag}}
-        >>> thread = await api.{{operationId}}({{#allParams}}{{#required}}{{^-first}}{{paramName}}={{paramName}}_value{{^-last}}, {{/-last}} {{/-first}}{{/required}}{{/allParams}})
+        >>> thread = {{#asyncio}}await {{/asyncio}}api.{{operationId}}({{#allParams}}{{#required}}{{^-first}}{{paramName}}={{paramName}}_value{{^-last}}, {{/-last}} {{/-first}}{{/required}}{{/allParams}})
 {{/sortParamsByRequiredFlag}}
 
 {{#requiredParams}}
@@ -81,7 +98,7 @@ class {{classname}}(object):
         :rtype: {{returnType}}{{^returnType}}None{{/returnType}}
         """
         kwargs['_return_http_data_only'] = True
-        return {{#asyncio}}await({{/asyncio}}self.{{operationId}}_with_http_info({{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{^-first}}{{paramName}}, {{/-first}}{{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs){{#asyncio}}){{/asyncio}}  # noqa: E501
+        return {{#asyncio}}await ({{/asyncio}}self.{{operationId}}_with_http_info({{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{^-first}}{{paramName}}, {{/-first}}{{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs){{#asyncio}}){{/asyncio}}  # noqa: E501
 
     {{#asyncio}}async {{/asyncio}}def {{operationId}}_with_http_info(self, {{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{^-first}}{{paramName}}, {{/-first}}{{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs):  # noqa: E501
         """{{{summary}}}{{^summary}}{{operationId}}{{/summary}}  # noqa: E501
@@ -307,7 +324,7 @@ class {{classname}}(object):
         response_types_map = {}
         {{/returnType}}
 
-        return {{#asyncio}}await({{/asyncio}}self.api_client.call_api(
+        return {{#asyncio}}await ({{/asyncio}}self.api_client.call_api(
             '{{{path}}}'.replace('{store_id}', store_id), '{{httpMethod}}',
             path_params,
             query_params,
@@ -326,6 +343,7 @@ class {{classname}}(object):
             _host=local_var_host,
             {{/servers.0}}
             collection_formats=collection_formats,
-            _request_auth=local_var_params.get('_request_auth')){{#asyncio}}){{/asyncio}}
+            _request_auth=local_var_params.get('_request_auth'),
+            _oauth2_client=self._oauth2_client){{#asyncio}}){{/asyncio}}
 {{/operation}}
 {{/operations}}

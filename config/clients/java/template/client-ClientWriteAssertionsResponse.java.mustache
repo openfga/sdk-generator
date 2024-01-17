@@ -1,0 +1,30 @@
+{{>licenseInfo}}
+package {{clientPackage}}.model;
+
+import {{clientPackage}}.ApiResponse;
+import java.util.List;
+import java.util.Map;
+
+public class ClientWriteAssertionsResponse {
+    private final int statusCode;
+    private final Map<String, List<String>> headers;
+    private final String rawResponse;
+
+    public ClientWriteAssertionsResponse(ApiResponse<Void> apiResponse) {
+        this.statusCode = apiResponse.getStatusCode();
+        this.headers = apiResponse.getHeaders();
+        this.rawResponse = apiResponse.getRawResponse();
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public Map<String, List<String>> getHeaders() {
+        return headers;
+    }
+
+    public String getRawResponse() {
+        return rawResponse;
+    }
+}

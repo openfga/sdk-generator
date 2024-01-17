@@ -1,11 +1,12 @@
 # Main config
-OPENFGA_DOCKER_TAG = latest
-OPEN_API_URL = https://raw.githubusercontent.com/openfga/api/main/docs/openapiv2/apidocs.swagger.json
+OPENFGA_DOCKER_TAG = v1.4.0
+OPEN_API_REF ?= main
+OPEN_API_URL = https://raw.githubusercontent.com/openfga/api/${OPEN_API_REF}/docs/openapiv2/apidocs.swagger.json
 OPENAPI_GENERATOR_CLI_DOCKER_TAG = v6.4.0
-NODE_DOCKER_TAG = 18-alpine
+NODE_DOCKER_TAG = 20-alpine
 GO_DOCKER_TAG = 1
 DOTNET_DOCKER_TAG = 6.0
-GOLINT_DOCKER_TAG = v1.51-alpine
+GOLINT_DOCKER_TAG = v1.54-alpine
 BUSYBOX_DOCKER_TAG = 1
 GRADLE_DOCKER_TAG = 8.2
 PYTHON_DOCKER_TAG = 3.10
@@ -15,11 +16,8 @@ CONFIG_DIR = ${PWD}/config
 CLIENTS_OUTPUT_DIR = ${PWD}/clients
 DOCS_CACHE_DIR = ${PWD}/docs/openapi
 TMP_DIR = $(shell mktemp -d "$${TMPDIR:-/tmp}/tmp.XXXXX")
-dotnet_package_version = $(shell cat ./clients/fga-dotnet-sdk/VERSION.txt)
 CURRENT_UID := $(shell id -u)
 CURRENT_GID := $(shell id -g)
-
-dotnet_publish_api_key=
 
 all: test-all-clients
 
@@ -34,11 +32,6 @@ pull-docker-images:
 	docker pull busybox:${BUSYBOX_DOCKER_TAG}
 	docker pull gradle:${GRADLE_DOCKER_TAG}
 	docker pull rust:${RUST_DOCKER_TAG}
-
-## Publishing
-publish-client-dotnet: build-client-dotnet
-	## See: https://docs.microsoft.com/en-us/nuget/quickstart/create-and-publish-a-package-using-the-dotnet-cli
-	make run-in-docker sdk_language=dotnet image=mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet nuget push src/OpenFga.Sdk/bin/Release/OpenFga.Sdk.${dotnet_package_version}.nupkg --api-key ${dotnet_publish_api_key} --source https://api.nuget.org/v3/index.json'"
 
 ## Building and Testing
 .PHONY: test
@@ -102,7 +95,6 @@ test-client-dotnet: build-client-dotnet
 build-client-dotnet:
 	rm -rf ${CLIENTS_OUTPUT_DIR}/fga-dotnet-sdk/src/OpenFga.Sdk.Test
 	make build-client sdk_language=dotnet tmpdir=${TMP_DIR}
-	make run-in-docker sdk_language=dotnet image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/src/OpenFga.Sdk/Api/OpenFgaApi.cs /config/clients/dotnet/patches/add-missing-first-param.patch'"
 
 	make run-in-docker sdk_language=dotnet image=mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet build --configuration Release'"
 	# For some reason the first round of formatting fails with an error - running it again produces the correct result
@@ -117,7 +109,9 @@ tag-client-python: test-client-python
 .PHONY: build-client-python
 build-client-python:
 	make build-client sdk_language=python tmpdir=${TMP_DIR} library="asyncio"
+	mv ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/api/open_fga_api_sync.py ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/sync/open_fga_api.py # TODO: Remove on OpenAPI generator v7.1 or higher
 	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/openfga_sdk/api/open_fga_api.py /config/clients/python/patches/open_fga_api.py.patch'"
+	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/openfga_sdk/sync/open_fga_api.py /config/clients/python/patches/open_fga_api_sync.py.patch'"
 	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/docs/OpenFgaApi.md /config/clients/python/patches/OpenFgaApi.md.patch'"
 	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install pycodestyle==2.10.0 autopep8==2.0.2; autopep8 --in-place --ignore E402 --recursive openfga_sdk; autopep8 --in-place --recursive test'"
 	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'pip install setuptools wheel && python setup.py sdist bdist_wheel'"
@@ -173,14 +167,13 @@ run-in-docker:
 .EXPORT_ALL_VARIABLES:
 .PHONY: build-client
 build-client: build-openapi
-	SDK_LANGUAGE="${sdk_language}" TMP_DIR="${tmpdir}" LIBRARY_TEMPLATE="${library}" \
+	SDK_LANGUAGE="${sdk_language}" TMP_DIR="${tmpdir}" LIBRARY_TEMPLATE="${library}"\
 		./scripts/build_client.sh
 
 .PHONY: build-openapi
 build-openapi: init get-openapi-doc
 	cat "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.json" | \
-		docker run --rm -i stedolan/jq \
-		 '(.. | .tags? | select(.)) |= ["OpenFga"] | (.tags? | select(.)) |= [{"name":"OpenFga"}] | del(.definitions.ReadTuplesParams, .definitions.ReadTuplesResponse, .paths."/stores/{store_id}/read-tuples", .definitions.StreamedListObjectsRequest, .definitions.StreamedListObjectsResponse, .paths."/stores/{store_id}/streamed-list-objects")' > \
+		jq '(.. | .tags? | select(.)) |= ["OpenFga"] | (.tags? | select(.)) |= [{"name":"OpenFga"}] | del(.definitions.ReadTuplesParams, .definitions.ReadTuplesResponse, .paths."/stores/{store_id}/read-tuples", .definitions.StreamedListObjectsRequest, .definitions.StreamedListObjectsResponse, .paths."/stores/{store_id}/streamed-list-objects")' > \
 		${DOCS_CACHE_DIR}/openfga.openapiv2.json
 	sed -i -e 's/v1.//g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
 

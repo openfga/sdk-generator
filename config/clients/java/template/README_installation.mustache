@@ -1,0 +1,43 @@
+The {{appName}} Java SDK is available on [Maven Central](https://central.sonatype.com/).
+
+It can be used with the following:
+
+* Gradle (Groovy)
+
+```groovy
+implementation '{{groupId}}:{{artifactId}}:{{packageVersion}}'
+```
+
+* Gradle (Kotlin)
+
+```kotlin
+implementation("{{groupId}}:{{artifactId}}:{{packageVersion}}")
+```
+
+* Apache Maven
+
+```xml
+<dependency>
+    <groupId>{{groupId}}</groupId>
+    <artifactId>{{artifactId}}</artifactId>
+    <version>{{packageVersion}}</version>
+</dependency>
+```
+
+* Ivy
+
+```xml
+<dependency org="{{groupId}}" name="{{artifactId}}" rev="{{packageVersion}}"/>
+```
+
+* SBT
+
+```scala
+libraryDependencies += "{{groupId}}" % "{{artifactId}}" % "{{packageVersion}}"
+```
+
+* Leiningen
+
+```edn
+[{{groupId}}/{{artifactId}} "{{packageVersion}}"]
+```
