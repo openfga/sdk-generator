@@ -129,7 +129,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 			Method:         http.MethodGet,
 		}
 
-		var expectedResponse openfga.ListStoresResponse
+		var expectedResponse {{packageName}}.ListStoresResponse
 		if err := json.Unmarshal([]byte(test.JsonResponse), &expectedResponse); err != nil {
 			t.Fatalf("%v", err)
 		}
@@ -490,6 +490,222 @@ func Test{{appShortName}}Client(t *testing.T) {
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
 		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+			func(req *http.Request) (*http.Response, error) {
+				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+				}
+				return resp, nil
+			},
+		)
+		options := ClientWriteAuthorizationModelOptions{}
+		got, err := fgaClient.WriteAuthorizationModel(context.Background()).Body(requestBody).Options(options).Execute()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		_, err = got.MarshalJSON()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		if got.GetAuthorizationModelId() != expectedResponse.GetAuthorizationModelId() {
+			t.Fatalf("{{appShortName}}Client.%v() / AuthorizationModelId = %v, want %v", test.Name, got.GetAuthorizationModelId(), expectedResponse.GetAuthorizationModelId())
+		}
+
+		// WriteAuthorizationModel without options should work
+		_, err = fgaClient.WriteAuthorizationModel(context.Background()).Body(requestBody).Execute()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+	})
+
+	t.Run("WriteAuthorizationModelWithCondition", func(t *testing.T) {
+		test := TestDefinition{
+			Name:           "WriteAuthorizationModelWithCondition",
+			JsonResponse:   `{"authorization_model_id":"01GXSA8YR785C4FYS3C0RTG7B1"}`,
+			ResponseStatus: http.StatusOK,
+			Method:         http.MethodPost,
+			RequestPath:    "authorization-models",
+		}
+		requestBody := ClientWriteAuthorizationModelRequest{
+			SchemaVersion: "1.1",
+			TypeDefinitions: []{{packageName}}.TypeDefinition{
+				{
+					Type:      "user",
+					Relations: &map[string]{{packageName}}.Userset{},
+				},
+				{
+					Type: "document",
+					Relations: &map[string]{{packageName}}.Userset{
+						"writer": {This: &map[string]interface{}{}},
+						"viewer": {Union: &{{packageName}}.Usersets{
+							Child: []{{packageName}}.Userset{
+								{This: &map[string]interface{}{}},
+								{ComputedUserset: &{{packageName}}.ObjectRelation{
+									Object:   {{packageName}}.PtrString(""),
+									Relation: {{packageName}}.PtrString("writer"),
+								}},
+							},
+						}},
+					},
+					Metadata: &{{packageName}}.Metadata{
+						Relations: &map[string]{{packageName}}.RelationMetadata{
+							"writer": {
+								DirectlyRelatedUserTypes: &[]{{packageName}}.RelationReference{
+									{Type: "user"},
+									{Type: "user", Condition: {{packageName}}.PtrString("ViewCountLessThan200")},
+								},
+							},
+							"viewer": {
+								DirectlyRelatedUserTypes: &[]{{packageName}}.RelationReference{
+									{Type: "user"},
+								},
+							},
+						},
+					},
+				},
+			},
+			Conditions: &map[string]{{packageName}}.Condition{
+				"ViewCountLessThan200": {
+					Name:       "ViewCountLessThan200",
+					Expression: "ViewCount < 200",
+					Parameters: &map[string]{{packageName}}.ConditionParamTypeRef{
+						"ViewCount": {
+							TypeName: {{packageName}}.INT,
+						},
+						"Type": {
+							TypeName: {{packageName}}.STRING,
+						},
+						"Name": {
+							TypeName: {{packageName}}.STRING,
+						},
+					},
+				},
+			},
+		}
+
+		var expectedResponse {{packageName}}.WriteAuthorizationModelResponse
+		if err := json.Unmarshal([]byte(test.JsonResponse), &expectedResponse); err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		httpmock.RegisterMatcherResponder(
+			test.Method,
+			fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+			httpmock.BodyContainsString(`"ViewCountLessThan200"`),
+			func(req *http.Request) (*http.Response, error) {
+				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+				}
+				return resp, nil
+			},
+		)
+		options := ClientWriteAuthorizationModelOptions{}
+		got, err := fgaClient.WriteAuthorizationModel(context.Background()).Body(requestBody).Options(options).Execute()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		_, err = got.MarshalJSON()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		if got.GetAuthorizationModelId() != expectedResponse.GetAuthorizationModelId() {
+			t.Fatalf("{{appShortName}}Client.%v() / AuthorizationModelId = %v, want %v", test.Name, got.GetAuthorizationModelId(), expectedResponse.GetAuthorizationModelId())
+		}
+
+		// WriteAuthorizationModel without options should work
+		_, err = fgaClient.WriteAuthorizationModel(context.Background()).Body(requestBody).Execute()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+	})
+
+	t.Run("WriteAuthorizationModelWithCondition2", func(t *testing.T) {
+		test := TestDefinition{
+			Name:           "WriteAuthorizationModelWithCondition2",
+			JsonResponse:   `{"authorization_model_id":"01GXSA8YR785C4FYS3C0RTG7B1"}`,
+			ResponseStatus: http.StatusOK,
+			Method:         http.MethodPost,
+			RequestPath:    "authorization-models",
+		}
+
+		schemaVersion := "1.1"
+		typeDefs := []{{packageName}}.TypeDefinition{
+			{
+				Type:      "user",
+				Relations: &map[string]{{packageName}}.Userset{},
+			},
+			{
+				Type: "document",
+				Relations: &map[string]{{packageName}}.Userset{
+					"writer": {This: &map[string]interface{}{}},
+					"viewer": {Union: &{{packageName}}.Usersets{
+						Child: []{{packageName}}.Userset{
+							{This: &map[string]interface{}{}},
+							{ComputedUserset: &{{packageName}}.ObjectRelation{
+								Object:   {{packageName}}.PtrString(""),
+								Relation: {{packageName}}.PtrString("writer"),
+							}},
+						},
+					}},
+				},
+				Metadata: &{{packageName}}.Metadata{
+					Relations: &map[string]{{packageName}}.RelationMetadata{
+						"writer": {
+							DirectlyRelatedUserTypes: &[]{{packageName}}.RelationReference{
+								{Type: "user"},
+								{Type: "user", Condition: {{packageName}}.PtrString("ViewCountLessThan200")},
+							},
+						},
+						"viewer": {
+							DirectlyRelatedUserTypes: &[]{{packageName}}.RelationReference{
+								{Type: "user"},
+							},
+						},
+					},
+				},
+			},
+		}
+		conditions := map[string]{{packageName}}.Condition{
+			"ViewCountLessThan200": {
+				Name:       "ViewCountLessThan200",
+				Expression: "ViewCount < 200",
+				Parameters: &map[string]{{packageName}}.ConditionParamTypeRef{
+					"ViewCount": {
+						TypeName: {{packageName}}.INT,
+					},
+					"Type": {
+						TypeName: {{packageName}}.STRING,
+					},
+					"Name": {
+						TypeName: {{packageName}}.STRING,
+					},
+				},
+			},
+		}
+		requestBody := ClientWriteAuthorizationModelRequest{
+			SchemaVersion:   schemaVersion,
+			TypeDefinitions: typeDefs,
+			Conditions:      &conditions,
+		}
+
+		var expectedResponse {{packageName}}.WriteAuthorizationModelResponse
+		if err := json.Unmarshal([]byte(test.JsonResponse), &expectedResponse); err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		httpmock.RegisterMatcherResponder(
+			test.Method,
+			fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+			httpmock.BodyContainsString(`"ViewCountLessThan200"`),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
