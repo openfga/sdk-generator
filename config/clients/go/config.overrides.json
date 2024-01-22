@@ -79,7 +79,10 @@
     "example/Makefile": {},
     "example/README.md": {},
     "example/example1/example1.go": {},
-    "example/example1/go.mod": {},
+    "example/example1/go.mod.mustache": {
+      "destinationFilename": "example/example1/go.mod",
+      "templateType": "SupportingFiles"
+    },
     "example/example1/go.sum": {}
   }
 }
