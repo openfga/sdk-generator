@@ -3,6 +3,12 @@ package {{packageName}}
 
 {{#models}}
 import (
+{{#model}}
+{{^isEnum}}
+	"bytes"
+{{/isEnum}}
+{{/model}}
+
 	"encoding/json"
 {{#imports}}
 	"{{import}}"
