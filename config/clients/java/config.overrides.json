@@ -179,6 +179,10 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/AccessToken.java",
       "templateType": "SupportingFiles"
     },
+    "creds-AccessTokenTest.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/AccessTokenTest.java",
+      "templateType": "SupportingFiles"
+    },    
     "creds-CredentialsFlowRequest.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/CredentialsFlowRequest.java",
       "templateType": "SupportingFiles"
