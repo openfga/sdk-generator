@@ -30,7 +30,7 @@ cp "${CONFIG_DIR}/clients/${SDK_LANGUAGE}/CHANGELOG.md.mustache" "${TMP_DIR}/tem
 
 # Clear existing directory
 # shellcheck disable=SC2010
-cd "${CLIENTS_OUTPUT_DIR}/fga-${SDK_LANGUAGE}-sdk" && ls -A | grep -Ev '.git|node_modules|.idea|venv|.gradle' | xargs rm -r || cd -
+cd "${CLIENTS_OUTPUT_DIR}/fga-${SDK_LANGUAGE}-sdk" && ls -A | { grep -Ev '.git|node_modules|.idea|venv|.gradle' || test $? = 1; } | xargs rm -r && cd -
 
 # Copy the generator ignore file into target directory (we need to do this before build otherwise openapi-generator ignores it)
 cp "${CONFIG_DIR}/clients/${SDK_LANGUAGE}/.openapi-generator-ignore" "${CLIENTS_OUTPUT_DIR}/fga-${SDK_LANGUAGE}-sdk/"
@@ -48,6 +48,7 @@ docker run --rm \
   "openapitools/openapi-generator-cli:${OPENAPI_GENERATOR_CLI_DOCKER_TAG}" generate \
   -i /docs/openapi/openfga.openapiv2.json \
   --http-user-agent="$http_user_agent" \
+  "${library[@]}" \
   -o "/clients/fga-${SDK_LANGUAGE}-sdk" \
   -c /config/config.json \
   -g "$(cat ./config/clients/"${SDK_LANGUAGE}"/generator.txt)"
