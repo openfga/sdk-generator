@@ -1,21 +1,25 @@
+{{>licenseInfo}}
 package {{authPackage}};
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgssoft.httpclient.HttpClientMock;
 import {{clientPackage}}.ApiClient;
 import {{configPackage}}.*;
 import {{errorsPackage}}.FgaInvalidParameterException;
-import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Stream;
+
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class OAuth2ClientTest {
     private static final String CLIENT_ID = "client";
@@ -42,16 +46,27 @@ class OAuth2ClientTest {
                         "https://issuer.fga.example:8080/some_endpoint"));
     }
 
+    private String urlEncode(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
+    }
+
     @ParameterizedTest
     @MethodSource("apiTokenIssuers")
     public void exchangeAuth0Token(String apiTokenIssuer, String tokenEndpointUrl) throws Exception {
         // Given
         OAuth2Client auth0 = newAuth0Client(apiTokenIssuer);
-        String expectedPostBody = String.format(
-                "{\"client_id\":\"%s\",\"client_secret\":\"%s\",\"audience\":\"%s\",\"grant_type\":\"%s\"}",
-                CLIENT_ID, CLIENT_SECRET, AUDIENCE, GRANT_TYPE);
+
         String responseBody = String.format("{\"access_token\":\"%s\"}", ACCESS_TOKEN);
-        mockHttpClient.onPost(tokenEndpointUrl).withBody(is(expectedPostBody)).doReturn(200, responseBody);
+        mockHttpClient
+                .onPost(tokenEndpointUrl)
+                .withBody(
+                        allOf(
+                                containsString(String.format("client_id=%s", CLIENT_ID)),
+                                containsString(String.format("client_secret=%s", CLIENT_SECRET)),
+                                containsString(String.format("audience=%s", AUDIENCE)),
+                                containsString(String.format("grant_type=%s", GRANT_TYPE)))
+                )
+                .doReturn(200, responseBody);
 
         // When
         String result = auth0.getAccessToken().get();
@@ -60,7 +75,14 @@ class OAuth2ClientTest {
         mockHttpClient
                 .verify()
                 .post(tokenEndpointUrl)
-                .withBody(is(expectedPostBody))
+                .withBody(
+                        allOf(
+                                containsString(String.format("client_id=%s", CLIENT_ID)),
+                                containsString(String.format("client_secret=%s", CLIENT_SECRET)),
+                                containsString(String.format("audience=%s", AUDIENCE)),
+                                containsString(String.format("grant_type=%s", GRANT_TYPE)))
+                )
+                .withHeader("Content-Type", "application/x-www-form-urlencoded")
                 .called();
         assertEquals(ACCESS_TOKEN, result);
     }
@@ -69,21 +91,34 @@ class OAuth2ClientTest {
     @MethodSource("apiTokenIssuers")
     public void exchangeOAuth2Token(String apiTokenIssuer, String tokenEndpointUrl) throws Exception {
         // Given
-        OAuth2Client oAuth2 = newOAuth2Client(apiTokenIssuer);
-        String expectedPostBody = String.format(
-                "{\"client_id\":\"%s\",\"client_secret\":\"%s\",\"scope\":\"%s\",\"grant_type\":\"%s\"}",
-                CLIENT_ID, CLIENT_SECRET, SCOPES, GRANT_TYPE);
+        OAuth2Client auth0 = newOAuth2Client(apiTokenIssuer);
+
         String responseBody = String.format("{\"access_token\":\"%s\"}", ACCESS_TOKEN);
-        mockHttpClient.onPost(tokenEndpointUrl).withBody(is(expectedPostBody)).doReturn(200, responseBody);
+        mockHttpClient
+                .onPost(tokenEndpointUrl)
+                .withBody(
+                        allOf(
+                                containsString(String.format("client_id=%s", CLIENT_ID)),
+                                containsString(String.format("client_secret=%s", CLIENT_SECRET)),
+                                containsString(String.format("scope=%s", urlEncode(SCOPES))),
+                                containsString(String.format("grant_type=%s", GRANT_TYPE)))
+                )
+                .doReturn(200, responseBody);
 
         // When
-        String result = oAuth2.getAccessToken().get();
+        String result = auth0.getAccessToken().get();
 
         // Then
         mockHttpClient
                 .verify()
                 .post(tokenEndpointUrl)
-                .withBody(is(expectedPostBody))
+                .withBody(
+                        allOf(
+                                containsString(String.format("client_id=%s", CLIENT_ID)),
+                                containsString(String.format("client_secret=%s", CLIENT_SECRET)),
+                                containsString(String.format("scope=%s", urlEncode(SCOPES))),
+                                containsString(String.format("grant_type=%s", GRANT_TYPE)))
+                )
                 .withHeader("Content-Type", "application/x-www-form-urlencoded")
                 .called();
         assertEquals(ACCESS_TOKEN, result);
@@ -92,7 +127,8 @@ class OAuth2ClientTest {
     @Test
     public void apiTokenIssuer_invalidScheme() {
         // When
-        var exception = assertThrows(FgaInvalidParameterException.class, () -> newAuth0Client("ftp://issuer.fga.example"));
+        var exception =
+                assertThrows(FgaInvalidParameterException.class, () -> newAuth0Client("ftp://issuer.fga.example"));
 
         // Then
         assertEquals("Required parameter scheme was invalid when calling apiTokenIssuer.", exception.getMessage());
@@ -113,27 +149,34 @@ class OAuth2ClientTest {
         var exception = assertThrows(FgaInvalidParameterException.class, () -> newAuth0Client(invalidApiTokenIssuer));
 
         // Then
-        assertEquals("Required parameter apiTokenIssuer was invalid when calling ClientCredentials.", exception.getMessage());
+        assertEquals(
+                "Required parameter apiTokenIssuer was invalid when calling ClientCredentials.",
+                exception.getMessage());
         assertInstanceOf(IllegalArgumentException.class, exception.getCause());
     }
 
     private OAuth2Client newAuth0Client(String apiTokenIssuer) throws FgaInvalidParameterException {
-        return newClientCredentialsClient(apiTokenIssuer, new Credentials(new ClientCredentials()
-                .clientId(CLIENT_ID)
-                .clientSecret(CLIENT_SECRET)
-                .apiAudience(AUDIENCE)
-                .apiTokenIssuer(apiTokenIssuer)));
+        return newClientCredentialsClient(
+                apiTokenIssuer,
+                new Credentials(new ClientCredentials()
+                        .clientId(CLIENT_ID)
+                        .clientSecret(CLIENT_SECRET)
+                        .apiAudience(AUDIENCE)
+                        .apiTokenIssuer(apiTokenIssuer)));
     }
 
     private OAuth2Client newOAuth2Client(String apiTokenIssuer) throws FgaInvalidParameterException {
-        return newClientCredentialsClient(apiTokenIssuer, new Credentials(new ClientCredentials()
-                .clientId(CLIENT_ID)
-                .clientSecret(CLIENT_SECRET)
-                .scopes(SCOPES)
-                .apiTokenIssuer(apiTokenIssuer)));
+        return newClientCredentialsClient(
+                apiTokenIssuer,
+                new Credentials(new ClientCredentials()
+                        .clientId(CLIENT_ID)
+                        .clientSecret(CLIENT_SECRET)
+                        .scopes(SCOPES)
+                        .apiTokenIssuer(apiTokenIssuer)));
     }
 
-    private OAuth2Client newClientCredentialsClient(String apiTokenIssuer, Credentials credentials) throws FgaInvalidParameterException {
+    private OAuth2Client newClientCredentialsClient(String apiTokenIssuer, Credentials credentials)
+            throws FgaInvalidParameterException {
         System.setProperty("HttpRequestAttempt.debug-logging", "enable");
 
         mockHttpClient = new HttpClientMock();
