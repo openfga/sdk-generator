@@ -29,7 +29,7 @@ cp -r "${CONFIG_DIR}/clients/${SDK_LANGUAGE}/template/." "${TMP_DIR}/template/"
 cp "${CONFIG_DIR}/clients/${SDK_LANGUAGE}/CHANGELOG.md.mustache" "${TMP_DIR}/template/"
 
 # Clear existing directory
-# shellcheck disable=SC2010
+# shellcheck disable=SC2010,SC2012
 cd "${CLIENTS_OUTPUT_DIR}/fga-${SDK_LANGUAGE}-sdk" && ls -A | { grep -Ev '.git|node_modules|.idea|venv|.gradle' || test $? = 1; } | xargs rm -r && cd -
 
 # Copy the generator ignore file into target directory (we need to do this before build otherwise openapi-generator ignores it)
