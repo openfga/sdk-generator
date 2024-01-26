@@ -175,6 +175,10 @@
       "destinationFilename": "src/test-integration/java/dev/openfga/sdk/api/client/OpenFgaClientIntegrationTest.java",
       "templateType": "SupportingFiles"
     },
+    "client-ApiClientTest.java.mustache" : {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/client/ApiClientTest.java",
+      "templateType": "SupportingFiles"
+    },
     "creds-AccessToken.java.mustache" : {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/AccessToken.java",
       "templateType": "SupportingFiles"
