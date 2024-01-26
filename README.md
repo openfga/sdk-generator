@@ -173,24 +173,8 @@ Note: Semgrep will be automatically enabled - there is nothing you need to do fo
 
 | Key                         | Comment                                                                     |
 |-----------------------------|-----------------------------------------------------------------------------|
-| `KNOWN_HOSTS`               |                                                                             |
 | `FOSSA_API_KEY`             | FOSSA API Key                                                               |
 | `SNYK_TOKEN`                | Snyk API Key                                                                |
-| `GO_SDK_GITHUB_ORG_ID`      | The GitHub org for the SDK                                                  |
-| `GO_SDK_GITHUB_REPO_ID`     | The GitHub repo id for the SDK                                              |
-| `GO_SDK_SSH_KEY`            | The SSH private deploy key for the SDK (Not needed after the SDK is public) |
-| `JS_SDK_GITHUB_ORG_ID`      | The GitHub org for the SDK                                                  |
-| `JS_SDK_GITHUB_REPO_ID`     | The GitHub repo id for the SDK                                              |
-| `JS_SDK_SSH_KEY`            | The SSH private deploy key for the SDK (Not needed after the SDK is public) |
-| `DOTNET_SDK_GITHUB_ORG_ID`  | The GitHub org for the SDK                                                  |
-| `DOTNET_SDK_GITHUB_REPO_ID` | The GitHub repo id for the SDK                                              |
-| `DOTNET_SDK_SSH_KEY`        | The SSH private deploy key for the SDK (Not needed after the SDK is public) |
-| `PYTHON_SDK_GITHUB_ORG_ID`  | The GitHub org for the SDK                                                  |
-| `PYTHON_SDK_GITHUB_REPO_ID` | The GitHub repo id for the SDK                                              |
-| `PYTHON_SDK_SSH_KEY`        | The SSH private deploy key for the SDK (Not needed after the SDK is public) |
-| `JAVA_SDK_GITHUB_ORG_ID`    | The GitHub org for the SDK                                                  |
-| `JAVA_SDK_GITHUB_REPO_ID`   | The GitHub repo id for the SDK                                              |
-| `JAVA_SDK_SSH_KEY`          | The SSH private deploy key for the SDK (Not needed after the SDK is public) |
 
 ## Contributing
 Please review the [Contributing Guidelines](https://github.com/openfga/.github/blob/main/CONTRIBUTING.md) before sending a PR or opening an issue.
