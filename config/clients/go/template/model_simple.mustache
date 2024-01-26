@@ -277,7 +277,14 @@ func (o {{classname}}) MarshalJSON() ([]byte, error) {
 	}
 
 	{{/isAdditionalPropertiesTrue}}
-	return json.Marshal(toSerialize)
+	var b bytes.Buffer
+	enc := json.NewEncoder(&b)
+	enc.SetEscapeHTML(false)
+	err := enc.Encode(toSerialize)
+	if err != nil {
+		return nil, err
+	}
+	return b.Bytes(), nil
 }
 
 {{#isAdditionalPropertiesTrue}}
