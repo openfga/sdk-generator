@@ -5,40 +5,38 @@ The documentation below refers to the `{{appShortName}}Client`, to read the docu
 #### No Credentials
 
 ```python
-import {{packageName}}
-from {{packageName}}.client import OpenFgaClient
+from {{packageName}} import ClientConfiguration, OpenFgaClient
 
 
 async def main():
-    configuration = {{packageName}}.ClientConfiguration(
-        api_url = FGA_API_URL, # required
-        store_id = FGA_STORE_ID, # optional, not needed when calling `CreateStore` or `ListStores`
-        authorization_model_id = FGA_AUTHORIZATION_MODEL_ID, # Optional, can be overridden per request
+    configuration = ClientConfiguration(
+        api_url=FGA_API_URL,  # required
+        store_id=FGA_STORE_ID,  # optional, not needed when calling `CreateStore` or `ListStores`
+        authorization_model_id=FGA_AUTHORIZATION_MODEL_ID,  # Optional, can be overridden per request
     )
     # Enter a context with an instance of the OpenFgaClient
     async with OpenFgaClient(configuration) as fga_client:
         api_response = await fga_client.read_authorization_models()
         await fga_client.close()
-
+        return api_response
 ```
 
 #### API Token
 
 ```python
-import {{packageName}}
-from {{packageName}}.client import OpenFgaClient
-from {{packageName}}.credentials import Credentials, CredentialConfiguration
+from {{packageName}} import ClientConfiguration, OpenFgaClient
+from {{packageName}}.credentials import CredentialConfiguration, Credentials
 
 
 async def main():
-    configuration = {{packageName}}.ClientConfiguration(
-        api_url = FGA_API_URL, # required
-        store_id = FGA_STORE_ID, # optional, not needed when calling `CreateStore` or `ListStores`
-        authorization_model_id = FGA_AUTHORIZATION_MODEL_ID, # Optional, can be overridden per request
-        credentials = Credentials(
+    configuration = ClientConfiguration(
+        api_url=FGA_API_URL,  # required
+        store_id=FGA_STORE_ID,  # optional, not needed when calling `CreateStore` or `ListStores`
+        authorization_model_id=FGA_AUTHORIZATION_MODEL_ID,  # Optional, can be overridden per request
+        credentials=Credentials(
             method='api_token',
-            configuration = CredentialConfiguration(
-                api_token = FGA_API_TOKEN,
+            configuration=CredentialConfiguration(
+                api_token=FGA_API_TOKEN,
             )
         )
     )
@@ -46,29 +44,28 @@ async def main():
     async with OpenFgaClient(configuration) as fga_client:
         api_response = await fga_client.read_authorization_models()
         await fga_client.close()
-
+        return api_response
 ```
 
 #### Client Credentials
 
 ```python
-import {{packageName}}
-from {{packageName}}.client import OpenFgaClient
+from {{packageName}} import ClientConfiguration, OpenFgaClient
 from {{packageName}}.credentials import Credentials, CredentialConfiguration
 
 
 async def main():
-    configuration = {{packageName}}.ClientConfiguration(
-        api_url = FGA_API_URL, # required
-        store_id = FGA_STORE_ID, # optional, not needed when calling `CreateStore` or `ListStores`
-        authorization_model_id = FGA_AUTHORIZATION_MODEL_ID, # Optional, can be overridden per request
-        credentials = Credentials(
-            method = 'client_credentials',
-            configuration = CredentialConfiguration(
-                api_issuer = FGA_API_TOKEN_ISSUER,
-                api_audience = FGA_API_AUDIENCE,
-                client_id = FGA_CLIENT_ID,
-                client_secret = FGA_CLIENT_SECRET,
+    configuration = ClientConfiguration(
+        api_url=FGA_API_URL,  # required
+        store_id=FGA_STORE_ID,  # optional, not needed when calling `CreateStore` or `ListStores`
+        authorization_model_id=FGA_AUTHORIZATION_MODEL_ID,  # Optional, can be overridden per request
+        credentials=Credentials(
+            method='client_credentials',
+            configuration=CredentialConfiguration(
+                api_issuer=FGA_API_TOKEN_ISSUER,
+                api_audience=FGA_API_AUDIENCE,
+                client_id=FGA_CLIENT_ID,
+                client_secret=FGA_CLIENT_SECRET,
             )
         )
     )
@@ -76,7 +73,7 @@ async def main():
     async with OpenFgaClient(configuration) as fga_client:
         api_response = await fga_client.read_authorization_models()
         await fga_client.close()
-
+        return api_response
 ```
 
 #### Synchronous Client
@@ -86,17 +83,17 @@ from `openfga_sdk.sync` that supports all the credential types and calls,
 without requiring async/await.
 
 ```python
-import {{packageName}}
-from {{packageName}}.sync import OpenFgaClient
+from {{packageName}}.sync import ClientConfiguration, OpenFgaClient
 
 
 def main():
-    configuration = {{packageName}}.ClientConfiguration(
-        api_url = FGA_API_URL, # required
-        store_id = FGA_STORE_ID, # optional, not needed when calling `CreateStore` or `ListStores`
-        authorization_model_id = FGA_AUTHORIZATION_MODEL_ID, # optional, can be overridden per request
+    configuration = ClientConfiguration(
+        api_url=FGA_API_URL,  # required
+        store_id=FGA_STORE_ID,  # optional, not needed when calling `CreateStore` or `ListStores`
+        authorization_model_id=FGA_AUTHORIZATION_MODEL_ID,  # optional, can be overridden per request
     )
     # Enter a context with an instance of the OpenFgaClient
     with OpenFgaClient(configuration) as fga_client:
         api_response = fga_client.read_authorization_models()
+        return api_response
 ```
