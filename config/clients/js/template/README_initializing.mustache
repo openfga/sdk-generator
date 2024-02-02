@@ -8,8 +8,7 @@ The documentation below refers to the `{{appShortName}}Client`, to read the docu
 const { {{appShortName}}Client } = require('{{packageName}}'); // OR import { {{appShortName}}Client } from '{{packageName}}';
 
 const fgaClient = new {{appShortName}}Client({
-  apiScheme: process.env.FGA_API_SCHEME, // optional, defaults to "https"
-  apiHost: process.env.FGA_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+  apiUrl: process.env.FGA_API_URL, // required
   storeId: process.env.FGA_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
   authorizationModelId: process.env.FGA_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
 });
@@ -21,8 +20,7 @@ const fgaClient = new {{appShortName}}Client({
 const { {{appShortName}}Client } = require('{{packageName}}'); // OR import { {{appShortName}}Client } from '{{packageName}}';
 
 const fgaClient = new {{appShortName}}Client({
-  apiScheme: process.env.FGA_API_SCHEME, // optional, defaults to "https"
-  apiHost: process.env.FGA_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+  apiUrl: process.env.FGA_API_URL, // required
   storeId: process.env.FGA_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
   authorizationModelId: process.env.FGA_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
   credentials: {
@@ -40,8 +38,7 @@ const fgaClient = new {{appShortName}}Client({
 const { {{appShortName}}Client } = require('{{packageName}}'); // OR import { {{appShortName}}Client } from '{{packageName}}';
 
 const fgaClient = new {{appShortName}}Client({
-  apiScheme: process.env.FGA_API_SCHEME, // optional, defaults to "https"
-  apiHost: process.env.FGA_API_HOST, // required, define without the scheme (e.g. api.{{sampleApiDomain}} instead of https://api.{{sampleApiDomain}})
+  apiUrl: process.env.FGA_API_URL, // required
   storeId: process.env.FGA_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
   authorizationModelId: process.env.FGA_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
   credentials: {
