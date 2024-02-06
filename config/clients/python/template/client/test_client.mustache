@@ -81,8 +81,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
 
     def setUp(self):
         self.configuration = ClientConfiguration(
-            api_scheme='http',
-            api_host="api.{{sampleApiDomain}}",
+            api_url='http://api.{{sampleApiDomain}}',
         )
 
     def tearDown(self):

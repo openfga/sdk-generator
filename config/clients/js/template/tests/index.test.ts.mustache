@@ -21,7 +21,7 @@ import { AuthCredentialsConfig } from "../credentials";
 import {
   baseConfig,
   defaultConfiguration,
-  {{appUpperCaseName}}_API_HOST,
+  {{appUpperCaseName}}_API_URL,
   {{appUpperCaseName}}_API_TOKEN_ISSUER,
   {{appUpperCaseName}}_STORE_ID
 } from "./helpers/default-config";
@@ -53,14 +53,26 @@ describe("{{appTitleCaseName}} SDK", function () {
 
     it("should require host in configuration", () => {
       expect(
-        () => new {{appShortName}}Api({ ...baseConfig, apiHost: undefined! })
+        () => new {{appShortName}}Api({ ...baseConfig, apiUrl: undefined! })
       ).toThrowError();
     });
 
     it("should validate host in configuration (adding scheme as part of the host)", () => {
       expect(
-        () => new {{appShortName}}Api({ ...baseConfig, apiHost: "https://api.{{sampleApiDomain}}" })
+        () => new {{appShortName}}Api({ ...baseConfig, apiUrl: "//api.{{sampleApiDomain}}" })
       ).toThrowError();
+    });
+
+        it("should allow using apiHost if apiUrl is not provided", () => {
+      expect(
+        () => new OpenFgaApi({ ...baseConfig, apiHost: "api.fga.example" })
+      ).not.toThrowError();
+    });
+
+    it("should still validate apiHost", () => {
+      expect(
+        () => new OpenFgaApi({ ...baseConfig, apiHost: "//api.{{sampleApiDomain}}" })
+      ).not.toThrowError();
     });
 
     it("should validate apiTokenIssuer in configuration (should not allow scheme as part of the apiTokenIssuer)", () => {
@@ -83,7 +95,7 @@ describe("{{appTitleCaseName}} SDK", function () {
         () =>
           new {{appShortName}}Api({
             storeId: baseConfig.storeId!,
-            apiHost: baseConfig.apiHost,
+            apiUrl: baseConfig.apiUrl,
           })
       ).not.toThrowError();
     });
@@ -93,7 +105,7 @@ describe("{{appTitleCaseName}} SDK", function () {
         () =>
           new {{appShortName}}Api({
             storeId: baseConfig.storeId!,
-            apiHost: baseConfig.apiHost,
+            apiUrl: baseConfig.apiUrl,
             credentials: {
               method: CredentialsMethod.ApiToken as any
             }
@@ -229,7 +241,7 @@ describe("{{appTitleCaseName}} SDK", function () {
 
       const fgaApi = new {{appShortName}}Api({
         storeId: baseConfig.storeId!,
-        apiHost: baseConfig.apiHost,
+        apiUrl: baseConfig.apiUrl,
       });
       expect(scope.isDone()).toBe(false);
 
@@ -247,7 +259,7 @@ describe("{{appTitleCaseName}} SDK", function () {
 
     it("should allow updating the storeId after initialization", async () => {
       const fgaApi = new {{appShortName}}Api({
-        apiHost: {{appUpperCaseName}}_API_HOST
+        apiUrl: {{appUpperCaseName}}_API_URL
       });
       expect(fgaApi.storeId).toBe(undefined);
       fgaApi.storeId = {{appUpperCaseName}}_STORE_ID;
