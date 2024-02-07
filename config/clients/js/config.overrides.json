@@ -108,6 +108,16 @@
     "npmrc.mustache": {
       "destinationFilename": ".npmrc",
       "templateType": "SupportingFiles"
+    },
+    "example/Makefile": {},
+    "example/README.md.mustache": {
+      "destinationFilename": "example/README.md",
+      "templateType": "SupportingFiles"
+    },
+    "example/example1/example1.mjs": {},
+    "example/example1/package.json.mustache": {
+      "destinationFilename": "example/example1/package.json",
+      "templateType": "SupportingFiles"
     }
   }
 }
