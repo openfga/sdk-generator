@@ -2,6 +2,7 @@
 package {{clientPackage}}.model;
 
 import {{clientPackage}}.ApiResponse;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -10,10 +11,18 @@ public class ClientWriteResponse {
     private final Map<String, List<String>> headers;
     private final String rawResponse;
 
+    public static ClientWriteResponse EMPTY = new ClientWriteResponse();
+
     public ClientWriteResponse(ApiResponse<Object> apiResponse) {
         this.statusCode = apiResponse.getStatusCode();
         this.headers = apiResponse.getHeaders();
         this.rawResponse = apiResponse.getRawResponse();
+    }
+
+    private ClientWriteResponse() {
+        this.statusCode = 0;
+        this.headers = Collections.emptyMap();
+        this.rawResponse = "";
     }
 
     public int getStatusCode() {

@@ -1,6 +1,7 @@
 {{>licenseInfo}}
 package {{clientPackage}};
 
+import static java.util.concurrent.CompletableFuture.completedFuture;
 import static {{utilPackage}}.StringUtil.isNullOrWhitespace;
 import static java.util.UUID.randomUUID;
 
@@ -357,13 +358,19 @@ public class OpenFgaClient {
         WriteRequest body = new WriteRequest();
 
         var writeTuples = request.getWrites();
-        if (writeTuples != null && !writeTuples.isEmpty()) {
+        var writesRequested = writeTuples != null && !writeTuples.isEmpty();
+        if (writesRequested) {
             body.writes(ClientTupleKey.asWriteRequestWrites(writeTuples));
         }
 
         var deleteTuples = request.getDeletes();
-        if (deleteTuples != null && !deleteTuples.isEmpty()) {
+        var deletesRequested = deleteTuples != null && !deleteTuples.isEmpty();
+        if (deletesRequested) {
             body.deletes(ClientTupleKeyWithoutCondition.asWriteRequestDeletes(deleteTuples));
+        }
+
+        if (!writesRequested && !deletesRequested) {
+            return completedFuture(ClientWriteResponse.EMPTY);
         }
 
         if (options != null && !isNullOrWhitespace(options.getAuthorizationModelId())) {
