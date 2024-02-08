@@ -11,6 +11,7 @@ public class ClientWriteResponse {
     private final Map<String, List<String>> headers;
     private final String rawResponse;
 
+    // how to better express no call has been made?
     public static ClientWriteResponse EMPTY = new ClientWriteResponse();
 
     public ClientWriteResponse(ApiResponse<Object> apiResponse) {
@@ -20,7 +21,7 @@ public class ClientWriteResponse {
     }
 
     private ClientWriteResponse() {
-        this.statusCode = 0;
+        this.statusCode = 200; // from openapi-spec, success status code
         this.headers = Collections.emptyMap();
         this.rawResponse = "";
     }

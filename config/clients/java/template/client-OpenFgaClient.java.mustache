@@ -370,6 +370,7 @@ public class OpenFgaClient {
         }
 
         if (!writesRequested && !deletesRequested) {
+            // no call executed -> return empty response
             return completedFuture(ClientWriteResponse.EMPTY);
         }
 
