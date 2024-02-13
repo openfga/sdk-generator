@@ -1,7 +1,6 @@
 {{>licenseInfo}}
 package {{clientPackage}};
 
-import static java.util.concurrent.CompletableFuture.completedFuture;
 import static {{utilPackage}}.StringUtil.isNullOrWhitespace;
 import static java.util.UUID.randomUUID;
 
@@ -358,20 +357,13 @@ public class OpenFgaClient {
         WriteRequest body = new WriteRequest();
 
         var writeTuples = request.getWrites();
-        var writesRequested = writeTuples != null && !writeTuples.isEmpty();
-        if (writesRequested) {
+        if (writeTuples != null && !writeTuples.isEmpty()) {
             body.writes(ClientTupleKey.asWriteRequestWrites(writeTuples));
         }
 
         var deleteTuples = request.getDeletes();
-        var deletesRequested = deleteTuples != null && !deleteTuples.isEmpty();
-        if (deletesRequested) {
+        if (deleteTuples != null && !deleteTuples.isEmpty()) {
             body.deletes(ClientTupleKeyWithoutCondition.asWriteRequestDeletes(deleteTuples));
-        }
-
-        if (!writesRequested && !deletesRequested) {
-            // no call executed -> return empty response
-            return completedFuture(ClientWriteResponse.EMPTY);
         }
 
         if (options != null && !isNullOrWhitespace(options.getAuthorizationModelId())) {
@@ -405,6 +397,12 @@ public class OpenFgaClient {
         var deleteTransactions = chunksOf(chunkSize, request.getDeletes()).map(ClientWriteRequest::ofDeletes);
 
         var transactions = Stream.concat(writeTransactions, deleteTransactions).collect(Collectors.toList());
+
+        if(transactions.isEmpty()) {
+            var emptyTransaction = new ClientWriteRequest().writes(null).deletes(null);
+            return this.writeNonTransaction(storeId, emptyTransaction, writeOptions);
+        }
+
         var futureResponse = this.writeNonTransaction(storeId, transactions.get(0), options);
 
         for (int i = 1; i < transactions.size(); i++) {
