@@ -1,6 +1,6 @@
-The documentation below refers to the `{{appShortName}}Client`, to read the documentation for `{{appShortName}}Api`, check out the [`v0.2.2` documentation](https://github.com/{{gitUserId}}/{{gitRepoId}}/tree/v0.2.2#readme).
+We strongly recommend you initialize the `{{appShortName}}Client` only once and then re-use it throughout your app, otherwise you will incur the cost of having to re-initialize multiple times or at every request, the cost of reduced connection pooling and re-use, and would be particularly costly in the client credentials flow, as that flow will be preformed on every request.
 
-> The {{appShortName}}Client will by default retry API requests up to {{defaultMaxRetry}} times on 429 and 5xx errors.
+> The `{{appShortName}}Client` will by default retry API requests up to {{defaultMaxRetry}} times on 429 and 5xx errors.
 
 #### No Credentials
 
