@@ -3,7 +3,7 @@
 {{>README_custom_badges}}[![Release](https://img.shields.io/github/v/release/{{gitUserId}}/{{gitRepoId}}?sort=semver&color=green)](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/releases)
 {{#licenseBadgeId}}[![License](https://img.shields.io/badge/License-{{licenseBadgeId}}-blue.svg)](./LICENSE){{/licenseBadgeId}}
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2B{{gitHost}}%2F{{gitUserId}}%2F{{gitRepoId}}.svg?type=shield)](https://app.fossa.com/projects/git%2B{{gitHost}}%2F{{gitUserId}}%2F{{gitRepoId}}?ref=badge_shield)
-{{#discordServerId}}[![Discord Server](https://img.shields.io/discord/{{discordServerId}}?color=7289da&logo=discord "Discord Server")]({{discordUrl}}){{/discordServerId}}
+[![Join our community](https://img.shields.io/badge/slack-cncf_%23openfga-40abb8.svg?logo=slack)](https://openfga.dev/community)
 {{#twitterUserName}}[![Twitter](https://img.shields.io/twitter/follow/{{.}}?color=%23179CF0&logo=twitter&style=flat-square "@{{.}} on Twitter")](https://twitter.com/{{.}}){{/twitterUserName}}
 
 {{#packageDetailedDescription}}
@@ -67,9 +67,9 @@
 {{#redditUrl}}
 - [{{appName}} Subreddit]({{redditUrl}})
 {{/redditUrl}}
-{{#discordUrl}}
-- [{{appName}} Discord Community]({{discordUrl}})
-{{/discordUrl}}
+{{#supportInfo}}
+- [{{appName}} Community]({{supportInfo}})
+{{/supportInfo}}
 - [Zanzibar Academy](https://zanzibar.academy)
 - [Google's Zanzibar Paper (2019)](https://research.google/pubs/pub48190/)
 
