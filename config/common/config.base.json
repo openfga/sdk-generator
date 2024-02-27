@@ -62,12 +62,15 @@
       "destinationFilename": ".github/CODEOWNERS",
       "templateType": "SupportingFiles"
     },
-    ".github/ISSUE_TEMPLATE/bug_report.md.mustache": {
-      "destinationFilename": ".github/ISSUE_TEMPLATE/bug_report.md",
+    ".github/ISSUE_TEMPLATE/config.yaml": {
+      "destinationFilename": ".github/ISSUE_TEMPLATE/config.yaml"
+    },
+    ".github/ISSUE_TEMPLATE/bug_report.yaml.mustache": {
+      "destinationFilename": ".github/ISSUE_TEMPLATE/bug_report.yaml",
       "templateType": "SupportingFiles"
     },
-    ".github/ISSUE_TEMPLATE/feature_request.md.mustache": {
-      "destinationFilename": ".github/ISSUE_TEMPLATE/feature_request.md",
+    ".github/ISSUE_TEMPLATE/feature_request.yaml.mustache": {
+      "destinationFilename": ".github/ISSUE_TEMPLATE/feature_request.yaml",
       "templateType": "SupportingFiles"
     },
     "NOTICE.mustache": {
