@@ -13,7 +13,7 @@
   "gitHost": "github.com",
   "gitUserId": "openfga",
   "userAgent": "openfga-sdk $sdk_language/$package_version",
-  "supportInfo": "https://discord.gg/8naAwJfWN6",
+  "supportInfo": "https://openfga.dev/community",
   "docsUrl": "https://openfga.dev/docs",
   "apiDocsUrl": "https://openfga.dev/api/service",
   "websiteUrl": "https://openfga.dev",
@@ -22,9 +22,6 @@
   "licenseId": "Apache-2.0",
   "licenseBadgeId": "Apache_2.0",
   "twitterUserName": "openfga",
-  "discordUrl": "https://discord.gg/8naAwJfWN6",
-  "discordServerId": "759188666072825867",
-  "discordChannelId": "930524706854031421",
   "templateDir": "/config/template",
   "sampleApiDomain": "fga.example",
   "packageTags": [
