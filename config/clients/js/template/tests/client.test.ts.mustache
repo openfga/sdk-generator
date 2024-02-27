@@ -274,7 +274,7 @@ describe("{{appTitleCaseName}} Client", () => {
         expect(scope0.isDone()).toBe(true);
         expect(scope1.isDone()).toBe(true);
         expect(scope2.isDone()).toBe(false);
-        expect(scope3.isDone()).toBe(true);
+        expect(scope3.isDone()).toBe(false);
         expect(data).toMatchObject({});
       });
 
@@ -314,7 +314,7 @@ describe("{{appTitleCaseName}} Client", () => {
         expect(scope0.isDone()).toBe(true);
         expect(scope1.isDone()).toBe(true);
         expect(scope2.isDone()).toBe(true);
-        expect(scope3.isDone()).toBe(true);
+        expect(scope3.isDone()).toBe(false);
         expect(data.writes.length).toBe(3);
         expect(data.deletes.length).toBe(0);
         expect(data.writes.find(tuple => tuple.tuple_key.object === tuples[0].object)?.status).toBe(ClientWriteStatus.SUCCESS);
@@ -350,7 +350,7 @@ describe("{{appTitleCaseName}} Client", () => {
           expect(err).toBeInstanceOf(FgaApiAuthenticationError);
         } finally {
           expect(scope0.isDone()).toBe(true);
-          expect(scope1.isDone()).toBe(true);
+          expect(scope1.isDone()).toBe(false);
         }
       });
 
@@ -468,7 +468,7 @@ describe("{{appTitleCaseName}} Client", () => {
         expect(scope0.isDone()).toBe(true);
         expect(scope1.isDone()).toBe(true);
         expect(scope2.isDone()).toBe(true);
-        expect(scope3.isDone()).toBe(true);
+        expect(scope3.isDone()).toBe(false);
         expect(response.responses.length).toBe(3);
         expect(response.responses.sort((a, b) => String(a._request.object).localeCompare(b._request.object)))
           .toMatchObject(expect.arrayContaining([
@@ -578,7 +578,7 @@ describe("{{appTitleCaseName}} Client", () => {
         expect(scope2.isDone()).toBe(true);
         expect(scope3.isDone()).toBe(true);
         expect(scope4.isDone()).toBe(false);
-        expect(scope5.isDone()).toBe(true);
+        expect(scope5.isDone()).toBe(false);
         expect(response.relations.length).toBe(2);
         expect(response.relations.sort()).toEqual(expect.arrayContaining(["admin", "reader"]));
       });
@@ -639,7 +639,7 @@ describe("{{appTitleCaseName}} Client", () => {
           expect(scope2.isDone()).toBe(true);
           expect(scope3.isDone()).toBe(true);
           expect(scope4.isDone()).toBe(false);
-          expect(scope5.isDone()).toBe(true);
+          expect(scope5.isDone()).toBe(false);
           expect(err).toBeInstanceOf(FgaApiError);
         }
       });
@@ -681,7 +681,7 @@ describe("{{appTitleCaseName}} Client", () => {
           expect(err).toBeInstanceOf(FgaApiAuthenticationError);
         } finally {
           expect(scope0.isDone()).toBe(true);
-          expect(scope1.isDone()).toBe(true);
+          expect(scope1.isDone()).toBe(false);
         }
       });
     });
