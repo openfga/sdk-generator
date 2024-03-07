@@ -1,9 +1,8 @@
-# coding: utf-8
 {{>partial_header}}
 
 from unittest.mock import ANY
 from unittest import IsolatedAsyncioTestCase
-from mock import patch
+from unittest.mock import patch
 from datetime import datetime
 
 import urllib3
@@ -92,7 +91,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_list_stores(self, mock_request):
         """Test case for list_stores
 
-        Get all stores  # noqa: E501
+        Get all stores
         """
         response_body = '''
 {
@@ -156,7 +155,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_create_store(self, mock_request):
         """Test case for create_store
 
-        Create a store  # noqa: E501
+        Create a store
         """
         response_body = '''{
             "id": "01YCP46JKYM8FJCQ37NMBYHE5X",
@@ -190,7 +189,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_get_store(self, mock_request):
         """Test case for get_store
 
-        Get all stores  # noqa: E501
+        Get all stores
         """
         response_body = '''
 {
@@ -224,7 +223,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_delete_store(self, mock_request):
         """Test case for delete_store
 
-        Get all stores  # noqa: E501
+        Get all stores
         """
         mock_request.return_value = mock_response('', 201)
         configuration = self.configuration
@@ -248,7 +247,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_read_authorization_models(self, mock_request):
         """Test case for read_authorization_models
 
-        Return all authorization models configured for the store  # noqa: E501
+        Return all authorization models configured for the store
         """
         response_body = '''
 {
@@ -333,7 +332,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_write_authorization_model(self, mock_request):
         """Test case for write_authorization_model
 
-        Create a new authorization model  # noqa: E501
+        Create a new authorization model
         """
         response_body = '{"authorization_model_id": "01G5JAVJ41T49E9TT3SKVS7X1J"}'
         mock_request.return_value = mock_response(response_body, 201)
@@ -392,7 +391,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_read_authorization_model(self, mock_request):
         """Test case for read_authorization_model
 
-        Return a particular version of an authorization model  # noqa: E501
+        Return a particular version of an authorization model
         """
         response_body = '''
 {
@@ -475,7 +474,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_read_latest_authorization_model(self, mock_request):
         """Test case for read_latest_authorization_model
 
-        Return the latest authorization models configured for the store  # noqa: E501
+        Return the latest authorization models configured for the store
         """
         response_body = '''
 {
@@ -560,7 +559,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_read_changes(self, mock_request):
         """Test case for read_changes
 
-        Return a list of all the tuple changes  # noqa: E501
+        Return a list of all the tuple changes
         """
         response_body = '''
 {
@@ -614,7 +613,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_read(self, mock_request):
         """Test case for read
 
-        Get tuples from the store that matches a query, without following userset rewrite rules  # noqa: E501
+        Get tuples from the store that matches a query, without following userset rewrite rules
         """
         response_body = '''
             {
@@ -669,7 +668,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_read_empty_options(self, mock_request):
         """Test case for read with empty options
 
-        Get tuples from the store that matches a query, without following userset rewrite rules  # noqa: E501
+        Get tuples from the store that matches a query, without following userset rewrite rules
         """
         response_body = '''
             {
@@ -723,7 +722,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_read_empty_body(self, mock_request):
         """Test case for read with empty body
 
-        Get tuples from the store that matches a query, without following userset rewrite rules  # noqa: E501
+        Get tuples from the store that matches a query, without following userset rewrite rules
         """
         response_body = '''
             {
@@ -895,7 +894,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
             self.assertEqual(response.deletes, None)
-            self.assertEqual(response.writes, 
+            self.assertEqual(response.writes,
                 [
                     ClientWriteSingleResponse(
                         tuple_key=ClientTuple(
@@ -1006,7 +1005,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
             self.assertEqual(response.deletes, None)
-            self.assertEqual(response.writes, 
+            self.assertEqual(response.writes,
                 [
                     ClientWriteSingleResponse(
                         tuple_key=ClientTuple(
@@ -1117,7 +1116,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             )
 
             self.assertEqual(response.deletes, None)
-            self.assertEqual(response.writes, 
+            self.assertEqual(response.writes,
                 [
                     ClientWriteSingleResponse(
                         tuple_key=ClientTuple(
@@ -1226,7 +1225,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
 
             self.assertEqual(response.deletes, None)
             self.assertEqual(len(response.writes), 3)
-            self.assertEqual(response.writes[0], 
+            self.assertEqual(response.writes[0],
                 ClientWriteSingleResponse(
                     tuple_key=ClientTuple(
                         object="document:2021-budget",
@@ -1244,7 +1243,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
             self.assertFalse(response.writes[1].success)
             self.assertIsInstance(response.writes[1].error, ValidationException)
             self.assertIsInstance(response.writes[1].error.parsed_exception, ValidationErrorMessageResponse)
-            self.assertEqual(response.writes[2], 
+            self.assertEqual(response.writes[2],
                 ClientWriteSingleResponse(
                     tuple_key=ClientTuple(
                         object="document:2021-budget",
@@ -1475,7 +1474,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_check(self, mock_request):
         """Test case for check
 
-        Check whether a user is authorized to access an object  # noqa: E501
+        Check whether a user is authorized to access an object
         """
 
         # First, mock the response
@@ -1521,7 +1520,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_check_config_auth_model(self, mock_request):
         """Test case for check
 
-        Check whether a user is authorized to access an object and the auth model is already encoded in store  # noqa: E501
+        Check whether a user is authorized to access an object and the auth model is already encoded in store
         """
 
         # First, mock the response
@@ -1560,7 +1559,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_batch_check_single_request(self, mock_request):
         """Test case for check with single request
 
-        Check whether a user is authorized to access an object  # noqa: E501
+        Check whether a user is authorized to access an object
         """
 
         # First, mock the response
@@ -1612,7 +1611,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_batch_check_multiple_request(self, mock_request):
         """Test case for check with multiple request
 
-        Check whether a user is authorized to access an object  # noqa: E501
+        Check whether a user is authorized to access an object
         """
 
         # First, mock the response
@@ -1704,7 +1703,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_batch_check_multiple_request_fail(self, mock_request):
         """Test case for check with multiple request with one request failed
 
-        Check whether a user is authorized to access an object  # noqa: E501
+        Check whether a user is authorized to access an object
         """
         response_body = '''
 {
@@ -1803,7 +1802,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_expand(self, mock_request):
         """Test case for expand
 
-        Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason about and debug a certain relationship  # noqa: E501
+        Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason about and debug a certain relationship
         """
         response_body = '''{
             "tree": {"root": {"name": "document:budget#reader", "leaf": {"users": {"users": ["user:81684243-9356-4421-8fbf-a4f8d36aa31b"]}}}}}
@@ -1844,7 +1843,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_list_objects(self, mock_request):
         """Test case for list_objects
 
-        List objects  # noqa: E501
+        List objects
         """
         response_body = '''
 {
@@ -1884,7 +1883,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_list_objects_contextual_tuples(self, mock_request):
         """Test case for list_objects
 
-        List objects  # noqa: E501
+        List objects
         """
         response_body = '''
 {
@@ -1931,7 +1930,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_list_relations(self, mock_request):
         """Test case for list relations
 
-        Check whether a user is authorized to access an object  # noqa: E501
+        Check whether a user is authorized to access an object
         """
 
         # First, mock the response
@@ -2078,7 +2077,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_write_assertions(self, mock_request):
         """Test case for write assertions
 
-        Get all stores  # noqa: E501
+        Get all stores
         """
         mock_request.return_value = mock_response('', 204)
         configuration = self.configuration
@@ -2103,7 +2102,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_set_store_id(self, mock_request):
         """Test case for write assertions
 
-        Get all stores  # noqa: E501
+        Get all stores
         """
         mock_request.return_value = mock_response('', 204)
         configuration = self.configuration
@@ -2133,7 +2132,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_config_auth_model(self, mock_request):
         """Test case for write assertions
 
-        Get all stores  # noqa: E501
+        Get all stores
         """
         mock_request.return_value = mock_response('', 204)
         configuration = self.configuration
@@ -2162,7 +2161,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
     {{#asyncio}}async {{/asyncio}}def test_update_auth_model(self, mock_request):
         """Test case for write assertions
 
-        Get all stores  # noqa: E501
+        Get all stores
         """
         mock_request.return_value = mock_response('', 204)
         configuration = self.configuration

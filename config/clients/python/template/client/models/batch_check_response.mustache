@@ -1,10 +1,9 @@
-# coding: utf-8
 {{>partial_header}}
 
 from {{packageName}}.client.models.check_request import ClientCheckRequest
 from {{packageName}}.models.check_response import CheckResponse
 
-class BatchCheckResponse():
+class BatchCheckResponse:
     """
     BatchCheckResponse encapsulates the response for a single batch check
     """
@@ -47,4 +46,4 @@ class BatchCheckResponse():
         """
         Return the class string
         """
-        return "allowed %s request %s error %s" % (self._allowed, self._request, self._error)  
+        return f"allowed {self._allowed} request {self._request} error {self._error}"

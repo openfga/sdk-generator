@@ -1,5 +1,3 @@
-# coding: utf-8
-
 {{>partial_header}}
 
 import io
@@ -7,10 +5,7 @@ import json
 import logging
 import re
 import ssl
-
-# python 2 and python 3 compatibility library
-import six
-from six.moves.urllib.parse import urlencode
+import urllib
 import urllib3
 
 from {{packageName}}.exceptions import ApiException, UnauthorizedException, ForbiddenException, NotFoundException, ServiceException, ApiValueError, ValidationException
@@ -33,17 +28,17 @@ class RESTResponse(io.IOBase):
 
     def getheader(self, name, default=None):
         """Returns a given response header."""
-        return self.urllib3_response.getheader(name, default)
+        return self.urllib3_response.headers.get(name, default)
 
 
-class RESTClientObject(object):
+class RESTClientObject:
 
     def __init__(self, configuration, pools_size=4, maxsize=None):
         # urllib3.PoolManager will pass all kw parameters to connectionpool
-        # https://github.com/shazow/urllib3/blob/f9409436f83aeb79fbaf090181cd81b784f1b8ce/urllib3/poolmanager.py#L75  # noqa: E501
-        # https://github.com/shazow/urllib3/blob/f9409436f83aeb79fbaf090181cd81b784f1b8ce/urllib3/connectionpool.py#L680  # noqa: E501
-        # maxsize is the number of requests to host that are allowed in parallel  # noqa: E501
-        # Custom SSL certificates and client certificates: http://urllib3.readthedocs.io/en/latest/advanced-usage.html  # noqa: E501
+        # https://github.com/shazow/urllib3/blob/f9409436f83aeb79fbaf090181cd81b784f1b8ce/urllib3/poolmanager.py#L75
+        # https://github.com/shazow/urllib3/blob/f9409436f83aeb79fbaf090181cd81b784f1b8ce/urllib3/connectionpool.py#L680
+        # maxsize is the number of requests to host that are allowed in parallel
+        # Custom SSL certificates and client certificates: http://urllib3.readthedocs.io/en/latest/advanced-usage.html
 
         # cert_reqs
         if configuration.verify_ssl:
@@ -53,7 +48,7 @@ class RESTClientObject(object):
 
         addition_pool_args = {}
         if configuration.assert_hostname is not None:
-            addition_pool_args['assert_hostname'] = configuration.assert_hostname  # noqa: E501
+            addition_pool_args['assert_hostname'] = configuration.assert_hostname
 
         if configuration.retries is not None:
             addition_pool_args['retries'] = configuration.retries
@@ -129,10 +124,10 @@ class RESTClientObject(object):
 
         timeout = None
         if _request_timeout:
-            if isinstance(_request_timeout, six.integer_types + (float, )):  # noqa: E501,F821
+            if isinstance(_request_timeout, (float, int)):
                 timeout = urllib3.Timeout(total=_request_timeout)
-            elif (isinstance(_request_timeout, tuple) and
-                  len(_request_timeout) == 2):
+            elif (isinstance(_request_timeout, tuple)
+                and len(_request_timeout) == 2):
                 timeout = urllib3.Timeout(
                     connect=_request_timeout[0], read=_request_timeout[1])
 
@@ -143,7 +138,7 @@ class RESTClientObject(object):
             # For `POST`, `PUT`, `PATCH`, `OPTIONS`, `DELETE`
             if method in ['POST', 'PUT', 'PATCH', 'OPTIONS', 'DELETE']:
                 if query_params:
-                    url += '?' + urlencode(query_params)
+                    url += '?' + urllib.parse.urlencode(query_params)
                 if re.search('json', headers['Content-Type'], re.IGNORECASE):
                     request_body = None
                     if body is not None:
@@ -154,7 +149,7 @@ class RESTClientObject(object):
                         preload_content=_preload_content,
                         timeout=timeout,
                         headers=headers)
-                elif headers['Content-Type'] == 'application/x-www-form-urlencoded':  # noqa: E501
+                elif headers['Content-Type'] == 'application/x-www-form-urlencoded':
                     r = self.pool_manager.request(
                         method, url,
                         fields=post_params,
@@ -199,7 +194,7 @@ class RESTClientObject(object):
                                               timeout=timeout,
                                               headers=headers)
         except urllib3.exceptions.SSLError as e:
-            msg = "{0}\n{1}".format(type(e).__name__, str(e))
+            msg = f"{type(e).__name__}\n{str(e)}"
             raise ApiException(status=0, reason=msg)
 
         if _preload_content:

@@ -1,9 +1,6 @@
-# coding: utf-8
-
 {{>partial_header}}
 
 import re
-
 
 def is_well_formed_ulid_string(ulid):
     regex = re.compile("^[0-7][0-9A-HJKMNP-TV-Z]{25}$")
