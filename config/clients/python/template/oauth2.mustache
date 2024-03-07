@@ -1,11 +1,8 @@
 {{>partial_header}}
 
-from dataclasses import dataclass
 from datetime import datetime, timedelta
 import json
-import typing
 import urllib3
-from urllib.parse import urlparse
 
 from {{packageName}}.credentials import Credentials
 from {{packageName}}.exceptions import AuthenticationError
@@ -35,7 +32,7 @@ class OAuth2Client:
         Perform OAuth2 and obtain token
         """
         configuration = self._credentials.configuration
-        token_url = 'https://{}/oauth/token'.format(configuration.api_issuer)
+        token_url = f'https://{configuration.api_issuer}/oauth/token'
         post_params = {
             'client_id': configuration.client_id,
             'client_secret': configuration.client_secret,
@@ -47,7 +44,7 @@ class OAuth2Client:
         if 200 <= raw_response.status <= 299:
             try:
                 api_response = json.loads(raw_response.data)
-            except: # noqa: E722
+            except:
                 raise AuthenticationError(http_resp=raw_response)
             if not api_response.get('expires_in') or not api_response.get('access_token'):
                 raise AuthenticationError(http_resp=raw_response)
@@ -64,4 +61,4 @@ class OAuth2Client:
         if not self._token_valid():
             # In this case, the token is not valid, we need to get the refresh the token
             await self._obtain_token(client)
-        return {'Authorization': 'Bearer {}'.format(self._access_token)}
+        return {'Authorization': f'Bearer {self._access_token}'}

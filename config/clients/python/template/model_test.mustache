@@ -1,5 +1,3 @@
-# coding: utf-8
-
 {{>partial_header}}
 
 import unittest
@@ -8,7 +6,7 @@ import datetime
 {{#models}}
 {{#model}}
 import {{packageName}}{{^asyncio}} as openfga_sdk{{/asyncio}}
-from {{modelPackage}}.{{classFilename}} import {{classname}}  # noqa: E501
+from {{modelPackage}}.{{classFilename}} import {{classname}}
 from {{packageName}}.rest import ApiException
 
 class Test{{classname}}(unittest.TestCase):
@@ -26,7 +24,7 @@ class Test{{classname}}(unittest.TestCase):
             include_option is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # model = {{packageName}}.models.{{classFilename}}.{{classname}}()  # noqa: E501
+        # model = {{packageName}}.models.{{classFilename}}.{{classname}}()
         if include_optional :
             return {{classname}}(
 {{#vars}}

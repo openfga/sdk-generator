@@ -3,16 +3,16 @@
 @@ -193,13 +193,15 @@
              _request_auth=local_var_params.get('_request_auth'),
              _oauth2_client=self._oauth2_client)
- 
--    def create_store(self, **kwargs):  # noqa: E501
-+    def create_store(self, body, **kwargs):  # noqa: E501
-         """Create a store  # noqa: E501
- 
-         Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.  # noqa: E501
- 
+
+-    def create_store(self, **kwargs):
++    def create_store(self, body, **kwargs):
+         """Create a store
+
+         Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.
+
 -        >>> thread = api.create_store()
 +        >>> thread = api.create_store(body)
- 
+
 +        :param body: (required)
 +        :type body: CreateStoreRequest
          :param async_req: Whether to execute the request asynchronously.
@@ -21,28 +21,28 @@
 @@ -216,15 +218,17 @@
          :rtype: CreateStoreResponse
          """
-         kwargs['_return_http_data_only'] = True
--        return self.create_store_with_http_info(**kwargs)  # noqa: E501
-+        return self.create_store_with_http_info(body, **kwargs)  # noqa: E501
- 
--    def create_store_with_http_info(self, **kwargs):  # noqa: E501
-+    def create_store_with_http_info(self, body, **kwargs):  # noqa: E501
-         """Create a store  # noqa: E501
- 
-         Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.  # noqa: E501
- 
+         kwargs["_return_http_data_only"] = True
+-        return self.create_store_with_http_info(**kwargs)
++        return self.create_store_with_http_info(body, **kwargs)
+
+-    def create_store_with_http_info(self, **kwargs):
++    def create_store_with_http_info(self, body, **kwargs):
+         """Create a store
+
+         Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.
+
 -        >>> thread = api.create_store_with_http_info()
 +        >>> thread = api.create_store_with_http_info(body)
- 
+
 +        :param body: (required)
 +        :type body: CreateStoreRequest
          :param async_req: Whether to execute the request asynchronously.
          :type async_req: bool, optional
          :param _return_http_data_only: response data without head status code
 @@ -253,6 +257,8 @@
- 
+
          all_params = [
- 
+
 +            'body'
 +
          ]
@@ -50,7 +50,7 @@
              [
 @@ -312,7 +318,7 @@
          }
- 
+
          return self.api_client.call_api(
 -            '/stores'.replace('{store_id}', store_id), 'POST',
 +            '/stores', 'POST',
@@ -59,7 +59,7 @@
              header_params,
 @@ -998,7 +1004,7 @@
          }
- 
+
          return self.api_client.call_api(
 -            '/stores'.replace('{store_id}', store_id), 'GET',
 +            '/stores', 'GET',
