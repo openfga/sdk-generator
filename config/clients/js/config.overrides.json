@@ -101,10 +101,6 @@
       "destinationFilename": "package.json",
       "templateType": "SupportingFiles"
     },
-    "package-lock.mustache": {
-      "destinationFilename": "package-lock.json",
-      "templateType": "SupportingFiles"
-    },
     "npmrc.mustache": {
       "destinationFilename": ".npmrc",
       "templateType": "SupportingFiles"
