@@ -134,16 +134,14 @@ test-client-java: build-client-java
 
 .PHONY: test-integration-client-java
 test-integration-client-java: test-client-java
-	docker container rm --force openfga-for-java-client || true
-	docker run --detach --name openfga-for-java-client -p 8080:8080 -v ${PWD}:${PWD} -w ${PWD} -v /var/run/docker.sock:/var/run/docker.sock openfga/openfga:${OPENFGA_DOCKER_TAG} run
 	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c 'gradle test-integration'"
-	docker container rm --force openfga-for-java-client
 
 .PHONY: run-in-docker
 run-in-docker:
 	docker run --rm \
 		-v "${CLIENTS_OUTPUT_DIR}/fga-${sdk_language}-sdk":/module \
 		-v ${CONFIG_DIR}:/config \
+		-v /var/run/docker.sock:/var/run/docker.sock \
 		-w /module \
 		--net="host" \
 		${image} \
