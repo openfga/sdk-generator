@@ -17,6 +17,12 @@ DOCS_CACHE_DIR = ${PWD}/docs/openapi
 TMP_DIR = $(shell mktemp -d "$${TMPDIR:-/tmp}/tmp.XXXXX")
 CURRENT_UID := $(shell id -u)
 CURRENT_GID := $(shell id -g)
+# Determine if Docker is being used via Docker Desktop, if so we need to tell testcontainers to
+# use the Docker Desktop host. We can't just always set this because GitHub Actions will fail.
+DOCKER_PLATFORM := $(shell docker version -f json | jq .Server.Platform.Name)
+ifeq ($(findstring Docker Desktop,$(DOCKER_PLATFORM)),Docker Desktop)
+	TEST_CONTAINERS_ENV=-e TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal
+endif
 
 all: test-all-clients
 
@@ -143,6 +149,7 @@ run-in-docker:
 		-v ${CONFIG_DIR}:/config \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-w /module \
+		$(TEST_CONTAINERS_ENV) \
 		--net="host" \
 		${image} \
 		${command}
