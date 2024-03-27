@@ -47,7 +47,7 @@ public class OpenFgaClient {
     public void setAuthorizationModelId(String authorizationModelId) {
         configuration.authorizationModelId(authorizationModelId);
     }
-    
+
     public void setConfiguration(ClientConfiguration configuration) throws FgaInvalidParameterException {
         this.configuration = configuration;
         this.api = new OpenFgaApi(configuration, apiClient);
@@ -666,6 +666,9 @@ public class OpenFgaClient {
                 var contextualTuples = request.getContextualTupleKeys();
                 var bodyContextualTuples = ClientTupleKey.asContextualTupleKeys(contextualTuples);
                 body.contextualTuples(bodyContextualTuples);
+            }
+            if(request.getContext() != null) {
+                body.context(request.getContext());
             }
         }
 
