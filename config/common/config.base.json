@@ -87,5 +87,6 @@
   "tokenExpiryThresholdBufferInSec": 300,
   "tokenExpiryJitterInSec": 300,
   "clientMethodHeader": "X-OpenFGA-Client-Method",
-  "clientBulkRequestIdHeader": "X-OpenFGA-Client-Bulk-Request-Id"
+  "clientBulkRequestIdHeader": "X-OpenFGA-Client-Bulk-Request-Id",
+  "openFGADockerTag": "v1.5.1"
 }

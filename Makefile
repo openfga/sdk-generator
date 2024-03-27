@@ -1,5 +1,5 @@
 # Main config
-OPENFGA_DOCKER_TAG = v1.4.0
+OPENFGA_DOCKER_TAG = v1.5.1
 OPEN_API_REF ?= main
 OPEN_API_URL = https://raw.githubusercontent.com/openfga/api/${OPEN_API_REF}/docs/openapiv2/apidocs.swagger.json
 OPENAPI_GENERATOR_CLI_DOCKER_TAG = v6.4.0
@@ -17,6 +17,12 @@ DOCS_CACHE_DIR = ${PWD}/docs/openapi
 TMP_DIR = $(shell mktemp -d "$${TMPDIR:-/tmp}/tmp.XXXXX")
 CURRENT_UID := $(shell id -u)
 CURRENT_GID := $(shell id -g)
+# Determine if Docker is being used via Docker Desktop, if so we need to tell testcontainers to
+# use the Docker Desktop host. We can't just always set this because GitHub Actions will fail.
+DOCKER_PLATFORM := $(shell docker version -f json | jq .Server.Platform.Name)
+ifeq ($(findstring Docker Desktop,$(DOCKER_PLATFORM)),Docker Desktop)
+	TEST_CONTAINERS_ENV=-e TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal
+endif
 
 all: test-all-clients
 
@@ -134,17 +140,16 @@ test-client-java: build-client-java
 
 .PHONY: test-integration-client-java
 test-integration-client-java: test-client-java
-	docker container rm --force openfga-for-java-client || true
-	docker run --detach --name openfga-for-java-client -p 8080:8080 openfga/openfga:${OPENFGA_DOCKER_TAG} run
 	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c 'gradle test-integration'"
-	docker container rm --force openfga-for-java-client
 
 .PHONY: run-in-docker
 run-in-docker:
 	docker run --rm \
 		-v "${CLIENTS_OUTPUT_DIR}/fga-${sdk_language}-sdk":/module \
 		-v ${CONFIG_DIR}:/config \
+		-v /var/run/docker.sock:/var/run/docker.sock \
 		-w /module \
+		$(TEST_CONTAINERS_ENV) \
 		--net="host" \
 		${image} \
 		${command}

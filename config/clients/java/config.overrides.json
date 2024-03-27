@@ -443,7 +443,7 @@
       "destinationFilename": "example/example1/src/main/kotlin/dev/openfga/sdk/example/KotlinExample1.kt",
       "templateType": "SupportingFiles"
     },
-    "ExampleTest.java" : {
+    "ExampleTest.java.mustache" : {
       "destinationFilename": "src/test-integration/java/dev/openfga/sdk/example/ExampleTest.java",
       "templateType": "SupportingFiles"
     },
