@@ -1,5 +1,5 @@
 # Main config
-OPENFGA_DOCKER_TAG = v1.4.0
+OPENFGA_DOCKER_TAG = v1.5.1
 OPEN_API_REF ?= main
 OPEN_API_URL = https://raw.githubusercontent.com/openfga/api/${OPEN_API_REF}/docs/openapiv2/apidocs.swagger.json
 OPENAPI_GENERATOR_CLI_DOCKER_TAG = v6.4.0
