@@ -1,0 +1,31 @@
+By default API requests are retried up to 15 times on 429 and 5xx errors and credential requests are retried up to 15 times on 429 and 5xx errors. In both instances they will wait a minimum of 100 milliseconds between requests.
+
+In order to change the behavior for API requests, pass a `RetryParams` property to `ClientConfiguration` constructor to a `RetryParams` instance like below with a `MaxRetry` property to control the amount of retries and a `MinWaitInMs` to control the minimum wait time between retried requests.
+
+```csharp
+using OpenFga.Sdk.Client;
+using OpenFga.Sdk.Client.Model;
+using OpenFga.Sdk.Model;
+
+namespace Example {
+    public class Example {
+        public static async Task Main() {
+            try {
+                var configuration = new ClientConfiguration() {
+                    ApiUrl = Environment.GetEnvironmentVariable("FGA_API_URL") ?? "http://localhost:8080", // required, e.g. https://api.fga.example
+                    StoreId = Environment.GetEnvironmentVariable("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+                    AuthorizationModelId = Environment.GetEnvironmentVariable("FGA_AUTHORIZATION_MODEL_ID"), // Optional, can be overridden per request
+                    RetryParams = new RetryParams() {
+                        MaxRetry = 3, // retry up to 3 times on API requests
+                        MinWaitInMs = 250 // wait a minimum of 250 milliseconds between requests
+                    }
+                };
+                var fgaClient = new OpenFgaClient(configuration);
+                var response = await fgaClient.ReadAuthorizationModels();
+            } catch (ApiException e) {
+                 Debug.Print("Error: "+ e);
+            }
+        }
+    }
+}
+```
