@@ -1,0 +1,24 @@
+By default API requests are retried up to 15 times on 429 and 5xx errors and credential requests are retried up to 15 times on 429 and 5xx errors. In both instances they will wait a minimum of 100 milliseconds between requests.
+
+In order to change the behavior for API requests, when using the `ClientConfiguration` builder, call `maxRetries` to control the amount of retries and `minimumRetryDelay` to control the minimum wait time between retried requests.
+
+```java
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.openfga.sdk.api.client.OpenFgaClient;
+import dev.openfga.sdk.api.configuration.ClientConfiguration;
+import java.net.http.HttpClient;
+
+public class Example {
+    public static void main(String[] args) throws Exception {
+        var config = new ClientConfiguration()
+                .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "https://localhost:8080"
+                .storeId(System.getenv("FGA_STORE_ID")) // Not required when calling createStore() or listStores()
+                .authorizationModelId(System.getenv("FGA_AUTHORIZATION_MODEL_ID")) // Optional, can be overridden per request
+                .maxRetries(3) // retry up to 3 times on API requests
+                .minimumRetryDelay(250); // wait a minimum of 250 milliseconds between requests
+
+        var fgaClient = new OpenFgaClient(config);
+        var response = fgaClient.readAuthorizationModels().get();
+    }
+}
+```
