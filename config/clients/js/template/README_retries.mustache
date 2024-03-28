@@ -1,6 +1,6 @@
-By default API requests are retried up to 15 times on 429 and 5xx errors and credential requests are retried to 3 times on 429 and 5xx errors. In both instances they will wait a minimum of 100 milliseconds between requests.
+By default API requests are retried up to 15 times on 429 and 5xx errors and credential requests are retried up to 3 times on 429 and 5xx errors. In both instances they will wait a minimum of 100 milliseconds between requests.
 
-In order to change the behavior for API requests, pass a `retryParams` object in the `OpenFgaClient` constructor with a `maxRetry` property to control the amount of retries and a `minWaitInMs` to control the minimum wait time between retried requests.
+In order to change the behavior for API requests, pass set `retryParams` in the `OpenFgaClient` constructor to an object with a `maxRetry` property to control the amount of retries and a `minWaitInMs` to control the minimum wait time between retried requests.
 
 ```javascript
 const { OpenFgaClient } = require('@openfga/sdk'); // OR import { OpenFgaClient } from '@openfga/sdk';

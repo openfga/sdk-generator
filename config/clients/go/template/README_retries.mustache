@@ -1,0 +1,26 @@
+By default API requests are retried up to 15 times on 429 and 5xx errors with a minimum wait time of 100 milliseconds and credential requests are retried up to 3 times on 429 and 5xx errors with a minimum wait time of 50 milliseconds.
+
+In order to change the behavior for API requests, pass a `RetryParams` property in the `ClientConfiguration` struct, with a `MaxRetry` property to control the amount of retries and a `MinWaitInMs` to control the minimum wait time between retried requests.
+
+```golang
+import (
+    . "github.com/openfga/go-sdk/client"
+    "os"
+)
+
+func main() {
+    fgaClient, err := NewSdkClient(&ClientConfiguration{
+        ApiUrl:  os.Getenv("FGA_API_URL"), // required, e.g. https://api.fga.example
+        StoreId: os.Getenv("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+        AuthorizationModelId: os.Getenv("FGA_AUTHORIZATION_MODEL_ID"), // optional, recommended to be set for production
+        RetryParams: &openfga.RetryParams{
+            MaxRetry:    3, // retry up to 3 times on API requests
+            MinWaitInMs: 250, // wait a minimum of 250 milliseconds between requests
+        },
+    })
+
+    if err != nil {
+        // .. Handle error
+    }
+}
+```
