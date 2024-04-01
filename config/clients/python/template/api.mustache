@@ -1,13 +1,9 @@
 {{>partial_header}}
 
-import re
 
+from {{packageName}}.exceptions import ApiValueError, FgaValidationException
 from {{packageName}}.api_client import ApiClient
 from {{packageName}}.oauth2 import OAuth2Client
-from {{packageName}}.exceptions import (
-    FgaValidationException,
-    ApiValueError
-)
 
 
 {{#operations}}
