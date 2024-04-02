@@ -1,28 +1,22 @@
-Should a network request fail due to a 429 or 5xx error response from the server, the SDK will (by default) automatically retry the request up to {{defaultMaxRetry}} times, waiting no less than {{defaultMinWaitInMs}} milliseconds between each attempt.
+If a network request fails with a 429 or 5xx error from the server, the SDK will automatically retry the request up to {{defaultMaxRetry}} times with a minimum wait time of {{defaultMinWaitInMs}} milliseconds between each attempt.
 
-You can override these default values by initializing an instance of the `RetryParams` class. It's constructor accepts two parameters: `max_retry` and `min_wait_in_ms`. The `max_retry` value assigns the maximum number of retries, and the `min_wait_in_ms` value assigns the minimum wait time between retries (in milliseconds.)
+To customize these settings, create a `RetryParams` object with the `max_retry` and `min_wait_in_ms` constructor parameters. `max_retry` determines the maximum number of retries, while `min_wait_in_ms` sets the minimum wait time between retries in milliseconds.
 
-Pass your `RetryParams` object to the `ClientConfiguration` constructor during initialization using the `retry_params` parameter to apply your values.
+Apply your custom retry settings by passing the object to the `ClientConfiguration` constructor's `retry_params` parameter.
 
 ```python
-import os
-
 from {{packageName}} import ClientConfiguration, {{appShortName}}Client
 from {{packageName}}.configuration import RetryParams
-
+from os import environ
 
 async def main():
+    # Configure the client with custom retry settings
     config = ClientConfiguration(
-        api_url=os.getenv("FGA_API_URL"),
-        retry_params=RetryParams(  # Override the default retry behavior
-            max_retry=3,  # Retry up to 3 times
-            min_wait_in_ms=250  # Wait a minimum of 250 milliseconds between attempts
-        )
-    );
+        api_url=environ.get("FGA_API_URL"),
+        retry_params=RetryParams(max_retry=3, min_wait_in_ms=250)
+    )
 
-    # Enter a context with an instance of the {{appShortName}}Client
+    # Create a client instance and read authorization models
     async with {{appShortName}}Client(config) as client:
-        response = await client.read_authorization_models()
-        await client.close()
-        return response
+        return await client.read_authorization_models()
 ```
