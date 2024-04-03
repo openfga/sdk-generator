@@ -11,7 +11,10 @@
   "supportsES6": true,
   "modelPropertyNaming": "original",
   "files": {
-    ".github/workflows/main.yaml": {},
+    ".github/workflows/main.yaml.mustache": {
+      "destinationFilename": ".github/workflows/main.yaml",
+      "templateType": "SupportingFiles"
+    },
     "tests/jest.config.js": {},
     "tests/tsconfig.spec.json": {},
     "tests/index.test.ts.mustache": {

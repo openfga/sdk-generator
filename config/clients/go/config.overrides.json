@@ -8,7 +8,10 @@
   "fossaComplianceNoticeId": "41c01c64-f74a-414a-9e39-7aeca87bc47b",
   "generateInterfaces": true,
   "files": {
-    ".github/workflows/main.yaml": {},
+    ".github/workflows/main.yaml.mustache": {
+      "destinationFilename": ".github/workflows/main.yaml",
+      "templateType": "SupportingFiles"
+    },
     "oauth2/LICENSE": {},
     "oauth2/ORIGINAL_AUTHORS": {},
     "oauth2/ORIGINAL_CONTRIBUTORS": {},
