@@ -1,6 +1,8 @@
-By default API requests are retried up to 15 times on 429 and 5xx errors and credential requests are retried up to 15 times on 429 and 5xx errors. In both instances they will wait a minimum of 100 milliseconds between requests.
+If a network request fails with a 429 or 5xx error from the server, the SDK will automatically retry the request up to {{defaultMaxRetry}} times with a minimum wait time of {{defaultMinWaitInMs}} milliseconds between each attempt.
 
-In order to change the behavior for API requests, pass a `RetryParams` property to `ClientConfiguration` constructor to a `RetryParams` instance like below with a `MaxRetry` property to control the amount of retries and a `MinWaitInMs` to control the minimum wait time between retried requests.
+To customize this behavior, create a `RetryParams` instance and assign values to the `MaxRetry` and `MinWaitInMs` constructor parameters. `MaxRetry` determines the maximum number of retries (up to {{retryMaxAllowedNumber}}), while `MinWaitInMs` sets the minimum wait time between retries in milliseconds.
+
+Apply your custom retry values by passing the object to the `ClientConfiguration` constructor's `RetryParams` parameter.
 
 ```csharp
 using OpenFga.Sdk.Client;
