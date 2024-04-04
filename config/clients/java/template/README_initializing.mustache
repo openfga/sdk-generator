@@ -13,7 +13,7 @@ import java.net.http.HttpClient;
 public class Example {
     public static void main(String[] args) throws Exception {
         var config = new ClientConfiguration()
-                .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "https://localhost:8080"
+                .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "http://localhost:8080"
                 .storeId(System.getenv("FGA_STORE_ID")) // Not required when calling createStore() or listStores()
                 .authorizationModelId(System.getenv("FGA_AUTHORIZATION_MODEL_ID")); // Optional, can be overridden per request
 
@@ -36,7 +36,7 @@ import java.net.http.HttpClient;
 public class Example {
     public static void main(String[] args) throws Exception {
         var config = new ClientConfiguration()
-                .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "https://localhost:8080"
+                .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "http://localhost:8080"
                 .storeId(System.getenv("FGA_STORE_ID")) // Not required when calling createStore() or listStores()
                 .authorizationModelId(System.getenv("FGA_AUTHORIZATION_MODEL_ID")) // Optional, can be overridden per request
                 .credentials(new Credentials(
@@ -62,7 +62,7 @@ import java.net.http.HttpClient;
 public class Example {
     public static void main(String[] args) throws Exception {
         var config = new ClientConfiguration()
-                .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "https://localhost:8080"
+                .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "http://localhost:8080"
                 .storeId(System.getenv("FGA_STORE_ID")) // Not required when calling createStore() or listStores()
                 .authorizationModelId(System.getenv("FGA_AUTHORIZATION_MODEL_ID")) // Optional, can be overridden per request
                 .credentials(new Credentials(
@@ -92,7 +92,7 @@ import java.net.http.HttpClient;
 public class Example {
     public static void main(String[] args) throws Exception {
         var config = new ClientConfiguration()
-                .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "https://localhost:8080"
+                .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "http://localhost:8080"
                 .storeId(System.getenv("FGA_STORE_ID")) // Not required when calling createStore() or listStores()
                 .authorizationModelId(System.getenv("FGA_AUTHORIZATION_MODEL_ID")) // Optional, can be overridden per request
                 .credentials(new Credentials(

@@ -1,0 +1,19 @@
+If a network request fails with a 429 or 5xx error from the server, the SDK will automatically retry the request up to {{defaultMaxRetry}} times with a minimum wait time of {{defaultMinWaitInMs}} milliseconds between each attempt.
+
+To customize this behavior, create an object with `maxRetry` and `minWaitInMs` properties. `maxRetry` determines the maximum number of retries (up to {{retryMaxAllowedNumber}}), while `minWaitInMs` sets the minimum wait time between retries in milliseconds.
+
+Apply your custom retry values by setting to `retryParams` on the to the configuration object passed to the `OpenFgaClient` call.
+
+```javascript
+const { OpenFgaClient } = require('@openfga/sdk'); // OR import { OpenFgaClient } from '@openfga/sdk';
+
+const fgaClient = new OpenFgaClient({
+  apiUrl: process.env.FGA_API_URL, // required
+  storeId: process.env.FGA_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
+  authorizationModelId: process.env.FGA_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
+  retryParams: {
+    maxRetry: 3, // retry up to 3 times on API requests
+    minWaitInMs: 250 // wait a minimum of 250 milliseconds between requests
+  }
+});
+```

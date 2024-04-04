@@ -1,0 +1,28 @@
+If a network request fails with a 429 or 5xx error from the server, the SDK will automatically retry the request up to {{defaultMaxRetry}} times with a minimum wait time of {{defaultMinWaitInMs}} milliseconds between each attempt.
+
+To customize this behavior, create an `openfga.RetryParams` struct and assign values to the `MaxRetry` and `MinWaitInMs` fields. `MaxRetry` determines the maximum number of retries (up to {{retryMaxAllowedNumber}}), while `MinWaitInMs` sets the minimum wait time between retries in milliseconds.
+
+Apply your custom retry values by passing this struct to the `ClientConfiguration` struct's `RetryParams` parameter.
+
+```golang
+import (
+    . "github.com/openfga/go-sdk/client"
+    "os"
+)
+
+func main() {
+    fgaClient, err := NewSdkClient(&ClientConfiguration{
+        ApiUrl:  os.Getenv("FGA_API_URL"), // required, e.g. https://api.fga.example
+        StoreId: os.Getenv("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+        AuthorizationModelId: os.Getenv("FGA_AUTHORIZATION_MODEL_ID"), // optional, recommended to be set for production
+        RetryParams: &openfga.RetryParams{
+            MaxRetry:    3, // retry up to 3 times on API requests
+            MinWaitInMs: 250, // wait a minimum of 250 milliseconds between requests
+        },
+    })
+
+    if err != nil {
+        // .. Handle error
+    }
+}
+```

@@ -1,0 +1,33 @@
+If a network request fails with a 429 or 5xx error from the server, the SDK will automatically retry the request up to {{defaultMaxRetry}} times with a minimum wait time of {{defaultMinWaitInMs}} milliseconds between each attempt.
+
+To customize this behavior, create a `RetryParams` instance and assign values to the `MaxRetry` and `MinWaitInMs` constructor parameters. `MaxRetry` determines the maximum number of retries (up to {{retryMaxAllowedNumber}}), while `MinWaitInMs` sets the minimum wait time between retries in milliseconds.
+
+Apply your custom retry values by passing the object to the `ClientConfiguration` constructor's `RetryParams` parameter.
+
+```csharp
+using OpenFga.Sdk.Client;
+using OpenFga.Sdk.Client.Model;
+using OpenFga.Sdk.Model;
+
+namespace Example {
+    public class Example {
+        public static async Task Main() {
+            try {
+                var configuration = new ClientConfiguration() {
+                    ApiUrl = Environment.GetEnvironmentVariable("FGA_API_URL") ?? "http://localhost:8080", // required, e.g. https://api.fga.example
+                    StoreId = Environment.GetEnvironmentVariable("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+                    AuthorizationModelId = Environment.GetEnvironmentVariable("FGA_AUTHORIZATION_MODEL_ID"), // Optional, can be overridden per request
+                    RetryParams = new RetryParams() {
+                        MaxRetry = 3, // retry up to 3 times on API requests
+                        MinWaitInMs = 250 // wait a minimum of 250 milliseconds between requests
+                    }
+                };
+                var fgaClient = new OpenFgaClient(configuration);
+                var response = await fgaClient.ReadAuthorizationModels();
+            } catch (ApiException e) {
+                 Debug.Print("Error: "+ e);
+            }
+        }
+    }
+}
+```

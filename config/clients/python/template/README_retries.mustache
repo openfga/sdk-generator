@@ -1,0 +1,22 @@
+If a network request fails with a 429 or 5xx error from the server, the SDK will automatically retry the request up to {{defaultMaxRetry}} times with a minimum wait time of {{defaultMinWaitInMs}} milliseconds between each attempt.
+
+To customize this behavior, create a `RetryParams` object and assign values to the `max_retry` and `min_wait_in_ms` constructor parameters. `max_retry` determines the maximum number of retries (up to {{retryMaxAllowedNumber}}), while `min_wait_in_ms` sets the minimum wait time between retries in milliseconds.
+
+Apply your custom retry values by passing the object to the `ClientConfiguration` constructor's `retry_params` parameter.
+
+```python
+from {{packageName}} import ClientConfiguration, {{appShortName}}Client
+from {{packageName}}.configuration import RetryParams
+from os import environ
+
+async def main():
+    # Configure the client with custom retry settings
+    config = ClientConfiguration(
+        api_url=environ.get("FGA_API_URL"),
+        retry_params=RetryParams(max_retry=3, min_wait_in_ms=250)
+    )
+
+    # Create a client instance and read authorization models
+    async with {{appShortName}}Client(config) as client:
+        return await client.read_authorization_models()
+```

@@ -1,0 +1,24 @@
+If a network request fails with a 429 or 5xx error from the server, the SDK will automatically retry the request up to {{defaultMaxRetry}} times with a minimum wait time of {{defaultMinWaitInMs}} milliseconds between each attempt.
+
+To customize this behavior, call `maxRetries` and `minimumRetryDelay` on the `ClientConfiguration` builder. `maxRetries` determines the maximum number of retries (up to {{retryMaxAllowedNumber}}), while `minimumRetryDelay` sets the minimum wait time between retries in milliseconds.
+
+```java
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.openfga.sdk.api.client.OpenFgaClient;
+import dev.openfga.sdk.api.configuration.ClientConfiguration;
+import java.net.http.HttpClient;
+
+public class Example {
+    public static void main(String[] args) throws Exception {
+        var config = new ClientConfiguration()
+                .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "http://localhost:8080"
+                .storeId(System.getenv("FGA_STORE_ID")) // Not required when calling createStore() or listStores()
+                .authorizationModelId(System.getenv("FGA_AUTHORIZATION_MODEL_ID")) // Optional, can be overridden per request
+                .maxRetries(3) // retry up to 3 times on API requests
+                .minimumRetryDelay(250); // wait a minimum of 250 milliseconds between requests
+
+        var fgaClient = new OpenFgaClient(config);
+        var response = fgaClient.readAuthorizationModels().get();
+    }
+}
+```
