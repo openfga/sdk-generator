@@ -10,10 +10,8 @@
   "infoEmail": "community@openfga.dev",
   "docPrefix": "https://github.com/openfga/python-sdk/blob/main/",
   "files": {
-    ".github/workflows/main.yaml": {
-    },
-    ".snyk": {
-    },
+    ".github/workflows/main.yaml": {},
+    ".snyk": {},
     "credentials.mustache": {
       "destinationFilename": "openfga_sdk/credentials.py",
       "templateType": "SupportingFiles"
@@ -24,7 +22,7 @@
     },
     "client/__init__.mustache": {
       "destinationFilename": "openfga_sdk/client/__init__.py",
-      "templateType": "SupportingFiles" 
+      "templateType": "SupportingFiles"
     },
     "client/client.mustache": {
       "destinationFilename": "openfga_sdk/client/client.py",
@@ -52,7 +50,7 @@
     },
     "client/models/check_request.mustache": {
       "destinationFilename": "openfga_sdk/client/models/check_request.py",
-      "templateType": "SupportingFiles" 
+      "templateType": "SupportingFiles"
     },
     "client/models/expand_request.mustache": {
       "destinationFilename": "openfga_sdk/client/models/expand_request.py",
@@ -68,7 +66,7 @@
     },
     "client/models/read_changes_request.mustache": {
       "destinationFilename": "openfga_sdk/client/models/read_changes_request.py",
-      "templateType": "SupportingFiles" 
+      "templateType": "SupportingFiles"
     },
     "client/models/tuple.mustache": {
       "destinationFilename": "openfga_sdk/client/models/tuple.py",
@@ -84,11 +82,19 @@
     },
     "client/models/write_single_response.mustache": {
       "destinationFilename": "openfga_sdk/client/models/write_single_response.py",
-      "templateType": "SupportingFiles" 
+      "templateType": "SupportingFiles"
     },
     "client/models/write_transaction_opts.mustache": {
       "destinationFilename": "openfga_sdk/client/models/write_transaction_opts.py",
-      "templateType": "SupportingFiles" 
+      "templateType": "SupportingFiles"
+    },
+    "configuration.mustache": {
+      "destinationFilename": "openfga_sdk/configuration.py",
+      "templateType": "SupportingFiles"
+    },
+    "test_configuration.mustache": {
+      "destinationFilename": "test/test_configuration.py",
+      "templateType": "SupportingFiles"
     },
     "validation.mustache": {
       "destinationFilename": "openfga_sdk/validation.py",
