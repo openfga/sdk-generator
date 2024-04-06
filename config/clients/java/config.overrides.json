@@ -31,427 +31,427 @@
   "allowUnicodeIdentifiers": true,
   "caseInsensitiveResponseHeaders": true,
   "files": {
-    "auth-model.json" : {
+    "auth-model.json": {
       "destinationFilename": "src/test-integration/resources/auth-model.json",
       "templateType": "SupportingFiles"
     },
-    "build.gradle.mustache" : {
+    "build.gradle.mustache": {
       "destinationFilename": "build.gradle",
       "templateType": "SupportingFiles"
     },
-    "publish.gradle.mustache" : {
+    "publish.gradle.mustache": {
       "destinationFilename": "publish.gradle",
       "templateType": "SupportingFiles"
     },
-    ".github/workflows/main.yml.mustache" : {
-      "destinationFilename": ".github/workflows/main.yml",
+    ".github/workflows/main.yaml.mustache": {
+      "destinationFilename": ".github/workflows/main.yaml",
       "templateType": "SupportingFiles"
     },
-    "client-ClientAssertion.java.mustache" : {
+    "client-ClientAssertion.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientAssertion.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientBatchCheckResponse.java.mustache" : {
+    "client-ClientBatchCheckResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientBatchCheckResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientCheckRequest.java.mustache" : {
+    "client-ClientCheckRequest.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientCheckRequest.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientCheckResponse.java.mustache" : {
+    "client-ClientCheckResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientCheckResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientCreateStoreResponse.java.mustache" : {
+    "client-ClientCreateStoreResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientCreateStoreResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientDeleteStoreResponse.java.mustache" : {
+    "client-ClientDeleteStoreResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientDeleteStoreResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientExpandRequest.java.mustache" : {
+    "client-ClientExpandRequest.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientExpandRequest.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientExpandResponse.java.mustache" : {
+    "client-ClientExpandResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientExpandResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientGetStoreResponse.java.mustache" : {
+    "client-ClientGetStoreResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientGetStoreResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientListObjectsRequest.java.mustache" : {
+    "client-ClientListObjectsRequest.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientListObjectsRequest.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientListObjectsResponse.java.mustache" : {
+    "client-ClientListObjectsResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientListObjectsResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientListStoresResponse.java.mustache" : {
+    "client-ClientListStoresResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientListStoresResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientListRelationsRequest.java.mustache" : {
+    "client-ClientListRelationsRequest.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientListRelationsRequest.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientListRelationsResponse.java.mustache" : {
+    "client-ClientListRelationsResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientListRelationsResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientReadAssertionsResponse.java.mustache" : {
+    "client-ClientReadAssertionsResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientReadAssertionsResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientReadAuthorizationModelResponse.java.mustache" : {
+    "client-ClientReadAuthorizationModelResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientReadAuthorizationModelResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientReadAuthorizationModelsResponse.java.mustache" : {
+    "client-ClientReadAuthorizationModelsResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientReadAuthorizationModelsResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientReadChangesRequest.java.mustache" : {
+    "client-ClientReadChangesRequest.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientReadChangesRequest.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientReadChangesResponse.java.mustache" : {
+    "client-ClientReadChangesResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientReadChangesResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientReadRequest.java.mustache" : {
+    "client-ClientReadRequest.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientReadRequest.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientReadResponse.java.mustache" : {
+    "client-ClientReadResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientReadResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientRelationshipCondition.java.mustache" : {
+    "client-ClientRelationshipCondition.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientRelationshipCondition.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientTupleKey.java.mustache" : {
+    "client-ClientTupleKey.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientTupleKey.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientTupleKeyWithoutCondition.java.mustache" : {
+    "client-ClientTupleKeyWithoutCondition.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientTupleKeyWithoutCondition.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientWriteAssertionsResponse.java.mustache" : {
+    "client-ClientWriteAssertionsResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientWriteAssertionsResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientWriteAuthorizationModelResponse.java.mustache" : {
+    "client-ClientWriteAuthorizationModelResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientWriteAuthorizationModelResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientWriteRequest.java.mustache" : {
+    "client-ClientWriteRequest.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientWriteRequest.java",
       "templateType": "SupportingFiles"
     },
-    "client-ClientWriteResponse.java.mustache" : {
+    "client-ClientWriteResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientWriteResponse.java",
       "templateType": "SupportingFiles"
     },
-    "client-HttpRequestAttempt.java.mustache" : {
+    "client-HttpRequestAttempt.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/HttpRequestAttempt.java",
       "templateType": "SupportingFiles"
     },
-    "client-OpenFgaClient.java.mustache" : {
+    "client-OpenFgaClient.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/OpenFgaClient.java",
       "templateType": "SupportingFiles"
     },
-    "client-OpenFgaClientTest.java.mustache" : {
+    "client-OpenFgaClientTest.java.mustache": {
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/client/OpenFgaClientTest.java",
       "templateType": "SupportingFiles"
     },
-    "client-OpenFgaClientIntegrationTest.java.mustache" : {
+    "client-OpenFgaClientIntegrationTest.java.mustache": {
       "destinationFilename": "src/test-integration/java/dev/openfga/sdk/api/client/OpenFgaClientIntegrationTest.java",
       "templateType": "SupportingFiles"
     },
-    "client-ApiClientTest.java.mustache" : {
+    "client-ApiClientTest.java.mustache": {
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/client/ApiClientTest.java",
       "templateType": "SupportingFiles"
     },
-    "creds-AccessToken.java.mustache" : {
+    "creds-AccessToken.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/AccessToken.java",
       "templateType": "SupportingFiles"
     },
-    "creds-AccessTokenTest.java.mustache" : {
+    "creds-AccessTokenTest.java.mustache": {
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/AccessTokenTest.java",
       "templateType": "SupportingFiles"
-    },    
-    "creds-CredentialsFlowRequest.java.mustache" : {
+    },
+    "creds-CredentialsFlowRequest.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/CredentialsFlowRequest.java",
       "templateType": "SupportingFiles"
     },
-    "creds-CredentialsFlowResponse.java.mustache" : {
+    "creds-CredentialsFlowResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/CredentialsFlowResponse.java",
       "templateType": "SupportingFiles"
     },
-    "creds-OAuth2Client.java.mustache" : {
+    "creds-OAuth2Client.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/OAuth2Client.java",
       "templateType": "SupportingFiles"
     },
-    "creds-OAuth2ClientTest.java.mustache" : {
+    "creds-OAuth2ClientTest.java.mustache": {
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/OAuth2ClientTest.java",
       "templateType": "SupportingFiles"
     },
-    "config-AdditionalHeadersSupplier.java.mustache" : {
+    "config-AdditionalHeadersSupplier.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/AdditionalHeadersSupplier.java",
       "templateType": "SupportingFiles"
     },
-    "config-ApiToken.java.mustache" : {
+    "config-ApiToken.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ApiToken.java",
       "templateType": "SupportingFiles"
     },
-    "config-BaseConfiguration.java.mustache" : {
+    "config-BaseConfiguration.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/BaseConfiguration.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientBatchCheckOptions.java.mustache" : {
+    "config-ClientBatchCheckOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientBatchCheckOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientCheckOptions.java.mustache" : {
+    "config-ClientCheckOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientCheckOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientConfiguration.java.mustache" : {
+    "config-ClientConfiguration.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientConfiguration.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientCreateStoreOptions.java.mustache" : {
+    "config-ClientCreateStoreOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientCreateStoreOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientCredentials.java.mustache" : {
+    "config-ClientCredentials.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientCredentials.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientCredentialsTest.java.mustache" : {
+    "config-ClientCredentialsTest.java.mustache": {
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/configuration/ClientCredentialsTest.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientDeleteStoreOptions.java.mustache" : {
+    "config-ClientDeleteStoreOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientDeleteStoreOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientDeleteTuplesOptions.java.mustache" : {
+    "config-ClientDeleteTuplesOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientDeleteTuplesOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientExpandOptions.java.mustache" : {
+    "config-ClientExpandOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientExpandOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientGetStoreOptions.java.mustache" : {
+    "config-ClientGetStoreOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientGetStoreOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientListObjectsOptions.java.mustache" : {
+    "config-ClientListObjectsOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientListObjectsOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientListRelationsOptions.java.mustache" : {
+    "config-ClientListRelationsOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientListRelationsOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientListStoresOptions.java.mustache" : {
+    "config-ClientListStoresOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientListStoresOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientReadAssertionsOptions.java.mustache" : {
+    "config-ClientReadAssertionsOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientReadAssertionsOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientReadAuthorizationModelOptions.java.mustache" : {
+    "config-ClientReadAuthorizationModelOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientReadAuthorizationModelOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientReadAuthorizationModelsOptions.java.mustache" : {
+    "config-ClientReadAuthorizationModelsOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientReadAuthorizationModelsOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientReadChangesOptions.java.mustache" : {
+    "config-ClientReadChangesOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientReadChangesOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientReadLatestAuthorizationModelOptions.java.mustache" : {
+    "config-ClientReadLatestAuthorizationModelOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientReadLatestAuthorizationModelOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientReadOptions.java.mustache" : {
+    "config-ClientReadOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientReadOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientWriteAssertionsOptions.java.mustache" : {
+    "config-ClientWriteAssertionsOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientWriteAssertionsOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientWriteAuthorizationModelOptions.java.mustache" : {
+    "config-ClientWriteAuthorizationModelOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientWriteAuthorizationModelOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientWriteOptions.java.mustache" : {
+    "config-ClientWriteOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientWriteOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientWriteTuplesOptions.java.mustache" : {
+    "config-ClientWriteTuplesOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientWriteTuplesOptions.java",
       "templateType": "SupportingFiles"
     },
-    "config-Configuration.java.mustache" : {
+    "config-Configuration.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/Configuration.java",
       "templateType": "SupportingFiles"
     },
-    "config-ConfigurationOverride.java.mustache" : {
+    "config-ConfigurationOverride.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ConfigurationOverride.java",
       "templateType": "SupportingFiles"
     },
-    "config-ConfigurationTest.java.mustache" : {
+    "config-ConfigurationTest.java.mustache": {
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/configuration/ConfigurationTest.java",
       "templateType": "SupportingFiles"
     },
-    "config-Credentials.java.mustache" : {
+    "config-Credentials.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/Credentials.java",
       "templateType": "SupportingFiles"
     },
-    "config-CredentialsMethod.java.mustache" : {
+    "config-CredentialsMethod.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/CredentialsMethod.java",
       "templateType": "SupportingFiles"
     },
-    "errors-FgaApiAuthenticationError.java.mustache" : {
+    "errors-FgaApiAuthenticationError.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaApiAuthenticationError.java",
       "templateType": "SupportingFiles"
     },
-    "errors-FgaApiInternalError.java.mustache" : {
+    "errors-FgaApiInternalError.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaApiInternalError.java",
       "templateType": "SupportingFiles"
     },
-    "errors-FgaApiNotFoundError.java.mustache" : {
+    "errors-FgaApiNotFoundError.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaApiNotFoundError.java",
       "templateType": "SupportingFiles"
     },
-    "errors-FgaApiRateLimitExceededError.java.mustache" : {
+    "errors-FgaApiRateLimitExceededError.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaApiRateLimitExceededError.java",
       "templateType": "SupportingFiles"
     },
-    "errors-FgaApiValidationError.java.mustache" : {
+    "errors-FgaApiValidationError.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaApiValidationError.java",
       "templateType": "SupportingFiles"
     },
-    "errors-FgaError.java.mustache" : {
+    "errors-FgaError.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaError.java",
       "templateType": "SupportingFiles"
     },
-    "errors-FgaInvalidParameterException.java.mustache" : {
+    "errors-FgaInvalidParameterException.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaInvalidParameterException.java",
       "templateType": "SupportingFiles"
     },
-    "errors-HttpStatusCode.java.mustache" : {
+    "errors-HttpStatusCode.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/HttpStatusCode.java",
       "templateType": "SupportingFiles"
     },
-    "Pair.mustache" : {
+    "Pair.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/util/Pair.java",
       "templateType": "SupportingFiles"
     },
-    "util-StringUtil.java.mustache" : {
+    "util-StringUtil.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/util/StringUtil.java",
       "templateType": "SupportingFiles"
     },
-    "util-StringUtilTest.java.mustache" : {
+    "util-StringUtilTest.java.mustache": {
       "destinationFilename": "src/test/java/dev/openfga/sdk/util/StringUtilTest.java",
       "templateType": "SupportingFiles"
     },
-    "util-Validation.java.mustache" : {
+    "util-Validation.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/util/Validation.java",
       "templateType": "SupportingFiles"
     },
-    "libraries/native/apiException.mustache" : {
+    "libraries/native/apiException.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/ApiException.java",
       "templateType": "SupportingFiles"
     },
-    "OpenFgaApiTest.java.mustache" : {
+    "OpenFgaApiTest.java.mustache": {
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/OpenFgaApiTest.java",
       "templateType": "SupportingFiles"
     },
-    "OpenFgaApiIntegrationTest.java.mustache" : {
+    "OpenFgaApiIntegrationTest.java.mustache": {
       "destinationFilename": "src/test-integration/java/dev/openfga/sdk/api/OpenFgaApiIntegrationTest.java",
       "templateType": "SupportingFiles"
     },
-    "package-info.java.mustache" : {
+    "package-info.java.mustache": {
       "destinationFilename": "src/test-integration/java/package-info.java",
       "templateType": "SupportingFiles"
     },
-    "gradle-wrapper.properties.mustache" : {
+    "gradle-wrapper.properties.mustache": {
       "destinationFilename": "gradle/wrapper/gradle-wrapper.properties",
       "templateType": "SupportingFiles"
     },
-    "example/Makefile" : {
+    "example/Makefile": {
       "destinationFilename": "example/Makefile",
       "templateType": "SupportingFiles"
     },
-    "example/README.md" : {
+    "example/README.md": {
       "destinationFilename": "example/README.md",
       "templateType": "SupportingFiles"
     },
-    "example/example1/README.md" : {
+    "example/example1/README.md": {
       "destinationFilename": "example/example1/README.md",
       "templateType": "SupportingFiles"
     },
-    "example/example1/gradle/wrapper/gradle-wrapper.jar" : {
+    "example/example1/gradle/wrapper/gradle-wrapper.jar": {
       "destinationFilename": "example/example1/gradle/wrapper/gradle-wrapper.jar",
       "templateType": "SupportingFiles"
     },
-    "example/example1/gradle/wrapper/gradle-wrapper.properties" : {
+    "example/example1/gradle/wrapper/gradle-wrapper.properties": {
       "destinationFilename": "example/example1/gradle/wrapper/gradle-wrapper.properties",
       "templateType": "SupportingFiles"
     },
-    "example/example1/gradlew" : {
+    "example/example1/gradlew": {
       "destinationFilename": "example/example1/gradlew",
       "templateType": "SupportingFiles"
     },
-    "example/example1/build.gradle" : {
+    "example/example1/build.gradle": {
       "destinationFilename": "example/example1/build.gradle",
       "templateType": "SupportingFiles"
     },
-    "example/example1/gradle.properties" : {
+    "example/example1/gradle.properties": {
       "destinationFilename": "example/example1/gradle.properties",
       "templateType": "SupportingFiles"
     },
-    "example/example1/settings.gradle" : {
+    "example/example1/settings.gradle": {
       "destinationFilename": "example/example1/settings.gradle",
       "templateType": "SupportingFiles"
     },
-    "example/example1/src/main/resources/example1-auth-model.json" : {
+    "example/example1/src/main/resources/example1-auth-model.json": {
       "destinationFilename": "example/example1/src/main/resources/example1-auth-model.json",
       "templateType": "SupportingFiles"
     },
-    "example/example1/src/main/java/dev/openfga/sdk/example/Example1.java" : {
+    "example/example1/src/main/java/dev/openfga/sdk/example/Example1.java": {
       "destinationFilename": "example/example1/src/main/java/dev/openfga/sdk/example/Example1.java",
       "templateType": "SupportingFiles"
     },
-    "example/example1/src/main/kotlin/dev/openfga/sdk/example/KotlinExample1.kt" : {
+    "example/example1/src/main/kotlin/dev/openfga/sdk/example/KotlinExample1.kt": {
       "destinationFilename": "example/example1/src/main/kotlin/dev/openfga/sdk/example/KotlinExample1.kt",
       "templateType": "SupportingFiles"
     },
-    "ExampleTest.java.mustache" : {
+    "ExampleTest.java.mustache": {
       "destinationFilename": "src/test-integration/java/dev/openfga/sdk/example/ExampleTest.java",
       "templateType": "SupportingFiles"
     },
-    "example/example1/links/Example1.java" : {
+    "example/example1/links/Example1.java": {
       "destinationFilename": "src/test-integration/java/dev/openfga/sdk/example/Example1.java",
       "templateType": "SupportingFiles"
     },
-    "example/example1/links/example1-auth-model.json" : {
+    "example/example1/links/example1-auth-model.json": {
       "destinationFilename": "src/test-integration/resources/example1-auth-model.json",
       "templateType": "SupportingFiles"
     }

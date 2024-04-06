@@ -10,7 +10,10 @@
   "infoEmail": "community@openfga.dev",
   "docPrefix": "https://github.com/openfga/python-sdk/blob/main/",
   "files": {
-    ".github/workflows/main.yaml": {},
+    ".github/workflows/main.yaml.mustache": {
+      "destinationFilename": ".github/workflows/main.yaml",
+      "templateType": "SupportingFiles"
+    },
     ".snyk": {},
     "credentials.mustache": {
       "destinationFilename": "openfga_sdk/credentials.py",
