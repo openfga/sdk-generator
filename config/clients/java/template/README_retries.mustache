@@ -13,7 +13,7 @@ public class Example {
         var config = new ClientConfiguration()
                 .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "http://localhost:8080"
                 .storeId(System.getenv("FGA_STORE_ID")) // Not required when calling createStore() or listStores()
-                .authorizationModelId(System.getenv("FGA_AUTHORIZATION_MODEL_ID")) // Optional, can be overridden per request
+                .authorizationModelId(System.getenv("FGA_MODEL_ID")) // Optional, can be overridden per request
                 .maxRetries(3) // retry up to 3 times on API requests
                 .minimumRetryDelay(250); // wait a minimum of 250 milliseconds between requests
 

@@ -32,7 +32,7 @@ func mainInner() error {
     fgaClient, err := client.NewSdkClient(&client.ClientConfiguration{
         ApiUrl:               apiUrl,
         StoreId:              os.Getenv("FGA_STORE_ID"),               // not needed when calling `CreateStore` or `ListStores`
-        AuthorizationModelId: os.Getenv("FGA_AUTHORIZATION_MODEL_ID"), // optional, recommended to be set for production
+        AuthorizationModelId: os.Getenv("FGA_MODEL_ID"), // optional, recommended to be set for production
         Credentials:          &creds,
     })
 

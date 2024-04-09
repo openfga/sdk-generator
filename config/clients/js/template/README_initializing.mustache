@@ -10,7 +10,7 @@ const { {{appShortName}}Client } = require('{{packageName}}'); // OR import { {{
 const fgaClient = new {{appShortName}}Client({
   apiUrl: process.env.FGA_API_URL, // required
   storeId: process.env.FGA_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
-  authorizationModelId: process.env.FGA_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
+  authorizationModelId: process.env.FGA_MODEL_ID, // Optional, can be overridden per request
 });
 ```
 
@@ -22,7 +22,7 @@ const { {{appShortName}}Client } = require('{{packageName}}'); // OR import { {{
 const fgaClient = new {{appShortName}}Client({
   apiUrl: process.env.FGA_API_URL, // required
   storeId: process.env.FGA_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
-  authorizationModelId: process.env.FGA_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
+  authorizationModelId: process.env.FGA_MODEL_ID, // Optional, can be overridden per request
   credentials: {
     method: CredentialsMethod.ApiToken,
     config: {
@@ -40,7 +40,7 @@ const { {{appShortName}}Client } = require('{{packageName}}'); // OR import { {{
 const fgaClient = new {{appShortName}}Client({
   apiUrl: process.env.FGA_API_URL, // required
   storeId: process.env.FGA_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
-  authorizationModelId: process.env.FGA_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
+  authorizationModelId: process.env.FGA_MODEL_ID, // Optional, can be overridden per request
   credentials: {
     method: CredentialsMethod.ClientCredentials,
     config: {

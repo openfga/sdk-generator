@@ -15,7 +15,7 @@ public class Example {
         var config = new ClientConfiguration()
                 .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "http://localhost:8080"
                 .storeId(System.getenv("FGA_STORE_ID")) // Not required when calling createStore() or listStores()
-                .authorizationModelId(System.getenv("FGA_AUTHORIZATION_MODEL_ID")); // Optional, can be overridden per request
+                .authorizationModelId(System.getenv("FGA_MODEL_ID")); // Optional, can be overridden per request
 
         var fgaClient = new OpenFgaClient(config);
         var response = fgaClient.readAuthorizationModels().get();
@@ -38,7 +38,7 @@ public class Example {
         var config = new ClientConfiguration()
                 .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "http://localhost:8080"
                 .storeId(System.getenv("FGA_STORE_ID")) // Not required when calling createStore() or listStores()
-                .authorizationModelId(System.getenv("FGA_AUTHORIZATION_MODEL_ID")) // Optional, can be overridden per request
+                .authorizationModelId(System.getenv("FGA_MODEL_ID")) // Optional, can be overridden per request
                 .credentials(new Credentials(
                     new ApiToken(System.getenv("FGA_API_TOKEN")) // will be passed as the "Authorization: Bearer ${ApiToken}" request header
                 ));
@@ -64,7 +64,7 @@ public class Example {
         var config = new ClientConfiguration()
                 .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "http://localhost:8080"
                 .storeId(System.getenv("FGA_STORE_ID")) // Not required when calling createStore() or listStores()
-                .authorizationModelId(System.getenv("FGA_AUTHORIZATION_MODEL_ID")) // Optional, can be overridden per request
+                .authorizationModelId(System.getenv("FGA_MODEL_ID")) // Optional, can be overridden per request
                 .credentials(new Credentials(
                     new ClientCredentials()
                             .apiTokenIssuer(System.getenv("FGA_API_TOKEN_ISSUER"))
@@ -94,7 +94,7 @@ public class Example {
         var config = new ClientConfiguration()
                 .apiUrl(System.getenv("FGA_API_URL")) // If not specified, will default to "http://localhost:8080"
                 .storeId(System.getenv("FGA_STORE_ID")) // Not required when calling createStore() or listStores()
-                .authorizationModelId(System.getenv("FGA_AUTHORIZATION_MODEL_ID")) // Optional, can be overridden per request
+                .authorizationModelId(System.getenv("FGA_MODEL_ID")) // Optional, can be overridden per request
                 .credentials(new Credentials(
                     new ClientCredentials()
                             .apiTokenIssuer(System.getenv("FGA_API_TOKEN_ISSUER"))

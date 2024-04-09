@@ -16,7 +16,7 @@ namespace Example {
                 var configuration = new ClientConfiguration() {
                     ApiUrl = Environment.GetEnvironmentVariable("FGA_API_URL") ?? "http://localhost:8080", // required, e.g. https://api.{{sampleApiDomain}}
                     StoreId = Environment.GetEnvironmentVariable("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
-                    AuthorizationModelId = Environment.GetEnvironmentVariable("FGA_AUTHORIZATION_MODEL_ID"), // Optional, can be overridden per request
+                    AuthorizationModelId = Environment.GetEnvironmentVariable("FGA_MODEL_ID"), // Optional, can be overridden per request
                 };
                 var fgaClient = new {{appShortName}}Client(configuration);
                 var response = await fgaClient.ReadAuthorizationModels();
@@ -42,7 +42,7 @@ namespace Example {
                 var configuration = new ClientConfiguration() {
                     ApiUrl = Environment.GetEnvironmentVariable("FGA_API_URL") ?? "http://localhost:8080", // required, e.g. https://api.{{sampleApiDomain}}
                     StoreId = Environment.GetEnvironmentVariable("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
-                    AuthorizationModelId = Environment.GetEnvironmentVariable("FGA_AUTHORIZATION_MODEL_ID"), // Optional, can be overridden per request
+                    AuthorizationModelId = Environment.GetEnvironmentVariable("FGA_MODEL_ID"), // Optional, can be overridden per request
                     Credentials = new Credentials() {
                         Method = CredentialsMethod.ApiToken,
                         Config = new CredentialsConfig() {
@@ -74,7 +74,7 @@ namespace Example {
                 var configuration = new ClientConfiguration() {
                     ApiUrl = Environment.GetEnvironmentVariable("FGA_API_URL") ?? "http://localhost:8080", // required, e.g. https://api.{{sampleApiDomain}}
                     StoreId = Environment.GetEnvironmentVariable("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
-                    AuthorizationModelId = Environment.GetEnvironmentVariable("FGA_AUTHORIZATION_MODEL_ID"), // Optional, can be overridden per request
+                    AuthorizationModelId = Environment.GetEnvironmentVariable("FGA_MODEL_ID"), // Optional, can be overridden per request
                     Credentials = new Credentials() {
                         Method = CredentialsMethod.ClientCredentials,
                         Config = new CredentialsConfig() {

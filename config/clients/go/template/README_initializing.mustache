@@ -14,7 +14,7 @@ func main() {
     fgaClient, err := NewSdkClient(&ClientConfiguration{
         ApiUrl:  os.Getenv("FGA_API_URL"), // required, e.g. https://api.{{sampleApiDomain}}
         StoreId: os.Getenv("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
-        AuthorizationModelId: os.Getenv("FGA_AUTHORIZATION_MODEL_ID"), // optional, recommended to be set for production
+        AuthorizationModelId: os.Getenv("FGA_MODEL_ID"), // optional, recommended to be set for production
     })
 
 	if err != nil {
@@ -36,7 +36,7 @@ func main() {
     fgaClient, err := NewSdkClient(&ClientConfiguration{
         ApiUrl:      os.Getenv("FGA_API_URL"), // required, e.g. https://api.{{sampleApiDomain}}
         StoreId:     os.Getenv("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
-        AuthorizationModelId: os.Getenv("FGA_AUTHORIZATION_MODEL_ID"), // optional, recommended to be set for production
+        AuthorizationModelId: os.Getenv("FGA_MODEL_ID"), // optional, recommended to be set for production
         Credentials: &credentials.Credentials{
             Method: credentials.CredentialsMethodApiToken,
             Config: &credentials.Config{
@@ -65,7 +65,7 @@ func main() {
     fgaClient, err := NewSdkClient(&ClientConfiguration{
         ApiUrl:               os.Getenv("FGA_API_URL"), // required, e.g. https://api.{{sampleApiDomain}}
         StoreId:              os.Getenv("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
-        AuthorizationModelId: os.Getenv("FGA_AUTHORIZATION_MODEL_ID"), // optional, recommended to be set for production
+        AuthorizationModelId: os.Getenv("FGA_MODEL_ID"), // optional, recommended to be set for production
         Credentials: &credentials.Credentials{
             Method: credentials.CredentialsMethodClientCredentials,
             Config: &credentials.Config{
@@ -97,7 +97,7 @@ func main() {
     fgaClient, err := NewSdkClient(&ClientConfiguration{
         ApiUrl:               os.Getenv("FGA_API_URL"), // required, e.g. https://api.{{sampleApiDomain}}
         StoreId:              os.Getenv("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
-        AuthorizationModelId: os.Getenv("FGA_AUTHORIZATION_MODEL_ID"), // optional, recommended to be set for production
+        AuthorizationModelId: os.Getenv("FGA_MODEL_ID"), // optional, recommended to be set for production
         Credentials: &credentials.Credentials{
             Method: credentials.CredentialsMethodClientCredentials,
             Config: &credentials.Config{

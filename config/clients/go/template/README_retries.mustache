@@ -16,7 +16,7 @@ func main() {
 	fgaClient, err := NewSdkClient(&ClientConfiguration{
 		ApiUrl:               os.Getenv("FGA_API_URL"),                // required, e.g. https://api.fga.example
 		StoreId:              os.Getenv("FGA_STORE_ID"),               // not needed when calling `CreateStore` or `ListStores`
-		AuthorizationModelId: os.Getenv("FGA_AUTHORIZATION_MODEL_ID"), // optional, recommended to be set for production
+		AuthorizationModelId: os.Getenv("FGA_MODEL_ID"), // optional, recommended to be set for production
 		RetryParams: &openfga.RetryParams{
 			MaxRetry:    3,   // retry up to 3 times on API requests
 			MinWaitInMs: 250, // wait a minimum of 250 milliseconds between requests
