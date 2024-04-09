@@ -10,7 +10,7 @@ const { OpenFgaClient } = require('@openfga/sdk'); // OR import { OpenFgaClient 
 const fgaClient = new OpenFgaClient({
   apiUrl: process.env.FGA_API_URL, // required
   storeId: process.env.FGA_STORE_ID, // not needed when calling `CreateStore` or `ListStores`
-  authorizationModelId: process.env.FGA_AUTHORIZATION_MODEL_ID, // Optional, can be overridden per request
+  authorizationModelId: process.env.FGA_MODEL_ID, // Optional, can be overridden per request
   retryParams: {
     maxRetry: 3, // retry up to 3 times on API requests
     minWaitInMs: 250 // wait a minimum of 250 milliseconds between requests

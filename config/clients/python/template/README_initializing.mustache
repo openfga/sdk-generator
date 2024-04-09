@@ -12,7 +12,7 @@ async def main():
     configuration = ClientConfiguration(
         api_url=FGA_API_URL,  # required
         store_id=FGA_STORE_ID,  # optional, not needed when calling `CreateStore` or `ListStores`
-        authorization_model_id=FGA_AUTHORIZATION_MODEL_ID,  # Optional, can be overridden per request
+        authorization_model_id=FGA_MODEL_ID,  # Optional, can be overridden per request
     )
     # Enter a context with an instance of the OpenFgaClient
     async with OpenFgaClient(configuration) as fga_client:
@@ -32,7 +32,7 @@ async def main():
     configuration = ClientConfiguration(
         api_url=FGA_API_URL,  # required
         store_id=FGA_STORE_ID,  # optional, not needed when calling `CreateStore` or `ListStores`
-        authorization_model_id=FGA_AUTHORIZATION_MODEL_ID,  # Optional, can be overridden per request
+        authorization_model_id=FGA_MODEL_ID,  # Optional, can be overridden per request
         credentials=Credentials(
             method='api_token',
             configuration=CredentialConfiguration(
@@ -58,7 +58,7 @@ async def main():
     configuration = ClientConfiguration(
         api_url=FGA_API_URL,  # required
         store_id=FGA_STORE_ID,  # optional, not needed when calling `CreateStore` or `ListStores`
-        authorization_model_id=FGA_AUTHORIZATION_MODEL_ID,  # Optional, can be overridden per request
+        authorization_model_id=FGA_MODEL_ID,  # Optional, can be overridden per request
         credentials=Credentials(
             method='client_credentials',
             configuration=CredentialConfiguration(
@@ -90,7 +90,7 @@ def main():
     configuration = ClientConfiguration(
         api_url=FGA_API_URL,  # required
         store_id=FGA_STORE_ID,  # optional, not needed when calling `CreateStore` or `ListStores`
-        authorization_model_id=FGA_AUTHORIZATION_MODEL_ID,  # optional, can be overridden per request
+        authorization_model_id=FGA_MODEL_ID,  # optional, can be overridden per request
     )
     # Enter a context with an instance of the OpenFgaClient
     with OpenFgaClient(configuration) as fga_client:
