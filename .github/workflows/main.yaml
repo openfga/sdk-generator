@@ -29,7 +29,7 @@ jobs:
           path: clients/fga-js-sdk
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@2b51285047da1547ffb1b2203d8be4c0af6b1f20 # v3.2.0
+        uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3.3.0
 
       - name: Run SDK Tests
         run: make test-client-js
@@ -59,7 +59,7 @@ jobs:
           path: clients/fga-go-sdk
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@2b51285047da1547ffb1b2203d8be4c0af6b1f20 # v3.2.0
+        uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3.3.0
 
       - name: Run SDK Tests
         run: make test-client-go
@@ -89,7 +89,7 @@ jobs:
           path: clients/fga-dotnet-sdk
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@2b51285047da1547ffb1b2203d8be4c0af6b1f20 # v3.2.0
+        uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3.3.0
 
       - name: Run All Tests
         run: make test-client-dotnet
@@ -124,7 +124,7 @@ jobs:
           path: clients/fga-python-sdk
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@2b51285047da1547ffb1b2203d8be4c0af6b1f20 # v3.2.0
+        uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3.3.0
 
       - name: Run All Tests
         run: |-
@@ -162,7 +162,7 @@ jobs:
           path: clients/fga-java-sdk
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@2b51285047da1547ffb1b2203d8be4c0af6b1f20 # v3.2.0
+        uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3.3.0
 
       - name: Run All Tests
         run: |-
