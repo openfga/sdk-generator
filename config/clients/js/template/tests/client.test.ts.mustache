@@ -28,10 +28,55 @@ describe("{{appTitleCaseName}} Client", () => {
       nock.cleanAll();
     });
 
+    describe("Configuration", () => {
+      it("should throw an error if the storeId is not in a valid format", async () => {
+        expect(
+          () => new {{appShortName}}Client({ ...baseConfig, storeId: "abcsa"! })
+        ).toThrowError(FgaValidationError);
+      });
+
+      it("should require storeId when calling endpoints that require it", () => {
+        const fgaClient = new {{appShortName}}Client({ ...baseConfig, storeId: undefined!, credentials: undefined! });
+        expect(
+          fgaClient.readAuthorizationModels()
+        ).rejects.toThrow();
+      });
+
+      it("should accept the store and model IDs on initialization", async () => {
+        const fgaClient = new {{appShortName}}Client({
+          apiUrl: defaultConfiguration.apiUrl,
+          storeId: defaultConfiguration.storeId,
+          authorizationModelId: defaultConfiguration.authorizationModelId,
+        });
+        expect(fgaClient.storeId).toBe(defaultConfiguration.storeId);
+        expect(fgaClient.authorizationModelId).toBe(defaultConfiguration.authorizationModelId);
+      });
+
+      it("should allow updating the storeId after initialization", async () => {
+        const fgaClient = new {{appShortName}}Client({
+          apiUrl: defaultConfiguration.apiUrl
+        });
+        expect(fgaClient.storeId).toBe(undefined);
+        fgaClient.storeId = defaultConfiguration.storeId;
+        expect(fgaClient.storeId).toBe(defaultConfiguration.storeId);
+      });
+
+      it("should allow updating the authorizationModelId after initialization", async () => {
+        const fgaClient = new {{appShortName}}Client({
+          apiUrl: defaultConfiguration.apiUrl,
+          storeId: defaultConfiguration.storeId,
+        });
+        expect(fgaClient.authorizationModelId).toBe(undefined);
+        fgaClient.authorizationModelId = defaultConfiguration.authorizationModelId;
+        expect(fgaClient.authorizationModelId).toBe(defaultConfiguration.authorizationModelId);
+      });
+    });
+
+
     /* Stores */
 
     describe("ListStores", () => {
-      it("should properly call the {{appShortName}} API", async () => {
+      it("should properly call the ListStores API", async () => {
         const store = { id: "some-id", name: "some-name" };
         const scope = nocks.listStores(defaultConfiguration.getBasePath(), {
           continuation_token: "",
@@ -70,8 +115,8 @@ describe("{{appTitleCaseName}} Client", () => {
     });
 
     describe("GetStore", () => {
-      it("should properly call the {{appShortName}} API", async () => {
-        const store = { id: defaultConfiguration.storeId, name: "some-name" };
+      it("should properly call the GetStore API", async () => {
+        const store = { id: defaultConfiguration.storeId!, name: "some-name" };
         const scope = nocks.getStore(store.id, defaultConfiguration.getBasePath(), {
           ...store,
           created_at: "2023-11-02T15:27:47.951Z",
@@ -84,10 +129,29 @@ describe("{{appTitleCaseName}} Client", () => {
         expect(scope.isDone()).toBe(true);
         expect(response).toMatchObject(store);
       });
+
+
+
+      it("should allow overriding the store ID", async () => {
+        const overriddenStoreId = "01HWD53SDGYRXHBXTYA10PF6T4"
+
+        const store = { id: overriddenStoreId, name: "some-name" };
+        const scope = nocks.getStore(store.id, defaultConfiguration.getBasePath(), {
+          ...store,
+          created_at: "2023-11-02T15:27:47.951Z",
+          updated_at: "2023-11-02T15:27:47.951Z",
+        });
+
+        expect(scope.isDone()).toBe(false);
+        const response = await fgaClient.getStore({ storeId: overriddenStoreId });
+
+        expect(scope.isDone()).toBe(true);
+        expect(response).toMatchObject(store);
+      });
     });
 
     describe("DeleteStore", () => {
-      it("should properly call the {{appShortName}} API", async () => {
+      it("should properly call the DeleteStore API", async () => {
         const scope = nocks.deleteStore(defaultConfiguration.storeId!);
 
         expect(scope.isDone()).toBe(false);
@@ -99,7 +163,7 @@ describe("{{appTitleCaseName}} Client", () => {
 
     /* Authorization Models */
     describe("ReadAuthorizationModels", () => {
-      it("should properly call the {{appShortName}} API", async () => {
+      it("should properly call the ReadAuthorizationModels API", async () => {
         const scope = nocks.readAuthorizationModels(defaultConfiguration.storeId!);
 
         expect(scope.isDone()).toBe(false);
@@ -113,7 +177,7 @@ describe("{{appTitleCaseName}} Client", () => {
     });
 
     describe("WriteAuthorizationModel", () => {
-      it("should properly call the {{appShortName}} API", async () => {
+      it("should properly call the WriteAuthorizationModel API", async () => {
         const authorizationModel = {
           schema_version: "1.1",
           type_definitions: [
@@ -136,7 +200,7 @@ describe("{{appTitleCaseName}} Client", () => {
     });
 
     describe("ReadAuthorizationModel", () => {
-      it("should properly call the {{appShortName}} API", async () => {
+      it("should properly call the ReadAuthorizationModel API", async () => {
         const modelId = "01H0THVNGCSAZ6SAQVTHPH3F0Q";
         const scope = nocks.readSingleAuthzModel(defaultConfiguration.storeId!, modelId);
 
@@ -155,7 +219,7 @@ describe("{{appTitleCaseName}} Client", () => {
     });
 
     describe("ReadLatestAuthorizationModel", () => {
-      it("should properly call the {{appShortName}} API", async () => {
+      it("should properly call the ReadLatestAuthorizationModel API", async () => {
         const modelId = "01H0THVNGCSAZ6SAQVTHPH3F0Q";
         const scope = nock(defaultConfiguration.getBasePath())
           .get(`/stores/${defaultConfiguration.storeId!}/authorization-models`)
@@ -180,7 +244,7 @@ describe("{{appTitleCaseName}} Client", () => {
 
     /* Relationship Tuples */
     describe("ReadChanges", () => {
-      it("should properly call the {{appShortName}} ReadChanges API", async () => {
+      it("should properly call the ReadChanges API", async () => {
         const type = "repo";
         const pageSize = 25;
         const continuationToken = "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==";
@@ -194,7 +258,7 @@ describe("{{appTitleCaseName}} Client", () => {
         expect(response).toMatchObject({ changes: expect.arrayContaining([]) });
       });
 
-      it("should properly call the {{appShortName}} ReadChanges API with no type", async () => {
+      it("should properly call the ReadChanges API with no type", async () => {
         const pageSize = 25;
         const continuationToken = "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==";
 
@@ -209,7 +273,7 @@ describe("{{appTitleCaseName}} Client", () => {
     });
 
     describe("Read", () => {
-      it("should properly call the {{appShortName}} Read API", async () => {
+      it("should properly call the Read API", async () => {
         const tuple = {
           user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
           relation: "admin",
@@ -226,7 +290,7 @@ describe("{{appTitleCaseName}} Client", () => {
     });
 
     describe("Write", () => {
-      it("should properly call the {{appShortName}} Write API", async () => {
+      it("should properly call the Write API", async () => {
         const tuple = {
           user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
           relation: "admin",
@@ -255,9 +319,9 @@ describe("{{appTitleCaseName}} Client", () => {
           relation: "admin",
           object: "workspace:2",
         }];
-        const scope0 = nocks.write(baseConfig.storeId!).matchHeader("X-OpenFGA-Client-Method", "Write");
-        const scope1 = nocks.write(baseConfig.storeId!).matchHeader("X-OpenFGA-Client-Method", "Write");
-        const scope2 = nocks.write(baseConfig.storeId!).matchHeader("X-OpenFGA-Client-Method", "Write");
+        const scope0 = nocks.write(baseConfig.storeId!).matchHeader("{{clientMethodHeader}}", "Write");
+        const scope1 = nocks.write(baseConfig.storeId!).matchHeader("{{clientMethodHeader}}", "Write");
+        const scope2 = nocks.write(baseConfig.storeId!).matchHeader("{{clientMethodHeader}}", "Write");
         const modelId = "01GXSA8YR785C4FYS3C0RTG7B1";
         const scope3 = nocks.readSingleAuthzModel(defaultConfiguration.storeId!, modelId);
 
@@ -292,12 +356,12 @@ describe("{{appTitleCaseName}} Client", () => {
           relation: "reader",
           object: "workspace:3",
         }];
-        const scope0 = nocks.write(baseConfig.storeId!).matchHeader("X-OpenFGA-Client-Method", "Write");
-        const scope1 = nocks.write(baseConfig.storeId!).matchHeader("X-OpenFGA-Client-Method", "Write");
+        const scope0 = nocks.write(baseConfig.storeId!).matchHeader("{{clientMethodHeader}}", "Write");
+        const scope1 = nocks.write(baseConfig.storeId!).matchHeader("{{clientMethodHeader}}", "Write");
         const scope2 = nocks.write(baseConfig.storeId!, defaultConfiguration.getBasePath(), {
           "code": "validation_error",
           "message": "relation &#39;workspace#reader&#39; not found"
-        }, 400).matchHeader("X-OpenFGA-Client-Method", "Write");
+        }, 400).matchHeader("{{clientMethodHeader}}", "Write");
         const modelId = "01GXSA8YR785C4FYS3C0RTG7B1";
         const scope3 = nocks.readSingleAuthzModel(defaultConfiguration.storeId!, modelId);
 
@@ -330,7 +394,7 @@ describe("{{appTitleCaseName}} Client", () => {
           object: "workspace:1",
         }];
 
-        const scope0 = nocks.write(baseConfig.storeId!, defaultConfiguration.getBasePath(), {}, 401).matchHeader("X-OpenFGA-Client-Method", "Write");
+        const scope0 = nocks.write(baseConfig.storeId!, defaultConfiguration.getBasePath(), {}, 401).matchHeader("{{clientMethodHeader}}", "Write");
         const scope1 = nock(defaultConfiguration.getBasePath())
           .get(`/stores/${baseConfig.storeId!}/authorization-models/${authModelId}`)
           .reply(401, {});
@@ -354,7 +418,7 @@ describe("{{appTitleCaseName}} Client", () => {
         }
       });
 
-      it("should properly call the {{appShortName}} Write API when providing one empty array", async () => {
+      it("should properly call the Write API when providing one empty array", async () => {
         const tuple = {
           user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
           relation: "admin",
@@ -377,7 +441,7 @@ describe("{{appTitleCaseName}} Client", () => {
     });
 
     describe("WriteTuples", () => {
-      it("should properly call the {{appShortName}} Write API", async () => {
+      it("should properly call the Write API", async () => {
         const tuple = {
           user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
           relation: "admin",
@@ -396,7 +460,7 @@ describe("{{appTitleCaseName}} Client", () => {
     });
 
     describe("DeleteTuples", () => {
-      it("should properly call the {{appShortName}} Write API", async () => {
+      it("should properly call the Write API", async () => {
         const tuple = {
           user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
           relation: "admin",
@@ -416,7 +480,7 @@ describe("{{appTitleCaseName}} Client", () => {
 
     /* Relationship Queries */
     describe("Check", () => {
-      it("should properly call the {{appShortName}} Check API", async () => {
+      it("should properly call the Check API", async () => {
         const tuple = {
           user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
           relation: "admin",
@@ -433,7 +497,7 @@ describe("{{appTitleCaseName}} Client", () => {
     });
 
     describe("BatchCheck", () => {
-      it("should properly call the {{appShortName}} Check API", async () => {
+      it("should properly call the Check API", async () => {
         const tuples = [{
           user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
           relation: "admin",
@@ -447,12 +511,12 @@ describe("{{appTitleCaseName}} Client", () => {
           relation: "reader",
           object: "workspace:3",
         }];
-        const scope0 = nocks.check(defaultConfiguration.storeId!, tuples[0], defaultConfiguration.getBasePath(), { allowed: true }, 200).matchHeader("X-OpenFGA-Client-Method", "BatchCheck");
-        const scope1 = nocks.check(defaultConfiguration.storeId!, tuples[1], defaultConfiguration.getBasePath(), { allowed: false }, 200).matchHeader("X-OpenFGA-Client-Method", "BatchCheck");
+        const scope0 = nocks.check(defaultConfiguration.storeId!, tuples[0], defaultConfiguration.getBasePath(), { allowed: true }, 200).matchHeader("{{clientMethodHeader}}", "BatchCheck");
+        const scope1 = nocks.check(defaultConfiguration.storeId!, tuples[1], defaultConfiguration.getBasePath(), { allowed: false }, 200).matchHeader("{{clientMethodHeader}}", "BatchCheck");
         const scope2 = nocks.check(defaultConfiguration.storeId!, tuples[2], defaultConfiguration.getBasePath(), {
           "code": "validation_error",
           "message": "relation &#39;workspace#reader&#39; not found"
-        }, 400).matchHeader("X-OpenFGA-Client-Method", "BatchCheck");
+        }, 400).matchHeader("{{clientMethodHeader}}", "BatchCheck");
         const scope3 = nock(defaultConfiguration.getBasePath())
           .get(`/stores/${defaultConfiguration.storeId!}/authorization-models`)
           .query({ page_size: 1 })
@@ -480,7 +544,7 @@ describe("{{appTitleCaseName}} Client", () => {
     });
 
     describe("Expand", () => {
-      it("should properly call the {{appShortName}} Expand API", async () => {
+      it("should properly call the Expand API", async () => {
         const tuple = {
           user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
           relation: "admin",
@@ -549,11 +613,11 @@ describe("{{appTitleCaseName}} Client", () => {
           relation: "can_read",
           object: "workspace:1",
         }];
-        const scope0 = nocks.check(defaultConfiguration.storeId!, tuples[0], defaultConfiguration.getBasePath(), { allowed: true }).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
-        const scope1 = nocks.check(defaultConfiguration.storeId!, tuples[1], defaultConfiguration.getBasePath(), { allowed: false }).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
-        const scope2 = nocks.check(defaultConfiguration.storeId!, tuples[2], defaultConfiguration.getBasePath(), { allowed: true }).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
-        const scope3 = nocks.check(defaultConfiguration.storeId!, tuples[3], defaultConfiguration.getBasePath(), { allowed: false }).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
-        const scope4 = nocks.check(defaultConfiguration.storeId!, tuples[4], defaultConfiguration.getBasePath(), { allowed: false }).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
+        const scope0 = nocks.check(defaultConfiguration.storeId!, tuples[0], defaultConfiguration.getBasePath(), { allowed: true }).matchHeader("{{clientMethodHeader}}", "ListRelations");
+        const scope1 = nocks.check(defaultConfiguration.storeId!, tuples[1], defaultConfiguration.getBasePath(), { allowed: false }).matchHeader("{{clientMethodHeader}}", "ListRelations");
+        const scope2 = nocks.check(defaultConfiguration.storeId!, tuples[2], defaultConfiguration.getBasePath(), { allowed: true }).matchHeader("{{clientMethodHeader}}", "ListRelations");
+        const scope3 = nocks.check(defaultConfiguration.storeId!, tuples[3], defaultConfiguration.getBasePath(), { allowed: false }).matchHeader("{{clientMethodHeader}}", "ListRelations");
+        const scope4 = nocks.check(defaultConfiguration.storeId!, tuples[4], defaultConfiguration.getBasePath(), { allowed: false }).matchHeader("{{clientMethodHeader}}", "ListRelations");
         const scope5 = nock(defaultConfiguration.getBasePath())
           .get(`/stores/${defaultConfiguration.storeId!}/authorization-models`)
           .query({ page_size: 1 })
@@ -605,14 +669,14 @@ describe("{{appTitleCaseName}} Client", () => {
           relation: "can_read",
           object: "workspace:1",
         }];
-        const scope0 = nocks.check(defaultConfiguration.storeId!, tuples[0], defaultConfiguration.getBasePath(), { allowed: true }).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
-        const scope1 = nocks.check(defaultConfiguration.storeId!, tuples[1], defaultConfiguration.getBasePath(), { allowed: false }).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
-        const scope2 = nocks.check(defaultConfiguration.storeId!, tuples[2], defaultConfiguration.getBasePath(), { allowed: true }).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
-        const scope3 = nocks.check(defaultConfiguration.storeId!, tuples[3], defaultConfiguration.getBasePath(), "" as any, 500).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
+        const scope0 = nocks.check(defaultConfiguration.storeId!, tuples[0], defaultConfiguration.getBasePath(), { allowed: true }).matchHeader("{{clientMethodHeader}}", "ListRelations");
+        const scope1 = nocks.check(defaultConfiguration.storeId!, tuples[1], defaultConfiguration.getBasePath(), { allowed: false }).matchHeader("{{clientMethodHeader}}", "ListRelations");
+        const scope2 = nocks.check(defaultConfiguration.storeId!, tuples[2], defaultConfiguration.getBasePath(), { allowed: true }).matchHeader("{{clientMethodHeader}}", "ListRelations");
+        const scope3 = nocks.check(defaultConfiguration.storeId!, tuples[3], defaultConfiguration.getBasePath(), "" as any, 500).matchHeader("{{clientMethodHeader}}", "ListRelations");
         const scope4 = nocks.check(defaultConfiguration.storeId!, tuples[4], defaultConfiguration.getBasePath(), {
           "code": "validation_error",
           "message": "relation &#39;workspace#can_read&#39; not found"
-        }, 400).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
+        }, 400).matchHeader("{{clientMethodHeader}}", "ListRelations");
         const scope5 = nock(defaultConfiguration.getBasePath())
           .get(`/stores/${defaultConfiguration.storeId!}/authorization-models`)
           .query({ page_size: 1 })
@@ -688,7 +752,7 @@ describe("{{appTitleCaseName}} Client", () => {
 
     /* Assertions */
     describe("ReadAssertions", () => {
-      it("should properly call the {{appShortName}} ReadAssertions API", async () => {
+      it("should properly call the ReadAssertions API", async () => {
         const modelId = "01H0THVNGCSAZ6SAQVTHPH3F0Q";
         const scope = nocks.readAssertions(defaultConfiguration.storeId!, modelId);
 
@@ -704,7 +768,7 @@ describe("{{appTitleCaseName}} Client", () => {
     });
 
     describe("WriteAssertions", () => {
-      it("should properly call the {{appShortName}} WriteAssertions API", async () => {
+      it("should properly call the WriteAssertions API", async () => {
         const modelId = "01H0THVNGCSAZ6SAQVTHPH3F0Q";
         const scope = nocks.writeAssertions(defaultConfiguration.storeId!, modelId);
 
