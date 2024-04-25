@@ -8,6 +8,7 @@ import {
   serializeDataIfNeeded,
   toPathString,
   createRequestFunction,
+  CallResult,
   RequestArgs,
   PromiseResult
 } from '{{apiRelativeToRoot}}common';
@@ -38,27 +39,21 @@ export const {{classname}}AxiosParamCreator = function (configuration: Configura
          * @summary {{&summary}}
          {{/summary}}
          {{#allParams}}
-         {{^-first}}
          * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
-         {{/-first}}
          {{/allParams}}
          * @param {*} [options] Override http request option.{{#isDeprecated}}
          * @deprecated{{/isDeprecated}}
          * @throws { FgaError }
          */
-        {{nickname}}: async ({{#allParams}}{{^-first}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/-first}}{{/allParams}}options: any = {}): Promise<RequestArgs> => {
+        {{nickname}}: async ({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options: any = {}): Promise<RequestArgs> => {
     {{#allParams}}
-    {{^-first}}
     {{#required}}
             // verify required parameter '{{paramName}}' is not null or undefined
             assertParamExists('{{nickname}}', '{{paramName}}', {{paramName}})
     {{/required}}
-    {{/-first}}
     {{/allParams}}
-            {{#pathParams.0}}assertParamExists('Configuration', '{{paramName}}', configuration.{{paramName}}){{/pathParams.0}}
             const localVarPath = `{{{path}}}`
-            {{#pathParams.0}}.replace(`{${"{{baseName}}"}}`, encodeURIComponent(String(configuration.{{paramName}}))){{/pathParams.0}}
-            {{#pathParams}}{{^-first}}.replace(`{${"{{baseName}}"}}`, encodeURIComponent(String({{paramName}}))){{/-first}}{{/pathParams}};
+            {{#pathParams}}.replace(`{${"{{baseName}}"}}`, encodeURIComponent(String({{paramName}}))){{/pathParams}};
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -208,16 +203,14 @@ export const {{classname}}Fp = function(configuration: Configuration, credential
          * @summary {{&summary}}
          {{/summary}}
          {{#allParams}}
-         {{^-first}}
          * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
-         {{/-first}}
          {{/allParams}}
          * @param {*} [options] Override http request option.{{#isDeprecated}}
          * @deprecated{{/isDeprecated}}
          * @throws { FgaError }
          */
-        async {{nickname}}({{#allParams}}{{^-first}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/-first}}{{/allParams}}options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.{{nickname}}({{#allParams}}{{^-first}}{{paramName}}, {{/-first}}{{/allParams}}options);
+        async {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}}options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials);
         },
     {{/operation}}
@@ -239,16 +232,14 @@ export const {{classname}}Factory = function (configuration: Configuration, cred
          * @summary {{&summary}}
          {{/summary}}
          {{#allParams}}
-         {{^-first}}
          * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
-         {{/-first}}
          {{/allParams}}
          * @param {*} [options] Override http request option.{{#isDeprecated}}
          * @deprecated{{/isDeprecated}}
          * @throws { FgaError }
          */
-        {{nickname}}({{#allParams}}{{^-first}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/-first}}{{/allParams}}options?: any): PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}> {
-            return localVarFp.{{nickname}}({{#allParams}}{{^-first}}{{paramName}}, {{/-first}}{{/allParams}}options).then((request) => request(axios));
+        {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}> {
+            return localVarFp.{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}}options).then((request) => request(axios));
         },
     {{/operation}}
     };
@@ -269,16 +260,14 @@ export interface {{classname}}Interface {
      * @summary {{&summary}}
      {{/summary}}
      {{#allParams}}
-     {{^-first}}
      * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
-     {{/-first}}
      {{/allParams}}
      * @param {*} [options] Override http request option.{{#isDeprecated}}
      * @deprecated{{/isDeprecated}}
      * @throws { FgaError }
      * @memberof {{classname}}Interface
      */
-    {{nickname}}({{#allParams}}{{^-first}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/-first}}{{/allParams}}options?: any): PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>;
+    {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>;
 
 {{/operation}}
 }
@@ -335,9 +324,7 @@ export class {{classname}} extends BaseAPI {
      {{/useSingleRequestParameter}}
      {{^useSingleRequestParameter}}
      {{#allParams}}
-     {{^-first}}
      * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
-     {{/-first}}
      {{/allParams}}
      {{/useSingleRequestParameter}}
      * @param {*} [options] Override http request option.{{#isDeprecated}}
@@ -346,13 +333,13 @@ export class {{classname}} extends BaseAPI {
      * @memberof {{classname}}
      */
     {{#useSingleRequestParameter}}
-    public {{nickname}}({{#allParams.0}}requestParameters: {{classname}}{{operationIdCamelCase}}Request{{^hasRequiredParams}} = {}{{/hasRequiredParams}}, {{/allParams.0}}options?: any) {
+    public {{nickname}}({{#allParams.0}}requestParameters: {{classname}}{{operationIdCamelCase}}Request{{^hasRequiredParams}} = {}{{/hasRequiredParams}}, {{/allParams.0}}options?: any): Promise<CallResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
         return {{classname}}Fp(this.configuration, this.credentials).{{nickname}}({{#allParams.0}}{{#allParams}}requestParameters.{{paramName}}, {{/allParams}}{{/allParams.0}}options).then((request) => request(this.axios));
     }
     {{/useSingleRequestParameter}}
     {{^useSingleRequestParameter}}
-    public {{nickname}}({{#allParams}}{{^-first}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/-first}}{{/allParams}}options?: any) {
-        return {{classname}}Fp(this.configuration, this.credentials).{{nickname}}({{#allParams}}{{^-first}}{{paramName}}, {{/-first}}{{/allParams}}options).then((request) => request(this.axios));
+    public {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): Promise<CallResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
+        return {{classname}}Fp(this.configuration, this.credentials).{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}}options).then((request) => request(this.axios));
     }
     {{/useSingleRequestParameter}}
     {{^-last}}
