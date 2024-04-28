@@ -536,6 +536,52 @@ data, err := fgaClient.ListRelations(context.Background()).
 // data.Relations = ["can_view", "can_edit"]
 ```
 
+##### List Users
+
+List the users who have a certain relation to a particular type.
+
+[API Documentation](https://openfga.dev/api/service#/Relationship%20Queries/ListUsers)
+
+```golang
+options := ClientListRelationsOptions{
+    // You can rely on the model id set in the configuration or override it for this specific request
+    AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+}
+
+{{=<% %>=}}
+// Only a single filter is allowed by the API for the time being
+userFilters := []openfga.ListUsersFilter{{ Type: "user" }}
+// user filters can also be of the form
+// userFilters := []openfga.ListUsersFilter{{ Type: "team", Relation: openfga.PtrString("member") }}
+
+requestBody := ClientListUsersRequest{
+    Object: openfga.Object{
+        Type: "document",
+        Id:   "roadmap",
+    },
+    Relation: "can_read",
+    UserFilters: userFilters,
+    ContextualTuples: []ClientContextualTupleKey{{
+        User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        Relation: "editor",
+        Object:   "folder:product",
+    }, {
+        User:     "folder:product",
+        Relation: "parent",
+        Object:   "document:roadmap",
+    }},
+<%={{ }}=%>
+    Context: &map[string]interface{}{"ViewCount": 100},
+}
+data, err := fgaClient.ListRelations(context.Background()).
+  Body(requestBody).
+  Options(options).
+  Execute()
+
+// response.users = [{object: {type: "user", id: "81684243-9356-4421-8fbf-a4f8d36aa31b"}}, {userset: { type: "user" }}, ...]
+// response.excluded_users = [ {object: {type: "user", id: "4a455e27-d15a-4434-82e0-136f9c2aa4cf"}}, ... ]
+```
+
 ### Assertions
 
 #### Read Assertions
