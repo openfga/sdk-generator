@@ -164,6 +164,8 @@ build-openapi: init get-openapi-doc
 	cat "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.json" | \
 		jq '(.. | .tags? | select(.)) |= ["OpenFga"] | (.tags? | select(.)) |= [{"name":"OpenFga"}] | del(.definitions.ReadTuplesParams, .definitions.ReadTuplesResponse, .paths."/stores/{store_id}/read-tuples", .definitions.StreamedListObjectsRequest, .definitions.StreamedListObjectsResponse, .paths."/stores/{store_id}/streamed-list-objects")' > \
 		${DOCS_CACHE_DIR}/openfga.openapiv2.json
+	sed -i -e 's/"Object"/"FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
+	sed -i -e 's/#\/definitions\/Object"/#\/definitions\/FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
 	sed -i -e 's/v1.//g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
 
 .PHONY: get-openapi-doc

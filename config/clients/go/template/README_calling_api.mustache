@@ -550,9 +550,9 @@ options := ClientListRelationsOptions{
 
 {{=<% %>=}}
 // Only a single filter is allowed by the API for the time being
-userFilters := []openfga.ListUsersFilter{{ Type: "user" }}
+userFilters := []openfga.UserTypeFilter{{ Type: "user" }}
 // user filters can also be of the form
-// userFilters := []openfga.ListUsersFilter{{ Type: "team", Relation: openfga.PtrString("member") }}
+// userFilters := []openfga.UserTypeFilter{{ Type: "team", Relation: openfga.PtrString("member") }}
 
 requestBody := ClientListUsersRequest{
     Object: openfga.Object{

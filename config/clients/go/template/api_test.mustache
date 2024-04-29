@@ -970,7 +970,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 		test := TestDefinition{
 			Name: "ListUsers",
 			// A real API would not return all these for the filter provided, these are just for test purposes
-			JsonResponse:   `{"excluded_users":null,"users":[{"object":{"id":"81684243-9356-4421-8fbf-a4f8d36aa31b","type":"user"}},{"userset":{"id":"","relation":"member","type":"team"}},{"wildcard":{"type":"user","wildcard":{}}}]}`,
+			JsonResponse:   `{"excluded_users":null,"users":[{"object":{"id":"81684243-9356-4421-8fbf-a4f8d36aa31b","type":"user"}},{"userset":{"id":"fga","relation":"member","type":"team"}},{"wildcard":{"type":"user"}}]}`,
 			ResponseStatus: http.StatusOK,
 			Method:         http.MethodPost,
 			RequestPath:    "list-users",
@@ -978,31 +978,29 @@ func Test{{appShortName}}Api(t *testing.T) {
 
 		requestBody := ListUsersRequest{
 			AuthorizationModelId: PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
-			Object: Object{
+			Object: FgaObject{
 				Type: "document",
 				Id:   "roadmap",
 			},
 			Relation: "can_read",
 {{=<% %>=}}
 			// API does not allow sending multiple filters, done here for testing purposes
-			UserFilters: []ListUsersFilter{{
+			UserFilters: []UserTypeFilter{{
 				Type: "user",
 			}, {
 				Type:     "team",
 				Relation: PtrString("member"),
 			}},
-			ContextualTuples: &ContextualTupleKeys{
-				TupleKeys: []TupleKey{{
-					User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-					Relation: "editor",
-					Object:   "folder:product",
-				}, {
-					User:     "folder:product",
-					Relation: "parent",
-					Object:   "document:roadmap",
-				}},
+			ContextualTuples: &[]TupleKey{{
+				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+				Relation: "editor",
+				Object:   "folder:product",
+			}, {
+				User:     "folder:product",
+				Relation: "parent",
+				Object:   "document:roadmap",
+			}},
 <%={{ }}=%>
-			},
 			Context: &map[string]interface{}{"ViewCount": 100},
 		}
 
@@ -1033,18 +1031,30 @@ func Test{{appShortName}}Api(t *testing.T) {
 			t.Fatalf("{{appShortName}}%v().Execute() = %v, want %v", test.Name, response.StatusCode, test.ResponseStatus)
 		}
 
-		responseJson, err := got.MarshalJSON()
+		_, err = got.MarshalJSON()
 		if err != nil {
 			t.Fatalf("%v", err)
 		}
 
-		if len(got.Users) != len(expectedResponse.Users) || (got.Users)[0] != (expectedResponse.Users)[0] {
-			t.Fatalf("{{appShortName}}%v().Execute() = %v, want %v", test.Name, string(responseJson), test.JsonResponse)
+		if len(got.Users) != len(expectedResponse.Users) {
+			t.Fatalf("{{appShortName}}%v().Execute() = %v, want %v", test.Name, got.GetUsers(), expectedResponse.GetUsers())
 		}
 
-		//if string(responseJson) != test.JsonResponse {
-		//	t.Fatalf("{{appShortName}}Client.%v() = %v, want %v", test.Name, string(responseJson), test.JsonResponse)
-		//}
+		if got.Users[0].GetObject().Type != expectedResponse.Users[0].GetObject().Type || got.Users[0].GetObject().Id != expectedResponse.Users[0].GetObject().Id {
+			t.Fatalf("{{appShortName}}%v().Execute() = %v, want %v (%v)", test.Name, got.Users[0], expectedResponse.Users[0], "object: { type: \"user\", id: \"81684243-9356-4421-8fbf-a4f8d36aa31b\" }")
+		}
+
+		if got.Users[1].GetUserset().Type != expectedResponse.Users[1].GetUserset().Type || got.Users[1].GetUserset().Id != expectedResponse.Users[1].GetUserset().Id || got.Users[1].GetUserset().Relation != expectedResponse.Users[1].GetUserset().Relation {
+			t.Fatalf("{{appShortName}}%v().Execute() = %v, want %v (%v)", test.Name, got.Users[1], expectedResponse.Users[1], "wildcard: { type: \"team\", id: \"fga\", relation: \"member\" }")
+		}
+
+		if got.Users[2].GetWildcard().Type != expectedResponse.Users[2].GetWildcard().Type {
+			t.Fatalf("{{appShortName}}%v().Execute() = %v, want %v (%v)", test.Name, got.Users[2], expectedResponse.Users[2], "wildcard: { type: \"user\" }")
+		}
+
+		if len(got.ExcludedUsers) != len(expectedResponse.ExcludedUsers) {
+			t.Fatalf("{{appShortName}}%v().Execute() = %v, want %v", test.Name, got.GetExcludedUsers(), expectedResponse.GetExcludedUsers())
+		}
 	})
 
 	t.Run("Check with 400 error", func(t *testing.T) {

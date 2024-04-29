@@ -2166,9 +2166,9 @@ type SdkClientListUsersRequestInterface interface {
 }
 
 type ClientListUsersRequest struct {
-	Object           fgaSdk.Object              `json:"object"yaml:"object"`
+	Object           fgaSdk.FgaObject           `json:"object"yaml:"object"`
 	Relation         string                     `json:"relation"yaml:"relation"`
-	UserFilters      []fgaSdk.ListUsersFilter   `json:"user_filters"yaml:"user_filters"`
+	UserFilters      []fgaSdk.UserTypeFilter    `json:"user_filters"yaml:"user_filters"`
 	ContextualTuples []ClientContextualTupleKey `json:"contextual_tuples,omitempty"`
 	// Additional request context that will be used to evaluate any ABAC conditions encountered in the query evaluation.
 	Context *map[string]interface{} `json:"context,omitempty"yaml:"context,omitempty"`
@@ -2232,11 +2232,11 @@ func (client *OpenFgaClient) ListUsersExecute(request SdkClientListUsersRequestI
 		return nil, err
 	}
 	data, _, err := client.OpenFgaApi.ListUsers(request.GetContext()).Body(fgaSdk.ListUsersRequest{
-		Object:           request.GetBody().Object,
-		Relation:         request.GetBody().Relation,
-		UserFilters:      request.GetBody().UserFilters,
-		ContextualTuples: fgaSdk.NewContextualTupleKeys(contextualTuples),
-		//Context:              request.GetBody().Context,
+		Object:               request.GetBody().Object,
+		Relation:             request.GetBody().Relation,
+		UserFilters:          request.GetBody().UserFilters,
+		ContextualTuples:     &fgaSdk.NewContextualTupleKeys(contextualTuples).TupleKeys,
+		Context:              request.GetBody().Context,
 		AuthorizationModelId: authorizationModelId,
 	}).Execute()
 	if err != nil {
