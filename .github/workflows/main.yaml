@@ -33,7 +33,7 @@ jobs:
 
       - name: Run SDK Tests
         run: make test-client-js
-        with:
+        env:
           OPEN_API_REF: list-users
 
       - name: Check for SDK changes
@@ -65,7 +65,7 @@ jobs:
 
       - name: Run SDK Tests
         run: make test-client-go
-        with:
+        env:
           OPEN_API_REF: list-users
 
       - name: Check for SDK changes
@@ -97,7 +97,7 @@ jobs:
 
       - name: Run All Tests
         run: make test-client-dotnet
-        with:
+        env:
           OPEN_API_REF: list-users
 
       - name: Check for SDK changes
