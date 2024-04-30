@@ -1532,7 +1532,7 @@ namespace {{testPackageName}}.Api {
             );
 
             Assert.IsType<ListUsersResponse>(response);
-            Assert.Single(response.Users);
+            Assert.Equal(3, response.Users.Count);
             Assert.Equal(response, expectedResponse);
         }
 
