@@ -122,6 +122,10 @@
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientListStoresOptions.cs",
       "templateType": "SupportingFiles"
     },
+    "Client/Model/ClientListUsersRequest.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientListUsersRequest.cs",
+      "templateType": "SupportingFiles"
+    },
     "Client/Model/ClientPaginationOptions.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientPaginationOptions.cs",
       "templateType": "SupportingFiles"
