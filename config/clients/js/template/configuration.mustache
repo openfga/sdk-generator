@@ -62,10 +62,10 @@ export class Configuration {
    * @type {string}
    * @memberof Configuration
    */
-  private static sdkVersion = "0.3.5";
+  private static sdkVersion = "{{packageVersion}}";
 
   /**
-   * provide the full api URL (e.g. `https://api.fga.example`)
+   * provide the full api URL (e.g. `https://api.{{sampleApiDomain}}`)
    *
    * @type {string}
    * @memberof Configuration
@@ -178,7 +178,7 @@ export class Configuration {
       );
     }
 
-    if (this.retryParams?.maxRetry && this.retryParams.maxRetry > 15) {
+    if (this.retryParams?.maxRetry && this.retryParams.maxRetry > {{retryMaxAllowedNumber}}) {
       throw new FgaValidationError("Configuration.retryParams.maxRetry exceeds maximum allowed limit of 15");
     }
 
