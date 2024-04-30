@@ -1,5 +1,5 @@
 # Main config
-OPENFGA_DOCKER_TAG = v1.5.1
+OPENFGA_DOCKER_TAG = v1.5.3
 OPEN_API_REF ?= main
 OPEN_API_URL = https://raw.githubusercontent.com/openfga/api/${OPEN_API_REF}/docs/openapiv2/apidocs.swagger.json
 OPENAPI_GENERATOR_CLI_DOCKER_TAG = v6.4.0
@@ -66,7 +66,6 @@ build-client-js:
 	sed -i -e "s|_this|this|g" ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*.md
 	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*-e
 	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm i --lockfile-version 2 && npm run lint:fix -- --quiet'"
-	make run-in-docker sdk_language=js image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/api.ts /config/clients/js/patches/add-missing-first-param.patch'"
 	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm run lint:fix && npm run build;'"
 
 ### Go
@@ -84,7 +83,7 @@ test-client-go: build-client-go
 build-client-go:
 	make build-client sdk_language=go tmpdir=${TMP_DIR}
 	make run-in-docker sdk_language=go image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/api_open_fga.go /config/clients/go/patches/add-missing-first-param.patch'"
-	make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'gofmt -w .'"
+	make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'gofmt -w . && go mod tidy && cd example/example1 && gofmt -w . && go mod tidy'"
 
 ### .NET
 .PHONY: tag-client-dotnet
@@ -165,6 +164,8 @@ build-openapi: init get-openapi-doc
 	cat "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.json" | \
 		jq '(.. | .tags? | select(.)) |= ["OpenFga"] | (.tags? | select(.)) |= [{"name":"OpenFga"}] | del(.definitions.ReadTuplesParams, .definitions.ReadTuplesResponse, .paths."/stores/{store_id}/read-tuples", .definitions.StreamedListObjectsRequest, .definitions.StreamedListObjectsResponse, .paths."/stores/{store_id}/streamed-list-objects")' > \
 		${DOCS_CACHE_DIR}/openfga.openapiv2.json
+	sed -i -e 's/"Object"/"FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
+	sed -i -e 's/#\/definitions\/Object"/#\/definitions\/FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
 	sed -i -e 's/v1.//g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
 
 .PHONY: get-openapi-doc

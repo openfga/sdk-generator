@@ -1,10 +1,10 @@
 module example1
 
-go 1.21
+go 1.22.2
 
 require {{gitHost}}/{{gitUserId}}/{{gitRepoId}} v{{packageVersion}}
 
-require golang.org/x/sync v0.6.0 // indirect
+require golang.org/x/sync v0.7.0 // indirect
 
 // To reference local build, uncomment below and run `go mod tidy`
-//replace {{gitHost}}/{{gitUserId}}/{{gitRepoId}} v{{packageVersion}} => ../../
+replace {{gitHost}}/{{gitUserId}}/{{gitRepoId}} v{{packageVersion}} => ../../
