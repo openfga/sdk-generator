@@ -1,0 +1,28 @@
+{{>licenseInfo}}
+package {{configPackage}};
+
+import java.util.Map;
+
+public class ClientListUsersOptions implements AdditionalHeadersSupplier {
+    private Map<String, String> additionalHeaders;
+    private String authorizationModelId;
+
+    public ClientListUsersOptions additionalHeaders(Map<String, String> additionalHeaders) {
+        this.additionalHeaders = additionalHeaders;
+        return this;
+    }
+
+    @Override
+    public Map<String, String> getAdditionalHeaders() {
+        return this.additionalHeaders;
+    }
+
+    public ClientListUsersOptions authorizationModelId(String authorizationModelId) {
+        this.authorizationModelId = authorizationModelId;
+        return this;
+    }
+
+    public String getAuthorizationModelId() {
+        return authorizationModelId;
+    }
+}

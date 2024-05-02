@@ -524,6 +524,49 @@ var response = fgaClient.listRelations(request, options).get();
 // response.getRelations() = ["can_view", "can_edit"]
 ```
 
+##### List Users
+
+List the users who have a certain relation to a particular type.
+
+[API Documentation](https://openfga.dev/api/service#/Relationship%20Queries/ListUsers)
+
+```java
+// Only a single filter is allowed for the time being
+var userFilters = new ArrayList<UserTypeFilter>() {
+    {
+        add(new UserTypeFilter().type("user"));
+        // user filters can also be of the form
+        // add(new UserTypeFilter().type("team").relation("member"));
+    }
+};
+
+var request = new ClientListUsersRequest()
+    ._object(new FgaObject().type("document").id("roadmap"))
+    .relation("can_read")
+    .userFilters(userFilters)
+    .context(Map.of("view_count", 100))
+    .contextualTupleKeys(List.of(
+        new ClientTupleKey()
+            .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
+            .relation("editor")
+            ._object("folder:product"),
+        new ClientTupleKey()
+            .user("folder:product")
+            .relation("parent")
+            ._object("document:roadmap")
+));
+
+var options = new ClientListUsersOptions()
+    .additionalHeaders(Map.of("Some-Http-Header", "Some value"))
+    // You can rely on the model id set in the configuration or override it for this specific request
+    .authorizationModelId("01GXSA8YR785C4FYS3C0RTG7B1");
+
+var response = fgaClient.listUsers(request, options).get();
+
+// response.getUsers() = [{object: {type: "user", id: "81684243-9356-4421-8fbf-a4f8d36aa31b"}}, {userset: { type: "user" }}, ...]
+// response.getExcludedUsers = [ {object: {type: "user", id: "4a455e27-d15a-4434-82e0-136f9c2aa4cf"}}, ... ]
+```
+
 #### Assertions
 
 ##### Read Assertions

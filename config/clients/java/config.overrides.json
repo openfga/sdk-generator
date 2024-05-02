@@ -3,7 +3,7 @@
   "gitRepoId": "java-sdk",
   "artifactId": "openfga-sdk",
   "groupId": "dev.openfga",
-  "packageVersion": "0.4.1",
+  "packageVersion": "0.4.2",
   "apiPackage": "dev.openfga.sdk.api",
   "authPackage": "dev.openfga.sdk.api.auth",
   "clientPackage": "dev.openfga.sdk.api.client",
@@ -101,6 +101,14 @@
     },
     "client-ClientListRelationsResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientListRelationsResponse.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientListUsersRequest.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientListUsersRequest.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientListUsersResponse.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientListUsersResponse.java",
       "templateType": "SupportingFiles"
     },
     "client-ClientReadAssertionsResponse.java.mustache": {
@@ -265,6 +273,10 @@
     },
     "config-ClientListStoresOptions.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientListStoresOptions.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientListUsersOptions.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientListUsersOptions.java",
       "templateType": "SupportingFiles"
     },
     "config-ClientReadAssertionsOptions.java.mustache": {
