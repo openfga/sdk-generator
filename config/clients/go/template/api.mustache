@@ -29,11 +29,11 @@ type {{classname}} interface {
 	{{#notes}}
 	 * {{{unescapedNotes}}}
 	{{/notes}}
-	 * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().{{#pathParams}}{{^-first}}
-	 * @param {{paramName}}{{#description}} {{{.}}}{{/description}}{{/-first}}{{/pathParams}}
+	 * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().{{#pathParams}}
+	 * @param {{paramName}}{{#description}} {{{.}}}{{/description}}{{/pathParams}}
 	 * @return {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request
 	 */
-	{{{nickname}}}(ctx _context.Context{{#pathParams}}{{^-first}}, {{paramName}} {{{dataType}}}{{/-first}}{{/pathParams}}) {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request
+	{{{nickname}}}(ctx _context.Context{{#pathParams}}, {{paramName}} {{{dataType}}}{{/pathParams}}) {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request
 
 	/*
 	 * {{nickname}}Execute executes the request{{#returnType}}
@@ -56,7 +56,7 @@ type {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request s
 	ApiService *{{classname}}Service
 {{/generateInterfaces}}
 {{#allParams}}
-    {{^-first}}{{paramName}} {{^isPathParam}}*{{/isPathParam}}{{{dataType}}}{{/-first}}
+    {{paramName}} {{^isPathParam}}*{{/isPathParam}}{{{dataType}}}
 {{/allParams}}
 }
 {{#allParams}}{{^isPathParam}}
@@ -74,15 +74,15 @@ func (r {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Reques
 {{#notes}}
  * {{{unescapedNotes}}}
 {{/notes}}
- * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().{{#pathParams}}{{^-first}}
- * @param {{paramName}}{{#description}} {{{.}}}{{/description}}{{/-first}}{{/pathParams}}
+ * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().{{#pathParams}}
+ * @param {{paramName}}{{#description}} {{{.}}}{{/description}}{{/pathParams}}
  * @return {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request
  */
-func (a *{{{classname}}}Service) {{{nickname}}}(ctx _context.Context{{#pathParams}}{{^-first}}, {{paramName}} {{{dataType}}}{{/-first}}{{/pathParams}}) {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request {
+func (a *{{{classname}}}Service) {{{nickname}}}(ctx _context.Context{{#pathParams}}, {{paramName}} {{{dataType}}}{{/pathParams}}) {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request {
 	return {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request{
 		ApiService: a,
-		ctx: ctx,{{#pathParams}}{{^-first}}
-		{{paramName}}: {{paramName}},{{/-first}}{{/pathParams}}
+		ctx: ctx,{{#pathParams}}
+		{{paramName}}: {{paramName}},{{/pathParams}}
 	}
 }
 
@@ -111,16 +111,12 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 		{{/returnType}}
 	)
 
-    {{#pathParams.0}}
-        if a.client.cfg.StoreId == "" {
-		    return {{#returnType}}localVarReturnValue, {{/returnType}}nil, reportError("Configuration.StoreId is required and must be specified to call this method")
-        }
-		if a.client.cfg.StoreId != "" && !internalutils.IsWellFormedUlidString(a.client.cfg.StoreId) {
-            return {{#returnType}}localVarReturnValue, {{/returnType}}nil, reportError("Configuration.StoreId is invalid")
-		}
-    {{/pathParams.0}}
 	localVarPath := "{{{path}}}"{{#pathParams}}
-	localVarPath = strings.Replace(localVarPath, "{"+"{{baseName}}"+"}", _neturl.PathEscape({{#-first}}a.client.cfg.StoreId{{/-first}}{{^-first}}parameterToString(r.{{paramName}}, "{{#collectionFormat}}{{collectionFormat}}{{/collectionFormat}}"){{/-first}}), -1){{/pathParams}}
+	if r.{{paramName}} == "" {
+		return {{#returnType}}localVarReturnValue, {{/returnType}}nil, reportError("{{paramName}} is required and must be specified")
+	}
+
+    localVarPath = strings.Replace(localVarPath, "{"+"{{baseName}}"+"}", _neturl.PathEscape(parameterToString(r.{{paramName}}, "{{#collectionFormat}}{{collectionFormat}}{{/collectionFormat}}")), -1){{/pathParams}}
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
@@ -347,8 +343,8 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 
 		if localVarHTTPResponse.StatusCode == _nethttp.StatusBadRequest || localVarHTTPResponse.StatusCode == _nethttp.StatusUnprocessableEntity {
 			newErr := FgaApiValidationError{
-				body:    localVarBody,
-				storeId: a.client.cfg.StoreId,
+				body:    localVarBody,{{#pathParams.0}}
+				storeId: r.storeId,{{/pathParams.0}}
 				endpointCategory: "{{nickname}}",
 				requestBody: localVarPostBody,
 				requestMethod: localVarHTTPMethod,
@@ -373,9 +369,8 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 
 		if localVarHTTPResponse.StatusCode == _nethttp.StatusUnauthorized  || localVarHTTPResponse.StatusCode == _nethttp.StatusForbidden {
 			newErr := FgaApiAuthenticationError{
-				body:    localVarBody,
-
-				storeId: a.client.cfg.StoreId,
+				body:    localVarBody,{{#pathParams.0}}
+				storeId: r.storeId,{{/pathParams.0}}
 				endpointCategory: "{{nickname}}",
 				responseStatusCode: localVarHTTPResponse.StatusCode,
 				responseHeader: localVarHTTPResponse.Header,
@@ -389,8 +384,8 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 
 		if localVarHTTPResponse.StatusCode == _nethttp.StatusNotFound {
 			newErr := FgaApiNotFoundError{
-				body:    localVarBody,
-				storeId: a.client.cfg.StoreId,
+				body:    localVarBody,{{#pathParams.0}}
+				storeId: r.storeId,{{/pathParams.0}}
 				endpointCategory: "{{nickname}}",
 				requestBody: localVarPostBody,
 				requestMethod: localVarHTTPMethod,
@@ -420,9 +415,8 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 			}
 			// maximum number of retry reached
 			newErr := FgaApiRateLimitExceededError{
-				body:    localVarBody,
-
-				storeId: a.client.cfg.StoreId,
+				body:    localVarBody,{{#pathParams.0}}
+				storeId: r.storeId,{{/pathParams.0}}
 				endpointCategory: "{{nickname}}",
 				requestBody: localVarPostBody,
 				requestMethod: localVarHTTPMethod,
@@ -443,9 +437,8 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
                 continue
             }
 			newErr := FgaApiInternalError{
-				body:    localVarBody,
-
-				storeId: a.client.cfg.StoreId,
+				body:    localVarBody,{{#pathParams.0}}
+				storeId: r.storeId,{{/pathParams.0}}
 				endpointCategory: "{{nickname}}",
 				requestBody: localVarPostBody,
 				requestMethod: localVarHTTPMethod,
@@ -469,9 +462,8 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 			return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, newErr
 		}
 		newErr := FgaApiError{
-			body:    localVarBody,
-
-			storeId: a.client.cfg.StoreId,
+			body:    localVarBody,{{#pathParams.0}}
+            storeId: r.storeId,{{/pathParams.0}}
 			endpointCategory: "{{nickname}}",
 			requestBody: localVarPostBody,
 			requestMethod: localVarHTTPMethod,

@@ -82,7 +82,7 @@ test-client-go: build-client-go
 .PHONY: build-client-go
 build-client-go:
 	make build-client sdk_language=go tmpdir=${TMP_DIR}
-	make run-in-docker sdk_language=go image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/api_open_fga.go /config/clients/go/patches/add-missing-first-param.patch'"
+	#make run-in-docker sdk_language=go image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/api_open_fga.go /config/clients/go/patches/add-missing-first-param.patch'"
 	make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'gofmt -w . && go mod tidy && cd example/example1 && gofmt -w . && go mod tidy'"
 
 ### .NET

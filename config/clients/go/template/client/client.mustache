@@ -87,6 +87,10 @@ func NewSdkClient(cfg *ClientConfiguration) (*{{appShortName}}Client, error) {
         return nil, FgaInvalidError{param: "AuthorizationModelId", description: "ULID"}
     }
 
+    if c.StoreId != "" && !internalutils.IsWellFormedUlidString(c.StoreId) {
+		return nil, FgaInvalidError{param: "AuthorizationModelId", description: "Configuration.StoreId is not a valid ulid"}
+    }
+
 	apiClient := fgaSdk.NewAPIClient(apiConfiguration)
 
 	return &{{appShortName}}Client{
