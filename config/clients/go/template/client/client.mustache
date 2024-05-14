@@ -46,7 +46,6 @@ func newClientConfiguration(cfg *fgaSdk.Configuration) ClientConfiguration {
 		ApiScheme:      cfg.ApiScheme,
 		ApiHost:        cfg.ApiHost,
 		ApiUrl:         cfg.ApiUrl,
-		StoreId:        cfg.StoreId,
 		Credentials:    cfg.Credentials,
 		DefaultHeaders: cfg.DefaultHeaders,
 		UserAgent:      cfg.UserAgent,
@@ -66,7 +65,6 @@ func NewSdkClient(cfg *ClientConfiguration) (*{{appShortName}}Client, error) {
 		ApiScheme:      cfg.ApiScheme,
 		ApiHost:        cfg.ApiHost,
 		ApiUrl:         cfg.ApiUrl,
-		StoreId:        cfg.StoreId,
 		Credentials:    cfg.Credentials,
 		DefaultHeaders: cfg.DefaultHeaders,
 		UserAgent:      cfg.UserAgent,
@@ -80,6 +78,7 @@ func NewSdkClient(cfg *ClientConfiguration) (*{{appShortName}}Client, error) {
 
 	clientConfig := newClientConfiguration(apiConfiguration)
 	clientConfig.AuthorizationModelId = cfg.AuthorizationModelId
+	clientConfig.StoreId = cfg.StoreId
 
 	// store id is already validate as part of configuration validation
 
@@ -87,9 +86,9 @@ func NewSdkClient(cfg *ClientConfiguration) (*{{appShortName}}Client, error) {
         return nil, FgaInvalidError{param: "AuthorizationModelId", description: "ULID"}
     }
 
-    if c.StoreId != "" && !internalutils.IsWellFormedUlidString(c.StoreId) {
-		return nil, FgaInvalidError{param: "AuthorizationModelId", description: "Configuration.StoreId is not a valid ulid"}
-    }
+    if cfg.StoreId != "" && !internalutils.IsWellFormedUlidString(cfg.StoreId) {
+		return nil, FgaInvalidError{param: "StoreId", description: "ULID"}
+	}
 
 	apiClient := fgaSdk.NewAPIClient(apiConfiguration)
 
@@ -455,6 +454,36 @@ func (client *{{appShortName}}Client) getAuthorizationModelId(authorizationModel
     return &modelId, nil
 }
 
+func (client *OpenFgaClient) SetStoreId(storeId string) error {
+	if storeId != "" && !internalutils.IsWellFormedUlidString(storeId) {
+		return FgaInvalidError{param: "StoreId", description: "ULID"}
+	}
+	client.config.StoreId = storeId
+	return nil
+}
+
+func (client *OpenFgaClient) GetStoreId() (string, error) {
+	storeId := client.config.StoreId
+	if storeId != "" && !internalutils.IsWellFormedUlidString(storeId) {
+		return "", FgaInvalidError{param: "StoreId", description: "ULID"}
+	}
+	return storeId, nil
+}
+
+
+
+func (client *OpenFgaClient) getStoreId(storeId *string) (*string, error) {
+	store := client.config.AuthorizationModelId
+	if storeId != nil && *storeId != "" {
+		store = *storeId
+	}
+	if store != "" && !internalutils.IsWellFormedUlidString(store) {
+		return nil, FgaInvalidError{param: "StoreId", description: "ULID"}
+	}
+
+	return &store, nil
+}
+
 /* Stores */
 
 // / ListStores
@@ -630,7 +659,7 @@ func (request *SdkClientGetStoreRequest) GetOptions() *ClientGetStoreOptions{
 }
 
 func (client *{{appShortName}}Client) GetStoreExecute(request SdkClientGetStoreRequestInterface) (*ClientGetStoreResponse, error) {
-	data, _, err := client.{{appShortName}}Api.GetStore(request.GetContext()).Execute()
+	data, _, err := client.{{appShortName}}Api.GetStore(request.GetContext(), client.config.StoreId).Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -684,7 +713,7 @@ func (request *SdkClientDeleteStoreRequest) GetOptions() *ClientDeleteStoreOptio
 
 
 func (client *{{appShortName}}Client) DeleteStoreExecute(request SdkClientDeleteStoreRequestInterface) (*ClientDeleteStoreResponse, error) {
-	_, err := client.{{appShortName}}Api.DeleteStore(request.GetContext()).Execute()
+	_, err := client.{{appShortName}}Api.DeleteStore(request.GetContext(), client.config.StoreId).Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -741,7 +770,7 @@ func (request *SdkClientReadAuthorizationModelsRequest) GetOptions() *ClientRead
 }
 
 func (client *{{appShortName}}Client) ReadAuthorizationModelsExecute(request SdkClientReadAuthorizationModelsRequestInterface) (*ClientReadAuthorizationModelsResponse, error) {
-	req := client.{{appShortName}}Api.ReadAuthorizationModels(request.GetContext())
+	req := client.{{appShortName}}Api.ReadAuthorizationModels(request.GetContext(), client.config.StoreId)
 	pageSize := getPageSizeFromRequest((*ClientPaginationOptions)(request.GetOptions()))
 	if pageSize != nil {
 		req = req.PageSize(*pageSize)
@@ -817,7 +846,7 @@ func (request *SdkClientWriteAuthorizationModelRequest) GetContext() _context.Co
 }
 
 func (client *{{appShortName}}Client) WriteAuthorizationModelExecute(request SdkClientWriteAuthorizationModelRequestInterface) (*ClientWriteAuthorizationModelResponse, error) {
-	data, _, err := client.{{appShortName}}Api.WriteAuthorizationModel(request.GetContext()).Body(*request.GetBody()).Execute()
+	data, _, err := client.{{appShortName}}Api.WriteAuthorizationModel(request.GetContext(), client.config.StoreId).Body(*request.GetBody()).Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -901,7 +930,7 @@ func (client *{{appShortName}}Client) ReadAuthorizationModelExecute(request SdkC
 	if authorizationModelId == nil || *authorizationModelId == "" {
 		return nil, FgaRequiredParamError{param: "AuthorizationModelId"}
 	}
-	data, _, err := client.{{appShortName}}Api.ReadAuthorizationModel(request.GetContext(), *authorizationModelId).Execute()
+	data, _, err := client.{{appShortName}}Api.ReadAuthorizationModel(request.GetContext(), client.config.StoreId, *authorizationModelId).Execute()
 
 	if err != nil {
 		return nil, err
@@ -1045,7 +1074,7 @@ func (request *SdkClientReadChangesRequest) GetOptions() *ClientReadChangesOptio
 }
 
 func (client *{{appShortName}}Client) ReadChangesExecute(request SdkClientReadChangesRequestInterface) (*ClientReadChangesResponse, error) {
-	req := client.{{appShortName}}Api.ReadChanges(request.GetContext())
+	req := client.{{appShortName}}Api.ReadChanges(request.GetContext(), client.config.StoreId)
 	pageSize := getPageSizeFromRequest((*ClientPaginationOptions)(request.GetOptions()))
 	if pageSize != nil {
 		req = req.PageSize(*pageSize)
@@ -1143,7 +1172,7 @@ func (client *{{appShortName}}Client) ReadExecute(request SdkClientReadRequestIn
 			Object:   request.GetBody().Object,
 		}
 	}
-	data, _, err := client.{{appShortName}}Api.Read(request.GetContext()).Body(body).Execute()
+	data, _, err := client.{{appShortName}}Api.Read(request.GetContext(), client.config.StoreId).Body(body).Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -1334,7 +1363,7 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 			}
 			writeRequest.Deletes = &deletes
 		}
-		_, httpResponse, err := client.{{appShortName}}Api.Write(request.GetContext()).Body(writeRequest).Execute()
+		_, httpResponse, err := client.{{appShortName}}Api.Write(request.GetContext(), client.config.StoreId).Body(writeRequest).Execute()
 
 		clientWriteStatus := SUCCESS
 		if err != nil {
@@ -1704,7 +1733,7 @@ func (client *{{appShortName}}Client) CheckExecute(request SdkClientCheckRequest
 		AuthorizationModelId: authorizationModelId,
 	}
 
-	data, httpResponse, err := client.{{appShortName}}Api.Check(request.GetContext()).Body(requestBody).Execute()
+	data, httpResponse, err := client.{{appShortName}}Api.Check(request.GetContext(), client.config.StoreId).Body(requestBody).Execute()
 	return &ClientCheckResponse{CheckResponse: data, HttpResponse: httpResponse}, err
 }
 
@@ -1910,7 +1939,7 @@ func (client *{{appShortName}}Client) ExpandExecute(request SdkClientExpandReque
 		return nil, err
 	}
 
-	data, _, err := client.{{appShortName}}Api.Expand(request.GetContext()).Body(fgaSdk.ExpandRequest{
+	data, _, err := client.{{appShortName}}Api.Expand(request.GetContext(), client.config.StoreId).Body(fgaSdk.ExpandRequest{
 		TupleKey: fgaSdk.ExpandRequestTupleKey{
 			Relation: request.GetBody().Relation,
 			Object:   request.GetBody().Object,
@@ -2008,7 +2037,7 @@ func (client *{{appShortName}}Client) ListObjectsExecute(request SdkClientListOb
 	if err != nil {
 		return nil, err
 	}
-	data, _, err := client.{{appShortName}}Api.ListObjects(request.GetContext()).Body(fgaSdk.ListObjectsRequest{
+	data, _, err := client.{{appShortName}}Api.ListObjects(request.GetContext(), client.config.StoreId).Body(fgaSdk.ListObjectsRequest{
 		User:                 request.GetBody().User,
 		Relation:             request.GetBody().Relation,
 		Type:                 request.GetBody().Type,
@@ -2233,7 +2262,7 @@ func (client *OpenFgaClient) ListUsersExecute(request SdkClientListUsersRequestI
 	if err != nil {
 		return nil, err
 	}
-	data, _, err := client.OpenFgaApi.ListUsers(request.GetContext()).Body(fgaSdk.ListUsersRequest{
+	data, _, err := client.OpenFgaApi.ListUsers(request.GetContext(), client.config.StoreId).Body(fgaSdk.ListUsersRequest{
 		Object:               request.GetBody().Object,
 		Relation:             request.GetBody().Relation,
 		UserFilters:          request.GetBody().UserFilters,
@@ -2309,7 +2338,7 @@ func (client *{{appShortName}}Client) ReadAssertionsExecute(request SdkClientRea
 	if authorizationModelId == nil || *authorizationModelId == "" {
 		return nil, FgaRequiredParamError{param: "AuthorizationModelId"}
 	}
-	data, _, err := client.{{appShortName}}Api.ReadAssertions(request.GetContext(), *authorizationModelId).Execute()
+	data, _, err := client.{{appShortName}}Api.ReadAssertions(request.GetContext(), client.config.StoreId, *authorizationModelId).Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -2417,7 +2446,7 @@ func (client *{{appShortName}}Client) WriteAssertionsExecute(request SdkClientWr
 		clientAssertion := (*request.GetBody())[index]
 		writeAssertionsRequest.Assertions = append(writeAssertionsRequest.Assertions, clientAssertion.ToAssertion())
 	}
-	_, err = client.{{appShortName}}Api.WriteAssertions(request.GetContext(), *authorizationModelId).Body(writeAssertionsRequest).Execute()
+	_, err = client.{{appShortName}}Api.WriteAssertions(request.GetContext(), client.config.StoreId, *authorizationModelId).Body(writeAssertionsRequest).Execute()
 
 	if err != nil {
 		return nil, err

@@ -265,7 +265,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient)),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -367,7 +367,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient)),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, "{}")
 				if err != nil {
@@ -404,7 +404,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -489,7 +489,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -594,7 +594,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 		defer httpmock.DeactivateAndReset()
 		httpmock.RegisterMatcherResponder(
 			test.Method,
-			fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+			fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			httpmock.BodyContainsString(`"ViewCountLessThan200"`),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
@@ -704,7 +704,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 		defer httpmock.DeactivateAndReset()
 		httpmock.RegisterMatcherResponder(
 			test.Method,
-			fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+			fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			httpmock.BodyContainsString(`"ViewCountLessThan200"`),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
@@ -753,7 +753,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath, modelId),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath, modelId),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -811,7 +811,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -858,7 +858,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -913,7 +913,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -974,7 +974,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -1103,7 +1103,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -1178,7 +1178,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				return httpmock.NewStringResponse(http.StatusUnauthorized, ""), nil
 			},
@@ -1219,7 +1219,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				return httpmock.NewStringResponse(http.StatusUnauthorized, ""), nil
 			},
@@ -1278,7 +1278,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				return httpmock.NewStringResponse(http.StatusBadRequest, ""), nil
 			},
@@ -1335,7 +1335,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -1418,7 +1418,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -1507,7 +1507,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -1596,7 +1596,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -1659,7 +1659,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 		}
 
 		httpmock.ZeroCallCounters()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				return httpmock.NewStringResponse(http.StatusUnauthorized, ""), nil
 			},
@@ -1695,7 +1695,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -1762,7 +1762,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -1836,7 +1836,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterMatcherResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterMatcherResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			httpmock.BodyContainsString(`"relation":"can_delete"`),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, {{packageName}}.CheckResponse{Allowed: {{packageName}}.PtrBool(false)})
@@ -1846,7 +1846,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 				return resp, nil
 			},
 		)
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -1977,7 +1977,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -2058,7 +2058,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath, modelId),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath, modelId),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
 				if err != nil {
@@ -2125,7 +2125,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s/%s", fgaClient.GetConfig().ApiUrl, fgaClient.GetConfig().StoreId, test.RequestPath, modelId),
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath, modelId),
 			func(req *http.Request) (*http.Response, error) {
 				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, "")
 				if err != nil {
@@ -2158,4 +2158,12 @@ func Test{{appShortName}}Client(t *testing.T) {
 			t.Fatalf("Invalid auth model id should result in error but there is none")
 		}
 	})
+}
+
+func getStoreId(t *testing.T, fgaClient *OpenFgaClient) string {
+	storeId, err := fgaClient.GetStoreId()
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	return storeId
 }
