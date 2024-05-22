@@ -473,7 +473,7 @@ func (client *OpenFgaClient) GetStoreId() (string, error) {
 
 
 func (client *OpenFgaClient) getStoreId(storeId *string) (*string, error) {
-	store := client.config.AuthorizationModelId
+	store := client.config.StoreId
 	if storeId != nil && *storeId != "" {
 		store = *storeId
 	}
