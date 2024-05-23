@@ -815,7 +815,7 @@ func (client *{{appShortName}}Client) ReadAuthorizationModelsExecute(request Sdk
 	if err != nil {
 		return nil, err
 	}
-	
+
 	req := client.{{appShortName}}Api.ReadAuthorizationModels(request.GetContext(), *storeId)
 	pageSize := getPageSizeFromRequest(&pagingOpts)
 	if pageSize != nil {
@@ -1028,12 +1028,14 @@ type SdkClientReadLatestAuthorizationModelRequest struct {
 type SdkClientReadLatestAuthorizationModelRequestInterface interface {
     Options(options ClientReadLatestAuthorizationModelOptions) SdkClientReadLatestAuthorizationModelRequestInterface
     Execute() (*ClientReadAuthorizationModelResponse, error)
+	GetStoreIdOverride() *string
 
     GetContext()  _context.Context
 	GetOptions() *ClientReadLatestAuthorizationModelOptions
 }
 
 type ClientReadLatestAuthorizationModelOptions struct {
+	StoreId              *string `json:"store_id,omitempty"`
 }
 
 func (client *{{appShortName}}Client) ReadLatestAuthorizationModel(ctx _context.Context) SdkClientReadLatestAuthorizationModelRequestInterface {
@@ -1052,6 +1054,13 @@ func (request *SdkClientReadLatestAuthorizationModelRequest) Execute() (*ClientR
 	return request.Client.ReadLatestAuthorizationModelExecute(request)
 }
 
+func (request *SdkClientReadLatestAuthorizationModelRequest) GetStoreIdOverride() *string {
+	if request.options == nil {
+		return nil
+	}
+	return request.options.StoreId
+}
+
 func (request *SdkClientReadLatestAuthorizationModelRequest) GetContext() _context.Context {
 	return request.ctx
 }
@@ -1061,9 +1070,15 @@ func (request *SdkClientReadLatestAuthorizationModelRequest) GetOptions() *Clien
 }
 
 func (client *{{appShortName}}Client) ReadLatestAuthorizationModelExecute(request SdkClientReadLatestAuthorizationModelRequestInterface) (*ClientReadAuthorizationModelResponse, error) {
-	response, err := client.ReadAuthorizationModels(request.GetContext()).Options(ClientReadAuthorizationModelsOptions{
+	opts := ClientReadAuthorizationModelsOptions{
 		PageSize: fgaSdk.PtrInt32(1),
-	}).Execute()
+	}
+	if request.GetOptions() != nil {
+		opts.StoreId = request.GetOptions().StoreId
+	}
+	req := client.ReadAuthorizationModels(request.GetContext()).Options(opts)
+
+	response, err := req.Execute()
 	if err != nil {
 		return nil, err
 	}
