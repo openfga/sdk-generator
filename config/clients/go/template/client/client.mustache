@@ -1110,6 +1110,7 @@ type SdkClientReadChangesRequestInterface interface {
     Options(options ClientReadChangesOptions) SdkClientReadChangesRequestInterface
     Body(body ClientReadChangesRequest) SdkClientReadChangesRequestInterface
 	Execute() (*ClientReadChangesResponse, error)
+	GetStoreIdOverride() *string
 
 	GetContext() _context.Context
 	GetBody() *ClientReadChangesRequest
@@ -1123,6 +1124,7 @@ type ClientReadChangesRequest struct {
 type ClientReadChangesOptions struct {
 	PageSize          *int32  `json:"page_size,omitempty"`
 	ContinuationToken *string `json:"continuation_token,omitempty"`
+	StoreId           *string `json:"store_id"`
 }
 
 type ClientReadChangesResponse = fgaSdk.ReadChangesResponse
@@ -1148,6 +1150,13 @@ func (request *SdkClientReadChangesRequest) Execute() (*ClientReadChangesRespons
 	return request.Client.ReadChangesExecute(request)
 }
 
+func (request *SdkClientReadChangesRequest) GetStoreIdOverride() *string {
+	if request.options == nil {
+		return nil
+	}
+	return request.options.StoreId
+}
+
 func (request *SdkClientReadChangesRequest) GetContext() _context.Context{
 	return request.ctx
 }
@@ -1161,12 +1170,23 @@ func (request *SdkClientReadChangesRequest) GetOptions() *ClientReadChangesOptio
 }
 
 func (client *{{appShortName}}Client) ReadChangesExecute(request SdkClientReadChangesRequestInterface) (*ClientReadChangesResponse, error) {
-	req := client.{{appShortName}}Api.ReadChanges(request.GetContext(), client.config.StoreId)
-	pageSize := getPageSizeFromRequest((*ClientPaginationOptions)(request.GetOptions()))
+	pagingOpts := ClientPaginationOptions{}
+	if request.GetOptions() != nil {
+    	pagingOpts.PageSize = request.GetOptions().PageSize
+    	pagingOpts.ContinuationToken = request.GetOptions().ContinuationToken
+	}
+
+	storeId, err := client.getStoreId(request.GetStoreIdOverride())
+	if err != nil {
+		return nil, err
+	}
+
+	req := client.{{appShortName}}Api.ReadChanges(request.GetContext(), *storeId)
+	pageSize := getPageSizeFromRequest(&pagingOpts)
 	if pageSize != nil {
 		req = req.PageSize(*pageSize)
 	}
-	continuationToken := getContinuationTokenFromRequest((*ClientPaginationOptions)(request.GetOptions()))
+	continuationToken := getContinuationTokenFromRequest(&pagingOpts)
 	if continuationToken != nil {
 		req = req.ContinuationToken(*continuationToken)
 	}
