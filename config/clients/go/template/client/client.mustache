@@ -1215,6 +1215,7 @@ type SdkClientReadRequestInterface interface {
     Options(options ClientReadOptions) SdkClientReadRequestInterface
     Body(body ClientReadRequest) SdkClientReadRequestInterface
     Execute() (*ClientReadResponse, error)
+    GetStoreIdOverride() *string
 
     GetContext() _context.Context
 	GetBody() *ClientReadRequest
@@ -1230,6 +1231,7 @@ type ClientReadRequest struct {
 type ClientReadOptions struct {
 	PageSize          *int32  `json:"page_size,omitempty"`
 	ContinuationToken *string `json:"continuation_token,omitempty"`
+	StoreId           *string `json:"store_id,omitempty"`
 }
 
 type ClientReadResponse = fgaSdk.ReadResponse
@@ -1255,6 +1257,13 @@ func (request *SdkClientReadRequest) Execute() (*ClientReadResponse, error) {
 	return request.Client.ReadExecute(request)
 }
 
+func (request *SdkClientReadRequest) GetStoreIdOverride() *string {
+	if request.options == nil {
+		return nil
+	}
+	return request.options.StoreId
+}
+
 func (request *SdkClientReadRequest) GetContext() _context.Context {
 	return request.ctx
 }
@@ -1268,9 +1277,15 @@ func (request *SdkClientReadRequest) GetOptions() *ClientReadOptions {
 }
 
 func (client *{{appShortName}}Client) ReadExecute(request SdkClientReadRequestInterface) (*ClientReadResponse, error) {
+    pagingOpts := ClientPaginationOptions{}
+    if request.GetOptions() != nil {
+        pagingOpts.PageSize = request.GetOptions().PageSize
+        pagingOpts.ContinuationToken = request.GetOptions().ContinuationToken
+    }
+
 	body := fgaSdk.ReadRequest{
-		PageSize:          getPageSizeFromRequest((*ClientPaginationOptions)(request.GetOptions())),
-		ContinuationToken: getContinuationTokenFromRequest((*ClientPaginationOptions)(request.GetOptions())),
+		PageSize:          getPageSizeFromRequest(&pagingOpts),
+		ContinuationToken: getContinuationTokenFromRequest(&pagingOpts),
 	}
 	if request.GetBody() != nil && (request.GetBody().User != nil || request.GetBody().Relation != nil || request.GetBody().Object != nil) {
 		body.TupleKey = &fgaSdk.ReadRequestTupleKey{
@@ -1279,7 +1294,11 @@ func (client *{{appShortName}}Client) ReadExecute(request SdkClientReadRequestIn
 			Object:   request.GetBody().Object,
 		}
 	}
-	data, _, err := client.{{appShortName}}Api.Read(request.GetContext(), client.config.StoreId).Body(body).Execute()
+	storeId, err := client.getStoreId(request.GetStoreIdOverride())
+	if err != nil {
+		return nil, err
+	}
+	data, _, err := client.{{appShortName}}Api.Read(request.GetContext(), *storeId).Body(body).Execute()
 	if err != nil {
 		return nil, err
 	}
