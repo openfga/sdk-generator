@@ -493,6 +493,34 @@ func Test{{appShortName}}Client(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%v", err)
 		}
+
+		// invalid store id should result in error
+		badStoreOptions := ClientReadAuthorizationModelsOptions{
+			StoreId: {{packageName}}.PtrString("INVALID"),
+		}
+		_, err = fgaClient.ReadAuthorizationModels(context.Background()).Options(badStoreOptions).Execute()
+		if err == nil {
+			t.Fatalf("Expect error with bad store id but there is none")
+		}
+
+		// store can be overridden
+		storeOverrideOptions := ClientReadAuthorizationModelsOptions{
+    		StoreId: {{packageName}}.PtrString("7777HCE4YVKPQEKZQHT2R89MQV"),
+		}
+		httpmock.Reset()
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, *storeOverrideOptions.StoreId, test.RequestPath),
+			func(req *http.Request) (*http.Response, error) {
+				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+				}
+				return resp, nil
+			},
+		)
+		_, err = fgaClient.ReadAuthorizationModels(context.Background()).Options(storeOverrideOptions).Execute()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
 	})
 
 	t.Run("WriteAuthorizationModel", func(t *testing.T) {
