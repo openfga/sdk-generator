@@ -96,14 +96,6 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	return c
 }
 
-func (a APIClient) GetStoreId() string {
-	return a.cfg.StoreId
-}
-
-func (a APIClient) SetStoreId(storeId string) {
-	a.cfg.StoreId = storeId
-}
-
 // selectHeaderContentType select a content type from the available list.
 func selectHeaderContentType(contentTypes []string) string {
 	if len(contentTypes) == 0 {
