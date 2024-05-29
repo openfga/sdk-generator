@@ -2371,6 +2371,7 @@ func (client *{{appShortName}}Client) ListRelationsExecute(request SdkClientList
 		body:   &batchRequestBody,
 		options: &ClientBatchCheckOptions{
 			AuthorizationModelId: authorizationModelId,
+			StoreId:              storeId,
 			MaxParallelRequests:  maxParallelReqs,
 		},
 	})
