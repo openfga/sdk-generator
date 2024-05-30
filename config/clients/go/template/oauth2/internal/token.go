@@ -288,18 +288,30 @@ func singleTokenRoundTrip(ctx context.Context, req *http.Request) (*Token, error
 }
 
 func doTokenRoundTrip(ctx context.Context, req *http.Request) (*Token, error) {
-    var token *Token
-    var err error
+	var token *Token
+	var err error
 
-    for i := 0; i < cMaxRetry; i++ {
+	for i := 0; i < cMaxRetry; i++ {
 
-        token, err = singleTokenRoundTrip(ctx, req)
-        if err == nil {
-            return token, err
-        }
-        time.Sleep(time.Duration(internalutils.RandomTime(i, cMinWaitInMs)) * time.Millisecond)
-    }
-    return nil, err
+		token, err = singleTokenRoundTrip(ctx, req)
+		if err == nil {
+			return token, err
+		}
+
+		// If this was a request error, then check if it was a 429 or 5xx error and retry.
+		// We do not want to retry any other error
+		if rErr, ok := err.(*RetrieveError); ok {
+			statusCode := rErr.Response.StatusCode
+			if statusCode == http.StatusTooManyRequests || (statusCode >= http.StatusInternalServerError && statusCode <= 599) {
+				time.Sleep(time.Duration(internalutils.RandomTime(i, cMinWaitInMs)) * time.Millisecond)
+				continue
+			}
+		}
+
+		return nil, err
+
+	}
+	return nil, err
 }
 
 type RetrieveError struct {
