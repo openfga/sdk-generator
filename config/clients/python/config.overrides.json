@@ -67,6 +67,10 @@
       "destinationFilename": "openfga_sdk/client/models/list_relations_request.py",
       "templateType": "SupportingFiles"
     },
+    "client/models/list_users_request.mustache": {
+      "destinationFilename": "openfga_sdk/client/models/list_users_request.py",
+      "templateType": "SupportingFiles"
+    },
     "client/models/read_changes_request.mustache": {
       "destinationFilename": "openfga_sdk/client/models/read_changes_request.py",
       "templateType": "SupportingFiles"
