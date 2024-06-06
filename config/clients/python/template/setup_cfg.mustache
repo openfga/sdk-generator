@@ -1,14 +1,3 @@
-{{#useNose}}
-[nosetests]
-logging-clear-handlers=true
-verbosity=2
-randomize=true
-exe=true
-with-coverage=true
-cover-package={{{packageName}}}
-cover-erase=true
-
-{{/useNose}}
 [flake8]
 ignore=F401,E203,E402,E501,E722,W291,W503
 exclude=.pytest_cache,build,docs,example,test
@@ -25,3 +14,7 @@ use_parentheses = True
 ensure_newline_before_comments = True
 line_length = 88
 split_on_trailing_comma = True
+
+[tool:pytest]
+testpaths=test
+addopts=--cov=openfga_sdk --cov-report term-missing --cov-report xml --cov-report html

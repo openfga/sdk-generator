@@ -603,8 +603,7 @@ response = await fga_client.expand(body. options)
 # response = ExpandResponse({"tree": UsersetTree({"root": Node({"name": "document:roadmap#viewer", "leaf": Leaf({"users": Users({"users": ["user:81684243-9356-4421-8fbf-a4f8d36aa31b", "user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]})})})})})
 ```
 
-
-##### List Objects
+#### List Objects
 
 List the objects of a particular type a user has access to.
 
@@ -641,7 +640,7 @@ response = await fga_client.list_objects(body)
 # response.objects = ["document:roadmap"]
 ```
 
-##### List Relations
+#### List Relations
 
 List the relations a user has on an object.
 
@@ -675,6 +674,54 @@ body = ClientListRelationsRequest(
 response = await fga_client.list_relations(body, options)
 
 # response.relations = ["can_view", "can_edit"]
+```
+
+#### List Users
+
+List the users who have a certain relation to a particular type.
+
+[API Documentation](https://openfga.dev/api/service#/Relationship%20Queries/ListUsers)
+
+```python
+from openfga_sdk import OpenFgaClient
+from openfga_sdk.client.models import ClientListUsersRequest, ClientTuple
+
+configuration = ClientConfiguration(
+    api_url=FGA_API_URL,
+    # ...
+)
+
+async with OpenFgaClient(configuration) as api_client:
+    options = {
+        "authorization_model_id": "01GXSA8YR785C4FYS3C0RTG7B1"
+    }
+
+    request = ClientListUsersRequest(
+        object="document:2021-budget",
+        relation="can_read",
+        user_filters=[
+            UserTypeFilter(type="user"),
+            UserTypeFilter(type="team", relation="member"),
+        ],
+        context={},
+        contextual_tuples=[
+            ClientTuple(
+                user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                relation="editor",
+                object="folder:product",
+            ),
+            ClientTuple(
+                user="folder:product",
+                relation="parent",
+                object="document:roadmap",
+            ),
+        ],
+    )
+
+    response = await api_client.list_users(request, options)
+
+    # response.users = [{object: {type: "user", id: "81684243-9356-4421-8fbf-a4f8d36aa31b"}}, {userset: { type: "user" }}, ...]
+    # response.excluded_users = [ {object: {type: "user", id: "4a455e27-d15a-4434-82e0-136f9c2aa4cf"}}, ... ]
 ```
 
 #### Assertions

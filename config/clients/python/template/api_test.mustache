@@ -30,6 +30,8 @@ from {{packageName}}.models.leaf import Leaf
 from {{packageName}}.models.list_objects_request import ListObjectsRequest
 from {{packageName}}.models.list_objects_response import ListObjectsResponse
 from {{packageName}}.models.list_stores_response import ListStoresResponse
+from {{packageName}}.models.list_users_request import ListUsersRequest
+from {{packageName}}.models.list_users_response import ListUsersResponse
 from {{packageName}}.models.node import Node
 from {{packageName}}.models.not_found_error_code import NotFoundErrorCode
 from {{packageName}}.models.object_relation import ObjectRelation
@@ -377,8 +379,131 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             )
             {{#asyncio}}await {{/asyncio}}api_client.close()
 
+
+    @patch.object(rest.RESTClientObject, "request")
+    {{#asyncio}}async {{/asyncio}}def test_list_users(self, mock_request):
+        """
+        Test case for list_users
+        """
+
+        response_body = """{
+  "excluded_users": [],
+  "users": [
+    {
+      "object": {
+        "id": "81684243-9356-4421-8fbf-a4f8d36aa31b",
+        "type": "user"
+      }
+    },
+    {
+      "userset": {
+        "id": "fga",
+        "relation": "member",
+        "type": "team"
+      }
+    },
+    {
+      "wildcard": {
+        "type": "user"
+      }
+    }
+  ]
+}"""
+
+        mock_request.return_value = mock_response(response_body, 200)
+
+        configuration = self.configuration
+        configuration.store_id = store_id
+
+        {{#asyncio}}async {{/asyncio}}with openfga_sdk.ApiClient(configuration) as api_client:
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+
+            request = ListUsersRequest(
+                authorization_model_id="01G5JAVJ41T49E9TT3SKVS7X1J",
+                object="document:2021-budget",
+                relation="can_read",
+                user_filters=[
+                    {"type": "user"},
+                    {"type": "team", "relation": "member"},
+                ],
+                context={},
+                contextual_tuples=[
+                    {
+                        "user": "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                        "relation": "editor",
+                        "object": "folder:product",
+                    },
+                    {
+                        "user": "folder:product",
+                        "relation": "parent",
+                        "object": "document:roadmap",
+                    },
+                ],
+            )
+
+            response = {{#asyncio}}await {{/asyncio}}api_instance.list_users(request)
+
+            self.assertIsInstance(response, ListUsersResponse)
+
+            self.assertEqual(response.users.__len__(), 3)
+
+            self.assertIsNotNone(response.users[0].object)
+            self.assertEqual(
+                response.users[0].object.id, "81684243-9356-4421-8fbf-a4f8d36aa31b"
+            )
+            self.assertEqual(response.users[0].object.type, "user")
+            self.assertIsNone(response.users[0].userset)
+            self.assertIsNone(response.users[0].wildcard)
+
+            self.assertIsNone(response.users[1].object)
+            self.assertIsNotNone(response.users[1].userset)
+            self.assertEqual(response.users[1].userset.id, "fga")
+            self.assertEqual(response.users[1].userset.relation, "member")
+            self.assertEqual(response.users[1].userset.type, "team")
+            self.assertIsNone(response.users[1].wildcard)
+
+            self.assertIsNone(response.users[2].object)
+            self.assertIsNone(response.users[2].userset)
+            self.assertIsNotNone(response.users[2].wildcard)
+            self.assertEqual(response.users[2].wildcard.type, "user")
+
+            mock_request.assert_called_once_with(
+                "POST",
+                "http://api.{{sampleApiDomain}}/stores/01H0H015178Y2V4CX10C2KGHF4/list-users",
+                headers=ANY,
+                query_params=[],
+                post_params=[],
+                body={
+                    "authorization_model_id": "01G5JAVJ41T49E9TT3SKVS7X1J",
+                    "object": "document:2021-budget",
+                    "relation": "can_read",
+                    "user_filters": [
+                        {"type": "user"},
+                        {"type": "team", "relation": "member"},
+                    ],
+                    "context": {},
+                    "contextual_tuples": [
+                        {
+                            "user": "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                            "relation": "editor",
+                            "object": "folder:product",
+                        },
+                        {
+                            "user": "folder:product",
+                            "relation": "parent",
+                            "object": "document:roadmap",
+                        },
+                    ],
+                },
+                _preload_content=ANY,
+                _request_timeout=None,
+            )
+
+            await api_client.close()
+
+
     @patch.object(rest.RESTClientObject, 'request')
-    async def test_read(self, mock_request):
+    {{#asyncio}}async {{/asyncio}}def test_read(self, mock_request):
         """Test case for read
 
         Get tuples from the store that matches a query, without following userset rewrite rules
