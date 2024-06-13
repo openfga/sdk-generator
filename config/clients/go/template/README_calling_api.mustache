@@ -597,7 +597,7 @@ userFilters := []openfga.UserTypeFilter{{ Type: "user" }}
 // userFilters := []openfga.UserTypeFilter{{ Type: "team", Relation: openfga.PtrString("member") }}
 
 requestBody := ClientListUsersRequest{
-    Object: openfga.Object{
+    Object: openfga.FgaObject{
         Type: "document",
         Id:   "roadmap",
     },
