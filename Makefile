@@ -1,6 +1,6 @@
 # Main config
 OPENFGA_DOCKER_TAG = v1.5.3
-OPEN_API_REF ?= 2b164f5813a735bf0bb76fb39bd35b3bb29196ed
+OPEN_API_REF ?= f33cb24bcd9707c5fba8cbbc4a4441ab24a3442d
 OPEN_API_URL = https://raw.githubusercontent.com/openfga/api/${OPEN_API_REF}/docs/openapiv2/apidocs.swagger.json
 OPENAPI_GENERATOR_CLI_DOCKER_TAG = v6.4.0
 NODE_DOCKER_TAG = 20-alpine
