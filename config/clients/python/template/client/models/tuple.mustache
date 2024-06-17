@@ -8,7 +8,13 @@ class ClientTuple:
     ClientTuple encapsulates the client tuple
     """
 
-    def __init__(self, user: str, relation: str, object: str, condition: RelationshipCondition = None):
+    def __init__(
+        self,
+        user: str,
+        relation: str,
+        object: str,
+        condition: RelationshipCondition | None = None,
+    ):
         self._user = user
         self._relation = relation
         self._object = object
