@@ -46,6 +46,9 @@
   - [Retries](#retries)
   - [API Endpoints](#api-endpoints)
   - [Models](#models)
+{{#supportsOpenTelemetry}}
+  - [OpenTelemetry](#opentelemetry)
+{{/supportsOpenTelemetry}}
 - [Contributing](#contributing)
   - [Issues](#issues)
   - [Pull Requests](#pull-requests)
@@ -109,6 +112,12 @@ If your server is configured with [authentication enabled]({{docsUrl}}/getting-s
 
 {{>README_models}}
 
+{{#supportsOpenTelemetry}}
+### OpenTelemetry
+
+This SDK supports producing metrics that can be consumed as part of an [OpenTelemetry](https://opentelemetry.io/) setup. For more information, please see [the documentation]((https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/blob/main/docs/opentelemetry.md)
+
+{{/supportsOpenTelemetry}}
 ## Contributing
 
 ### Issues

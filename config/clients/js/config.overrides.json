@@ -10,6 +10,7 @@
   "useSingleRequestParameter": false,
   "supportsES6": true,
   "modelPropertyNaming": "original",
+  "supportsOpenTelemetry": true,
   "files": {
     ".github/workflows/main.yaml.mustache": {
       "destinationFilename": ".github/workflows/main.yaml",
@@ -122,6 +123,7 @@
     "telemetry.mustache": {
       "destinationFilename": "telemetry.ts",
       "templateType": "SupportingFiles"
-    }
+    },
+    "docs/opentelemetry.md": {}
   }
 }
