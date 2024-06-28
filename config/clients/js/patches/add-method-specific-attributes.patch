@@ -1,0 +1,118 @@
+diff --git a/api.ts b/api.ts
+index e45e6c2..260e0bc 100644
+--- a/api.ts
++++ b/api.ts
+@@ -759,6 +759,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+       const localVarAxiosArgs = await localVarAxiosParamCreator.check(storeId, body, options);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
+         [attributeNames.requestMethod]: "check",
++        [attributeNames.requestStoreId]: storeId,
++        [attributeNames.user]: body.tuple_key.user
+       });
+     },
+     /**
+@@ -785,6 +787,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteStore(storeId, options);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
+         [attributeNames.requestMethod]: "deleteStore",
++        [attributeNames.requestStoreId]: storeId,
+       });
+     },
+     /**
+@@ -799,6 +802,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+       const localVarAxiosArgs = await localVarAxiosParamCreator.expand(storeId, body, options);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
+         [attributeNames.requestMethod]: "expand",
++        [attributeNames.requestStoreId]: storeId,
+       });
+     },
+     /**
+@@ -812,6 +816,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+       const localVarAxiosArgs = await localVarAxiosParamCreator.getStore(storeId, options);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
+         [attributeNames.requestMethod]: "getStore",
++        [attributeNames.requestStoreId]: storeId,
+       });
+     },
+     /**
+@@ -826,6 +831,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+       const localVarAxiosArgs = await localVarAxiosParamCreator.listObjects(storeId, body, options);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
+         [attributeNames.requestMethod]: "listObjects",
++        [attributeNames.requestStoreId]: storeId,
++        [attributeNames.user]: body.user
+       });
+     },
+     /**
+@@ -854,6 +861,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+       const localVarAxiosArgs = await localVarAxiosParamCreator.listUsers(storeId, body, options);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
+         [attributeNames.requestMethod]: "listUsers",
++        [attributeNames.requestStoreId]: storeId,
+       });
+     },
+     /**
+@@ -868,6 +876,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+       const localVarAxiosArgs = await localVarAxiosParamCreator.read(storeId, body, options);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
+         [attributeNames.requestMethod]: "read",
++        [attributeNames.requestStoreId]: storeId,
+       });
+     },
+     /**
+@@ -882,6 +891,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+       const localVarAxiosArgs = await localVarAxiosParamCreator.readAssertions(storeId, authorizationModelId, options);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
+         [attributeNames.requestMethod]: "readAssertions",
++        [attributeNames.requestStoreId]: storeId,
+       });
+     },
+     /**
+@@ -896,6 +906,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+       const localVarAxiosArgs = await localVarAxiosParamCreator.readAuthorizationModel(storeId, id, options);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
+         [attributeNames.requestMethod]: "readAuthorizationModel",
++        [attributeNames.requestStoreId]: storeId,
+       });
+     },
+     /**
+@@ -911,6 +922,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+       const localVarAxiosArgs = await localVarAxiosParamCreator.readAuthorizationModels(storeId, pageSize, continuationToken, options);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
+         [attributeNames.requestMethod]: "readAuthorizationModels",
++        [attributeNames.requestStoreId]: storeId,
+       });
+     },
+     /**
+@@ -927,6 +939,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+       const localVarAxiosArgs = await localVarAxiosParamCreator.readChanges(storeId, type, pageSize, continuationToken, options);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
+         [attributeNames.requestMethod]: "readChanges",
++        [attributeNames.requestStoreId]: storeId,
+       });
+     },
+     /**
+@@ -941,6 +954,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+       const localVarAxiosArgs = await localVarAxiosParamCreator.write(storeId, body, options);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
+         [attributeNames.requestMethod]: "write",
++        [attributeNames.requestStoreId]: storeId,
+       });
+     },
+     /**
+@@ -956,6 +970,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+       const localVarAxiosArgs = await localVarAxiosParamCreator.writeAssertions(storeId, authorizationModelId, body, options);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
+         [attributeNames.requestMethod]: "writeAssertions",
++        [attributeNames.requestStoreId]: storeId,
+       });
+     },
+     /**
+@@ -970,6 +985,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+       const localVarAxiosArgs = await localVarAxiosParamCreator.writeAuthorizationModel(storeId, body, options);
+       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
+         [attributeNames.requestMethod]: "writeAuthorizationModel",
++        [attributeNames.requestStoreId]: storeId,
+       });
+     },
+   };

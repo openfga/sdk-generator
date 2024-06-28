@@ -211,7 +211,9 @@ export const {{classname}}Fp = function(configuration: Configuration, credential
          */
         async {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}}options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
+                [attributeNames.requestMethod]: "{{nickname}}",
+            });
         },
     {{/operation}}
     }
