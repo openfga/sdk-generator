@@ -118,6 +118,10 @@
       "destinationFilename": "example/example1/package.json",
       "templateType": "SupportingFiles"
     },
-    ".madgerc": {}
+    ".madgerc": {},
+    "telemetry.mustache": {
+      "destinationFilename": "telemetry.ts",
+      "templateType": "SupportingFiles"
+    }
   }
 }
