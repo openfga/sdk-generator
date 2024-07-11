@@ -2,16 +2,17 @@ diff --git a/api.ts b/api.ts
 index e45e6c2..260e0bc 100644
 --- a/api.ts
 +++ b/api.ts
-@@ -759,6 +759,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+@@ -759,6 +759,9 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = await localVarAxiosParamCreator.check(storeId, body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
          [attributeNames.requestMethod]: "check",
 +        [attributeNames.requestStoreId]: storeId,
++        [attributeNames.requestModelId]: body.authorization_model_id,
 +        [attributeNames.user]: body.tuple_key.user
        });
      },
      /**
-@@ -785,6 +787,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+@@ -785,6 +788,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = await localVarAxiosParamCreator.deleteStore(storeId, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
          [attributeNames.requestMethod]: "deleteStore",
@@ -19,15 +20,16 @@ index e45e6c2..260e0bc 100644
        });
      },
      /**
-@@ -799,6 +802,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+@@ -799,6 +803,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = await localVarAxiosParamCreator.expand(storeId, body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
          [attributeNames.requestMethod]: "expand",
++        [attributeNames.requestModelId]: body.authorization_model_id,
 +        [attributeNames.requestStoreId]: storeId,
        });
      },
      /**
-@@ -812,6 +816,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+@@ -812,6 +818,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = await localVarAxiosParamCreator.getStore(storeId, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
          [attributeNames.requestMethod]: "getStore",
@@ -35,24 +37,26 @@ index e45e6c2..260e0bc 100644
        });
      },
      /**
-@@ -826,6 +831,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+@@ -826,6 +833,9 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = await localVarAxiosParamCreator.listObjects(storeId, body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
          [attributeNames.requestMethod]: "listObjects",
 +        [attributeNames.requestStoreId]: storeId,
++        [attributeNames.requestModelId]: body.authorization_model_id,
 +        [attributeNames.user]: body.user
        });
      },
      /**
-@@ -854,6 +861,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+@@ -854,6 +864,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = await localVarAxiosParamCreator.listUsers(storeId, body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
          [attributeNames.requestMethod]: "listUsers",
 +        [attributeNames.requestStoreId]: storeId,
++        [attributeNames.requestModelId]: body.authorization_model_id,
        });
      },
      /**
-@@ -868,6 +876,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+@@ -868,6 +880,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = await localVarAxiosParamCreator.read(storeId, body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
          [attributeNames.requestMethod]: "read",
@@ -60,15 +64,16 @@ index e45e6c2..260e0bc 100644
        });
      },
      /**
-@@ -882,6 +891,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+@@ -882,6 +895,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = await localVarAxiosParamCreator.readAssertions(storeId, authorizationModelId, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
          [attributeNames.requestMethod]: "readAssertions",
 +        [attributeNames.requestStoreId]: storeId,
++        [attributeNames.requestModelId]: authorizationModelId,
        });
      },
      /**
-@@ -896,6 +906,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+@@ -896,6 +911,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = await localVarAxiosParamCreator.readAuthorizationModel(storeId, id, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
          [attributeNames.requestMethod]: "readAuthorizationModel",
@@ -76,7 +81,7 @@ index e45e6c2..260e0bc 100644
        });
      },
      /**
-@@ -911,6 +922,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+@@ -911,6 +927,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = await localVarAxiosParamCreator.readAuthorizationModels(storeId, pageSize, continuationToken, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
          [attributeNames.requestMethod]: "readAuthorizationModels",
@@ -84,7 +89,7 @@ index e45e6c2..260e0bc 100644
        });
      },
      /**
-@@ -927,6 +939,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+@@ -927,6 +944,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = await localVarAxiosParamCreator.readChanges(storeId, type, pageSize, continuationToken, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
          [attributeNames.requestMethod]: "readChanges",
@@ -92,23 +97,25 @@ index e45e6c2..260e0bc 100644
        });
      },
      /**
-@@ -941,6 +954,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+@@ -941,6 +959,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = await localVarAxiosParamCreator.write(storeId, body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
          [attributeNames.requestMethod]: "write",
 +        [attributeNames.requestStoreId]: storeId,
++        [attributeNames.requestModelId]: body.authorization_model_id,
        });
      },
      /**
-@@ -956,6 +970,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+@@ -956,6 +976,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = await localVarAxiosParamCreator.writeAssertions(storeId, authorizationModelId, body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
          [attributeNames.requestMethod]: "writeAssertions",
 +        [attributeNames.requestStoreId]: storeId,
++        [attributeNames.requestModelId]: authorizationModelId,
        });
      },
      /**
-@@ -970,6 +985,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
+@@ -970,6 +992,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = await localVarAxiosParamCreator.writeAuthorizationModel(storeId, body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
          [attributeNames.requestMethod]: "writeAuthorizationModel",
