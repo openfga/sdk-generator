@@ -45,7 +45,7 @@ export const {{classname}}AxiosParamCreator = function (configuration: Configura
          * @deprecated{{/isDeprecated}}
          * @throws { FgaError }
          */
-        {{nickname}}: async ({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options: any = {}): Promise<RequestArgs> => {
+        {{nickname}}: ({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options: any = {}): RequestArgs => {
     {{#allParams}}
     {{#required}}
             // verify required parameter '{{paramName}}' is not null or undefined
@@ -210,7 +210,7 @@ export const {{classname}}Fp = function(configuration: Configuration, credential
          * @throws { FgaError }
          */
         async {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}}options);
+            const localVarAxiosArgs = localVarAxiosParamCreator.{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}}options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
                 [attributeNames.requestMethod]: "{{nickname}}",
             });
