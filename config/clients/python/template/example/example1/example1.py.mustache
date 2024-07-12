@@ -1,7 +1,7 @@
 import asyncio
 import os
 
-from openfga_sdk import (
+from {{packageName}} import (
     ClientConfiguration,
     Condition,
     ConditionParamTypeRef,
@@ -18,7 +18,7 @@ from openfga_sdk import (
     Usersets,
     WriteAuthorizationModelRequest,
 )
-from openfga_sdk.client.models import (
+from {{packageName}}.client.models import (
     ClientAssertion,
     ClientCheckRequest,
     ClientListObjectsRequest,
@@ -28,9 +28,9 @@ from openfga_sdk.client.models import (
     ClientWriteRequest,
     WriteTransactionOpts,
 )
-from openfga_sdk.client.models.list_users_request import ClientListUsersRequest
-from openfga_sdk.credentials import CredentialConfiguration, Credentials
-from openfga_sdk.models.fga_object import FgaObject
+from {{packageName}}.client.models.list_users_request import ClientListUsersRequest
+from {{packageName}}.credentials import CredentialConfiguration, Credentials
+from {{packageName}}.models.fga_object import FgaObject
 
 
 async def main():

@@ -1,9 +1,6 @@
 --- clients/fga-python-sdk/openfga_sdk/api/open_fga_api.py	2022-09-13 14:15:46.000000000 -0400
 +++ open_fga_api.py	2022-09-13 14:14:01.000000000 -0400
-@@ -193,13 +193,15 @@
-             _request_auth=local_var_params.get('_request_auth'),
-             _oauth2_client=self._oauth2_client))
-
+@@ -229,8 +236,10 @@
 -    async def create_store(self, **kwargs):
 +    async def create_store(self, body, **kwargs):
          """Create a store
@@ -16,8 +13,6 @@
 +        :param body: (required)
 +        :type body: CreateStoreRequest
          :param async_req: Whether to execute the request asynchronously.
-         :type async_req: bool, optional
-         :param _preload_content: if False, the urllib3.HTTPResponse object will
 @@ -216,15 +218,17 @@
          :rtype: CreateStoreResponse
          """
@@ -48,21 +43,13 @@
          ]
          all_params.extend(
              [
-@@ -312,7 +318,7 @@
-         }
-
+@@ -368,3 +370,3 @@
          return await (self.api_client.call_api(
 -            '/stores'.replace('{store_id}', store_id), 'POST',
 +            '/stores', 'POST',
              path_params,
-             query_params,
-             header_params,
-@@ -998,7 +1004,7 @@
-         }
-
+@@ -1192,3 +1194,3 @@
          return await (self.api_client.call_api(
 -            '/stores'.replace('{store_id}', store_id), 'GET',
 +            '/stores', 'GET',
              path_params,
-             query_params,
-             header_params,

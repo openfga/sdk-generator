@@ -1,24 +1,32 @@
 {{>partial_header}}
 
-import time
 import atexit
 import datetime
-from dateutil.parser import parse
 import json
 import math
-from multiprocessing.pool import ThreadPool
 import random
 import re
+import time
 import urllib
-import {{modelPackage}}
 {{#tornado}}
 import tornado.gen
 {{/tornado}}
+from multiprocessing.pool import ThreadPool
 
-from {{packageName}}.configuration import Configuration
+from dateutil.parser import parse
+
+import {{modelPackage}}
 from {{packageName}}.sync import rest, oauth2
-from {{packageName}}.exceptions import ApiValueError, ApiException, FgaValidationException, RateLimitExceededError, ServiceException
-
+from {{packageName}}.configuration import Configuration
+from {{packageName}}.exceptions import (
+    ApiException,
+    ApiValueError,
+    FgaValidationException,
+    RateLimitExceededError,
+    ServiceException,
+)
+from {{packageName}}.telemetry import Telemetry
+from {{packageName}}.telemetry.attributes import TelemetryAttribute, TelemetryAttributes
 
 DEFAULT_USER_AGENT = '{{{userAgent}}}'
 
@@ -67,21 +75,32 @@ class ApiClient:
     }
     _pool = None
 
-    def __init__(self, configuration=None, header_name=None, header_value=None,
-                 cookie=None, pool_threads=1):
+    def __init__(
+        self,
+        configuration=None,
+        header_name=None,
+        header_value=None,
+        cookie=None,
+        pool_threads=1,
+    ):
         if configuration is None:
             configuration = Configuration.get_default_copy()
+
         self.configuration = configuration
         self.pool_threads = pool_threads
 
         self.rest_client = rest.RESTClientObject(configuration)
+
         self.default_headers = {}
         if header_name is not None:
             self.default_headers[header_name] = header_value
+
         self.cookie = cookie
-        # Set default User-Agent.
+
         self.user_agent = DEFAULT_USER_AGENT
+
         self.client_side_validation = configuration.client_side_validation
+        self._telemetry = Telemetry()
 
     def __enter__(self):
         return self
@@ -123,15 +142,37 @@ class ApiClient:
     @tornado.gen.coroutine
     {{/tornado}}
     def __call_api(
-            self, resource_path, method, path_params=None,
-            query_params=None, header_params=None, body=None, post_params=None,
-            response_types_map=None, auth_settings=None,
-            _return_http_data_only=None, collection_formats=None,
-            _preload_content=True, _request_timeout=None, _host=None,
-            _request_auth=None, _retry_params=None, _oauth2_client=None):
+        self,
+        resource_path,
+        method,
+        path_params=None,
+        query_params=None,
+        header_params=None,
+        body=None,
+        post_params=None,
+        response_types_map=None,
+        auth_settings=None,
+        _return_http_data_only=None,
+        collection_formats=None,
+        _preload_content=True,
+        _request_timeout=None,
+        _host=None,
+        _request_auth=None,
+        _retry_params=None,
+        _oauth2_client=None,
+        _telemetry_attributes: dict[TelemetryAttribute | str, str] = None,
+    ):
 
         self.configuration.is_valid()
         config = self.configuration
+
+        benchmark: dict[str, float] = {"start": float(time.time())}
+        _telemetry_attributes = _telemetry_attributes or {}
+
+        _telemetry_attributes[TelemetryAttributes().http_host] = urllib.parse.urlparse(
+            config.api_url
+        ).hostname
+        _telemetry_attributes[TelemetryAttributes().http_method] = method
 
         # header parameters
         header_params = header_params or {}
@@ -194,7 +235,7 @@ class ApiClient:
                 max_retry = _retry_params.max_retry
             if _retry_params.min_wait_in_ms is not None:
                 max_retry = _retry_params.min_wait_in_ms
-        for x in range(max_retry+1):
+        for retry in range(max_retry+1):
             try:
                 # perform request and return response
                 response_data = {{#tornado}}yield {{/tornado}}self.request(
@@ -203,8 +244,8 @@ class ApiClient:
                     _preload_content=_preload_content,
                     _request_timeout=_request_timeout)
             except (RateLimitExceededError, ServiceException) as e:
-                if x < max_retry and e.status != 501:
-                    time.sleep(random_time(x, min_wait_in_ms))
+                if retry < max_retry and e.status != 501:
+                    time.sleep(random_time(retry, min_wait_in_ms))
                     continue
                 e.body = e.body.decode('utf-8')
                 response_type = response_types_map.get(e.status, None)
@@ -223,6 +264,31 @@ class ApiClient:
             self.last_response = response_data
 
             return_data = response_data
+
+            benchmark["end"] = float(time.time())
+
+            _telemetry_attributes[TelemetryAttributes().request_retries] = retry
+
+            _telemetry_attributes.update(
+                TelemetryAttributes().fromResponse(response_data)
+            )
+
+            try:
+                _telemetry_attributes[TelemetryAttributes().request_client_id] = (
+                    self.configuration.credentials.configuration.client_id
+                )
+            except AttributeError:
+                pass
+
+            duration = response_data.getheader("fga-query-duration-ms")
+            attributes = TelemetryAttributes().prepare(_telemetry_attributes)
+
+            if duration is not None:
+                self._telemetry.metrics().queryDuration(int(duration, 10), attributes)
+
+            self._telemetry.metrics().requestDuration().record(
+                float(benchmark["end"] - benchmark["start"]), attributes
+            )
 
             if not _preload_content:
                 {{^tornado}}
@@ -363,14 +429,29 @@ class ApiClient:
         else:
             return self.__deserialize_model(data, klass)
 
-    def call_api(self, resource_path, method,
-                 path_params=None, query_params=None, header_params=None,
-                 body=None, post_params=None, files=None,
-                 response_types_map=None, auth_settings=None,
-                 async_req=None, _return_http_data_only=None,
-                 collection_formats=None,_preload_content=True,
-                  _request_timeout=None, _host=None, _request_auth=None,
-                  _retry_params=None, _oauth2_client=None):
+    def call_api(
+        self,
+        resource_path,
+        method,
+        path_params=None,
+        query_params=None,
+        header_params=None,
+        body=None,
+        post_params=None,
+        files=None,
+        response_types_map=None,
+        auth_settings=None,
+        async_req=None,
+        _return_http_data_only=None,
+        collection_formats=None,
+        _preload_content=True,
+        _request_timeout=None,
+        _host=None,
+        _request_auth=None,
+        _retry_params=None,
+        _oauth2_client=None,
+        _telemetry_attributes: dict[TelemetryAttribute, str] = None,
+    ):
         """Makes the HTTP request (synchronous) and returns deserialized data.
 
         To make an async_req request, set the async_req parameter.
@@ -412,28 +493,50 @@ class ApiClient:
             then the method will return the response directly.
         """
         if not async_req:
-            return self.__call_api(resource_path, method,
-                                   path_params, query_params, header_params,
-                                   body, post_params,
-                                   response_types_map, auth_settings,
-                                   _return_http_data_only, collection_formats,
-                                   _preload_content, _request_timeout, _host,
-                                   _request_auth, _retry_params, _oauth2_client)
+            return self.__call_api(
+                resource_path,
+                method,
+                path_params,
+                query_params,
+                header_params,
+                body,
+                post_params,
+                response_types_map,
+                auth_settings,
+                _return_http_data_only,
+                collection_formats,
+                _preload_content,
+                _request_timeout,
+                _host,
+                _request_auth,
+                _retry_params,
+                _oauth2_client,
+                _telemetry_attributes,
+            )
 
-        return self.pool.apply_async(self.__call_api, (resource_path,
-                                                       method, path_params,
-                                                       query_params,
-                                                       header_params, body,
-                                                       post_params,
-                                                       response_types_map,
-                                                       auth_settings,
-                                                       _return_http_data_only,
-                                                       collection_formats,
-                                                       _preload_content,
-                                                       _request_timeout,
-                                                       _host, _request_auth,
-                                                       _retry_params,
-                                                       _oauth2_client))
+        return self.pool.apply_async(
+            self.__call_api,
+            (
+                resource_path,
+                method,
+                path_params,
+                query_params,
+                header_params,
+                body,
+                post_params,
+                response_types_map,
+                auth_settings,
+                _return_http_data_only,
+                collection_formats,
+                _preload_content,
+                _request_timeout,
+                _host,
+                _request_auth,
+                _retry_params,
+                _oauth2_client,
+                _telemetry_attributes,
+            ),
+        )
 
     def request(self, method, url, query_params=None, headers=None,
                 post_params=None, body=None, _preload_content=True,

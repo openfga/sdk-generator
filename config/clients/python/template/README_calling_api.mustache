@@ -7,7 +7,7 @@ Get a paginated list of stores.
 [API Documentation]({{apiDocsUrl}}/docs/api#/Stores/ListStores)
 
 ```python
-# from openfga_sdk.sync import OpenFgaClient
+# from {{packageName}}.sync import OpenFgaClient
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -26,7 +26,7 @@ Create and initialize a store.
 [API Documentation]({{apiDocsUrl}}/docs/api#/Stores/CreateStore)
 
 ```python
-# from openfga_sdk import CreateStoreRequest, OpenFgaClient
+# from {{packageName}} import CreateStoreRequest, OpenFgaClient
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -48,7 +48,7 @@ Get information about the current store.
 > Requires a client initialized with a storeId
 
 ```python
-# from openfga_sdk import OpenFgaClient
+# from {{packageName}} import OpenFgaClient
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -67,7 +67,7 @@ Delete a store.
 > Requires a client initialized with a storeId
 
 ```python
-# from openfga_sdk import OpenFgaClient
+# from {{packageName}} import OpenFgaClient
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -85,7 +85,7 @@ Read all authorization models in the store.
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModels)
 
 ```python
-# from openfga_sdk import OpenFgaClient
+# from {{packageName}} import OpenFgaClient
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -109,7 +109,7 @@ Create a new authorization model.
 > You can use the [{{appTitleCaseName}} Syntax Transformer](https://github.com/openfga/syntax-transformer) to convert between the friendly DSL and the JSON authorization model.
 
 ```python
-# from openfga_sdk import (
+# from {{packageName}} import (
 #     Condition, ConditionParamTypeRef, Metadata, ObjectRelation, OpenFgaClient, RelationMetadata,
 #     RelationReference, TypeDefinition, Userset, Usersets, WriteAuthorizationModelRequest
 # )
@@ -189,7 +189,7 @@ Read a particular authorization model.
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
 
 ```python
-# from openfga_sdk import OpenFgaClient
+# from {{packageName}} import OpenFgaClient
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -210,7 +210,7 @@ Reads the latest authorization model (note: this ignores the model id in configu
 [API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
 
 ```python
-# from openfga_sdk import ClientConfiguration, OpenFgaClient
+# from {{packageName}} import ClientConfiguration, OpenFgaClient
 
 # Create the cofiguration object
 # configuration = ClientConfiguration(
@@ -236,8 +236,8 @@ Reads the list of historical relationship tuple writes and deletes.
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/ReadChanges)
 
 ```python
-# from openfga_sdk import OpenFgaClient
-# from openfga_sdk.client.models import ClientReadChangesRequest
+# from {{packageName}} import OpenFgaClient
+# from {{packageName}}.client.models import ClientReadChangesRequest
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -261,7 +261,7 @@ Reads the relationship tuples stored in the database. It does not evaluate nor e
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Read)
 
 ```python
-# from openfga_sdk import OpenFgaClient, ReadRequestTupleKey
+# from {{packageName}} import OpenFgaClient, ReadRequestTupleKey
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -278,7 +278,7 @@ response = await fga_client.read(body)
 ```
 
 ```python
-# from openfga_sdk import OpenFgaClient, ReadRequestTupleKey
+# from {{packageName}} import OpenFgaClient, ReadRequestTupleKey
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -295,7 +295,7 @@ response = await fga_client.read(body)
 ```
 
 ```python
-# from openfga_sdk import OpenFgaClient, ReadRequestTupleKey
+# from {{packageName}} import OpenFgaClient, ReadRequestTupleKey
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -312,7 +312,7 @@ response = await fga_client.read(body)
 ```
 
 ```python
-# from openfga_sdk import OpenFgaClient, ReadRequestTupleKey
+# from {{packageName}} import OpenFgaClient, ReadRequestTupleKey
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -327,7 +327,7 @@ response = await fga_client.read(body)
 ```
 
 ```python
-# from openfga_sdk import OpenFgaClient, ReadRequestTupleKey
+# from {{packageName}} import OpenFgaClient, ReadRequestTupleKey
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -350,8 +350,8 @@ Create and/or delete relationship tuples to update the system state.
 By default, write runs in a transaction mode where any invalid operation (deleting a non-existing tuple, creating an existing tuple, one of the tuples was invalid) or a server error will fail the entire operation.
 
 ```python
-# from openfga_sdk import OpenFgaClient, RelationshipCondition
-# from openfga_sdk.client.models import ClientTuple, ClientWriteRequest
+# from {{packageName}} import OpenFgaClient, RelationshipCondition
+# from {{packageName}}.client.models import ClientTuple, ClientWriteRequest
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -399,8 +399,8 @@ Convenience `write_tuples` and `delete_tuples` methods are also available.
 The SDK will split the writes into separate requests and send them sequentially to avoid violating rate limits.
 
 ```python
-# from openfga_sdk import OpenFgaClient, RelationshipCondition
-# from openfga_sdk.client.models import ClientTuple, ClientWriteRequest, WriteTransactionOpts
+# from {{packageName}} import OpenFgaClient, RelationshipCondition
+# from {{packageName}}.client.models import ClientTuple, ClientWriteRequest, WriteTransactionOpts
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -455,8 +455,8 @@ Check if a user has a particular relation with an object.
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Check)
 
 ```python
-# from openfga_sdk import OpenFgaClient
-# from openfga_sdk.client import ClientCheckRequest
+# from {{packageName}} import OpenFgaClient
+# from {{packageName}}.client import ClientCheckRequest
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -485,9 +485,9 @@ Run a set of [checks](#check). Batch Check will return `allowed: false` if it en
 If 429s or 5xxs are encountered, the underlying check will retry up to {{defaultMaxRetry}} times before giving up.
 
 ```python
-# from openfga_sdk import OpenFgaClient
-# from openfga_sdk.client import ClientCheckRequest
-# from openfga_sdk.client.models import ClientTuple
+# from {{packageName}} import OpenFgaClient
+# from {{packageName}}.client import ClientCheckRequest
+# from {{packageName}}.client.models import ClientTuple
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -584,8 +584,8 @@ Expands the relationships in userset tree format.
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Expand)
 
 ```python
-# from openfga_sdk import OpenFgaClient
-# from openfga_sdk.client.models import ClientExpandRequest
+# from {{packageName}} import OpenFgaClient
+# from {{packageName}}.client.models import ClientExpandRequest
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -610,8 +610,8 @@ List the objects of a particular type a user has access to.
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/ListObjects)
 
 ```python
-# from openfga_sdk import OpenFgaClient
-# from openfga_sdk.client.models import ClientListObjectsRequest, ClientTuple
+# from {{packageName}} import OpenFgaClient
+# from {{packageName}}.client.models import ClientListObjectsRequest, ClientTuple
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -645,8 +645,8 @@ response = await fga_client.list_objects(body)
 List the relations a user has on an object.
 
 ```python
-# from openfga_sdk import OpenFgaClient
-# from openfga_sdk.client.models import ClientListRelationsRequest
+# from {{packageName}} import OpenFgaClient
+# from {{packageName}}.client.models import ClientListRelationsRequest
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -683,9 +683,9 @@ List the users who have a certain relation to a particular type.
 [API Documentation](https://openfga.dev/api/service#/Relationship%20Queries/ListUsers)
 
 ```python
-from openfga_sdk import OpenFgaClient
-from openfga_sdk.models.fga_object import FgaObject
-from openfga_sdk.client.models import ClientListUsersRequest, ClientTuple
+from {{packageName}} import OpenFgaClient
+from {{packageName}}.models.fga_object import FgaObject
+from {{packageName}}.client.models import ClientListUsersRequest, ClientTuple
 
 configuration = ClientConfiguration(
     api_url=FGA_API_URL,
@@ -733,7 +733,7 @@ Read assertions for a particular authorization model.
 [API Documentation]({{apiDocsUrl}}#/Assertions/Read%20Assertions)
 
 ```python
-# from openfga_sdk import OpenFgaClient
+# from {{packageName}} import OpenFgaClient
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
@@ -753,8 +753,8 @@ Update the assertions for a particular authorization model.
 [API Documentation]({{apiDocsUrl}}#/Assertions/Write%20Assertions)
 
 ```python
-# from openfga_sdk import OpenFgaClient
-# from openfga_sdk.client.models import ClientAssertion
+# from {{packageName}} import OpenFgaClient
+# from {{packageName}}.client.models import ClientAssertion
 
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
