@@ -112,12 +112,25 @@ tag-client-python: test-client-python
 .PHONY: build-client-python
 build-client-python:
 	make build-client sdk_language=python tmpdir=${TMP_DIR} library="asyncio"
-	mv ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/api/open_fga_api_sync.py ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/sync/open_fga_api.py # TODO: Remove on OpenAPI generator v7.1 or higher
-	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/openfga_sdk/api/open_fga_api.py /config/clients/python/patches/open_fga_api.py.patch'"
-	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/openfga_sdk/sync/open_fga_api.py /config/clients/python/patches/open_fga_api_sync.py.patch'"
-	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/docs/OpenFgaApi.md /config/clients/python/patches/OpenFgaApi.md.patch'"
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install pyupgrade==3.15.2 isort==5.13.2 black==24.4.2 autoflake==2.3.1; pyupgrade \`find . -name *.py -type f\` --py310-plus --keep-runtime-typing; isort . --profile black; autoflake --exclude=__init__.py --in-place --remove-unused-variables --remove-all-unused-imports -r .; black .'"
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'pip install setuptools wheel && python setup.py sdist bdist_wheel'"
+
+	mv ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/api/open_fga_api_sync.py ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/sync/open_fga_api.py
+	mv ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/test/test_open_fga_api.py ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/test/api/open_fga_api_test.py
+	mv ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/test/_/*.py ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/test/ && rm -rf ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/test/_/
+
+	sort -uo ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/.openapi-generator/FILES{,}
+
+	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/openfga_sdk/api/open_fga_api.py /config/clients/python/patches/open_fga_api.py.patch && \
+		patch -p1 /module/openfga_sdk/sync/open_fga_api.py /config/clients/python/patches/open_fga_api_sync.py.patch && \
+		patch -p1 /module/docs/OpenFgaApi.md /config/clients/python/patches/OpenFgaApi.md.patch'"
+
+	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install --upgrade pip && \
+		python -m pip install --upgrade setuptools wheel && \
+		python -m pip install -r test-requirements.txt && \
+		python -m pyupgrade \`find . -name *.py -type f\` --py310-plus --keep-runtime-typing && \
+		python -m isort . --profile black && \
+		python -m autoflake --exclude=__init__.py --in-place --remove-unused-variables --remove-all-unused-imports -r . && \
+		python -m black . && \
+		python setup.py sdist bdist_wheel'"
 
 .PHONY: test-client-python
 test-client-python: build-client-python
