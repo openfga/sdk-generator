@@ -119,11 +119,22 @@
       "destinationFilename": "example/example1/package.json",
       "templateType": "SupportingFiles"
     },
+    "example/opentelemetry/.npmrc": {},   
+    "example/opentelemetry/opentelemetry.mjs": {},
+    "example/opentelemetry/README.md": {},
+    "example/opentelemetry/instrumentation.mjs": {},
+    "example/opentelemetry/package.json.mustache": {
+      "destinationFilename": "example/opentelemetry/package.json",
+      "templateType": "SupportingFiles"
+    },
     ".madgerc": {},
     "telemetry.mustache": {
       "destinationFilename": "telemetry.ts",
       "templateType": "SupportingFiles"
     },
-    "docs/opentelemetry.md": {}
+    "docs/opentelemetry.md.mustache": {
+      "destinationFilename": "docs/opentelemetry.md",
+      "templateType": "SupportingFiles"
+    }
   }
 }

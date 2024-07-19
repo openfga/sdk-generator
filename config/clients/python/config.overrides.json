@@ -25,7 +25,10 @@
       "templateType": "API"
     },
 
-    "docs/opentelemetry.md": {},
+    "docs/opentelemetry.md.mustache": {
+      "destinationFilename": "docs/opentelemetry.md",
+      "templateType": "SupportingFiles"
+    },
 
     "example/Makefile": {},
     "example/README.md": {},
