@@ -3,19 +3,22 @@
 using {{packageName}}.Client.Model;
 using {{packageName}}.Configuration;
 using {{packageName}}.Exceptions;
+using {{packageName}}.Telemetry;
+using System.Diagnostics;
 
 namespace {{packageName}}.ApiClient;
 
 /// <summary>
-/// API Client - used by all the API related methods to call the API. Handles token exchange and retries.
+///     API Client - used by all the API related methods to call the API. Handles token exchange and retries.
 /// </summary>
 public class ApiClient : IDisposable {
     private readonly BaseClient _baseClient;
-    private readonly OAuth2Client? _oauth2Client;
     private readonly Configuration.Configuration _configuration;
+    private readonly OAuth2Client? _oauth2Client;
+    private readonly Metrics metrics = new();
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ApiClient"/> class.
+    ///     Initializes a new instance of the <see cref="ApiClient" /> class.
     /// </summary>
     /// <param name="configuration">Client Configuration</param>
     /// <param name="userHttpClient">User Http Client - Allows Http Client reuse</param>
@@ -28,14 +31,15 @@ public class ApiClient : IDisposable {
             return;
         }
 
-        switch (_configuration.Credentials.Method)
-        {
+        switch (_configuration.Credentials.Method) {
             case CredentialsMethod.ApiToken:
-                _configuration.DefaultHeaders["Authorization"] = $"Bearer {_configuration.Credentials.Config!.ApiToken}";
+                _configuration.DefaultHeaders["Authorization"] =
+                    $"Bearer {_configuration.Credentials.Config!.ApiToken}";
                 _baseClient = new BaseClient(_configuration, userHttpClient);
                 break;
             case CredentialsMethod.ClientCredentials:
-                _oauth2Client = new OAuth2Client(_configuration.Credentials, _baseClient,  new RetryParams { MaxRetry = _configuration.MaxRetry, MinWaitInMs = _configuration.MinWaitInMs});
+                _oauth2Client = new OAuth2Client(_configuration.Credentials, _baseClient,
+                    new RetryParams { MaxRetry = _configuration.MaxRetry, MinWaitInMs = _configuration.MinWaitInMs });
                 break;
             case CredentialsMethod.None:
             default:
@@ -44,8 +48,9 @@ public class ApiClient : IDisposable {
     }
 
     /// <summary>
-    /// Handles getting the access token, calling the API and potentially retrying
-    /// Based on: https://github.com/auth0/auth0.net/blob/595ae80ccad8aa7764b80d26d2ef12f8b35bbeff/src/Auth0.ManagementApi/HttpClientManagementConnection.cs#L67
+    ///     Handles getting the access token, calling the API and potentially retrying
+    ///     Based on:
+    ///     https://github.com/auth0/auth0.net/blob/595ae80ccad8aa7764b80d26d2ef12f8b35bbeff/src/Auth0.ManagementApi/HttpClientManagementConnection.cs#L67
     /// </summary>
     /// <param name="requestBuilder"></param>
     /// <param name="apiName"></param>
@@ -57,6 +62,7 @@ public class ApiClient : IDisposable {
         CancellationToken cancellationToken = default) {
         IDictionary<string, string> additionalHeaders = new Dictionary<string, string>();
 
+        var sw = Stopwatch.StartNew();
         if (_oauth2Client != null) {
             try {
                 var token = await _oauth2Client.GetAccessTokenAsync();
@@ -64,16 +70,25 @@ public class ApiClient : IDisposable {
                 if (!string.IsNullOrEmpty(token)) {
                     additionalHeaders["Authorization"] = $"Bearer {token}";
                 }
-            } catch (ApiException e) {
+            }
+            catch (ApiException e) {
                 throw new FgaApiAuthenticationError("Invalid Client Credentials", apiName, e);
             }
         }
 
-        return await Retry(async () => await _baseClient.SendRequestAsync<T>(requestBuilder, additionalHeaders, apiName, cancellationToken));
+        var response = await Retry(async () =>
+            await _baseClient.SendRequestAsync<T>(requestBuilder, additionalHeaders, apiName, cancellationToken));
+
+        sw.Stop();
+        metrics.buildForResponse(apiName, response.rawResponse, requestBuilder, _configuration.Credentials, sw,
+            response.retryCount);
+
+        return response.responseContent;
     }
 
     /// <summary>
-    /// Handles getting the access token, calling the API and potentially retrying (use for requests that return no content)
+    ///     Handles getting the access token, calling the API and potentially retrying (use for requests that return no
+    ///     content)
     /// </summary>
     /// <param name="requestBuilder"></param>
     /// <param name="apiName"></param>
@@ -83,6 +98,7 @@ public class ApiClient : IDisposable {
         CancellationToken cancellationToken = default) {
         IDictionary<string, string> additionalHeaders = new Dictionary<string, string>();
 
+        var sw = Stopwatch.StartNew();
         if (_oauth2Client != null) {
             try {
                 var token = await _oauth2Client.GetAccessTokenAsync();
@@ -90,26 +106,38 @@ public class ApiClient : IDisposable {
                 if (!string.IsNullOrEmpty(token)) {
                     additionalHeaders["Authorization"] = $"Bearer {token}";
                 }
-            } catch (ApiException e) {
+            }
+            catch (ApiException e) {
                 throw new FgaApiAuthenticationError("Invalid Client Credentials", apiName, e);
             }
         }
 
-        await Retry(async () => await _baseClient.SendRequestAsync(requestBuilder, additionalHeaders, apiName, cancellationToken));
+        var response = await Retry(async () =>
+            await _baseClient.SendRequestAsync<object>(requestBuilder, additionalHeaders, apiName, cancellationToken));
+
+        sw.Stop();
+        metrics.buildForResponse(apiName, response.rawResponse, requestBuilder, _configuration.Credentials, sw,
+            response.retryCount);
     }
 
-    private async Task<TResult> Retry<TResult>(Func<Task<TResult>> retryable) {
+    private async Task<ResponseWrapper<TResult>> Retry<TResult>(Func<Task<ResponseWrapper<TResult>>> retryable) {
         var numRetries = 0;
         while (true) {
             try {
                 numRetries++;
 
-                return await retryable();
-            } catch (FgaApiRateLimitExceededError err) {
+                var response = await retryable();
+
+                response.retryCount = numRetries;
+
+                return response;
+            }
+            catch (FgaApiRateLimitExceededError err) {
                 if (numRetries > _configuration.MaxRetry) {
                     throw;
                 }
-                var waitInMs = (int) ((err.ResetInMs == null || err.ResetInMs < _configuration.MinWaitInMs)
+
+                var waitInMs = (int)(err.ResetInMs == null || err.ResetInMs < _configuration.MinWaitInMs
                     ? _configuration.MinWaitInMs
                     : err.ResetInMs);
 
@@ -119,44 +147,13 @@ public class ApiClient : IDisposable {
                 if (!err.ShouldRetry || numRetries > _configuration.MaxRetry) {
                     throw;
                 }
-                var waitInMs = (int)(_configuration.MinWaitInMs);
+
+                var waitInMs = _configuration.MinWaitInMs;
 
                 await Task.Delay(waitInMs);
             }
         }
     }
 
-    private async Task Retry(Func<Task> retryable) {
-        var numRetries = 0;
-        while (true) {
-            try {
-                numRetries++;
-
-                await retryable();
-
-                return;
-            } catch (FgaApiRateLimitExceededError err) {
-                if (numRetries > _configuration.MaxRetry) {
-                    throw;
-                }
-                var waitInMs = (int) ((err.ResetInMs == null || err.ResetInMs < _configuration.MinWaitInMs)
-                    ? _configuration.MinWaitInMs
-                    : err.ResetInMs);
-
-                await Task.Delay(waitInMs);
-            }
-            catch (FgaApiError err) {
-                if (!err.ShouldRetry || numRetries > _configuration.MaxRetry) {
-                    throw;
-                }
-                var waitInMs = (int)(_configuration.MinWaitInMs);
-
-                await Task.Delay(waitInMs);
-            }
-        }
-    }
-
-    public void Dispose() {
-        _baseClient.Dispose();
-    }
+    public void Dispose() => _baseClient.Dispose();
 }

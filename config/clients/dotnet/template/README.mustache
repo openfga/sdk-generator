@@ -1,0 +1,139 @@
+# {{packageDescription}}
+
+{{>README_custom_badges}}[![Release](https://img.shields.io/github/v/release/{{gitUserId}}/{{gitRepoId}}?sort=semver&color=green)](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/releases)
+{{#licenseBadgeId}}[![License](https://img.shields.io/badge/License-{{licenseBadgeId}}-blue.svg)](./LICENSE){{/licenseBadgeId}}
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2B{{gitHost}}%2F{{gitUserId}}%2F{{gitRepoId}}.svg?type=shield)](https://app.fossa.com/projects/git%2B{{gitHost}}%2F{{gitUserId}}%2F{{gitRepoId}}?ref=badge_shield)
+[![Join our community](https://img.shields.io/badge/slack-cncf_%23openfga-40abb8.svg?logo=slack)](https://openfga.dev/community)
+{{#twitterUserName}}[![Twitter](https://img.shields.io/twitter/follow/{{.}}?color=%23179CF0&logo=twitter&style=flat-square "@{{.}} on Twitter")](https://twitter.com/{{.}}){{/twitterUserName}}
+
+{{#packageDetailedDescription}}
+{{{.}}}
+{{/packageDetailedDescription}}
+
+## Table of Contents
+
+- [About {{appLongName}}](#about)
+- [Resources](#resources)
+- [Installation](#installation)
+- [Getting Started](#getting-started)
+  - [Initializing the API Client](#initializing-the-api-client)
+  - [Get your Store ID](#get-your-store-id)
+  - [Calling the API](#calling-the-api)
+    - [Stores](#stores)
+      - [List All Stores](#list-stores)
+      - [Create a Store](#create-store)
+      - [Get a Store](#get-store)
+      - [Delete a Store](#delete-store)
+    - [Authorization Models](#authorization-models)
+      - [Read Authorization Models](#read-authorization-models)
+      - [Write Authorization Model](#write-authorization-model)
+      - [Read a Single Authorization Model](#read-a-single-authorization-model)
+      - [Read the Latest Authorization Model](#read-the-latest-authorization-model)
+    - [Relationship Tuples](#relationship-tuples)
+      - [Read Relationship Tuple Changes (Watch)](#read-relationship-tuple-changes-watch)
+      - [Read Relationship Tuples](#read-relationship-tuples)
+      - [Write (Create and Delete) Relationship Tuples](#write-create-and-delete-relationship-tuples)
+    - [Relationship Queries](#relationship-queries)
+      - [Check](#check)
+      - [Batch Check](#batch-check)
+      - [Expand](#expand)
+      - [List Objects](#list-objects)
+      - [List Relations](#list-relations)
+      - [List Users](#list-users)
+    - [Assertions](#assertions)
+      - [Read Assertions](#read-assertions)
+      - [Write Assertions](#write-assertions)
+  - [Retries](#retries)
+  - [API Endpoints](#api-endpoints)
+  - [Models](#models)
+{{#supportsOpenTelemetry}}
+  - [OpenTelemetry](#opentelemetry)
+{{/supportsOpenTelemetry}}
+- [Contributing](#contributing)
+  - [Issues](#issues)
+  - [Pull Requests](#pull-requests)
+- [License](#license)
+
+## About
+
+{{>README_project_introduction}}
+
+## Resources
+
+{{#docsUrl}}
+- [{{appName}} Documentation]({{docsUrl}})
+{{/docsUrl}}
+{{#apiDocsUrl}}
+- [{{appName}} API Documentation]({{apiDocsUrl}})
+{{/apiDocsUrl}}
+{{#twitterUserName}}
+- [Twitter](https://twitter.com/{{.}})
+{{/twitterUserName}}
+{{#redditUrl}}
+- [{{appName}} Subreddit]({{redditUrl}})
+{{/redditUrl}}
+{{#supportInfo}}
+- [{{appName}} Community]({{supportInfo}})
+{{/supportInfo}}
+- [Zanzibar Academy](https://zanzibar.academy)
+- [Google's Zanzibar Paper (2019)](https://research.google/pubs/pub48190/)
+
+## Installation
+
+{{>README_installation}}
+
+## Getting Started
+
+### Initializing the API Client
+
+[Learn how to initialize your SDK]({{docsUrl}}/getting-started/setup-sdk-client)
+
+{{>README_initializing}}
+
+### Get your Store ID
+
+You need your store id to call the {{appName}} API (unless it is to call the [CreateStore](#create-store) or [ListStores](#list-stores) methods).
+
+If your server is configured with [authentication enabled]({{docsUrl}}/getting-started/setup-openfga#configuring-authentication), you also need to have your credentials ready.
+
+### Calling the API
+
+{{>README_calling_api}}
+
+### Retries
+
+{{>README_retries}}
+
+### API Endpoints
+
+{{>README_api_endpoints}}
+
+### Models
+
+{{>README_models}}
+
+{{#supportsOpenTelemetry}}
+### OpenTelemetry
+
+This SDK supports producing metrics that can be consumed as part of an [OpenTelemetry](https://opentelemetry.io/) setup. For more information, please see [the documentation](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/blob/main/OpenTelemetry.md)
+
+{{/supportsOpenTelemetry}}
+## Contributing
+
+### Issues
+
+If you have found a bug or if you have a feature request, please report them on the [sdk-generator repo](https://{{gitHost}}/{{gitUserId}}/sdk-generator/issues) issues section. Please do not report security vulnerabilities on the public GitHub issue tracker.
+
+### Pull Requests
+
+All changes made to this repo will be overwritten on the next generation, so we kindly ask that you send all pull requests related to the SDKs to the [sdk-generator repo](https://{{gitHost}}/{{gitUserId}}/sdk-generator) instead.
+
+## Author
+
+[{{author}}](https://{{gitHost}}/{{gitUserId}})
+
+## License
+
+This project is licensed under the {{licenseId}} license. See the [LICENSE](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/blob/main/LICENSE) file for more info.
+
+{{>README_license_disclaimer}}

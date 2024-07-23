@@ -1,0 +1,55 @@
+## Configuration
+
+See the OpenTelemetry docs on [Customizing the SDK](https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/docs/metrics/customizing-the-sdk/README.md).
+
+```csharp
+using {{packageName}}.Client;
+using {{packageName}}.Client.Model;
+using {{packageName}}.Model;
+using {{packageName}}.Telemetry;
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using System.Diagnostics;
+
+namespace Example {
+    public class Example {
+        public static async Task Main() {
+            try {
+                // Setup OpenTelemetry Metrics
+                using var meterProvider = Sdk.CreateMeterProviderBuilder()
+                    .AddHttpClientInstrumentation() // To instrument the default http client
+                    .AddMeter(Metrics.name) // .AddMeter("OpenFga.Sdk") also works
+                    .ConfigureResource(resourceBuilder => resourceBuilder.AddService("openfga-dotnet-example"))
+                    .AddOtlpExporter() // Required to export to an OTLP compatible endpoint
+                    .AddConsoleExporter() // Only needed to export the metrics to the console (e.g. when debugging)
+                    .Build();
+
+                // Configure the OpenFGA SDK
+                var configuration = new ClientConfiguration() {
+                    ApiUrl = Environment.GetEnvironmentVariable("FGA_API_URL") ?? "http://localhost:8080", // required, e.g. https://api.fga.example
+                    StoreId = Environment.GetEnvironmentVariable("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
+                    AuthorizationModelId = Environment.GetEnvironmentVariable("FGA_MODEL_ID"), // Optional, can be overridden per request
+                    // Credentials = ... // If needed
+                };
+                var fgaClient = new OpenFgaClient(configuration);
+
+                // Call the SDK normally
+                var response = await fgaClient.ReadAuthorizationModels();
+            } catch (ApiException e) {
+                 Debug.Print("Error: "+ e);
+            }
+        }
+    }
+}
+```
+
+### More Resources
+* [OpenTelemetry.Instrumentation.Http](https://github.com/open-telemetry/opentelemetry-dotnet-contrib/blob/main/src/OpenTelemetry.Instrumentation.Http/README.md) for instrumenting the HttpClient.
+* If you are using .NET 8+, checkout the built-in metrics.
+
+A number of these metrics are baked into .NET 8+ as well:
+
+## Example
+
+There is an [example project](https://github.com/openfga/dotnet-sdk/blob/main/example/OpenTelemetryExample) that provides some guidance on how to configure OpenTelemetry available in the examples directory.
