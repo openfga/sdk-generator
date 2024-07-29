@@ -19,7 +19,7 @@ namespace Example {
                 // Setup OpenTelemetry Metrics
                 using var meterProvider = Sdk.CreateMeterProviderBuilder()
                     .AddHttpClientInstrumentation() // To instrument the default http client
-                    .AddMeter(Metrics.name) // .AddMeter("OpenFga.Sdk") also works
+                    .AddMeter(Metrics.name) // .AddMeter("{{packageName}}") also works
                     .ConfigureResource(resourceBuilder => resourceBuilder.AddService("openfga-dotnet-example"))
                     .AddOtlpExporter() // Required to export to an OTLP compatible endpoint
                     .AddConsoleExporter() // Only needed to export the metrics to the console (e.g. when debugging)
