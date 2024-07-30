@@ -192,17 +192,6 @@ public class Attributes {
             attributes.Add(new KeyValuePair<string, object?>(AttributeRequestClientId, credentials.Config.ClientId));
         }
 
-        var durationHeader = GetHeaderValueIfValid(response.Headers, "fga-query-duration-ms");
-        if (!string.IsNullOrEmpty(durationHeader)) {
-            var success = float.TryParse(durationHeader, out var durationFloat);
-            if (success) {
-                attributes.Add(new KeyValuePair<string, object?>(AttributeHttpServerRequestDuration, durationFloat));
-            }
-        }
-
-        attributes.Add(new KeyValuePair<string, object?>(AttributeHttpClientRequestDuration,
-            requestDuration.ElapsedMilliseconds));
-
         // OTEL specifies that this value should be conditionally sent if a retry occurred
         if (retryCount > 0) {
             attributes.Add(new KeyValuePair<string, object?>(AttributeRequestRetryCount, retryCount));
