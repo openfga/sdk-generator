@@ -4,7 +4,7 @@ using {{packageName}}.ApiClient;
 using {{packageName}}.Configuration;
 using System.Diagnostics;
 using System.Net.Http.Headers;
-using System.Text.Json.Nodes;
+using System.Text.Json;
 
 namespace {{packageName}}.Telemetry;
 
@@ -116,39 +116,35 @@ public class Attributes {
         else if (apiName is "Check" or "ListObjects" or "Write" or "Expand" or "ListUsers") {
             try {
                 if (requestBuilder.JsonBody != null) {
-                    var apiRequest = JsonNode.Parse(requestBuilder.JsonBody!)!;
-
-                    try {
-                        var authModelId = (string)apiRequest!["authorization_model_id"]!;
-
-                        if (!string.IsNullOrEmpty(authModelId)) {
-                            attributes.Add(new KeyValuePair<string, object?>(AttributeRequestModelId,
-                                authModelId));
-                        }
-                    }
-                    catch { }
-
-                    switch (apiName) {
-                        case "Check": {
-                            var tupleKey = apiRequest!["tuple_key"]!;
-                            var fgaUser = (string)tupleKey!["user"]!;
-
-                            if (!string.IsNullOrEmpty(fgaUser)) {
-                                attributes.Add(new KeyValuePair<string, object?>(AttributeFgaRequestUser,
-                                    fgaUser));
+                    using (var document = JsonDocument.Parse(requestBuilder.JsonBody)) {
+                        var root = document.RootElement;
+                        if (root.TryGetProperty("authorization_model_id", out var authModelId)) {
+                            if (!string.IsNullOrEmpty(authModelId.GetString())) {
+                                attributes.Add(new KeyValuePair<string, object?>(AttributeRequestModelId,
+                                    authModelId.GetString()));
                             }
 
-                            break;
-                        }
-                        case "ListObjects": {
-                            var fgaUser = (string)apiRequest!["user"]!;
+                            switch (apiName) {
+                                case "Check": {
+                                    if (root.TryGetProperty("tuple_key", out var tupleKey) &&
+                                        tupleKey.TryGetProperty("user", out var fgaUser) &&
+                                        !string.IsNullOrEmpty(fgaUser.GetString())) {
+                                        attributes.Add(new KeyValuePair<string, object?>(AttributeFgaRequestUser,
+                                            fgaUser.GetString()));
+                                    }
 
-                            if (!string.IsNullOrEmpty(fgaUser)) {
-                                attributes.Add(new KeyValuePair<string, object?>(AttributeFgaRequestUser,
-                                    fgaUser));
+                                    break;
+                                }
+                                case "ListObjects": {
+                                    if (root.TryGetProperty("user", out var fgaUser) &&
+                                        !string.IsNullOrEmpty(fgaUser.GetString())) {
+                                        attributes.Add(new KeyValuePair<string, object?>(AttributeFgaRequestUser,
+                                            fgaUser.GetString()));
+                                    }
+
+                                    break;
+                                }
                             }
-
-                            break;
                         }
                     }
                 }
