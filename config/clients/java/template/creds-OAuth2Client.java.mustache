@@ -1,14 +1,20 @@
 {{>licenseInfo}}
 package {{authPackage}};
 
+import static {{utilPackage}}.StringUtil.isNullOrWhitespace;
+
 import {{invokerPackage}}.*;
 import {{configPackage}}.*;
 import {{errorsPackage}}.ApiException;
 import {{errorsPackage}}.FgaInvalidParameterException;
+import {{telemetryPackage}}.Attribute;
+import {{telemetryPackage}}.Telemetry;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class OAuth2Client {
@@ -18,6 +24,7 @@ public class OAuth2Client {
     private final AccessToken token = new AccessToken();
     private final CredentialsFlowRequest authRequest;
     private final Configuration config;
+    private final Telemetry telemetry;
 
     /**
      * Initializes a new instance of the {@link OAuth2Client} class
@@ -35,6 +42,7 @@ public class OAuth2Client {
                 .apiUrl(buildApiTokenIssuer(clientCredentials.getApiTokenIssuer()))
                 .maxRetries(configuration.getMaxRetries())
                 .minimumRetryDelay(configuration.getMinimumRetryDelay());
+        this.telemetry = new Telemetry(this.config);
     }
 
     /**
@@ -48,6 +56,11 @@ public class OAuth2Client {
             return exchangeToken().thenCompose(response -> {
                 token.setToken(response.getAccessToken());
                 token.setExpiresAt(Instant.now().plusSeconds(response.getExpiresInSeconds()));
+
+                Map<Attribute, String> attributesMap = new HashMap<>();
+
+                telemetry.metrics().credentialsRequest(1L, attributesMap);
+
                 return CompletableFuture.completedFuture(token.getToken());
             });
         }
