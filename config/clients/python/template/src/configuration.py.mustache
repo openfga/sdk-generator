@@ -138,6 +138,7 @@ class Configuration:
     :param ssl_ca_cert: str - the path to a file of concatenated CA certificates
       in PEM format
     :param api_url: str - the URL of the FGA server
+    :param timeout_seconds: int | None - the default timeout in seconds for requests
     """
 
     _default = None
@@ -154,6 +155,7 @@ class Configuration:
                  server_operation_index=None, server_operation_variables=None,
                  ssl_ca_cert=None,
                  api_url=None, # TODO: restructure when removing api_scheme/api_host
+                 timeout_seconds: int | None = None,
                  ):
         """Constructor
         """
@@ -167,6 +169,8 @@ class Configuration:
         else:
             # use the default parameters
             self._retry_params = RetryParams()
+
+        self._timeout_seconds = timeout_seconds or 5 * 60
         """Default Base url
         """
         self.server_index = 0
@@ -567,6 +571,16 @@ class Configuration:
         if self._credentials is not None:
             self._credentials.validate_credentials_config()
 
+        if self._timeout_seconds is not None:
+            if not isinstance(self._timeout_seconds, int):
+                raise FgaValidationException(f"timeout_seconds unexpected type {self._timeout_seconds}")
+
+            ten_minutes = 10 * 60
+            if self._timeout_seconds < 0 or self._timeout_seconds > ten_minutes:
+                raise FgaValidationException(f"timeout_seconds not within reasonable range (0,600), {self._timeout_seconds}")
+
+
+
     @property
     def api_scheme(self):
         """Return connection is https or http."""
@@ -637,6 +651,20 @@ class Configuration:
         Update retry parameters
         """
         self._retry_params = value
+
+    @property
+    def timeout_seconds(self):
+        """
+        Return timeout seconds
+        """
+        return self._timeout_seconds
+
+    @timeout_seconds.setter
+    def timeout_seconds(self, value):
+        """
+        Update timeout seconds
+        """
+        self._timeout_seconds = value
 
     @property
     def disabled_client_side_validations(self):
