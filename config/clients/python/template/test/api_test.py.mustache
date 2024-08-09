@@ -1043,6 +1043,17 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
         self.assertEqual(configuration.api_url, 'http://localhost:8080')
         configuration.is_valid() # Should not throw and complain about scheme being invalid
 
+    def test_timeout_seconds(self):
+        """
+        Ensure that timeout_seconds is set and validated
+        """
+        configuration = {{packageName}}.Configuration(
+            api_url='http://localhost:8080',
+            timeout_seconds=10,
+        )
+        self.assertEqual(configuration.timeout_seconds, 10)
+        configuration.is_valid()
+
     async def test_bad_configuration_read_authorization_model(self):
         """
         Test whether FgaValidationException is raised for API (reading authorization models)
