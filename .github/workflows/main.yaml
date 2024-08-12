@@ -29,7 +29,7 @@ jobs:
           path: clients/fga-js-sdk
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@4fd812986e6c8c2a69e18311145f9371337f27d4 # v3.4.0
+        uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
 
       - name: Run SDK Tests
         run: make test-client-js
@@ -59,7 +59,7 @@ jobs:
           path: clients/fga-go-sdk
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@4fd812986e6c8c2a69e18311145f9371337f27d4 # v3.4.0
+        uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
 
       - name: Run SDK Tests
         run: make test-client-go
@@ -89,7 +89,7 @@ jobs:
           path: clients/fga-dotnet-sdk
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@4fd812986e6c8c2a69e18311145f9371337f27d4 # v3.4.0
+        uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
 
       - name: Run All Tests
         run: make test-client-dotnet
@@ -124,7 +124,7 @@ jobs:
           path: clients/fga-python-sdk
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@4fd812986e6c8c2a69e18311145f9371337f27d4 # v3.4.0
+        uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
 
       - name: Run All Tests
         run: |-
@@ -149,7 +149,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up JDK
-        uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
+        uses: actions/setup-java@6a0805fcefea3d4657a47ac4c165951e33482018 # v4.2.2
         with:
           java-version: 11
           distribution: "temurin"
@@ -162,7 +162,7 @@ jobs:
           path: clients/fga-java-sdk
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@4fd812986e6c8c2a69e18311145f9371337f27d4 # v3.4.0
+        uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3.6.1
 
       - name: Run All Tests
         run: |-
