@@ -90,6 +90,10 @@
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientCheckRequest.cs",
       "templateType": "SupportingFiles"
     },
+    "Client/Model/ClientConsistencyOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientConsistencyOptions.cs",
+      "templateType": "SupportingFiles"
+    },
     "Client/Model/ClientCreateStoreOptions.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientCreateStoreOptions.cs",
       "templateType": "SupportingFiles"
@@ -98,8 +102,16 @@
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientCreateStoreRequest.cs",
       "templateType": "SupportingFiles"
     },
+    "Client/Model/ClientExpandOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientExpandOptions.cs",
+      "templateType": "SupportingFiles"
+    },
     "Client/Model/ClientExpandRequest.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientExpandRequest.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientListObjectsOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientListObjectsOptions.cs",
       "templateType": "SupportingFiles"
     },
     "Client/Model/ClientListObjectsRequest.mustache": {
@@ -120,6 +132,10 @@
     },
     "Client/Model/ClientListStoresOptions.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientListStoresOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientListUsersOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientListUsersOptions.cs",
       "templateType": "SupportingFiles"
     },
     "Client/Model/ClientListUsersRequest.mustache": {
