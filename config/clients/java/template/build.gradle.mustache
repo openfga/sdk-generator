@@ -61,8 +61,8 @@ ext {
     {{#swagger2AnnotationLibrary}}
     swagger_annotations_version = "2.2.9"
     {{/swagger2AnnotationLibrary}}
-    jackson_version = "2.17.1"
-    junit_version = "5.10.2"
+    jackson_version = "2.17.2"
+    junit_version = "5.10.3"
     {{#hasFormParamsInSpec}}
     httpmime_version = "4.5.13"
     {{/hasFormParamsInSpec}}
@@ -75,12 +75,14 @@ dependencies {
     {{#swagger2AnnotationLibrary}}
     implementation "io.swagger.core.v3:swagger-annotations:$swagger_annotations_version"
     {{/swagger2AnnotationLibrary}}
-    implementation "com.google.code.findbugs:jsr305:3.0.2"
+    implementation "com.google.code.findbugs:jsr305:3.0.+"
     implementation "com.fasterxml.jackson.core:jackson-core:$jackson_version"
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jackson_version"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version"
-    implementation "org.openapitools:jackson-databind-nullable:0.2.6"
+    implementation "org.openapitools:jackson-databind-nullable:0.2.+"
+    implementation platform("io.opentelemetry:opentelemetry-bom:1.41.+")
+    implementation "io.opentelemetry:opentelemetry-api"
     {{#hasFormParamsInSpec}}
     implementation "org.apache.httpcomponents:httpmime:$httpmime_version"
     {{/hasFormParamsInSpec}}
@@ -96,7 +98,7 @@ testing {
                 implementation "org.junit.jupiter:junit-jupiter:$junit_version"
                 implementation "org.mockito:mockito-core:5.+"
                 runtimeOnly "org.junit.platform:junit-platform-launcher"
-                implementation "org.wiremock:wiremock:3.6.0"
+                implementation "org.wiremock:wiremock:3.9.+"
 
                 // This test-only dependency is convenient but not widely used.
                 // Review project activity before updating the version here.
@@ -122,8 +124,8 @@ testing {
             dependencies {
                 implementation "com.fasterxml.jackson.core:jackson-core:$jackson_version"
                 implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
-                implementation "org.testcontainers:junit-jupiter:1.19.8"
-                implementation "org.testcontainers:openfga:1.19.8"
+                implementation "org.testcontainers:junit-jupiter:1.20.+"
+                implementation "org.testcontainers:openfga:1.20.+"
                 implementation project()
             }
 
