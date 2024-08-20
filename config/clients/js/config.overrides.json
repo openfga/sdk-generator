@@ -10,7 +10,7 @@
   "useSingleRequestParameter": false,
   "supportsES6": true,
   "modelPropertyNaming": "original",
-  "supportsOpenTelemetry": true,
+  "openTelemetryDocumentation": "opentelemetry.md",
   "files": {
     ".github/workflows/main.yaml.mustache": {
       "destinationFilename": ".github/workflows/main.yaml",
@@ -119,7 +119,7 @@
       "destinationFilename": "example/example1/package.json",
       "templateType": "SupportingFiles"
     },
-    "example/opentelemetry/.npmrc": {},   
+    "example/opentelemetry/.npmrc": {},
     "example/opentelemetry/opentelemetry.mjs": {},
     "example/opentelemetry/README.md": {},
     "example/opentelemetry/instrumentation.mjs": {},
