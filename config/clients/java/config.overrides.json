@@ -31,7 +31,7 @@
   "enumUnknownDefaultCase": true,
   "allowUnicodeIdentifiers": true,
   "caseInsensitiveResponseHeaders": true,
-  "supportsOpenTelemetry": true,
+  "openTelemetryDocumentation": "OpenTelemetry.md",
   "files": {
     "auth-model.json": {
       "destinationFilename": "src/test-integration/resources/auth-model.json",

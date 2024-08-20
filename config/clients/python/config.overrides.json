@@ -10,7 +10,7 @@
   "infoEmail": "community@openfga.dev",
   "docPrefix": "https://github.com/openfga/python-sdk/blob/main/",
   "pythonMinimumRuntime": "3.10",
-  "supportsOpenTelemetry": true,
+  "openTelemetryDocumentation": "opentelemetry.md",
   "files": {
     ".github/workflows/main.yaml.mustache": {
       "destinationFilename": ".github/workflows/main.yaml",
