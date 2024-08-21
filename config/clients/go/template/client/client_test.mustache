@@ -686,13 +686,13 @@ func Test{{appShortName}}Client(t *testing.T) {
 					Expression: "ViewCount < 200",
 					Parameters: &map[string]{{packageName}}.ConditionParamTypeRef{
 						"ViewCount": {
-							TypeName: {{packageName}}.INT,
+							TypeName: {{packageName}}.TYPENAME_INT,
 						},
 						"Type": {
-							TypeName: {{packageName}}.STRING,
+							TypeName: {{packageName}}.TYPENAME_STRING,
 						},
 						"Name": {
-							TypeName: {{packageName}}.STRING,
+							TypeName: {{packageName}}.TYPENAME_STRING,
 						},
 					},
 				},
@@ -792,13 +792,13 @@ func Test{{appShortName}}Client(t *testing.T) {
 				Expression: "ViewCount < 200",
 				Parameters: &map[string]{{packageName}}.ConditionParamTypeRef{
 					"ViewCount": {
-						TypeName: {{packageName}}.INT,
+						TypeName: {{packageName}}.TYPENAME_INT,
 					},
 					"Type": {
-						TypeName: {{packageName}}.STRING,
+						TypeName: {{packageName}}.TYPENAME_STRING,
 					},
 					"Name": {
-						TypeName: {{packageName}}.STRING,
+						TypeName: {{packageName}}.TYPENAME_STRING,
 					},
 				},
 			},
