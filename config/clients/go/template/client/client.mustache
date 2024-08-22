@@ -2251,14 +2251,18 @@ func (client *{{appShortName}}Client) ListObjectsExecute(request SdkClientListOb
 	if err != nil {
 		return nil, err
 	}
-	data, _, err := client.{{appShortName}}Api.ListObjects(request.GetContext(), *storeId).Body(fgaSdk.ListObjectsRequest{
+	body := fgaSdk.ListObjectsRequest{
 		User:                 request.GetBody().User,
 		Relation:             request.GetBody().Relation,
 		Type:                 request.GetBody().Type,
 		ContextualTuples:     fgaSdk.NewContextualTupleKeys(contextualTuples),
 		Context:              request.GetBody().Context,
 		AuthorizationModelId: authorizationModelId,
-	}).Execute()
+	}
+	if request.GetOptions() != nil {
+		body.Consistency = request.GetOptions().Consistency
+	}
+	data, _, err := client.OpenFgaApi.ListObjects(request.GetContext(), *storeId).Body(body).Execute()
 	if err != nil {
 		return nil, err
 	}
