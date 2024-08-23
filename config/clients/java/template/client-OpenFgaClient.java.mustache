@@ -26,7 +26,7 @@ public class OpenFgaClient {
     private static final String CLIENT_METHOD_HEADER = "{{clientMethodHeader}}";
     private static final int DEFAULT_MAX_METHOD_PARALLEL_REQS = {{clientMaxMethodParallelRequests}};
 
-    public OpenFgaClient(ClientConfiguration configuration) throws FgaInvalidParameterException {
+   public OpenFgaClient(ClientConfiguration configuration) throws FgaInvalidParameterException {
         this(configuration, new ApiClient());
     }
 
@@ -308,7 +308,8 @@ public class OpenFgaClient {
 
         ReadRequest body = new ReadRequest();
 
-        if (request != null && (request.getUser() != null || request.getRelation() != null || request.getObject() != null)) {
+        if (request != null
+                && (request.getUser() != null || request.getRelation() != null || request.getObject() != null)) {
             body.tupleKey(new ReadRequestTupleKey()
                     .user(request.getUser())
                     .relation(request.getRelation())
@@ -317,6 +318,9 @@ public class OpenFgaClient {
 
         if (options != null) {
             body.pageSize(options.getPageSize()).continuationToken(options.getContinuationToken());
+            if (options.getConsistency() != null) {
+                body.consistency(options.getConsistency());
+            }
         }
 
         var overrides = new ConfigurationOverride().addHeaders(options);
@@ -398,7 +402,7 @@ public class OpenFgaClient {
 
         var transactions = Stream.concat(writeTransactions, deleteTransactions).collect(Collectors.toList());
 
-        if(transactions.isEmpty()) {
+        if (transactions.isEmpty()) {
             var emptyTransaction = new ClientWriteRequest().writes(null).deletes(null);
             return this.writeTransactions(storeId, emptyTransaction, writeOptions);
         }
@@ -530,12 +534,18 @@ public class OpenFgaClient {
         String storeId = configuration.getStoreIdChecked();
 
         CheckRequest body = request.asCheckRequest();
+        if (options != null) {
+            if (options.getConsistency() != null) {
+                body.consistency(options.getConsistency());
+            }
 
-        if (options != null && !isNullOrWhitespace(options.getAuthorizationModelId())) {
-            body.authorizationModelId(options.getAuthorizationModelId());
-        } else {
-            String authorizationModelId = configuration.getAuthorizationModelId();
+            // Set authorizationModelId from options if available; otherwise, use the default from configuration
+            String authorizationModelId = !isNullOrWhitespace(options.getAuthorizationModelId())
+                    ? options.getAuthorizationModelId()
+                    : configuration.getAuthorizationModelId();
             body.authorizationModelId(authorizationModelId);
+        } else {
+            body.setAuthorizationModelId(configuration.getAuthorizationModelId());
         }
 
         var overrides = new ConfigurationOverride().addHeaders(options);
@@ -626,11 +636,18 @@ public class OpenFgaClient {
                     new ExpandRequestTupleKey().relation(request.getRelation())._object(request.getObject()));
         }
 
-        if (options != null && !isNullOrWhitespace(options.getAuthorizationModelId())) {
-            body.authorizationModelId(options.getAuthorizationModelId());
-        } else {
-            String authorizationModelId = configuration.getAuthorizationModelId();
+        if (options != null) {
+            if (options.getConsistency() != null) {
+                body.consistency(options.getConsistency());
+            }
+
+            // Set authorizationModelId from options if available; otherwise, use the default from configuration
+            String authorizationModelId = !isNullOrWhitespace(options.getAuthorizationModelId())
+                    ? options.getAuthorizationModelId()
+                    : configuration.getAuthorizationModelId();
             body.authorizationModelId(authorizationModelId);
+        } else {
+            body.setAuthorizationModelId(configuration.getAuthorizationModelId());
         }
 
         var overrides = new ConfigurationOverride().addHeaders(options);
@@ -667,16 +684,23 @@ public class OpenFgaClient {
                 var bodyContextualTuples = ClientTupleKey.asContextualTupleKeys(contextualTuples);
                 body.contextualTuples(bodyContextualTuples);
             }
-            if(request.getContext() != null) {
+            if (request.getContext() != null) {
                 body.context(request.getContext());
             }
         }
 
-        if (options != null && !isNullOrWhitespace(options.getAuthorizationModelId())) {
-            body.authorizationModelId(options.getAuthorizationModelId());
-        } else {
-            String authorizationModelId = configuration.getAuthorizationModelId();
+        if (options != null) {
+            if (options.getConsistency() != null) {
+                body.consistency(options.getConsistency());
+            }
+
+            // Set authorizationModelId from options if available; otherwise, use the default from configuration
+            String authorizationModelId = !isNullOrWhitespace(options.getAuthorizationModelId())
+                    ? options.getAuthorizationModelId()
+                    : configuration.getAuthorizationModelId();
             body.authorizationModelId(authorizationModelId);
+        } else {
+            body.setAuthorizationModelId(configuration.getAuthorizationModelId());
         }
 
         var overrides = new ConfigurationOverride().addHeaders(options);
@@ -751,16 +775,23 @@ public class OpenFgaClient {
                 var bodyContextualTuples = ClientTupleKey.asContextualTupleKeys(contextualTuples);
                 body.contextualTuples(bodyContextualTuples.getTupleKeys());
             }
-            if(request.getContext() != null) {
+            if (request.getContext() != null) {
                 body.context(request.getContext());
             }
         }
 
-        if (options != null && !isNullOrWhitespace(options.getAuthorizationModelId())) {
-            body.authorizationModelId(options.getAuthorizationModelId());
-        } else {
-            String authorizationModelId = configuration.getAuthorizationModelId();
+        if (options != null) {
+            if (options.getConsistency() != null) {
+                body.consistency(options.getConsistency());
+            }
+
+            // Set authorizationModelId from options if available; otherwise, use the default from configuration
+            String authorizationModelId = !isNullOrWhitespace(options.getAuthorizationModelId())
+                    ? options.getAuthorizationModelId()
+                    : configuration.getAuthorizationModelId();
             body.authorizationModelId(authorizationModelId);
+        } else {
+            body.setAuthorizationModelId(configuration.getAuthorizationModelId());
         }
 
         var overrides = new ConfigurationOverride().addHeaders(options);
