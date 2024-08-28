@@ -4,10 +4,10 @@ using OpenFga.Sdk.Model;
 
 namespace {{packageName}}.Client.Model;
 
-public interface IClientCheckOptions : IClientRequestOptionsWithAuthZModelIdAndConsistency {
+public interface IClientListUsersOptions : IClientRequestOptionsWithAuthZModelIdAndConsistency {
 }
 
-public class ClientCheckOptions : IClientCheckOptions {
+public class ClientListUsersOptions : IClientListUsersOptions {
     /// <inheritdoc />
     public string? StoreId { get; set; }
 
