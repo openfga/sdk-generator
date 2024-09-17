@@ -11,6 +11,7 @@ import urllib
 import urllib3
 
 from {{packageName}}.exceptions import FgaValidationException, ApiValueError
+from {{packageName}}.telemetry.configuration import TelemetryConfiguration
 from {{packageName}}.validation import is_well_formed_ulid_string
 
 
@@ -154,6 +155,7 @@ class Configuration:
                  server_operation_index=None, server_operation_variables=None,
                  ssl_ca_cert=None,
                  api_url=None, # TODO: restructure when removing api_scheme/api_host
+                 telemetry: TelemetryConfiguration | None = None,
                  ):
         """Constructor
         """
@@ -274,6 +276,13 @@ class Configuration:
 
         self.socket_options = None
         """Options to pass down to the underlying urllib3 socket
+        """
+
+        if telemetry is None:
+            telemetry = TelemetryConfiguration()
+
+        self.telemetry = telemetry
+        """Telemetry configuration
         """
 
     def __deepcopy__(self, memo):
