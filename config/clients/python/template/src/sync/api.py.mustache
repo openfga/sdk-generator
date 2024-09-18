@@ -320,18 +320,20 @@ class {{classname}}:
         {{/returnType}}
 
         telemetry_attributes: dict[TelemetryAttribute, str] = {
-            TelemetryAttributes.request_method: "{{operationId}}"
+            TelemetryAttributes.fga_client_request_method: "{{operationId}}"
         }
 
         try:
             if store_id:
-                telemetry_attributes[TelemetryAttributes.request_store_id] = store_id
+                telemetry_attributes[
+                    TelemetryAttributes.fga_client_request_store_id
+                ] = store_id
         except:
             pass
 
         try:
             if body_params.tuple_key:
-                telemetry_attributes[TelemetryAttributes.client_user] = (
+                telemetry_attributes[TelemetryAttributes.fga_client_user] = (
                     body_params.tuple_key.user
                 )
         except:
@@ -339,13 +341,13 @@ class {{classname}}:
 
         try:
             if "authorization_model_id" in local_var_params:
-                telemetry_attributes[TelemetryAttributes.request_model_id] = local_var_params[
-                    "authorization_model_id"
-                ]
+                telemetry_attributes[
+                    TelemetryAttributes.fga_client_request_model_id
+                ] = local_var_params["authorization_model_id"]
             elif body_params.authorization_model_id:
-                telemetry_attributes[TelemetryAttributes.request_model_id] = (
-                    body_params.authorization_model_id
-                )
+                telemetry_attributes[
+                    TelemetryAttributes.fga_client_request_model_id
+                ] = body_params.authorization_model_id
         except:
             pass
 
