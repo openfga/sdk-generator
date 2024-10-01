@@ -4,7 +4,7 @@
 
 Get a paginated list of stores.
 
-[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/ListStores)
+[API Documentation]({{apiDocsUrl}}#/Stores/ListStores)
 
 ```golang
 options := ClientListStoresOptions{
@@ -20,7 +20,7 @@ stores, err := fgaClient.ListStores(context.Background()).Options(options).Execu
 
 Create and initialize a store.
 
-[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/CreateStore)
+[API Documentation]({{apiDocsUrl}}#/Stores/CreateStore)
 
 ```golang
 body := ClientCreateStoreRequest{Name: "FGA Demo"}
@@ -41,7 +41,7 @@ fgaClient.SetStoreId(store.Id)
 
 Get information about the current store.
 
-[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/GetStore)
+[API Documentation]({{apiDocsUrl}}#/Stores/GetStore)
 
 ```golang
 options := ClientGetStoreOptions{
@@ -60,7 +60,7 @@ if err != nil {
 
 Delete a store.
 
-[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/DeleteStore)
+[API Documentation]({{apiDocsUrl}}#/Stores/DeleteStore)
 
 ```golang
 options := ClientDeleteStoreOptions{
