@@ -1,91 +1,46 @@
 diff --git a/api.ts b/api.ts
-index 89ae624..c080806 100644
+index 9e91ac6..c080806 100644
 --- a/api.ts
 +++ b/api.ts
-@@ -24,7 +24,6 @@ import {
-   CallResult,
-   PromiseResult
- } from "./common";
--import { attributeNames } from "./telemetry";
- import { Configuration } from "./configuration";
- import { Credentials } from "./credentials";
- import { assertParamExists } from "./validation";
-@@ -110,6 +109,7 @@ import {
-   WriteRequestDeletes,
-   WriteRequestWrites,
- } from "./apiModel";
-+import { TelemetryAttribute, TelemetryAttributes } from "./telemetry/attributes";
- 
- 
- /**
-@@ -759,10 +759,10 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
-     async check(storeId: string, body: CheckRequest, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<CheckResponse>> {
+@@ -760,6 +760,9 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = localVarAxiosParamCreator.check(storeId, body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
--        [attributeNames.requestMethod]: "check",
--        [attributeNames.requestStoreId]: storeId,
--        [attributeNames.requestModelId]: body.authorization_model_id,
--        [attributeNames.user]: body.tuple_key.user
-+        [TelemetryAttribute.FgaClientRequestMethod]: "Check",
+         [TelemetryAttribute.FgaClientRequestMethod]: "Check",
 +        [TelemetryAttribute.FgaClientRequestStoreId]: storeId ?? "",
 +        [TelemetryAttribute.FgaClientRequestModelId]: body.authorization_model_id ?? "",
 +        [TelemetryAttribute.FgaClientUser]: body.tuple_key.user
        });
      },
      /**
-@@ -775,7 +775,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
-     async createStore(body: CreateStoreRequest, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<CreateStoreResponse>> {
-       const localVarAxiosArgs = localVarAxiosParamCreator.createStore(body, options);
-       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
--        [attributeNames.requestMethod]: "createStore",
-+        [TelemetryAttribute.FgaClientRequestMethod]: "CreateStore",
-       });
-     },
-     /**
-@@ -788,8 +788,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
-     async deleteStore(storeId: string, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<void>> {
+@@ -786,6 +789,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = localVarAxiosParamCreator.deleteStore(storeId, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
--        [attributeNames.requestMethod]: "deleteStore",
--        [attributeNames.requestStoreId]: storeId,
-+        [TelemetryAttribute.FgaClientRequestMethod]: "DeleteStore",
+         [TelemetryAttribute.FgaClientRequestMethod]: "DeleteStore",
 +        [TelemetryAttribute.FgaClientRequestStoreId]: storeId,
        });
      },
      /**
-@@ -803,9 +803,9 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
-     async expand(storeId: string, body: ExpandRequest, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<ExpandResponse>> {
+@@ -800,6 +804,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = localVarAxiosParamCreator.expand(storeId, body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
--        [attributeNames.requestMethod]: "expand",
--        [attributeNames.requestModelId]: body.authorization_model_id,
--        [attributeNames.requestStoreId]: storeId,
-+        [TelemetryAttribute.FgaClientRequestMethod]: "Expand",
+         [TelemetryAttribute.FgaClientRequestMethod]: "Expand",
 +        [TelemetryAttribute.FgaClientRequestModelId]: body.authorization_model_id ?? "",
 +        [TelemetryAttribute.FgaClientRequestStoreId]: storeId ?? "",
        });
      },
      /**
-@@ -818,8 +818,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
-     async getStore(storeId: string, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<GetStoreResponse>> {
+@@ -813,6 +819,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = localVarAxiosParamCreator.getStore(storeId, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
--        [attributeNames.requestMethod]: "getStore",
--        [attributeNames.requestStoreId]: storeId,
-+        [TelemetryAttribute.FgaClientRequestMethod]: "GetStore",
+         [TelemetryAttribute.FgaClientRequestMethod]: "GetStore",
 +        [TelemetryAttribute.FgaClientRequestStoreId]: storeId,
        });
      },
      /**
-@@ -833,14 +833,14 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
-     async listObjects(storeId: string, body: ListObjectsRequest, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<ListObjectsResponse>> {
+@@ -827,10 +834,13 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = localVarAxiosParamCreator.listObjects(storeId, body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
--        [attributeNames.requestMethod]: "listObjects",
--        [attributeNames.requestStoreId]: storeId,
--        [attributeNames.requestModelId]: body.authorization_model_id,
--        [attributeNames.user]: body.user
-+        [TelemetryAttribute.FgaClientRequestMethod]: "ListObjects",
+         [TelemetryAttribute.FgaClientRequestMethod]: "ListObjects",
 +        [TelemetryAttribute.FgaClientRequestStoreId]: storeId ?? "",
 +        [TelemetryAttribute.FgaClientRequestModelId]: body.authorization_model_id ?? "",
 +        [TelemetryAttribute.FgaClientUser]: body.user
@@ -97,35 +52,19 @@ index 89ae624..c080806 100644
           * @summary List all stores
           * @param {number} [pageSize]
           * @param {string} [continuationToken]
-@@ -850,7 +850,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
-     async listStores(pageSize?: number, continuationToken?: string, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<ListStoresResponse>> {
-       const localVarAxiosArgs = localVarAxiosParamCreator.listStores(pageSize, continuationToken, options);
-       return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
--        [attributeNames.requestMethod]: "listStores",
-+        [TelemetryAttribute.FgaClientRequestMethod]: "ListStores",
-       });
-     },
-     /**
-@@ -864,9 +864,9 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
-     async listUsers(storeId: string, body: ListUsersRequest, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<ListUsersResponse>> {
+@@ -855,6 +865,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = localVarAxiosParamCreator.listUsers(storeId, body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
--        [attributeNames.requestMethod]: "listUsers",
--        [attributeNames.requestStoreId]: storeId,
--        [attributeNames.requestModelId]: body.authorization_model_id,
-+        [TelemetryAttribute.FgaClientRequestMethod]: "ListUsers",
+         [TelemetryAttribute.FgaClientRequestMethod]: "ListUsers",
 +        [TelemetryAttribute.FgaClientRequestStoreId]: storeId ?? "",
 +        [TelemetryAttribute.FgaClientRequestModelId]: body.authorization_model_id ?? "",
        });
      },
      /**
-@@ -880,12 +880,12 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
-     async read(storeId: string, body: ReadRequest, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<ReadResponse>> {
+@@ -869,10 +881,11 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = localVarAxiosParamCreator.read(storeId, body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
--        [attributeNames.requestMethod]: "read",
--        [attributeNames.requestStoreId]: storeId,
-+        [TelemetryAttribute.FgaClientRequestMethod]: "Read",
+         [TelemetryAttribute.FgaClientRequestMethod]: "Read",
 +        [TelemetryAttribute.FgaClientRequestStoreId]: storeId,
        });
      },
@@ -135,86 +74,65 @@ index 89ae624..c080806 100644
           * @summary Read assertions for an authorization model ID
           * @param {string} storeId
           * @param {string} authorizationModelId
-@@ -895,9 +895,9 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
-     async readAssertions(storeId: string, authorizationModelId: string, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<ReadAssertionsResponse>> {
+@@ -883,6 +896,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = localVarAxiosParamCreator.readAssertions(storeId, authorizationModelId, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
--        [attributeNames.requestMethod]: "readAssertions",
--        [attributeNames.requestStoreId]: storeId,
--        [attributeNames.requestModelId]: authorizationModelId,
-+        [TelemetryAttribute.FgaClientRequestMethod]: "ReadAssertions",
+         [TelemetryAttribute.FgaClientRequestMethod]: "ReadAssertions",
 +        [TelemetryAttribute.FgaClientRequestStoreId]: storeId,
 +        [TelemetryAttribute.FgaClientRequestModelId]: authorizationModelId,
        });
      },
      /**
-@@ -911,8 +911,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
-     async readAuthorizationModel(storeId: string, id: string, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<ReadAuthorizationModelResponse>> {
+@@ -897,6 +912,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = localVarAxiosParamCreator.readAuthorizationModel(storeId, id, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
--        [attributeNames.requestMethod]: "readAuthorizationModel",
--        [attributeNames.requestStoreId]: storeId,
-+        [TelemetryAttribute.FgaClientRequestMethod]: "ReadAuthorizationModel",
+         [TelemetryAttribute.FgaClientRequestMethod]: "ReadAuthorizationModel",
 +        [TelemetryAttribute.FgaClientRequestStoreId]: storeId,
        });
      },
      /**
-@@ -927,8 +927,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
-     async readAuthorizationModels(storeId: string, pageSize?: number, continuationToken?: string, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<ReadAuthorizationModelsResponse>> {
+@@ -912,6 +928,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = localVarAxiosParamCreator.readAuthorizationModels(storeId, pageSize, continuationToken, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
--        [attributeNames.requestMethod]: "readAuthorizationModels",
--        [attributeNames.requestStoreId]: storeId,
-+        [TelemetryAttribute.FgaClientRequestMethod]: "ReadAuthorizationModels",
+         [TelemetryAttribute.FgaClientRequestMethod]: "ReadAuthorizationModels",
 +        [TelemetryAttribute.FgaClientRequestStoreId]: storeId,
        });
      },
      /**
-@@ -944,8 +944,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
-     async readChanges(storeId: string, type?: string, pageSize?: number, continuationToken?: string, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<ReadChangesResponse>> {
+@@ -928,6 +945,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = localVarAxiosParamCreator.readChanges(storeId, type, pageSize, continuationToken, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
--        [attributeNames.requestMethod]: "readChanges",
--        [attributeNames.requestStoreId]: storeId,
-+        [TelemetryAttribute.FgaClientRequestMethod]: "ReadChanges",
+         [TelemetryAttribute.FgaClientRequestMethod]: "ReadChanges",
 +        [TelemetryAttribute.FgaClientRequestStoreId]: storeId,
        });
      },
      /**
-@@ -959,9 +959,9 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
-     async write(storeId: string, body: WriteRequest, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<object>> {
+@@ -942,6 +960,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = localVarAxiosParamCreator.write(storeId, body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
--        [attributeNames.requestMethod]: "write",
--        [attributeNames.requestStoreId]: storeId,
--        [attributeNames.requestModelId]: body.authorization_model_id,
-+        [TelemetryAttribute.FgaClientRequestMethod]: "Write",
+         [TelemetryAttribute.FgaClientRequestMethod]: "Write",
 +        [TelemetryAttribute.FgaClientRequestStoreId]: storeId ?? "",
 +        [TelemetryAttribute.FgaClientRequestModelId]: body.authorization_model_id ?? "",
        });
      },
      /**
-@@ -976,9 +976,9 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
-     async writeAssertions(storeId: string, authorizationModelId: string, body: WriteAssertionsRequest, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<void>> {
+@@ -957,6 +977,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = localVarAxiosParamCreator.writeAssertions(storeId, authorizationModelId, body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
--        [attributeNames.requestMethod]: "writeAssertions",
--        [attributeNames.requestStoreId]: storeId,
--        [attributeNames.requestModelId]: authorizationModelId,
-+        [TelemetryAttribute.FgaClientRequestMethod]: "WriteAssertions",
+         [TelemetryAttribute.FgaClientRequestMethod]: "WriteAssertions",
 +        [TelemetryAttribute.FgaClientRequestStoreId]: storeId,
 +        [TelemetryAttribute.FgaClientRequestModelId]: authorizationModelId,
        });
      },
      /**
-@@ -992,8 +992,8 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
-     async writeAuthorizationModel(storeId: string, body: WriteAuthorizationModelRequest, options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<WriteAuthorizationModelResponse>> {
+@@ -971,6 +993,7 @@ export const OpenFgaApiFp = function(configuration: Configuration, credentials:
        const localVarAxiosArgs = localVarAxiosParamCreator.writeAuthorizationModel(storeId, body, options);
        return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
--        [attributeNames.requestMethod]: "writeAuthorizationModel",
--        [attributeNames.requestStoreId]: storeId,
-+        [TelemetryAttribute.FgaClientRequestMethod]: "WriteAuthorizationModel",
+         [TelemetryAttribute.FgaClientRequestMethod]: "WriteAuthorizationModel",
 +        [TelemetryAttribute.FgaClientRequestStoreId]: storeId,
        });
      },
    };
+@@ -1380,4 +1403,3 @@ export class OpenFgaApi extends BaseAPI {
+   }
+ }
