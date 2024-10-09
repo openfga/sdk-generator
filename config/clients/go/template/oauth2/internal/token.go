@@ -21,6 +21,7 @@ import (
 	"time"
 
 	internalutils "github.com/openfga/go-sdk/internal/utils"
+	"github.com/openfga/go-sdk/telemetry"
 )
 
 const cMaxRetry = 3
@@ -295,6 +296,11 @@ func doTokenRoundTrip(ctx context.Context, req *http.Request) (*Token, error) {
 
 		token, err = singleTokenRoundTrip(ctx, req)
 		if err == nil {
+			if otel := telemetry.Extract(ctx); otel != nil {
+				attrs := make(map[*telemetry.Attribute]string)
+				attrs[telemetry.HTTPRequestResendCount] = strconv.Itoa(i)
+				otel.Metrics.CredentialsRequest(1, attrs)
+			}
 			return token, err
 		}
 

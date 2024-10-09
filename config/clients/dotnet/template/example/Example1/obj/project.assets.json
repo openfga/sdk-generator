@@ -1,0 +1,119 @@
+{
+  "version": 3,
+  "targets": {
+    "net6.0": {
+      "OpenFga.Sdk/0.2.5": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/OpenFga.Sdk.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/OpenFga.Sdk.dll": {
+            "related": ".xml"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "OpenFga.Sdk/0.2.5": {
+      "sha512": "4Vz+4wnGyzHkh9XNjd5uO+cLSPQp7ovccZtzYXfOCivEBpTHsHOScqHwM74d4ZxsWdRMQecG89hLLHOcaxhLBQ==",
+      "type": "package",
+      "path": "openfga.sdk/0.2.5",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "FGAIcon.png",
+        "README.md",
+        "lib/net6.0/OpenFga.Sdk.dll",
+        "lib/net6.0/OpenFga.Sdk.xml",
+        "openfga.sdk.0.2.5.nupkg.sha512",
+        "openfga.sdk.nuspec"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net6.0": [
+      "OpenFga.Sdk >= 0.2.5"
+    ]
+  },
+  "packageFolders": {
+    "/Users/ewan/.nuget/packages/": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "/Users/ewan/dev/git/openfga/sdk-generator/config/clients/dotnet/template/example/Example1/Example1.csproj",
+      "projectName": "Example1",
+      "projectPath": "/Users/ewan/dev/git/openfga/sdk-generator/config/clients/dotnet/template/example/Example1/Example1.csproj",
+      "packagesPath": "/Users/ewan/.nuget/packages/",
+      "outputPath": "/Users/ewan/dev/git/openfga/sdk-generator/config/clients/dotnet/template/example/Example1/obj/",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "/Users/ewan/.nuget/NuGet/NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "net6.0"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "projectReferences": {}
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "net6.0": {
+        "targetAlias": "net6.0",
+        "dependencies": {
+          "OpenFga.Sdk": {
+            "suppressParent": "All",
+            "target": "Package",
+            "version": "[0.2.5, )"
+          }
+        },
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[6.0.26, 6.0.26]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Host.osx-arm64",
+            "version": "[6.0.26, 6.0.26]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[6.0.26, 6.0.26]"
+          }
+        ],
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.101/RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

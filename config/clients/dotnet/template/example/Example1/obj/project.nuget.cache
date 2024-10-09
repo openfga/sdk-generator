@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "P8CDnPgjPPvW6IbTw5sf/bf3hoFbOyiAFwouFr2mHtVOHm+lAP9L6cxHF5gYFsqM/VOGaJBHwTSjhZY/c2nTIA==",
+  "success": true,
+  "projectFilePath": "/Users/ewan/dev/git/openfga/sdk-generator/config/clients/dotnet/template/example/Example1/Example1.csproj",
+  "expectedPackageFiles": [
+    "/Users/ewan/.nuget/packages/openfga.sdk/0.2.5/openfga.sdk.0.2.5.nupkg.sha512",
+    "/Users/ewan/.nuget/packages/microsoft.netcore.app.ref/6.0.26/microsoft.netcore.app.ref.6.0.26.nupkg.sha512",
+    "/Users/ewan/.nuget/packages/microsoft.aspnetcore.app.ref/6.0.26/microsoft.aspnetcore.app.ref.6.0.26.nupkg.sha512",
+    "/Users/ewan/.nuget/packages/microsoft.netcore.app.host.osx-arm64/6.0.26/microsoft.netcore.app.host.osx-arm64.6.0.26.nupkg.sha512"
+  ],
+  "logs": []
+}
