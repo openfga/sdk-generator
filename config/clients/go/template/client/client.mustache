@@ -11,6 +11,7 @@ import (
 	fgaSdk "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
 	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
 	internalutils "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/internal/utils"
+	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/telemetry"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -39,6 +40,7 @@ type ClientConfiguration struct {
 	Debug                bool                     `json:"debug"`
 	HTTPClient           *_nethttp.Client
 	RetryParams          *fgaSdk.RetryParams
+	Telemetry            *telemetry.Configuration `json:"telemetry,omitempty"`
 }
 
 func newClientConfiguration(cfg *fgaSdk.Configuration) ClientConfiguration {
@@ -52,6 +54,7 @@ func newClientConfiguration(cfg *fgaSdk.Configuration) ClientConfiguration {
 		Debug:          cfg.Debug,
 		HTTPClient:	    cfg.HTTPClient,
 		RetryParams:    cfg.RetryParams,
+		Telemetry:      cfg.Telemetry,
 	}
 }
 
@@ -72,6 +75,7 @@ func NewSdkClient(cfg *ClientConfiguration) (*{{appShortName}}Client, error) {
 		Debug:          cfg.Debug,
 		HTTPClient:	    cfg.HTTPClient,
 		RetryParams:    cfg.RetryParams,
+		Telemetry:      cfg.Telemetry,
 	})
 
 	if err != nil {
@@ -2008,6 +2012,15 @@ func (client *{{appShortName}}Client) BatchCheckExecute(request SdkClientBatchCh
 		return nil, err
 	}
 
+	checkOptions := &ClientCheckOptions{
+		AuthorizationModelId: authorizationModelId,
+		StoreId:              storeId,
+	}
+
+	if request.GetOptions() != nil && request.GetOptions().Consistency != nil {
+		checkOptions.Consistency = request.GetOptions().Consistency
+	}
+
 	for index, checkBody := range *request.GetBody() {
 		index, checkBody := index, checkBody
 		group.Go(func() error {
@@ -2015,10 +2028,7 @@ func (client *{{appShortName}}Client) BatchCheckExecute(request SdkClientBatchCh
 				ctx:    ctx,
 				Client: client,
 				body:   &checkBody,
-				options: &ClientCheckOptions{
-					AuthorizationModelId: authorizationModelId,
-					StoreId:              storeId,
-				},
+				options: checkOptions,
 			})
 
 			if _, ok := err.(fgaSdk.FgaApiAuthenticationError); ok {

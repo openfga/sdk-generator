@@ -12,3 +12,6 @@ clients/**/*
 # JetBrains IDEs
 .idea/
 *.iml
+
+config/clients/dotnet/template/example/Example1/obj
+config/clients/dotnet/template/example/Example1/bin/

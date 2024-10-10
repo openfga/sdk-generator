@@ -12,7 +12,8 @@ import (
 {{#imports}}	"{{import}}"
 {{/imports}}
 
-    "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/internal/utils"
+	internalutils "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/internal/utils"
+	telemetry "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/telemetry"
 )
 
 // Linger please
@@ -93,6 +94,7 @@ func (a *{{{classname}}}Service) {{{nickname}}}(ctx _context.Context{{#pathParam
 func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request) ({{#returnType}}{{{.}}}, {{/returnType}}*_nethttp.Response, error) {
 	var maxRetry int
 	var minWaitInMs int
+	var requestStarted time.Time = time.Now()
 
 	if (a.RetryParams != nil) {
 		maxRetry = a.RetryParams.MinWaitInMs
@@ -498,6 +500,28 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	}
 
 	{{/returnType}}
+	metrics := telemetry.GetMetrics(telemetry.TelemetryFactoryParameters{Configuration: a.client.cfg.Telemetry})
+
+	var attrs, queryDuration, requestDuration, _ = metrics.BuildTelemetryAttributes(
+		"{{nickname}}",
+		map[string]interface{}{ {{#pathParams.0}}
+			"storeId": r.storeId,{{/pathParams.0}}
+			"body": localVarPostBody,
+		},
+		req,
+		localVarHTTPResponse,
+		requestStarted,
+		i,
+	)
+
+	if requestDuration > 0 {
+		metrics.RequestDuration(requestDuration, attrs)
+	}
+
+	if queryDuration > 0 {
+		metrics.QueryDuration(queryDuration, attrs)
+	}
+
 	return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, nil
 	}
 	// should never have reached this
