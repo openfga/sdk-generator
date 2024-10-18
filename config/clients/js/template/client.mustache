@@ -200,8 +200,6 @@ export class {{appShortName}}Client extends BaseAPI {
       this.configuration = new ClientConfiguration(configuration);
     }
     this.configuration.isValid();
-
-
     this.api = new {{appShortName}}Api(this.configuration, axios);
     this.storeId = configuration.storeId;
     this.authorizationModelId = configuration.authorizationModelId;
