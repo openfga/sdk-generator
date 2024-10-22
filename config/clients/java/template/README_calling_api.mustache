@@ -221,12 +221,12 @@ Reads the relationship tuples stored in the database. It does not evaluate nor e
 var request = new ClientReadRequest()
     .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
     .relation("viewer")
-    ._object("document:roadmap");
+    ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a");
 
 // Find all relationship tuples where a certain user has a relationship as any relation to a certain document
 var request = new ClientReadRequest()
     .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
-    ._object("document:roadmap");
+    ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a");
 
 // Find all relationship tuples where a certain user is a viewer of any document
 var request = new ClientReadRequest()
@@ -236,7 +236,7 @@ var request = new ClientReadRequest()
 
 // Find all relationship tuples where any user has a relationship as any relation with a particular document
 var request = new ClientReadRequest()
-    ._object("document:roadmap");
+    ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a");
 
 // Read all stored relationship tuples
 var request = new ClientReadRequest();
@@ -270,17 +270,17 @@ var request = new ClientWriteRequest()
         new TupleKey()
             .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
             .relation("viewer")
-            ._object("document:roadmap"),
+            ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"),
         new TupleKey()
             .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
             .relation("viewer")
-            ._object("document:budget")
+            ._object("document:0192ab2d-d36e-7cb3-a4a8-5d1d67a300c5")
     ))
     .deletes(List.of(
         new TupleKey()
             .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
             .relation("writer")
-            ._object("document:roadmap")
+            ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a")
     ));
 
 var options = new ClientWriteOptions()
@@ -307,17 +307,17 @@ var request = new ClientWriteRequest()
         new ClientTupleKey()
             .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
             .relation("viewer")
-            ._object("document:roadmap"),
+            ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"),
         new ClientTupleKey()
             .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
             .relation("viewer")
-            ._object("document:budget")
+            ._object("document:0192ab2d-d36e-7cb3-a4a8-5d1d67a300c5")
     ))
     .deletes(List.of(
         new ClientTupleKeyWithoutCondition()
             .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
             .relation("writer")
-            ._object("document:roadmap")
+            ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a")
     ));
 var options = new ClientWriteOptions()
     .additionalHeaders(Map.of("Some-Http-Header", "Some value"))
@@ -343,7 +343,7 @@ Check if a user has a particular relation with an object.
 var request = new ClientCheckRequest()
     .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
     .relation("writer")
-    ._object("document:roadmap");
+    ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a");
 var options = new ClientCheckOptions()
     .additionalHeaders(Map.of("Some-Http-Header", "Some value"))
     // You can rely on the model id set in the configuration or override it for this specific request
@@ -365,31 +365,31 @@ var request = List.of(
     new ClientCheckRequest()
         .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
         .relation("viewer")
-        ._object("document:roadmap")
+        ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a")
         .contextualTuples(List.of(
             new ClientTupleKey()
                 .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
                 .relation("editor")
-                ._object("document:roadmap")
+                ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a")
         )),
     new ClientCheckRequest()
         .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
         .relation("admin")
-        ._object("document:roadmap"),
+        ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"),
         .contextualTuples(List.of(
             new ClientTupleKey()
                 .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
                 .relation("editor")
-                ._object("document:roadmap")
+                ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a")
         )),
     new ClientCheckRequest()
         .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
         .relation("creator")
-        ._object("document:roadmap"),
+        ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"),
     new ClientCheckRequest()
         .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
         .relation("deleter")
-        ._object("document:roadmap")
+        ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a")
 );
 var options = new ClientBatchCheckOptions()
     .additionalHeaders(Map.of("Some-Http-Header", "Some value"))
@@ -405,11 +405,11 @@ response.getResponses() = [{
   request: {
     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     relation: "viewer",
-    _object: "document:roadmap",
+    _object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
     contextualTuples: [{
       user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
       relation: "editor",
-      _object: "document:roadmap"
+      _object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
     }]
   }
 }, {
@@ -417,11 +417,11 @@ response.getResponses() = [{
   request: {
     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     relation: "admin",
-    _object: "document:roadmap",
+    _object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
     contextualTuples: [{
       user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
       relation: "editor",
-      _object: "document:roadmap"
+      _object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
     }]
   }
 }, {
@@ -429,7 +429,7 @@ response.getResponses() = [{
   request: {
     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     relation: "creator",
-    _object: "document:roadmap",
+    _object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
   },
   error: <FgaError ...>
 }, {
@@ -437,7 +437,7 @@ response.getResponses() = [{
   request: {
     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     relation: "deleter",
-    _object: "document:roadmap",
+    _object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
   }},
 ]
 */
@@ -454,7 +454,7 @@ Expands the relationships in userset tree format.
 ```java
 var request = new ClientExpandRequest()
     .relation("viewer")
-    ._object("document:roadmap");
+    ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a");
 var options = new ClientExpandOptions()
     .additionalHeaders(Map.of("Some-Http-Header", "Some value"))
     // You can rely on the model id set in the configuration or override it for this specific request
@@ -462,7 +462,7 @@ var options = new ClientExpandOptions()
 
 var response = fgaClient.expand(request, options).get();
 
-// response.getTree().getRoot() = {"name":"document:roadmap#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b","user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]}}}
+// response.getTree().getRoot() = {"name":"document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b","user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]}}}
 ```
 
 ##### List Objects
@@ -482,7 +482,7 @@ var request = new ClientListObjectsRequest()
         new ClientTupleKey()
             .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
             .relation("writer")
-            ._object("document:budget")
+            ._object("document:0192ab2d-d36e-7cb3-a4a8-5d1d67a300c5")
     ));
 var options = new ClientListObjectsOptions()
     .additionalHeaders(Map.of("Some-Http-Header", "Some value"))
@@ -491,7 +491,7 @@ var options = new ClientListObjectsOptions()
 
 var response = fgaClient.listObjects(request, options).get();
 
-// response.getObjects() = ["document:roadmap"]
+// response.getObjects() = ["document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"]
 ```
 
 ##### List Relations
@@ -503,13 +503,13 @@ List the relations a user has on an object.
 ```java
 var request = new ClientListRelationsRequest()
     .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
-    ._object("document:roadmap")
+    ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a")
     .relations(List.of("can_view", "can_edit", "can_delete", "can_rename"))
     .contextualTuples(List.of(
         new ClientTupleKey()
             .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
             .relation("editor")
-            ._object("document:roadmap")
+            ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a")
         )
     );
 var options = new ClientListRelationsOptions()
@@ -553,7 +553,7 @@ var request = new ClientListUsersRequest()
         new ClientTupleKey()
             .user("folder:product")
             .relation("parent")
-            ._object("document:roadmap")
+            ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a")
 ));
 
 var options = new ClientListUsersOptions()
@@ -600,7 +600,7 @@ var assertions = List.of(
     new ClientAssertion()
         .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
         .relation("viewer")
-        ._object("document:roadmap")
+        ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a")
         .expectation(true)
 );
 fgaClient.writeAssertions(assertions, options).get();
