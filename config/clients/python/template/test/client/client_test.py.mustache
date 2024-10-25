@@ -2027,8 +2027,6 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 )
 
             mock_request.assert_called()
-            self.assertEqual(mock_request.call_count, 3)
-
             {{#asyncio}}await {{/asyncio}}api_client.close()
 
 

@@ -549,7 +549,7 @@ class OpenFgaClient:
             semaphore.release()
 {{/asyncio}}
 
-    {{#asyncio}}async {{/asyncio}}def batch_check(self, body: list[ClientCheckRequest], options: dict[str, str] = None):
+    {{#asyncio}}async {{/asyncio}}def batch_check(self, body: list[ClientCheckRequest], options: dict[str, str | int] = None):
         """
         Run a set of checks
         :param body - list of ClientCheckRequest defining check request
@@ -565,7 +565,13 @@ class OpenFgaClient:
 
         max_parallel_requests = {{ clientMaxMethodParallelRequests }}
         if options is not None and "max_parallel_requests" in options:
-            max_parallel_requests = options["max_parallel_requests"]
+            if (
+                isinstance(options["max_parallel_requests"], str)
+                and options["max_parallel_requests"].isdigit()
+            ):
+                max_parallel_requests = int(options["max_parallel_requests"])
+            elif isinstance(options["max_parallel_requests"], int):
+                max_parallel_requests = options["max_parallel_requests"]
 
 {{#asyncio}}
         sem = asyncio.Semaphore(max_parallel_requests)
