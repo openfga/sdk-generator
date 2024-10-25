@@ -134,7 +134,9 @@ build-client-python:
 
 .PHONY: test-client-python
 test-client-python: build-client-python
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; pytest --cov-report term-missing --cov=openfga_sdk test/; flake8 . --count --show-source --statistics'"
+	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt && \
+		pytest --cov-report term-missing --cov=openfga_sdk test/ && \
+		flake8 . --count --show-source --statistics'"
 
 ### Java
 .PHONY: tag-client-java
