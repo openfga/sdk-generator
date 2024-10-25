@@ -319,37 +319,13 @@ class {{classname}}:
         response_types_map = {}
         {{/returnType}}
 
-        telemetry_attributes: dict[TelemetryAttribute, str] = {
-            TelemetryAttributes.fga_client_request_method: "{{operationId}}"
+        telemetry_attributes: dict[TelemetryAttribute, str | int] = {
+            TelemetryAttributes.fga_client_request_method: "{{operationId}}",
+            TelemetryAttributes.fga_client_request_store_id: self.api_client.get_store_id(),
+            TelemetryAttributes.fga_client_request_model_id: local_var_params.get(
+                "authorization_model_id", ""
+            ),
         }
-
-        try:
-            if store_id:
-                telemetry_attributes[
-                    TelemetryAttributes.fga_client_request_store_id
-                ] = store_id
-        except:
-            pass
-
-        try:
-            if body_params.tuple_key:
-                telemetry_attributes[TelemetryAttributes.fga_client_user] = (
-                    body_params.tuple_key.user
-                )
-        except:
-            pass
-
-        try:
-            if "authorization_model_id" in local_var_params:
-                telemetry_attributes[
-                    TelemetryAttributes.fga_client_request_model_id
-                ] = local_var_params["authorization_model_id"]
-            elif body_params.authorization_model_id:
-                telemetry_attributes[
-                    TelemetryAttributes.fga_client_request_model_id
-                ] = body_params.authorization_model_id
-        except:
-            pass
 
         return self.api_client.call_api(
             '{{{path}}}'.replace('{store_id}', store_id), '{{httpMethod}}',
