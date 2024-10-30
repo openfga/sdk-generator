@@ -21,6 +21,7 @@ from {{packageName}}.client.models.tuple import ClientTuple
 from {{packageName}}.client.models.write_request import ClientWriteRequest
 from {{packageName}}.client.models.write_single_response import ClientWriteSingleResponse
 from {{packageName}}.client.models.write_transaction_opts import WriteTransactionOpts
+from {{packageName}}.configuration import RetryParams
 from {{packageName}}.exceptions import ValidationException, FgaValidationException, UnauthorizedException
 from {{packageName}}.models.assertion import Assertion
 from {{packageName}}.models.authorization_model import AuthorizationModel
@@ -651,6 +652,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                     "page_size":50,
                     "continuation_token":"eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==",
                     "consistency": ConsistencyPreference.MINIMIZE_LATENCY,
+                    "retry_params": RetryParams(max_retry=3, min_wait_in_ms=1000),
                 }
             )
             self.assertIsInstance(api_response, ReadResponse)
