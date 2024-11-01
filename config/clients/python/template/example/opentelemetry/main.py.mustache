@@ -30,7 +30,7 @@ from {{packageName}}.credentials import (
     Credentials,
 )
 from {{packageName}}.exceptions import FgaValidationException
-
+from {{packageName}}.telemetry.configuration import TelemetryConfiguration
 
 class app:
     """
@@ -42,6 +42,7 @@ class app:
         client: OpenFgaClient = None,
         credentials: Credentials = None,
         configuration: ClientConfiguration = None,
+        telemetry: TelemetryConfiguration = None,
     ):
         """
         Initialize the example with the provided client, credentials, and configuration.
@@ -50,6 +51,7 @@ class app:
         self._client = client
         self._credentials = credentials
         self._configuration = configuration
+        self._telemetry = telemetry
 
     async def fga_client(self, env: dict[str, str] = {}) -> OpenFgaClient:
         """
@@ -77,6 +79,67 @@ class app:
                     authorization_model_id=os.getenv("FGA_AUTHORIZATION_MODEL_ID"),
                     credentials=self._credentials,
                 )
+
+            if not self._telemetry:
+                # Configure the telemetry metrics to be collected.
+                # Note: the following represents the default configuration values, so unless you want to customize what's reported, you can omit this.
+                self._telemetry = {
+                    "metrics": {
+                        "fga-client.credentials.request": {
+                            "fga-client.request.client_id": True,
+                            "fga-client.request.method": True,
+                            "fga-client.request.model_id": True,
+                            "fga-client.request.store_id": True,
+                            "fga-client.response.model_id": True,
+                            "fga-client.user": False,
+                            "http.client.request.duration": False,
+                            "http.host": True,
+                            "http.request.method": True,
+                            "http.request.resend_count": True,
+                            "http.response.status_code": True,
+                            "http.server.request.duration": False,
+                            "url.scheme": True,
+                            "url.full": True,
+                            "user_agent.original": True,
+                        },
+                        "fga-client.request.duration": {
+                            "fga-client.request.client_id": True,
+                            "fga-client.request.method": True,
+                            "fga-client.request.model_id": True,
+                            "fga-client.request.store_id": True,
+                            "fga-client.response.model_id": True,
+                            "fga-client.user": False,
+                            "http.client.request.duration": False,
+                            "http.host": True,
+                            "http.request.method": True,
+                            "http.request.resend_count": True,
+                            "http.response.status_code": True,
+                            "http.server.request.duration": False,
+                            "url.scheme": True,
+                            "url.full": True,
+                            "user_agent.original": True,
+                        },
+                        "fga-client.query.duration": {
+                            "fga-client.request.client_id": True,
+                            "fga-client.request.method": True,
+                            "fga-client.request.model_id": True,
+                            "fga-client.request.store_id": True,
+                            "fga-client.response.model_id": True,
+                            "fga-client.user": False,
+                            "http.client.request.duration": False,
+                            "http.host": True,
+                            "http.request.method": True,
+                            "http.request.resend_count": True,
+                            "http.response.status_code": True,
+                            "http.server.request.duration": False,
+                            "url.scheme": True,
+                            "url.full": True,
+                            "user_agent.original": True,
+                        },
+                    }
+                }
+
+                self._configuration.telemetry = self._telemetry
 
             if not self._client:
                 return OpenFgaClient(self._configuration)

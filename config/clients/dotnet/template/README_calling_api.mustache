@@ -4,7 +4,7 @@
 
 Get a paginated list of stores.
 
-[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/ListStores)
+[API Documentation]({{apiDocsUrl}}#/Stores/ListStores)
 
 ```csharp
 var options = new ClientListStoresOptions {
@@ -20,7 +20,7 @@ var response = await fgaClient.ListStores(options);
 
 Initialize a store.
 
-[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/CreateStore)
+[API Documentation]({{apiDocsUrl}}#/Stores/CreateStore)
 
 ```csharp
 var store = await fgaClient.CreateStore(new ClientCreateStoreRequest(){Name = "FGA Demo"})
@@ -39,7 +39,7 @@ fgaClient.StoreId = storeId;
 
 Get information about the current store.
 
-[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/GetStore)
+[API Documentation]({{apiDocsUrl}}#/Stores/GetStore)
 
 > Requires a client initialized with a storeId
 
@@ -53,7 +53,7 @@ var store = await fgaClient.GetStore();
 
 Delete a store.
 
-[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/DeleteStore)
+[API Documentation]({{apiDocsUrl}}#/Stores/DeleteStore)
 
 > Requires a client initialized with a storeId
 

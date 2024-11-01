@@ -18,6 +18,13 @@ from {{packageName}}.exceptions import ApiException
 
 {{#models}}{{#model}}from {{modelPackage}}.{{classFilename}} import {{classname}}
 {{/model}}{{/models}}
+from {{packageName}}.telemetry.configuration import (
+    TelemetryConfiguration,
+    TelemetryConfigurations,
+    TelemetryConfigurationType,
+    TelemetryMetricConfiguration,
+    TelemetryMetricsConfiguration,
+)
 {{#recursionLimit}}
 
 __import__('sys').setrecursionlimit({{{.}}})

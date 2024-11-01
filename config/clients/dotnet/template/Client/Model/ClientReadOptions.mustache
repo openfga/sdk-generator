@@ -1,11 +1,13 @@
 {{>partial_header}}
 
+using OpenFga.Sdk.Model;
+
 namespace {{packageName}}.Client.Model;
 
 /// <summary>
 ///     ClientReadOptions - Client Options for Read
 /// </summary>
-public interface IClientReadOptions : IClientRequestOptionsWithStoreId, ClientPaginationOptions {
+public interface IClientReadOptions : IClientRequestOptionsWithStoreId, ClientPaginationOptions, IClientConsistencyOptions {
 }
 
 /// <inheritdoc />
@@ -18,4 +20,7 @@ public class ClientReadOptions : IClientReadOptions {
 
     /// <inheritdoc />
     public string? ContinuationToken { get; set; }
+
+    /// <inheritdoc />
+    public ConsistencyPreference? Consistency { get; set; }    
 }

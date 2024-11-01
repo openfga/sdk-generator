@@ -14,7 +14,6 @@ import {
     CallResult,
     PromiseResult
 } from './common';
-import { attributeNames } from "./telemetry";
 import { Configuration } from './configuration';
 import { Credentials } from "./credentials";
 import { assertParamExists } from './validation';
@@ -24,6 +23,7 @@ import {
   {{#model}}{{classname}},{{/model}}
 {{/models}}
 } from './apiModel';
+import { TelemetryAttribute, TelemetryAttributes } from "./telemetry/attributes";
 
 {{#apiInfo}}{{#apis}}
 {{>apiInner}}

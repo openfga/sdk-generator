@@ -3,7 +3,7 @@
   "gitRepoId": "java-sdk",
   "artifactId": "openfga-sdk",
   "groupId": "dev.openfga",
-  "packageVersion": "0.5.0",
+  "packageVersion": "0.7.0",
   "apiPackage": "dev.openfga.sdk.api",
   "authPackage": "dev.openfga.sdk.api.auth",
   "clientPackage": "dev.openfga.sdk.api.client",
@@ -12,6 +12,7 @@
   "utilPackage": "dev.openfga.sdk.util",
   "invokerPackage": "dev.openfga.sdk.api.client",
   "modelPackage": "dev.openfga.sdk.api.model",
+  "telemetryPackage": "dev.openfga.sdk.telemetry",
   "snapshotVersion": false,
   "packageDescription": "Java SDK for OpenFGA",
   "artifactDescription": "Java SDK for OpenFGA",
@@ -30,6 +31,7 @@
   "enumUnknownDefaultCase": true,
   "allowUnicodeIdentifiers": true,
   "caseInsensitiveResponseHeaders": true,
+  "openTelemetryDocumentation": "OpenTelemetry.md",
   "files": {
     "auth-model.json": {
       "destinationFilename": "src/test-integration/resources/auth-model.json",
@@ -343,6 +345,14 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/CredentialsMethod.java",
       "templateType": "SupportingFiles"
     },
+    "config-TelemetryConfiguration.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/TelemetryConfiguration.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-TelemetryConfigurationTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/configuration/TelemetryConfigurationTest.java",
+      "templateType": "SupportingFiles"
+    },
     "errors-FgaApiAuthenticationError.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaApiAuthenticationError.java",
       "templateType": "SupportingFiles"
@@ -395,6 +405,78 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/ApiException.java",
       "templateType": "SupportingFiles"
     },
+    "telemetry-Attribute.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/telemetry/Attribute.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-AttributeTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/telemetry/AttributeTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-Attributes.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/telemetry/Attributes.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-AttributesTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/telemetry/AttributesTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-Counter.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/telemetry/Counter.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-CounterTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/telemetry/CounterTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-Counters.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/telemetry/Counters.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-CountersTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/telemetry/CountersTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-Histogram.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/telemetry/Histogram.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-HistogramTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/telemetry/HistogramTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-Histograms.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/telemetry/Histograms.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-HistogramsTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/telemetry/HistogramsTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-Metric.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/telemetry/Metric.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-MetricTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/telemetry/MetricTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-Metrics.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/telemetry/Metrics.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-MetricsTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/telemetry/MetricsTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-Telemetry.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/telemetry/Telemetry.java",
+      "templateType": "SupportingFiles"
+    },
+    "telemetry-TelemetryTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/telemetry/TelemetryTest.java",
+      "templateType": "SupportingFiles"
+    },
     "OpenFgaApiTest.java.mustache": {
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/OpenFgaApiTest.java",
       "templateType": "SupportingFiles"
@@ -409,6 +491,10 @@
     },
     "gradle-wrapper.properties.mustache": {
       "destinationFilename": "gradle/wrapper/gradle-wrapper.properties",
+      "templateType": "SupportingFiles"
+    },
+    "docs/OpenTelemetry.md.mustache": {
+      "destinationFilename": "docs/OpenTelemetry.md",
       "templateType": "SupportingFiles"
     },
     "example/Makefile": {
@@ -435,7 +521,7 @@
       "destinationFilename": "example/example1/gradlew",
       "templateType": "SupportingFiles"
     },
-    "example/example1/build.gradle": {
+    "example/example1/build.gradle.mustache": {
       "destinationFilename": "example/example1/build.gradle",
       "templateType": "SupportingFiles"
     },
