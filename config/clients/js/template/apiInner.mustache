@@ -213,6 +213,12 @@ export const {{classname}}Fp = function(configuration: Configuration, credential
             const localVarAxiosArgs = localVarAxiosParamCreator.{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}}options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
                 [TelemetryAttribute.FgaClientRequestMethod]: "{{operationIdCamelCase}}",
+                {{#pathParams.0}}
+                [TelemetryAttribute.FgaClientRequestStoreId]: storeId ?? "",
+                {{/pathParams.0}}
+                {{#bodyParam}}
+                ...TelemetryAttributes.fromRequestBody(body)
+                {{/bodyParam}}
             });
         },
     {{/operation}}
