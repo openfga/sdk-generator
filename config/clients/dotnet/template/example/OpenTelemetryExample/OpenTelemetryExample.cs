@@ -31,16 +31,48 @@ public class OpenTelemetryExample {
                 };
             }
 
+            // Customize the metrics and the attributes on each metric
+            TelemetryConfig telemetryConfig = new TelemetryConfig() {
+                Metrics = new Dictionary<string, MetricConfig> {
+                    [TelemetryMeter.TokenExchangeCount] = new() {
+                        Attributes = new HashSet<string> {
+                            TelemetryAttribute.HttpHost,
+                            TelemetryAttribute.HttpStatus,
+                            TelemetryAttribute.HttpUserAgent,
+                            TelemetryAttribute.RequestClientId,
+                        }
+                    },
+                    [TelemetryMeter.QueryDuration] = new () {
+                        Attributes = new HashSet<string> {
+                            TelemetryAttribute.HttpStatus,
+                            TelemetryAttribute.HttpUserAgent,
+                            TelemetryAttribute.RequestMethod,
+                            TelemetryAttribute.RequestClientId,
+                            TelemetryAttribute.RequestStoreId,
+                            TelemetryAttribute.RequestModelId,
+                            TelemetryAttribute.RequestRetryCount,
+                        }
+                    },
+                    [TelemetryMeter.RequestDuration] = new () {
+                        Attributes = new HashSet<string> {
+                            TelemetryAttribute.HttpStatus,
+                            TelemetryAttribute.HttpUserAgent,
+                            TelemetryAttribute.RequestMethod,
+                            TelemetryAttribute.RequestClientId,
+                            TelemetryAttribute.RequestStoreId,
+                            TelemetryAttribute.RequestModelId,
+                            TelemetryAttribute.RequestRetryCount,
+                        }
+                    },
+                }
+            };
+
             var configuration = new ClientConfiguration {
-                ApiUrl =
-                    Environment.GetEnvironmentVariable("FGA_API_URL") ??
-                    "http://localhost:8080", // required, e.g. https://api.fga.example
-                StoreId =
-                    Environment.GetEnvironmentVariable(
-                        "FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
-                AuthorizationModelId =
-                    Environment.GetEnvironmentVariable("FGA_MODEL_ID"), // Optional, can be overridden per request
-                Credentials = credentials
+                ApiUrl = Environment.GetEnvironmentVariable("FGA_API_URL") ?? "http://localhost:8080",
+                StoreId = Environment.GetEnvironmentVariable("FGA_STORE_ID"),
+                AuthorizationModelId = Environment.GetEnvironmentVariable("FGA_MODEL_ID"),
+                Credentials = credentials,
+                Telemetry = telemetryConfig
             };
             var fgaClient = new OpenFgaClient(configuration);
 
@@ -48,7 +80,7 @@ public class OpenTelemetryExample {
             // See: https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/docs/metrics/customizing-the-sdk/README.md
             using var meterProvider = Sdk.CreateMeterProviderBuilder()
                 .AddHttpClientInstrumentation()
-                .AddMeter(Metrics.name)
+                .AddMeter(Metrics.Name)
                 .ConfigureResource(resourceBuilder =>
                     resourceBuilder.AddService(Environment.GetEnvironmentVariable("OTEL_SERVICE_NAME") ??
                                                "openfga-otel-dotnet-example"))
@@ -186,7 +218,9 @@ public class OpenTelemetryExample {
                 existingTuples.Tuples.ForEach(tuple => tuplesToDelete.Add(new ClientTupleKeyWithoutCondition {
                     User = tuple.Key.User, Relation = tuple.Key.Relation, Object = tuple.Key.Object
                 }));
-                await fgaClient.DeleteTuples(tuplesToDelete);
+                if (tuplesToDelete.Count > 0) {
+                    await fgaClient.DeleteTuples(tuplesToDelete);
+                }
             } while (contToken != "");
 
             // Write

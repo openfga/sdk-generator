@@ -239,12 +239,20 @@
       "destinationFilename": "src/OpenFga.Sdk/Telemetry/Histograms.cs",
       "templateType": "SupportingFiles"
     },
+    "Telemetry/Meters.cs.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Telemetry/Meters.cs",
+      "templateType": "SupportingFiles"
+    },
     "Telemetry/Metrics.cs.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Telemetry/Metrics.cs",
       "templateType": "SupportingFiles"
     },
     "Configuration_Configuration.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Configuration/Configuration.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Configuration_TelemetryConfig.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Configuration/TelemetryConfig.cs",
       "templateType": "SupportingFiles"
     },
     "Exceptions_Parsers_ApiErrorParser.mustache": {

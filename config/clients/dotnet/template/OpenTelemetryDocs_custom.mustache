@@ -3,10 +3,10 @@
 See the OpenTelemetry docs on [Customizing the SDK](https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/docs/metrics/customizing-the-sdk/README.md).
 
 ```csharp
-using {{packageName}}.Client;
-using {{packageName}}.Client.Model;
-using {{packageName}}.Model;
-using {{packageName}}.Telemetry;
+using OpenFga.Sdk.Client;
+using OpenFga.Sdk.Client.Model;
+using OpenFga.Sdk.Model;
+using OpenFga.Sdk.Telemetry;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -19,17 +19,17 @@ namespace Example {
                 // Setup OpenTelemetry Metrics
                 using var meterProvider = Sdk.CreateMeterProviderBuilder()
                     .AddHttpClientInstrumentation() // To instrument the default http client
-                    .AddMeter(Metrics.name) // .AddMeter("{{packageName}}") also works
+                    .AddMeter(Metrics.Name) // .AddMeter("OpenFga.Sdk") also works
                     .ConfigureResource(resourceBuilder => resourceBuilder.AddService("openfga-dotnet-example"))
                     .AddOtlpExporter() // Required to export to an OTLP compatible endpoint
                     .AddConsoleExporter() // Only needed to export the metrics to the console (e.g. when debugging)
                     .Build();
 
-                // Configure the OpenFGA SDK
+                // Configure the OpenFGA SDK with default configuration (default metrics and attributes will be enabled)
                 var configuration = new ClientConfiguration() {
-                    ApiUrl = Environment.GetEnvironmentVariable("FGA_API_URL") ?? "http://localhost:8080", // required, e.g. https://api.fga.example
-                    StoreId = Environment.GetEnvironmentVariable("FGA_STORE_ID"), // not needed when calling `CreateStore` or `ListStores`
-                    AuthorizationModelId = Environment.GetEnvironmentVariable("FGA_MODEL_ID"), // Optional, can be overridden per request
+                    ApiUrl = Environment.GetEnvironmentVariable("FGA_API_URL"),
+                    StoreId = Environment.GetEnvironmentVariable("FGA_STORE_ID"),
+                    AuthorizationModelId = Environment.GetEnvironmentVariable("FGA_MODEL_ID"),
                     // Credentials = ... // If needed
                 };
                 var fgaClient = new OpenFgaClient(configuration);
@@ -42,6 +42,62 @@ namespace Example {
         }
     }
 }
+```
+
+#### Customize metrics
+You can can customize the metrics that are enabled and the attributes that are included in the metrics by setting the `TelemetryConfig` property on the `ClientConfiguration` object.
+If you do set the `Telemetry` property to anything other than `null`, the default configuration will be overridden.
+
+```csharp
+TelemetryConfig telemetryConfig = new () {
+    Metrics = new Dictionary<string, MetricConfig> {
+        [TelemetryMeters.TokenExchangeCount] = new () {
+            Attributes = new HashSet<string> {
+                TelemetryAttribute.HttpScheme,
+                TelemetryAttribute.HttpMethod,
+                TelemetryAttribute.HttpHost,
+                TelemetryAttribute.HttpStatus,
+                TelemetryAttribute.HttpUserAgent,
+                TelemetryAttribute.RequestMethod,
+                TelemetryAttribute.RequestClientId,
+                TelemetryAttribute.RequestStoreId,
+                TelemetryAttribute.RequestModelId,
+                TelemetryAttribute.RequestRetryCount,
+                TelemetryAttribute.ResponseModelId
+            }
+        },
+        [TelemetryMeters.QueryDuration] = new () {
+            Attributes = new HashSet<string> {
+                TelemetryAttribute.HttpStatus,
+                TelemetryAttribute.HttpUserAgent,
+                TelemetryAttribute.RequestMethod,
+                TelemetryAttribute.RequestClientId,
+                TelemetryAttribute.RequestStoreId,
+                TelemetryAttribute.RequestModelId,
+                TelemetryAttribute.RequestRetryCount,
+            }
+        },
+        [TelemetryMeters.QueryDuration] = new () {
+            Attributes = new HashSet<string> {
+                TelemetryAttribute.HttpStatus,
+                TelemetryAttribute.HttpUserAgent,
+                TelemetryAttribute.RequestMethod,
+                TelemetryAttribute.RequestClientId,
+                TelemetryAttribute.RequestStoreId,
+                TelemetryAttribute.RequestModelId,
+                TelemetryAttribute.RequestRetryCount,
+            }
+        },
+    }
+};
+
+var configuration = new ClientConfiguration() {
+    ApiUrl = Environment.GetEnvironmentVariable("FGA_API_URL"),
+    StoreId = Environment.GetEnvironmentVariable("FGA_STORE_ID"),
+    AuthorizationModelId = Environment.GetEnvironmentVariable("FGA_MODEL_ID"),
+    // Credentials = ... // If needed
+    Telemetry = telemetryConfig
+};
 ```
 
 ### More Resources

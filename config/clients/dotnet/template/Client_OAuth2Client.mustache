@@ -19,7 +19,7 @@ public class OAuth2Client {
         TOKEN_EXPIRY_JITTER_IN_SEC = 300; // We add some jitter so that token refreshes are less likely to collide
 
     private static readonly Random _random = new();
-    private readonly Metrics metrics = new();
+    private readonly Metrics metrics;
 
     /// <summary>
     ///     Credentials Flow Response
@@ -65,7 +65,6 @@ public class OAuth2Client {
     private IDictionary<string, string> _authRequest { get; }
     private string _apiTokenIssuer { get; }
     private readonly RetryParams _retryParams;
-    private readonly Credentials _credentialsConfig;
 
     #endregion
 
@@ -77,7 +76,12 @@ public class OAuth2Client {
     /// <param name="credentialsConfig"></param>
     /// <param name="httpClient"></param>
     /// <exception cref="NullReferenceException"></exception>
-    public OAuth2Client(Credentials credentialsConfig, BaseClient httpClient, RetryParams retryParams) {
+    public OAuth2Client(Credentials credentialsConfig, BaseClient httpClient, RetryParams retryParams,
+        Metrics metrics) {
+      if (credentialsConfig == null) {
+            throw new Exception("Credentials are required for OAuth2Client");
+        }
+
         if (string.IsNullOrWhiteSpace(credentialsConfig.Config!.ClientId)) {
             throw new FgaRequiredParamError("OAuth2Client", "config.ClientId");
         }
@@ -86,17 +90,24 @@ public class OAuth2Client {
             throw new FgaRequiredParamError("OAuth2Client", "config.ClientSecret");
         }
 
-        _credentialsConfig = credentialsConfig;
+        if (string.IsNullOrWhiteSpace(credentialsConfig.Config.ApiTokenIssuer)) {
+            throw new FgaRequiredParamError("OAuth2Client", "config.ApiTokenIssuer");
+        }
+
         _httpClient = httpClient;
         _apiTokenIssuer = credentialsConfig.Config.ApiTokenIssuer;
         _authRequest = new Dictionary<string, string> {
             { "client_id", credentialsConfig.Config.ClientId },
             { "client_secret", credentialsConfig.Config.ClientSecret },
-            { "audience", credentialsConfig.Config.ApiAudience },
             { "grant_type", "client_credentials" }
         };
 
+        if (credentialsConfig.Config.ApiAudience != null) {
+            _authRequest["audience"] = credentialsConfig.Config.ApiAudience;
+        }
+
         _retryParams = retryParams;
+        this.metrics = metrics;
     }
 
     /// <summary>
@@ -122,7 +133,8 @@ public class OAuth2Client {
                 cancellationToken));
 
         sw.Stop();
-        metrics.buildForClientCredentialsResponse(accessTokenResponse.rawResponse, requestBuilder, _credentialsConfig,
+
+        metrics.BuildForClientCredentialsResponse(accessTokenResponse.rawResponse, requestBuilder,
             sw, accessTokenResponse.retryCount);
 
         _authToken = new AuthToken { AccessToken = accessTokenResponse.responseContent?.AccessToken };

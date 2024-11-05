@@ -5,19 +5,34 @@ using System.Diagnostics.Metrics;
 
 namespace {{packageName}}.Telemetry;
 
+/// <summary>
+///     Class for managing telemetry counters.
+/// </summary>
 public class TelemetryCounters {
-    // Meters
-    // The total number of times a new token was requested when using ClientCredentials
-    private const string TokenExchangeCountKey = "fga-client.credentials.request";
+    public Counter<int> TokenExchangeCounter { get; }
 
-    protected Meter meter;
-    public Counter<int> tokenExchangeCounter;
+    public Counter<int> RequestCounter { get; private set; }
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="TelemetryCounters" /> class.
+    /// </summary>
+    /// <param name="meter">The meter used to create counters.</param>
     public TelemetryCounters(Meter meter) {
-        this.meter = meter;
-        tokenExchangeCounter = this.meter.CreateCounter<int>(TokenExchangeCountKey,
+        TokenExchangeCounter = meter.CreateCounter<int>(TelemetryMeter.TokenExchangeCount,
             description: "The count of token exchange requests");
+        RequestCounter =
+            meter.CreateCounter<int>(TelemetryMeter.RequestCount, description: "The count of requests made");
     }
 
-    public void buildForResponse(TagList attributes) => tokenExchangeCounter.Add(1, attributes!);
+    /// <summary>
+    ///     Increments the counter for a token exchange.
+    /// </summary>
+    /// <param name="attributes">The attributes associated with the telemetry data.</param>
+    public void IncrementTokenExchangeCounter(TagList attributes) => TokenExchangeCounter.Add(1, attributes);
+
+    /// <summary>
+    ///     Increments the counter for an API request.
+    /// </summary>
+    /// <param name="attributes">The attributes associated with the telemetry data.</param>
+    public void IncrementRequestCounter(TagList attributes) => TokenExchangeCounter.Add(1, attributes);
 }

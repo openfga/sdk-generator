@@ -5,52 +5,9 @@ using {{packageName}}.Exceptions;
 namespace {{packageName}}.Configuration;
 
 /// <summary>
-/// Setup {{appName}} Configuration
+///     Setup {{packageName}} Configuration
 /// </summary>
 public class Configuration {
-    #region Methods
-
-    private static bool IsWellFormedUriString(string uri) {
-        return Uri.TryCreate(uri, UriKind.Absolute, out var uriResult) &&
-               ((uriResult.ToString().Equals(uri) || uriResult.ToString().Equals($"{uri}/")) &&
-                (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps));
-    }
-
-    /// <summary>
-    ///     Checks if the configuration is valid
-    /// </summary>
-    /// <exception cref="FgaRequiredParamError"></exception>
-    public void IsValid() {
-        if (BasePath == null || BasePath == "") {
-            throw new FgaRequiredParamError("Configuration", "ApiUrl");
-        }
-
-        if (!IsWellFormedUriString(BasePath)) {
-            throw new FgaValidationError(
-                $"Configuration.ApiUrl ({ApiUrl ?? BasePath}) does not form a valid URI ({BasePath})");
-        }
-
-        if (MaxRetry > {{retryMaxAllowedNumber}}) {
-            throw new FgaValidationError("Configuration.MaxRetry exceeds maximum allowed limit of {{retryMaxAllowedNumber}}");
-        }
-
-        Credentials?.IsValid();
-    }
-
-    #endregion
-
-    #region Constants
-
-    /// <summary>
-    ///     Version of the package.
-    /// </summary>
-    /// <value>Version of the package.</value>
-    public const string Version = "{{packageVersion}}";
-
-    private const string DefaultUserAgent = "{{{userAgent}}}";
-
-    #endregion Constants
-
     #region Constructors
 
     /// <summary>
@@ -67,7 +24,51 @@ public class Configuration {
 
     #endregion Constructors
 
+    #region Methods
 
+    private static bool IsWellFormedUriString(string uri) =>
+        Uri.TryCreate(uri, UriKind.Absolute, out var uriResult) &&
+        (uriResult.ToString().Equals(uri) || uriResult.ToString().Equals($"{uri}/")) &&
+        (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+
+    /// <summary>
+    ///     Ensures that the configuration is valid otherwise throws an error
+    /// </summary>
+    /// <exception cref="FgaRequiredParamError"></exception>
+    /// <exception cref="FgaValidationError"></exception>
+    public void EnsureValid() {
+        if (BasePath == null || BasePath == "") {
+            throw new FgaRequiredParamError("Configuration", "ApiUrl");
+        }
+
+        if (!IsWellFormedUriString(BasePath)) {
+            throw new FgaValidationError(
+                $"Configuration.ApiUrl ({ApiUrl ?? BasePath}) does not form a valid URI ({BasePath})");
+        }
+
+        if (MaxRetry > {{retryMaxAllowedNumber}}) {
+            throw new FgaValidationError("Configuration.MaxRetry exceeds maximum allowed limit of {{retryMaxAllowedNumber}}");
+        }
+
+        Credentials?.EnsureValid();
+        Telemetry?.EnsureValid();
+    }
+
+    #endregion Methods
+
+    #region Constants
+
+    /// <summary>
+    ///     Version of the package.
+    /// </summary>
+    /// <value>Version of the package.</value>
+    public const string Version = "{{packageVersion}}";
+
+    private const string DefaultUserAgent = "{{{userAgent}}}";
+
+    #endregion Constants
+
+    
     #region Properties
 
     /// <summary>
@@ -143,6 +144,11 @@ public class Configuration {
     /// </summary>
     /// <value>MinWaitInMs</value>
     public int MinWaitInMs { get; set; } = {{defaultMinWaitInMs}};
+
+    /// <summary>
+    ///     Gets or sets the telemetry configuration.
+    /// </summary>
+    public TelemetryConfig? Telemetry { get; set; }
 
     #endregion Properties
 }
