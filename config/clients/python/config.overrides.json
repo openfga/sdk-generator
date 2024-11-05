@@ -12,11 +12,6 @@
   "pythonMinimumRuntime": "3.10",
   "openTelemetryDocumentation": "opentelemetry.md",
   "files": {
-    ".github/workflows/main.yaml.mustache": {
-      "destinationFilename": ".github/workflows/main.yaml",
-      "templateType": "SupportingFiles"
-    },
-
     ".snyk": {},
 
     "api_sync.mustache": {

@@ -34,10 +34,6 @@
   "hashCodeBasePrimeNumber": 9661,
   "hashCodeMultiplierPrimeNumber": 9923,
   "files": {
-    ".github/workflows/main.yaml.mustache": {
-      "destinationFilename": ".github/workflows/main.yaml",
-      "templateType": "SupportingFiles"
-    },
     "Client_OAuth2Client.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/ApiClient/OAuth2Client.cs",
       "templateType": "SupportingFiles"

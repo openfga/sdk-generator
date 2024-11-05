@@ -10,10 +10,6 @@
   "enumClassPrefix": true,
   "openTelemetryDocumentation": "opentelemetry.md",
   "files": {
-    ".github/workflows/main.yaml.mustache": {
-      "destinationFilename": ".github/workflows/main.yaml",
-      "templateType": "SupportingFiles"
-    },
     "oauth2/LICENSE": {},
     "oauth2/ORIGINAL_AUTHORS": {},
     "oauth2/ORIGINAL_CONTRIBUTORS": {},
