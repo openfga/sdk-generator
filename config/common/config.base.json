@@ -77,7 +77,6 @@
       "destinationFilename": "NOTICE.txt",
       "templateType": "SupportingFiles"
     },
-    ".github/workflows/semgrep.yaml": {},
     ".codecov.yml.mustache": {
       "destinationFilename": ".codecov.yml",
       "templateType": "SupportingFiles"
