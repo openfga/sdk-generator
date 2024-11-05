@@ -1865,7 +1865,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 post_params=[],
                 body={
                     "authorization_model_id": "01GXSA8YR785C4FYS3C0RTG7B1",
-                    "type": "document", 
+                    "type": "document",
                     "relation": "reader",
                     "user": "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                     "consistency": "MINIMIZE_LATENCY",
@@ -1939,6 +1939,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
 
         # First, mock the response
         mock_request.side_effect = mock_check_requests
+
         configuration = self.configuration
         configuration.store_id = store_id
         {{#asyncio}}async {{/asyncio}}with OpenFgaClient(configuration) as api_client:

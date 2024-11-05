@@ -669,7 +669,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 body={
                     "tuple_key": {
                         "object": "document:2021-budget",
-                        "relation": "reader", 
+                        "relation": "reader",
                         "user": "user:81684243-9356-4421-8fbf-a4f8d36aa31b"
                     },
                     "page_size": 50,
@@ -1947,6 +1947,7 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
 
         # First, mock the response
         mock_request.side_effect = mock_check_requests
+
         configuration = self.configuration
         configuration.store_id = store_id
         with OpenFgaClient(configuration) as api_client:
