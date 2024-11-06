@@ -45,14 +45,6 @@
       "destinationFilename": "publish.gradle",
       "templateType": "SupportingFiles"
     },
-    ".github/workflows/fossa.yaml": {
-      "destinationFilename": ".github/workflows/fossa.yaml",
-      "templateType": "SupportingFiles"
-    },
-    ".github/workflows/main.yaml.mustache": {
-      "destinationFilename": ".github/workflows/main.yaml",
-      "templateType": "SupportingFiles"
-    },
     "client-ClientAssertion.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientAssertion.java",
       "templateType": "SupportingFiles"
