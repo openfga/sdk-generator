@@ -3,9 +3,9 @@
 from {{packageName}}.client.models.check_request import ClientCheckRequest
 from {{packageName}}.models.check_response import CheckResponse
 
-class BatchCheckResponse:
+class ClientBatchCheckResponse:
     """
-    BatchCheckResponse encapsulates the response for a single batch check
+    ClientBatchCheckResponse encapsulates the response for a single batch check
     """
 
     def __init__(self, allowed: bool, request: ClientCheckRequest, response: CheckResponse, error: Exception=None):
