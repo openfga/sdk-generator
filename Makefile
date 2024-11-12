@@ -66,7 +66,6 @@ build-client-js:
 	sed -i -e "s|_this|this|g" ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*.md
 	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*-e
 	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm i --lockfile-version 2 && npm run lint:fix -- --quiet'"
-	make run-in-docker sdk_language=js image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 api.ts /config/clients/js/patches/add-method-specific-attributes.patch'"
 	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm run lint:fix && npm run build;'"
 
 ### Go
@@ -134,7 +133,9 @@ build-client-python:
 
 .PHONY: test-client-python
 test-client-python: build-client-python
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; pytest --cov-report term-missing --cov=openfga_sdk test/; flake8 . --count --show-source --statistics'"
+	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt && \
+		pytest --cov-report term-missing --cov=openfga_sdk test/ && \
+		flake8 . --count --show-source --statistics'"
 
 ### Java
 .PHONY: tag-client-java

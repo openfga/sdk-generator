@@ -3,7 +3,7 @@
   "gitRepoId": "java-sdk",
   "artifactId": "openfga-sdk",
   "groupId": "dev.openfga",
-  "packageVersion": "0.7.0",
+  "packageVersion": "0.7.1",
   "apiPackage": "dev.openfga.sdk.api",
   "authPackage": "dev.openfga.sdk.api.auth",
   "clientPackage": "dev.openfga.sdk.api.client",
@@ -43,14 +43,6 @@
     },
     "publish.gradle.mustache": {
       "destinationFilename": "publish.gradle",
-      "templateType": "SupportingFiles"
-    },
-    ".github/workflows/fossa.yaml": {
-      "destinationFilename": ".github/workflows/fossa.yaml",
-      "templateType": "SupportingFiles"
-    },
-    ".github/workflows/main.yaml.mustache": {
-      "destinationFilename": ".github/workflows/main.yaml",
       "templateType": "SupportingFiles"
     },
     "client-ClientAssertion.java.mustache": {

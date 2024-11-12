@@ -9,7 +9,6 @@ import sys
 import http
 import urllib
 import urllib3
-from typing import Optional
 
 from {{packageName}}.exceptions import FgaValidationException, ApiValueError
 from {{packageName}}.telemetry.attributes import TelemetryAttribute
@@ -166,23 +165,11 @@ class Configuration:
                  ssl_ca_cert=None,
                  api_url=None, # TODO: restructure when removing api_scheme/api_host
 
+
                  timeout_millisec: int | None = None,
 
-                 telemetry: Optional[
-                    dict[
-                        TelemetryConfigurationType | str,
-                        TelemetryMetricsConfiguration
-                        | dict[
-                            TelemetryHistogram | TelemetryCounter,
-                            TelemetryMetricConfiguration
-                            | dict[TelemetryAttribute, bool]
-                            | None,
-                        ]
-                        | None,
-                    ]
-                 ] = None,
+                 telemetry: dict[TelemetryConfigurationType | str, TelemetryMetricsConfiguration | dict[TelemetryHistogram | TelemetryCounter, TelemetryMetricConfiguration | dict[TelemetryAttribute, bool] | None] | None] | None = None):
 
-                 ):
         """Constructor
         """
         self._url = api_url
