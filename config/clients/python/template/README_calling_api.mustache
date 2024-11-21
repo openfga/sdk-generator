@@ -245,6 +245,7 @@ Reads the list of historical relationship tuple writes and deletes.
 options = {
     # You can rely on the model id set in the configuration or override it for this specific request
     "page_size": "25",
+    "start_time": "2022-01-01T00:00:00Z",
     "continuation_token": "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
 }
 body = ClientReadChangesRequest(type="document")

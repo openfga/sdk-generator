@@ -722,6 +722,7 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             api_response = {{#asyncio}}await {{/asyncio}}api_instance.read_changes(
                 page_size=1,
                 continuation_token="abcdefg",
+                start_time="2022-01-01T00:00:00Z",
                 type="document"
             )
             self.assertIsInstance(api_response, ReadChangesResponse)
