@@ -179,6 +179,7 @@ Reads the list of historical relationship tuple writes and deletes.
 var body = new ClientReadChangesRequest { Type = "document" };
 var options = new ClientReadChangesOptions {
     PageSize = 10,
+    StartTime = "2022-01-01T00:00:00Z",
     ContinuationToken = "...",
 };
 

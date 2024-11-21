@@ -1672,8 +1672,9 @@ namespace {{testPackageName}}.Api {
 
             var type = "repo";
             var pageSize = 25;
+            var startTime = DateTime.Now - new TimeSpan(0,5,0); {{! Use a time of five minutes ago for testing }}
             var continuationToken = "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==";
-            var response = await {{appCamelCaseName}}Api.ReadChanges(_storeId, type, pageSize, continuationToken);
+            var response = await {{appCamelCaseName}}Api.ReadChanges(_storeId, type, pageSize, startTime, continuationToken);
 
             mockHandler.Protected().Verify(
                 "SendAsync",
