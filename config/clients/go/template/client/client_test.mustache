@@ -1041,7 +1041,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 		body := ClientReadChangesRequest{
 			Type: "document",
 		}
-		options := ClientReadChangesOptions{ContinuationToken: {{packageName}}.PtrString("eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="), PageSize: {{packageName}}.PtrInt32(25)}
+		options := ClientReadChangesOptions{ContinuationToken: {{packageName}}.PtrString("eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="), StartTime: {{packageName}}.PtrString("2022-01-01T00:00:00Z"), PageSize: {{packageName}}.PtrInt32(25)}
 		got, err := fgaClient.ReadChanges(context.Background()).Body(body).Options(options).Execute()
 		if err != nil {
 			t.Fatalf("%v", err)
