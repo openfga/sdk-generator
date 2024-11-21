@@ -629,13 +629,13 @@ public class {{appShortName}}ClientTests {
 
         var type = "repo";
         var pageSize = 25;
-        var startTime = DateTime.Now - new TimeSpan(0,5,0); {{! Use a time of five minutes ago for testing }}
+        var startTime = DateTime.Parse("2022-01-01T00:00:00Z");
         var continuationToken =
             "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==";
         var response = await fgaClient.ReadChanges(new ClientReadChangesRequest { Type = type }, new ClientReadChangesOptions {
             PageSize = pageSize,
-            StartTime = startTime,
             ContinuationToken = continuationToken,
+            StartTime = startTime,
         });
 
         mockHandler.Protected().Verify(
