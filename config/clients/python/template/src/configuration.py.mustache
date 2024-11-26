@@ -147,7 +147,7 @@ class Configuration:
     :param ssl_ca_cert: str - the path to a file of concatenated CA certificates
       in PEM format
     :param api_url: str - the URL of the FGA server
-    :param timeout_millis: int | None - the default timeout in milliseconds for requests
+    :param timeout_millisec: int | None - the default timeout in milliseconds for requests
     """
 
     _default = None
@@ -164,11 +164,9 @@ class Configuration:
                  server_operation_index=None, server_operation_variables=None,
                  ssl_ca_cert=None,
                  api_url=None, # TODO: restructure when removing api_scheme/api_host
-
-
+                 telemetry: dict[TelemetryConfigurationType | str, TelemetryMetricsConfiguration | dict[TelemetryHistogram | TelemetryCounter, TelemetryMetricConfiguration | dict[TelemetryAttribute, bool] | None] | None] | None = None,
                  timeout_millisec: int | None = None,
-
-                 telemetry: dict[TelemetryConfigurationType | str, TelemetryMetricsConfiguration | dict[TelemetryHistogram | TelemetryCounter, TelemetryMetricConfiguration | dict[TelemetryAttribute, bool] | None] | None] | None = None):
+    ):
 
         """Constructor
         """
