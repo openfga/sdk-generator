@@ -7,11 +7,11 @@ using {{packageName}}.{{modelPackage}};
 namespace {{packageName}}.{{apiPackage}};
 
 public class {{classname}} : IDisposable {
-    private Configuration.Configuration _configuration;
-    private ApiClient.ApiClient _apiClient;
+    private readonly ApiClient.ApiClient _apiClient;
+    private readonly Configuration.Configuration _configuration;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="{{classname}}"/> class.
+    ///     Initializes a new instance of the <see cref="{{classname}}"/> class.
     /// </summary>
     /// <param name="configuration"></param>
     /// <param name="httpClient"></param>
@@ -19,9 +19,9 @@ public class {{classname}} : IDisposable {
         Configuration.Configuration configuration,
         HttpClient? httpClient = null
     ) {
-        configuration.IsValid();
-        this._configuration = configuration;
-        this._apiClient = new ApiClient.ApiClient(_configuration, httpClient);
+        configuration.EnsureValid();
+        _configuration = configuration;
+        _apiClient = new ApiClient.ApiClient(_configuration, httpClient);
     }
 
     {{#operations}}
@@ -58,18 +58,18 @@ public class {{classname}} : IDisposable {
         }
         {{/queryParams}}
 
-        var requestBuilder = new RequestBuilder {
+        var requestBuilder = new RequestBuilder<{{#bodyParam}}{{{dataType}}}{{/bodyParam}}{{^bodyParam}}Any{{/bodyParam}}> {
             Method = new HttpMethod("{{httpMethod}}"),
             BasePath = _configuration.BasePath,
             PathTemplate = "{{path}}",
             PathParameters = pathParams,
             {{#bodyParam}}
-            Body = Utils.CreateJsonStringContent({{paramName}}),
+            Body = {{paramName}},
             {{/bodyParam}}
             QueryParameters = queryParams,
         };
 
-        {{#returnType}}return {{/returnType}}await this._apiClient.SendRequestAsync{{#returnType}}<{{{.}}}>{{/returnType}}(requestBuilder,
+        {{#returnType}}return {{/returnType}}await _apiClient.SendRequestAsync{{#returnType}}<{{#bodyParam}}{{{dataType}}}{{/bodyParam}}{{^bodyParam}}Any{{/bodyParam}}, {{{.}}}>{{/returnType}}(requestBuilder,
             "{{operationId}}", cancellationToken);
     }
 

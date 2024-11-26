@@ -22,7 +22,7 @@ public class {{appShortName}}Client : IDisposable {
         ClientConfiguration configuration,
         HttpClient? httpClient = null
     ) {
-        configuration.IsValid();
+        configuration.EnsureValid();
         _configuration = configuration;
         api = new {{appShortName}}Api(_configuration, httpClient);
     }
