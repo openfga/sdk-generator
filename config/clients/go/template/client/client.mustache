@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	_nethttp "net/http"
+	"time"
 
 	fgaSdk "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
 	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
@@ -1125,6 +1126,7 @@ type SdkClientReadChangesRequestInterface interface {
 
 type ClientReadChangesRequest struct {
 	Type string `json:"type,omitempty"`
+	StartTime time.Time `json:"start_time,omitempty"`
 }
 
 type ClientReadChangesOptions struct {

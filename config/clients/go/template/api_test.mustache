@@ -792,7 +792,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 		got, response, err := apiClient.{{appShortName}}Api.ReadChanges(context.Background(), "01GXSB9YR785C4FYS3C0RTG7B2").
 			Type_("repo").
 			PageSize(25).
-			StartTime("2022-01-01T00:00:00Z").
+			StartTime(time.Parse(time.RFC3339, "2022-01-01T00:00:00Z")).
 			ContinuationToken("eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==").
 			Execute()
 		if err != nil {
