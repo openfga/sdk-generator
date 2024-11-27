@@ -1040,6 +1040,9 @@ func Test{{appShortName}}Client(t *testing.T) {
 			},
 		)
 		startTime, err := time.Parse(time.RFC3339,"2022-01-01T00:00:00Z")
+		if err != nil {
+			t.Fatalf("Failed to parse startTime: %v", err)
+		}
 		body := ClientReadChangesRequest{
 			Type: "document",
 			StartTime: startTime,
