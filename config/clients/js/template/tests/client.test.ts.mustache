@@ -255,7 +255,7 @@ describe("{{appTitleCaseName}} Client", () => {
         const scope = nocks.readChanges(baseConfig.storeId!, type, pageSize, continuationToken, startTime);
 
         expect(scope.isDone()).toBe(false);
-        const response = await fgaClient.readChanges({ type }, { pageSize, continuationToken, startTime });
+        const response = await fgaClient.readChanges({ type, startTime }, { pageSize, continuationToken });
 
         expect(scope.isDone()).toBe(true);
         expect(response).toMatchObject({ changes: expect.arrayContaining([]) });
@@ -269,7 +269,7 @@ describe("{{appTitleCaseName}} Client", () => {
         const scope = nocks.readChanges(baseConfig.storeId!, "", pageSize, continuationToken, startTime);
 
         expect(scope.isDone()).toBe(false);
-        const response = await fgaClient.readChanges(undefined, { pageSize, continuationToken, startTime });
+        const response = await fgaClient.readChanges(undefined, { pageSize, continuationToken });
 
         expect(scope.isDone()).toBe(true);
         expect(response).toMatchObject({ changes: expect.arrayContaining([]) });
