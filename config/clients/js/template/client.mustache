@@ -170,7 +170,7 @@ export interface ClientListRelationsResponse {
 
 export interface ClientReadChangesRequest {
   type: string;
-  startTime: string;
+  startTime?: string;
 }
 
 export type ClientExpandRequest = ExpandRequestTupleKey;
