@@ -3,13 +3,19 @@ package {{clientPackage}}.model;
 
 public class ClientReadChangesRequest {
     private String type;
+    private String startTime;
 
     public ClientReadChangesRequest type(String type) {
         this.type = type;
+        this.startTime = startTime;
         return this;
     }
 
     public String getType() {
         return type;
+    }
+
+    public String getStartTime(){
+        return startTime;
     }
 }

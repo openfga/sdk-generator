@@ -197,6 +197,7 @@ var request = new ClientReadChangesRequest().type("document");
 var options = new ClientReadChangesOptions()
     .additionalHeaders(Map.of("Some-Http-Header", "Some value"))
     .pageSize(10)
+    .startTime("2022-01-01T00:00:00Z")
     .continuationToken("...");
 
 var response = fgaClient.readChanges(request, options).get();
