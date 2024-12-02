@@ -194,47 +194,6 @@ class {{classname}}:
 {{/allParams}}
 
 {{#allParams}}
-{{#hasValidation}}
-    {{#maxLength}}
-        if self.api_client.client_side_validation and ('{{paramName}}' in local_var_params and
-                                                        len(local_var_params['{{paramName}}']) > {{maxLength}}):
-            raise ApiValueError(
-                "Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, length must be less than or equal to `{{maxLength}}`")
-    {{/maxLength}}
-    {{#minLength}}
-        if self.api_client.client_side_validation and ('{{paramName}}' in local_var_params and
-                                                        len(local_var_params['{{paramName}}']) < {{minLength}}):
-            raise ApiValueError(
-                "Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, length must be greater than or equal to `{{minLength}}`")
-    {{/minLength}}
-    {{#maximum}}
-        if self.api_client.client_side_validation and '{{paramName}}' in local_var_params and local_var_params['{{paramName}}'] >{{#exclusiveMaximum}}={{/exclusiveMaximum}} {{maximum}}:
-            raise ApiValueError(
-                "Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, must be a value less than {{^exclusiveMaximum}}or equal to {{/exclusiveMaximum}}`{{maximum}}`")
-    {{/maximum}}
-    {{#minimum}}
-        if self.api_client.client_side_validation and '{{paramName}}' in local_var_params and local_var_params['{{paramName}}'] <{{#exclusiveMinimum}}={{/exclusiveMinimum}} {{minimum}}:
-            raise ApiValueError(
-                "Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, must be a value greater than {{^exclusiveMinimum}}or equal to {{/exclusiveMinimum}}`{{minimum}}`")
-    {{/minimum}}
-    {{#pattern}}
-        if self.api_client.client_side_validation and '{{paramName}}' in local_var_params and not re.search(r'{{{vendorExtensions.x-regex}}}', local_var_params['{{paramName}}']{{#vendorExtensions.x-modifiers}}{{#-first}}, flags={{/-first}}re.{{.}}{{^-last}} | {{/-last}}{{/vendorExtensions.x-modifiers}}):
-            raise ApiValueError(
-                "Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, must conform to the pattern `{{{pattern}}}`")
-    {{/pattern}}
-    {{#maxItems}}
-        if self.api_client.client_side_validation and ('{{paramName}}' in local_var_params and
-                                                        len(local_var_params['{{paramName}}']) > {{maxItems}}):
-            raise ApiValueError(
-                "Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, number of items must be less than or equal to `{{maxItems}}`")
-    {{/maxItems}}
-    {{#minItems}}
-        if self.api_client.client_side_validation and ('{{paramName}}' in local_var_params and
-                                                        len(local_var_params['{{paramName}}']) < {{minItems}}):
-            raise ApiValueError(
-                "Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, number of items must be greater than or equal to `{{minItems}}`")
-    {{/minItems}}
-{{/hasValidation}}
 {{#-last}}
 {{/-last}}
 {{/allParams}}
