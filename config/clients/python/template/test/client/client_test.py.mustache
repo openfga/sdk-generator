@@ -624,8 +624,8 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
 
             # Return a particular version of an authorization model
             api_response = {{#asyncio}}await {{/asyncio}}api_client.read_changes(
-                ClientReadChangesRequest("document"),
-                options={"page_size":1, "continuation_token":"abcdefg", "start_time":"2022-01-01T00:00:00+00:00"}
+                ClientReadChangesRequest("document","2022-01-01T00:00:00+00:00"),
+                options={"page_size":1, "continuation_token":"abcdefg"}
             )
 
             self.assertIsInstance(api_response, ReadChangesResponse)
