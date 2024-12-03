@@ -718,11 +718,12 @@ class {{#operations}}Test{{classname}}(IsolatedAsyncioTestCase):
             # Create an instance of the API class
             api_instance = open_fga_api.OpenFgaApi(api_client)
 
+            startTime = datetime.fromisoformat("2022-01-01T00:00:00+00:00")
             # Return a particular version of an authorization model
             api_response = {{#asyncio}}await {{/asyncio}}api_instance.read_changes(
                 page_size=1,
                 continuation_token="abcdefg",
-                start_time="2022-01-01T00:00:00Z",
+                start_time=startTime,
                 type="document"
             )
             self.assertIsInstance(api_response, ReadChangesResponse)
