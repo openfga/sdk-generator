@@ -1,12 +1,18 @@
 {{>licenseInfo}}
 package {{clientPackage}}.model;
 
+import java.time.OffsetDateTime; 
+
 public class ClientReadChangesRequest {
     private String type;
-    private String startTime;
+    private OffsetDateTime startTime;
 
     public ClientReadChangesRequest type(String type) {
         this.type = type;
+        return this;
+    }
+
+    public ClientReadChangesRequest startTime(OffsetDateTime startTime) {
         this.startTime = startTime;
         return this;
     }
@@ -15,7 +21,7 @@ public class ClientReadChangesRequest {
         return type;
     }
 
-    public String getStartTime(){
+    public OffsetDateTime getStartTime(){
         return startTime;
     }
 }
