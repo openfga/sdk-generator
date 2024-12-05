@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.time.OffsetDateTime; 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -794,9 +795,10 @@ public class OpenFgaApiTest {
         String type = null; // Input is optional
         Integer pageSize = null; // Input is optional
         String continuationToken = null; // Input is optional
+        OffsetDateTime startTime = null; //Input is optional
 
         // When
-        var response = fga.readChanges(DEFAULT_STORE_ID, type, pageSize, continuationToken)
+        var response = fga.readChanges(DEFAULT_STORE_ID, type, pageSize, continuationToken, startTime)
                 .get();
 
         // Then
@@ -814,7 +816,7 @@ public class OpenFgaApiTest {
     @Test
     public void readChanges_storeIdRequired() throws Exception {
         // When
-        var exception = assertThrows(FgaInvalidParameterException.class, () -> fga.readChanges(null, null, null, null)
+        var exception = assertThrows(FgaInvalidParameterException.class, () -> fga.readChanges(null, null, null, null, null)
                 .get());
 
         // Then
@@ -831,10 +833,11 @@ public class OpenFgaApiTest {
         String type = null; // Input is optional
         Integer pageSize = null; // Input is optional
         String continuationToken = null; // Input is optional
+        OffsetDateTime startTime = null; // Input is optional
 
         // When
         ExecutionException execException = assertThrows(
-                ExecutionException.class, () -> fga.readChanges(DEFAULT_STORE_ID, type, pageSize, continuationToken)
+                ExecutionException.class, () -> fga.readChanges(DEFAULT_STORE_ID, type, pageSize, continuationToken, startTime)
                         .get());
 
         // Then
@@ -856,10 +859,11 @@ public class OpenFgaApiTest {
         String type = null; // Input is optional
         Integer pageSize = null; // Input is optional
         String continuationToken = null; // Input is optional
+        OffsetDateTime startTime = null; // Input is optional
 
         // When
         ExecutionException execException = assertThrows(
-                ExecutionException.class, () -> fga.readChanges(DEFAULT_STORE_ID, type, pageSize, continuationToken)
+                ExecutionException.class, () -> fga.readChanges(DEFAULT_STORE_ID, type, pageSize, continuationToken, startTime)
                         .get());
 
         // Then
@@ -880,10 +884,11 @@ public class OpenFgaApiTest {
         String type = null; // Input is optional
         Integer pageSize = null; // Input is optional
         String continuationToken = null; // Input is optional
+        OffsetDateTime startTime = null; // Input is optional
 
         // When
         ExecutionException execException = assertThrows(
-                ExecutionException.class, () -> fga.readChanges(DEFAULT_STORE_ID, type, pageSize, continuationToken)
+                ExecutionException.class, () -> fga.readChanges(DEFAULT_STORE_ID, type, pageSize, continuationToken, startTime)
                         .get());
 
         // Then

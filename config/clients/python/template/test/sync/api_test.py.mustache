@@ -728,6 +728,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
             api_response = api_instance.read_changes(
                 page_size=1,
                 continuation_token="abcdefg",
+                start_time="2022-01-01T00:00:00+00:00",
                 type="document"
             )
             self.assertIsInstance(api_response, ReadChangesResponse)
@@ -743,7 +744,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
                 'GET',
                 'http://api.{{sampleApiDomain}}/stores/01H0H015178Y2V4CX10C2KGHF4/changes',
                 headers=ANY,
-                query_params=[('type', 'document'), ('page_size', 1), ('continuation_token', 'abcdefg') ],
+                query_params=[('type', 'document'), ('page_size', 1), ('continuation_token', 'abcdefg'), ('start_time', '2022-01-01T00:00:00+00:00')],
                 _preload_content=ANY,
                 _request_timeout=None
             )
