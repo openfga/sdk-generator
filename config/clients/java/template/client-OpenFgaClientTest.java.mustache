@@ -16,6 +16,7 @@ import {{invokerPackage}}.*;
 import {{modelPackage}}.*;
 import java.net.http.HttpClient;
 import java.time.Duration;
+import java.time.OffsetDateTime; 
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
@@ -694,13 +695,14 @@ public class OpenFgaClientTest {
     public void readChanges() throws Exception {
         // Given
         String changeType = "repo";
+        OffsetDateTime startTime = null;
         String user = "user:81684243-9356-4421-8fbf-a4f8d36aa31b";
         String relation = "viewer";
         String object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a";
         String continuationToken =
                 "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ";
 
-        ClientReadChangesRequest request = new ClientReadChangesRequest().type(changeType);
+        ClientReadChangesRequest request = new ClientReadChangesRequest().type(changeType).startTime(startTime);
         String getUrl =
                 String.format("https://api.fga.example/stores/%s/changes?type=%s", DEFAULT_STORE_ID, changeType);
         String responseBody = String.format(

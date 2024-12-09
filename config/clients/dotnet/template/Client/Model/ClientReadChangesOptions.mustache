@@ -17,5 +17,8 @@ public class ClientReadChangesOptions : IClientReadChangesOptions {
     public int? PageSize { get; set; }
 
     /// <inheritdoc />
+    public DateTime? StartTime {get; set; }
+
+    /// <inheritdoc />
     public string? ContinuationToken { get; set; }
 }
