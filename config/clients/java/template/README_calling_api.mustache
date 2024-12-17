@@ -193,7 +193,8 @@ Reads the list of historical relationship tuple writes and deletes.
 > Passing `ClientReadChangesOptions` is optional. All fields of `ClientReadChangesOptions` are optional.
 
 ```java
-var request = new ClientReadChangesRequest().type("document");
+var startTime = OffsetDateTime.parse("2022-01-01T00:00:00+00:00");
+var request = new ClientReadChangesRequest().type("document").startTime(startTime);
 var options = new ClientReadChangesOptions()
     .additionalHeaders(Map.of("Some-Http-Header", "Some value"))
     .pageSize(10)
