@@ -79,8 +79,24 @@
       "destinationFilename": "openfga_sdk/client/models/assertion.py",
       "templateType": "SupportingFiles"
     },
+    "src/client/models/batch_check_item.py.mustache": {
+      "destinationFilename": "openfga_sdk/client/models/batch_check_item.py",
+      "templateType": "SupportingFiles"
+    },
+      "src/client/models/batch_check_request.py.mustache": {
+      "destinationFilename": "openfga_sdk/client/models/batch_check_request.py",
+      "templateType": "SupportingFiles"
+    },
     "src/client/models/batch_check_response.py.mustache": {
       "destinationFilename": "openfga_sdk/client/models/batch_check_response.py",
+      "templateType": "SupportingFiles"
+    },
+    "src/client/models/batch_check_single_response.py.mustache": {
+      "destinationFilename": "openfga_sdk/client/models/batch_check_single_response.py",
+      "templateType": "SupportingFiles"
+    },
+    "src/client/models/client_batch_check_response.py.mustache": {
+      "destinationFilename": "openfga_sdk/client/models/client_batch_check_response.py",
       "templateType": "SupportingFiles"
     },
     "src/client/models/check_request.py.mustache": {
