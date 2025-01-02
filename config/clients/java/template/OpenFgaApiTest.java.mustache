@@ -1424,7 +1424,7 @@ public class OpenFgaApiTest {
         // Given
         String postPath = "https://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/expand";
         String expectedBody = String.format(
-                "{\"tuple_key\":{\"relation\":\"%s\",\"object\":\"%s\"},\"authorization_model_id\":\"%s\",\"consistency\":\"%s\"}",
+                "{\"tuple_key\":{\"relation\":\"%s\",\"object\":\"%s\"},\"authorization_model_id\":\"%s\",\"consistency\":\"%s\",\"contextual_tuples\":null}",
                 DEFAULT_RELATION, DEFAULT_OBJECT, DEFAULT_AUTH_MODEL_ID, ConsistencyPreference.HIGHER_CONSISTENCY);
         String responseBody = String.format(
                 "{\"tree\":{\"root\":{\"union\":{\"nodes\":[{\"leaf\":{\"users\":{\"users\":[\"%s\"]}}}]}}}}",
