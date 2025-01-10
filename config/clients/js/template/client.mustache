@@ -172,7 +172,7 @@ export type ClientBatchCheckSingleResponse = {
 }
 
 export interface ClientBatchCheckResponse {
-  responses: ClientBatchCheckSingleResponse[];
+  result: ClientBatchCheckSingleResponse[];
 }
 
 export interface ClientWriteRequestOpts {
@@ -750,7 +750,7 @@ export class {{appShortName}}Client extends BaseAPI {
       }
     }
 
-    return { responses: results };
+    return { result: results };
   } 
 
   /**
