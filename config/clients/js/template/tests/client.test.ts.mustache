@@ -538,8 +538,8 @@ describe("{{appTitleCaseName}} Client", () => {
         expect(scope1.isDone()).toBe(true);
         expect(scope2.isDone()).toBe(true);
         expect(scope3.isDone()).toBe(false);
-        expect(response.responses.length).toBe(3);
-        expect(response.responses.sort((a, b) => String(a._request.object).localeCompare(b._request.object)))
+        expect(response.result.length).toBe(3);
+        expect(response.result.sort((a, b) => String(a._request.object).localeCompare(b._request.object)))
           .toMatchObject(expect.arrayContaining([
             { _request: tuples[0], allowed: true, },
             { _request: tuples[1], allowed: false },
