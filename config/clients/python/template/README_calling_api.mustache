@@ -753,6 +753,33 @@ response = await fga_client.list_objects(body)
 # response.objects = ["document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"]
 ```
 
+#### Streamed List Objects
+
+List the objects of a particular type a user has access to, using the streaming API.
+
+[API Documentation](https://openfga.dev/api/service#/Relationship%20Queries/StreamedListObjects)
+
+```python
+# from openfga_sdk import OpenFgaClient
+# from openfga_sdk.client.models import ClientListObjectsRequest
+
+# Initialize the fga_client
+# fga_client = OpenFgaClient(configuration)
+
+results = []
+
+documents = ClientListObjectsRequest(
+    type="document",
+    relation="writer",
+    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+)
+
+async for response in fga_client.streamed_list_objects(request):
+    results.append(response)
+
+# results = ["document:...", ...]
+```
+
 #### List Relations
 
 List the relations a user has on an object.

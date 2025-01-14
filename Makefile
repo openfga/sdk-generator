@@ -110,7 +110,7 @@ tag-client-python: test-client-python
 
 .PHONY: build-client-python
 build-client-python:
-	make build-client sdk_language=python tmpdir=${TMP_DIR} library="asyncio"
+	make build-client-streamed sdk_language=python tmpdir=${TMP_DIR} library="asyncio"
 
 	mv ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/api/open_fga_api_sync.py ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/sync/open_fga_api.py
 	mv ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/test/test_open_fga_api.py ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/test/api/open_fga_api_test.py
@@ -177,6 +177,21 @@ build-client: build-openapi
 build-openapi: init get-openapi-doc
 	cat "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.json" | \
 		jq '(.. | .tags? | select(.)) |= ["OpenFga"] | (.tags? | select(.)) |= [{"name":"OpenFga"}] | del(.definitions.ReadTuplesParams, .definitions.ReadTuplesResponse, .paths."/stores/{store_id}/read-tuples", .definitions.StreamedListObjectsRequest, .definitions.StreamedListObjectsResponse, .paths."/stores/{store_id}/streamed-list-objects")' > \
+		${DOCS_CACHE_DIR}/openfga.openapiv2.json
+	sed -i -e 's/"Object"/"FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
+	sed -i -e 's/#\/definitions\/Object"/#\/definitions\/FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
+	sed -i -e 's/v1.//g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
+
+.EXPORT_ALL_VARIABLES:
+.PHONY: build-client-streamed
+build-client-streamed: build-openapi-streamed
+	SDK_LANGUAGE="${sdk_language}" TMP_DIR="${tmpdir}" LIBRARY_TEMPLATE="${library}"\
+		./scripts/build_client.sh
+
+.PHONY: build-openapi-streamed
+build-openapi-streamed: init get-openapi-doc
+	cat "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.json" | \
+		jq '(.. | .tags? | select(.)) |= ["OpenFga"] | (.tags? | select(.)) |= [{"name":"OpenFga"}] | del(.definitions.ReadTuplesParams, .definitions.ReadTuplesResponse, .paths."/stores/{store_id}/read-tuples")' > \
 		${DOCS_CACHE_DIR}/openfga.openapiv2.json
 	sed -i -e 's/"Object"/"FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
 	sed -i -e 's/#\/definitions\/Object"/#\/definitions\/FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json

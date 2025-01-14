@@ -11,6 +11,7 @@
   "docPrefix": "https://github.com/openfga/python-sdk/blob/main/",
   "pythonMinimumRuntime": "3.10",
   "openTelemetryDocumentation": "opentelemetry.md",
+  "supportsStreamedListObjects": "streamed_list_objects",
   "files": {
     ".snyk": {},
 
@@ -55,6 +56,24 @@
       "templateType": "SupportingFiles"
     },
 
+    "example/streamed-list-objects/.env.example": {},
+    "example/streamed-list-objects/.gitignore": {},
+    "example/streamed-list-objects/README.md": {},
+    "example/streamed-list-objects/requirements.txt": {},
+    "example/streamed-list-objects/setup.cfg": {},
+    "example/streamed-list-objects/setup.py.mustache": {
+      "destinationFilename": "example/streamed-list-objects/setup.py",
+      "templateType": "SupportingFiles"
+    },
+    "example/streamed-list-objects/asynchronous.py.mustache": {
+      "destinationFilename": "example/streamed-list-objects/asynchronous.py",
+      "templateType": "SupportingFiles"
+    },
+    "example/streamed-list-objects/synchronous.py.mustache": {
+      "destinationFilename": "example/streamed-list-objects/synchronous.py",
+      "templateType": "SupportingFiles"
+    },
+
     "src/api/__init__.py.mustache": {
       "destinationFilename": "openfga_sdk/api/__init__.py",
       "templateType": "SupportingFiles"
@@ -83,7 +102,7 @@
       "destinationFilename": "openfga_sdk/client/models/batch_check_item.py",
       "templateType": "SupportingFiles"
     },
-      "src/client/models/batch_check_request.py.mustache": {
+    "src/client/models/batch_check_request.py.mustache": {
       "destinationFilename": "openfga_sdk/client/models/batch_check_request.py",
       "templateType": "SupportingFiles"
     },
@@ -272,6 +291,10 @@
       "destinationFilename": "test/sync/oauth2_test.py",
       "templateType": "SupportingFiles"
     },
+    "test/sync/rest_test.py.mustache": {
+      "destinationFilename": "test/sync/rest_test.py",
+      "templateType": "SupportingFiles"
+    },
     "test/telemetry/attributes_test.py.mustache": {
       "destinationFilename": "test/telemetry/attributes_test.py",
       "templateType": "SupportingFiles"
@@ -314,6 +337,10 @@
     },
     "test/oauth2_test.py.mustache": {
       "destinationFilename": "test/_/oauth2_test.py",
+      "templateType": "SupportingFiles"
+    },
+    "test/rest_test.py.mustache": {
+      "destinationFilename": "test/_/rest_test.py",
       "templateType": "SupportingFiles"
     },
     "test/validation_test.py.mustache": {

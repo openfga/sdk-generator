@@ -1,6 +1,6 @@
 {{>partial_header}}
 
-from openfga_sdk.client.models.batch_check_item import ClientBatchCheckItem
+from {{packageName}}.client.models.batch_check_item import ClientBatchCheckItem
 
 class ClientBatchCheckRequest:
     """
@@ -15,7 +15,7 @@ class ClientBatchCheckRequest:
         Return checks
         """
         return self._checks
-    
+
     @checks.setter
     def checks(self, checks):
         """
