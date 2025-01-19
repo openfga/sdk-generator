@@ -49,8 +49,24 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientAssertion.java",
       "templateType": "SupportingFiles"
     },
+    "client-ClientBatchCheckClientResponse.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientBatchCheckClientResponse.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientBatchCheckItem.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientBatchCheckItem.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientBatchCheckRequest.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientBatchCheckRequest.java",
+      "templateType": "SupportingFiles"
+    },
     "client-ClientBatchCheckResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientBatchCheckResponse.java",
+      "templateType": "SupportingFiles"
+    },
+    "client-ClientBatchCheckSingleResponse.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientBatchCheckSingleResponse.java",
       "templateType": "SupportingFiles"
     },
     "client-ClientCheckRequest.java.mustache": {
@@ -221,8 +237,12 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/BaseConfiguration.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientBatchCheckOptions.java.mustache": {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientBatchCheckOptions.java",
+    "config-ClientBatchCheckClientRequestOptions.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientBatchCheckClientRequestOptions.java",
+      "templateType": "SupportingFiles"
+    },
+    "config-ClientBatchCheckRequestOptions.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientBatchCheckRequestOptions.java",
       "templateType": "SupportingFiles"
     },
     "config-ClientCheckOptions.java.mustache": {
@@ -371,6 +391,10 @@
     },
     "errors-FgaInvalidParameterException.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaInvalidParameterException.java",
+      "templateType": "SupportingFiles"
+    },
+    "errors-FgaValidationError.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/errors/FgaValidationError.java",
       "templateType": "SupportingFiles"
     },
     "errors-HttpStatusCode.java.mustache": {
