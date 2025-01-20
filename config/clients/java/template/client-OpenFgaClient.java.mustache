@@ -607,7 +607,6 @@ public class OpenFgaClient {
         } catch (Exception e) {
             return CompletableFuture.failedFuture(e);
         } finally {
-            //dfsdfsd
             executor.shutdown();
         }
     }
