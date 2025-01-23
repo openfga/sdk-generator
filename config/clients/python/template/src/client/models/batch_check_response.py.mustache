@@ -1,6 +1,6 @@
 {{>partial_header}}
 
-from openfga_sdk.client.models.batch_check_single_response import ClientBatchCheckSingleResponse
+from {{packageName}}.client.models.batch_check_single_response import ClientBatchCheckSingleResponse
 
 class ClientBatchCheckResponse:
     def __init__(self, result: list[ClientBatchCheckSingleResponse]):
@@ -12,7 +12,7 @@ class ClientBatchCheckResponse:
         Return result
         """
         return self._result
-    
+
     @result.setter
     def result(self, result):
         """

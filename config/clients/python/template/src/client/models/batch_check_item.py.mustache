@@ -1,9 +1,9 @@
 {{>partial_header}}
 
-from openfga_sdk.client.models.tuple import ClientTuple, convert_tuple_keys
-from openfga_sdk.models.batch_check_item import BatchCheckItem
-from openfga_sdk.models.check_request_tuple_key import CheckRequestTupleKey
-from openfga_sdk.models.contextual_tuple_keys import ContextualTupleKeys
+from {{packageName}}.client.models.tuple import ClientTuple, convert_tuple_keys
+from {{packageName}}.models.batch_check_item import BatchCheckItem
+from {{packageName}}.models.check_request_tuple_key import CheckRequestTupleKey
+from {{packageName}}.models.contextual_tuple_keys import ContextualTupleKeys
 
 def construct_batch_item(check):
     batch_item = BatchCheckItem(
@@ -63,7 +63,7 @@ class ClientBatchCheckItem:
         Return object
         """
         return self._object
-        
+
 
     @property
     def contextual_tuples(self):
@@ -78,7 +78,7 @@ class ClientBatchCheckItem:
         Return context
         """
         return self._context
-    
+
     @property
     def correlation_id(self):
         """
@@ -120,7 +120,7 @@ class ClientBatchCheckItem:
         Set context
         """
         self._context = value
-        
+
     @correlation_id.setter
     def correlation_id(self, value):
         """

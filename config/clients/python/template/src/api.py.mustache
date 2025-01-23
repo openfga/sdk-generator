@@ -180,7 +180,8 @@ class {{classname}}:
                 '_request_auth',
                 '_content_type',
                 '_headers',
-                '_retry_params'
+                '_retry_params',
+                '_streaming',
             ]
         )
 
@@ -324,7 +325,8 @@ class {{classname}}:
             collection_formats=collection_formats,
             _request_auth=local_var_params.get('_request_auth'),
             _oauth2_client=self._oauth2_client,
-            _telemetry_attributes=telemetry_attributes{{#asyncio}}){{/asyncio}}
+            _telemetry_attributes=telemetry_attributes,
+            _streaming=local_var_params.get('_streaming', False){{#asyncio}}){{/asyncio}}
         )
 {{/operation}}
 {{/operations}}
