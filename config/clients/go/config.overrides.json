@@ -44,6 +44,10 @@
       "destinationFilename": "client/errors.go",
       "templateType": "SupportingFiles"
     },
+    "api_client_test.mustache": {
+      "destinationFilename": "api_client_test.go",
+      "templateType": "SupportingFiles"
+    },
     "api_client.mustache": {
       "destinationFilename": "api_client.go",
       "templateType": "SupportingFiles"
