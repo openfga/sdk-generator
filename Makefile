@@ -125,7 +125,6 @@ build-client-python:
 	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install --upgrade pip && \
 		python -m pip install --upgrade setuptools wheel && \
 		python -m pip install -r test-requirements.txt && \
-		python -m ruff check --select I --fix . && \
 		python -m ruff format . && \
 		python setup.py sdist bdist_wheel'"
 
