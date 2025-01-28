@@ -109,7 +109,7 @@ class OAuth2Client:
             if 200 <= raw_response.status <= 299:
                 try:
                     api_response = json.loads(raw_response.data)
-                except:
+                except Exception:
                     raise AuthenticationError(http_resp=raw_response)
 
                 if api_response.get("expires_in") and api_response.get("access_token"):

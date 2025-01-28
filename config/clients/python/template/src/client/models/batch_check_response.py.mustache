@@ -2,6 +2,7 @@
 
 from {{packageName}}.client.models.batch_check_single_response import ClientBatchCheckSingleResponse
 
+
 class ClientBatchCheckResponse:
     def __init__(self, result: list[ClientBatchCheckSingleResponse]):
         self._result = result

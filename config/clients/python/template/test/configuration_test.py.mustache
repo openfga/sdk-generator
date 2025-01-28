@@ -271,14 +271,6 @@ class TestConfigurationHostSettings:
         )
 
     def test_configuration_get_host_from_settings_invalid_value(self, configuration):
-        servers = [
-            {
-                "url": "https://{region}.{{sampleApiDomain}}",
-                "description": "Example",
-                "variables": {"region": {"default_value": "us"}},
-            }
-        ]
-        variables = {"region": "invalid"}
         with pytest.raises(ValueError):
             configuration.get_host_from_settings(999, variables={"var": "value"})
 

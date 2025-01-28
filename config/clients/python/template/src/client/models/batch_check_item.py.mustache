@@ -5,6 +5,7 @@ from {{packageName}}.models.batch_check_item import BatchCheckItem
 from {{packageName}}.models.check_request_tuple_key import CheckRequestTupleKey
 from {{packageName}}.models.contextual_tuple_keys import ContextualTupleKeys
 
+
 def construct_batch_item(check):
     batch_item = BatchCheckItem(
         tuple_key=CheckRequestTupleKey(
@@ -22,6 +23,7 @@ def construct_batch_item(check):
         )
 
     return batch_item
+
 
 class ClientBatchCheckItem:
     def __init__(

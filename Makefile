@@ -125,17 +125,14 @@ build-client-python:
 	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install --upgrade pip && \
 		python -m pip install --upgrade setuptools wheel && \
 		python -m pip install -r test-requirements.txt && \
-		python -m pyupgrade \`find . -name *.py -type f\` --py310-plus --keep-runtime-typing && \
-		python -m isort . --profile black && \
-		python -m autoflake --exclude=__init__.py --in-place --remove-unused-variables --remove-all-unused-imports -r . && \
-		python -m black . && \
+		python -m ruff format . && \
 		python setup.py sdist bdist_wheel'"
 
 .PHONY: test-client-python
 test-client-python: build-client-python
 	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt && \
 		pytest --cov-report term-missing --cov=openfga_sdk test/ && \
-		flake8 . --count --show-source --statistics'"
+		ruff check .'"
 
 ### Java
 .PHONY: tag-client-java

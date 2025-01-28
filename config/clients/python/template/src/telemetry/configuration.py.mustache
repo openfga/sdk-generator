@@ -1,8 +1,11 @@
+{{>partial_header}}
+
 from typing import NamedTuple
 
 from {{packageName}}.telemetry.attributes import TelemetryAttribute, TelemetryAttributes
 from {{packageName}}.telemetry.counters import TelemetryCounter, TelemetryCounters
 from {{packageName}}.telemetry.histograms import TelemetryHistogram, TelemetryHistograms
+
 
 class TelemetryMetricConfiguration:
     """

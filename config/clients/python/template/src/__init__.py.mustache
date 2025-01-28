@@ -1,4 +1,5 @@
 {{>partial_header}}
+
 __version__ = "{{packageVersion}}"
 
 from {{packageName}}.client.client import OpenFgaClient
@@ -29,3 +30,25 @@ from {{packageName}}.telemetry.configuration import (
 
 __import__('sys').setrecursionlimit({{{.}}})
 {{/recursionLimit}}
+
+__all__ = [
+    "OpenFgaClient",
+    "ClientConfiguration",
+    {{#apiInfo}}{{#apis}}"{{classname}}",
+    {{/apis}}{{/apiInfo}}
+    "ApiClient",
+    "Configuration",
+    "OpenApiException",
+    "FgaValidationException",
+    "ApiValueError",
+    "ApiKeyError",
+    "ApiAttributeError",
+    "ApiException",
+    {{#models}}{{#model}}"{{classname}}",
+    {{/model}}{{/models}}
+    "TelemetryConfiguration",
+    "TelemetryConfigurations",
+    "TelemetryConfigurationType",
+    "TelemetryMetricConfiguration",
+    "TelemetryMetricsConfiguration",
+]
