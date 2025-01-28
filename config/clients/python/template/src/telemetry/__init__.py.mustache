@@ -1,3 +1,5 @@
+{{>partial_header}}
+
 from {{packageName}}.telemetry.attributes import TelemetryAttribute, TelemetryAttributes
 from {{packageName}}.telemetry.configuration import (
     TelemetryConfiguration,
@@ -9,3 +11,18 @@ from {{packageName}}.telemetry.configuration import (
 from {{packageName}}.telemetry.histograms import TelemetryHistogram, TelemetryHistograms
 from {{packageName}}.telemetry.metrics import TelemetryMetrics
 from {{packageName}}.telemetry.telemetry import Telemetry
+
+
+__all__ = [
+    "Telemetry",
+    "TelemetryAttribute",
+    "TelemetryAttributes",
+    "TelemetryConfiguration",
+    "TelemetryConfigurations",
+    "TelemetryConfigurationType",
+    "TelemetryMetricConfiguration",
+    "TelemetryMetricsConfiguration",
+    "TelemetryHistogram",
+    "TelemetryHistograms",
+    "TelemetryMetrics",
+]

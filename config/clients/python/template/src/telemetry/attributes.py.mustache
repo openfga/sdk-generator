@@ -1,3 +1,5 @@
+{{>partial_header}}
+
 import time
 import urllib
 from typing import Any, NamedTuple
@@ -11,6 +13,7 @@ from {{packageName}}.rest import RESTResponse
 from {{packageName}}.telemetry.utilities import (
     doesInstanceHaveCallable,
 )
+
 
 class TelemetryAttribute(NamedTuple):
     name: str

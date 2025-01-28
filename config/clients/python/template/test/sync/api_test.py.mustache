@@ -1418,7 +1418,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
             self.assertEqual(mock_request.call_count, 1)
 
         @patch.object(rest.RESTClientObject, "request")
-        async def test_500_error(self, mock_request):
+        async def test_500_error_retry(self, mock_request):
             """
             Test to ensure 5xx retries are handled properly
             """
@@ -1491,7 +1491,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
                     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 ),
             )
-            with self.assertRaises(ServiceException) as api_exception:
+            with self.assertRaises(ServiceException):
                 api_instance.check(
                     body=body,
                 )

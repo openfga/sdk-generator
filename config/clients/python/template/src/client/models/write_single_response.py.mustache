@@ -2,11 +2,13 @@
 
 from {{packageName}}.client.models.tuple import ClientTuple
 
+
 def construct_write_single_response(tuple_key: ClientTuple, success: bool, error: Exception=None):
     """
     Helper function to return a single write response
     """
     return ClientWriteSingleResponse(tuple_key, success, error)
+
 
 class ClientWriteSingleResponse:
     """

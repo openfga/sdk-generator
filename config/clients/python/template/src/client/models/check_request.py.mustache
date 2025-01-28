@@ -2,6 +2,7 @@
 
 from {{packageName}}.client.models.tuple import ClientTuple
 
+
 def construct_check_request(user: str, relation: str, object: str, contextual_tuples: list[ClientTuple] = None, context: object = None):
     """
     helper function to construct the check request body

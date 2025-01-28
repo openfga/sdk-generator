@@ -1,9 +1,10 @@
+{{>partial_header}}
+
 from unittest.mock import MagicMock, patch
 
 import pytest
 from opentelemetry.metrics import Counter, Histogram, Meter
 
-from {{packageName}}.telemetry.attributes import TelemetryAttributes
 from {{packageName}}.telemetry.counters import TelemetryCounters
 from {{packageName}}.telemetry.histograms import TelemetryHistograms
 from {{packageName}}.telemetry.metrics import TelemetryMetrics
@@ -39,11 +40,6 @@ def test_counter_creation(mock_get_meter):
 
     telemetry = TelemetryMetrics()
 
-    attributes = {
-        TelemetryAttributes.fga_client_request_model_id.name: "model_123",
-        "custom_attribute": "custom_value",
-    }
-
     counter = telemetry.counter(TelemetryCounters.fga_client_credentials_request)
 
     assert counter == mock_counter
@@ -63,11 +59,6 @@ def test_histogram_creation(mock_get_meter):
     mock_meter.create_histogram.return_value = mock_histogram
 
     telemetry = TelemetryMetrics()
-
-    attributes = {
-        TelemetryAttributes.fga_client_request_model_id.name: "model_123",
-        "custom_attribute": "custom_value",
-    }
 
     histogram = telemetry.histogram(TelemetryHistograms.fga_client_request_duration)
 

@@ -1,3 +1,7 @@
+# ruff: noqa: E402
+
+{{>partial_header}}
+
 import asyncio
 import json
 import os
@@ -72,7 +76,7 @@ async def main():
         )
         print(f"Created temporary authorization model ({model})")
 
-        print(f"Writing 100 mock tuples to store.")
+        print("Writing 100 mock tuples to store.")
 
         # Write mock data
         writes = []
@@ -111,7 +115,7 @@ async def main():
         try:
             await fga_client.delete_store()
             print(f"Deleted temporary store ({store})")
-        except:
+        except Exception:
             pass
 
         print("Finished.")
