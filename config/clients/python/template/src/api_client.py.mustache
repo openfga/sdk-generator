@@ -16,7 +16,7 @@ import tornado.gen
 {{/tornado}}
 from multiprocessing.pool import ThreadPool
 
-from dateutil.parser import parse
+from dateutil.parser import parse  # type: ignore[import-untyped]
 
 import {{modelPackage}}
 from {{packageName}} import rest, oauth2
@@ -175,7 +175,7 @@ class ApiClient:
         _request_auth=None,
         _retry_params=None,
         _oauth2_client=None,
-        _telemetry_attributes: dict[TelemetryAttribute, str | int] = None,
+        _telemetry_attributes: dict[TelemetryAttribute, str | bool | int | float] | None = None,
         _streaming: bool = False,
     ):
 
@@ -514,7 +514,7 @@ class ApiClient:
         _request_auth=None,
         _retry_params=None,
         _oauth2_client=None,
-        _telemetry_attributes: dict[TelemetryAttribute, str | int] = None,
+        _telemetry_attributes: dict[TelemetryAttribute, str | bool | int | float] | None = None,
         _streaming: bool = False,
     ):
         """Makes the HTTP request (synchronous) and returns deserialized data.

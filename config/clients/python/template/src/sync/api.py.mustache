@@ -277,7 +277,7 @@ class {{classname}}:
         response_types_map = {}
         {{/returnType}}
 
-        telemetry_attributes: dict[TelemetryAttribute, str | int] = {
+        telemetry_attributes: dict[TelemetryAttribute, str | bool | int | float] = {
             TelemetryAttributes.fga_client_request_method: "{{operationId}}",
             TelemetryAttributes.fga_client_request_store_id: self.api_client.get_store_id(),
             TelemetryAttributes.fga_client_request_model_id: local_var_params.get(

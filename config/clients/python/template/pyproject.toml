@@ -33,7 +33,7 @@ indent-width = 4
 
 target-version = "py310"
 
-[lint]
+[tool.ruff.lint]
 select = ["E4", "E7", "E9", "F"]
 ignore = []
 
@@ -42,7 +42,7 @@ unfixable = []
 
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-[format]
+[tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
@@ -50,7 +50,7 @@ line-ending = "auto"
 
 [tool.pytest.ini_options]
 testpaths = [
-    "tests",
+    "test",
     "integration",
 ]
 
@@ -58,4 +58,13 @@ addopts = "--cov=openfga_sdk --cov-report term-missing --cov-report xml --cov-re
 
 asyncio_mode = "strict"
 asyncio_default_fixture_loop_scope = "function"
-asyncio_default_test_loop_scope = "function"
+
+[tool.mypy]
+python_version = "3.10"
+packages = "openfga_sdk"
+exclude = [
+    "openfa_sdk/models",
+]
+#warn_return_any = "True"
+#warn_unused_configs = "True"
+#disallow_untyped_defs = "True"

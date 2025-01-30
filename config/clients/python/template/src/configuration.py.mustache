@@ -34,7 +34,8 @@ class RetryParams:
     :param max_retry: Maximum number of retry
     :param min_wait_in_ms: Minimum wait (in ms) between retry
     """
-    def __init__(self, max_retry={{{defaultMaxRetry}}}, min_wait_in_ms={{{defaultMinWaitInMs}}}):
+
+    def __init__(self, max_retry=3, min_wait_in_ms=100):
         self._max_retry = max_retry
         self._min_wait_in_ms = min_wait_in_ms
 
@@ -43,8 +44,10 @@ class RetryParams:
         """
         Return the maximum number of retry
         """
-        if self._max_retry > {{{retryMaxAllowedNumber}}}:
-            raise FgaValidationException("RetryParams.max_retry exceeds maximum allowed limit of {{retryMaxAllowedNumber}}");
+        if self._max_retry > 15:
+            raise FgaValidationException(
+                "RetryParams.max_retry exceeds maximum allowed limit of 15"
+            )
 
         return self._max_retry
 
@@ -54,10 +57,14 @@ class RetryParams:
         Update the maximum number of retry
         """
         if not isinstance(value, int) or value < 0:
-            raise FgaValidationException("RetryParams.max_retry must be an integer greater than or equal to 0");
+            raise FgaValidationException(
+                "RetryParams.max_retry must be an integer greater than or equal to 0"
+            )
 
-        if value > {{{retryMaxAllowedNumber}}}:
-            raise FgaValidationException("RetryParams.max_retry exceeds maximum allowed limit of {{retryMaxAllowedNumber}}");
+        if value > 15:
+            raise FgaValidationException(
+                "RetryParams.max_retry exceeds maximum allowed limit of 15"
+            )
 
         self._max_retry = value
 
@@ -133,23 +140,41 @@ class Configuration:
 
     _default = None
 
-    def __init__(self, api_scheme="https", api_host=None,
-                 store_id=None,
-                 credentials=None,
-                 retry_params=None,
-                 api_key=None, api_key_prefix=None,
-                 username=None, password=None,
-                 discard_unknown_keys=False,
-                 server_index=None, server_variables=None,
-                 server_operation_index=None, server_operation_variables=None,
-                 ssl_ca_cert=None,
-                 api_url=None, # TODO: restructure when removing api_scheme/api_host
-                 telemetry: dict[TelemetryConfigurationType | str, TelemetryMetricsConfiguration | dict[TelemetryHistogram | TelemetryCounter, TelemetryMetricConfiguration | dict[TelemetryAttribute, bool] | None] | None] | None = None,
-                 timeout_millisec: int | None = None,
+    def __init__(
+        self,
+        api_scheme="https",
+        api_host=None,
+        store_id=None,
+        credentials=None,
+        retry_params=None,
+        api_key=None,
+        api_key_prefix=None,
+        username=None,
+        password=None,
+        discard_unknown_keys=False,
+        server_index=None,
+        server_variables=None,
+        server_operation_index=None,
+        server_operation_variables=None,
+        ssl_ca_cert=None,
+        api_url=None,  # TODO: restructure when removing api_scheme/api_host
+        telemetry: (
+            dict[
+                TelemetryConfigurationType | str,
+                TelemetryMetricsConfiguration
+                | dict[
+                    TelemetryHistogram | TelemetryCounter | str,
+                    TelemetryMetricConfiguration
+                    | dict[TelemetryAttribute | str, bool]
+                    | None,
+                ]
+                | None,
+            ]
+            | None
+        ) = None,
+        timeout_millisec: int | None = None,
     ):
-
-        """Constructor
-        """
+        """Constructor"""
         self._url = api_url
         self._scheme = api_scheme
         self._base_path = api_host
@@ -199,9 +224,9 @@ class Configuration:
         self.logger = {}
         """Logging Settings
         """
-        self.logger["package_logger"] = logging.getLogger("{{packageName}}")
+        self.logger["package_logger"] = logging.getLogger("openfga_sdk")
         self.logger["urllib3_logger"] = logging.getLogger("urllib3")
-        self.logger_format = '%(asctime)s %(levelname)s %(message)s'
+        self.logger_format = "%(asctime)s %(levelname)s %(message)s"
         """Log format
         """
         self.logger_stream_handler = None
@@ -235,21 +260,10 @@ class Configuration:
         """Set this to True/False to enable/disable SSL hostname verification.
         """
 
-        {{#asyncio}}
         self.connection_pool_maxsize = 100
         """This value is passed to the aiohttp to limit simultaneous connections.
            Default values is 100, None means no-limit.
         """
-        {{/asyncio}}
-        {{^asyncio}}
-        self.connection_pool_maxsize = multiprocessing.cpu_count() * 5
-        """urllib3 connection pool's maximum number of connections saved
-           per pool. urllib3 uses 1 connection as default value, but this is
-           not the best value when you are making a lot of possibly parallel
-           requests to the same host, which is often the case here.
-           cpu_count * 5 is used as default value to increase performance.
-        """
-        {{/asyncio}}
 
         self.proxy = None
         """Proxy URL
@@ -257,7 +271,7 @@ class Configuration:
         self.proxy_headers = None
         """Proxy headers
         """
-        self.safe_chars_for_path_param = ''
+        self.safe_chars_for_path_param = ""
         """Safe chars for path_param
         """
         self.retries = None
@@ -272,7 +286,7 @@ class Configuration:
 
         self._telemetry: TelemetryConfiguration | None = None
         if telemetry is None:
-             self._telemetry = TelemetryConfiguration(
+            self._telemetry = TelemetryConfiguration(
                 TelemetryConfiguration.getSdkDefaults()
             )
         elif isinstance(telemetry, dict):
@@ -288,7 +302,7 @@ class Configuration:
         result = cls.__new__(cls)
         memo[id(self)] = result
         for k, v in self.__dict__.items():
-            if k not in ('logger', 'logger_file_handler'):
+            if k not in ("logger", "logger_file_handler"):
                 setattr(result, k, copy.deepcopy(v, memo))
         # shallow copy of loggers
         result.logger = copy.copy(self.logger)
@@ -416,13 +430,14 @@ class Configuration:
     def telemetry(
         self,
         value: (
-            dict[
+            TelemetryConfiguration
+            | dict[
                 TelemetryConfigurationType | str,
                 TelemetryMetricsConfiguration
                 | dict[
-                    TelemetryHistogram | TelemetryCounter,
+                    TelemetryHistogram | TelemetryCounter | str,
                     TelemetryMetricConfiguration
-                    | dict[TelemetryAttribute, bool]
+                    | dict[TelemetryAttribute | str, bool]
                     | None,
                 ]
                 | None,
@@ -432,15 +447,15 @@ class Configuration:
     ) -> None:
         """Set the telemetry configuration"""
         if value is not None:
-            if isinstance(value, dict):
-                self._telemetry = TelemetryConfiguration(value)
-                return
-            elif isinstance(value, TelemetryConfiguration):
+            if isinstance(value, TelemetryConfiguration):
                 self._telemetry = value
                 return
 
-        self._telemetry = None
+            if isinstance(value, dict):
+                self._telemetry = TelemetryConfiguration(value)
+                return
 
+        self._telemetry = None
 
     def get_api_key_with_prefix(self, identifier, alias=None):
         """Gets API key (with prefix if set).
@@ -451,7 +466,9 @@ class Configuration:
         """
         if self.refresh_api_key_hook is not None:
             self.refresh_api_key_hook(self)
-        key = self.api_key.get(identifier, self.api_key.get(alias) if alias is not None else None)
+        key = self.api_key.get(
+            identifier, self.api_key.get(alias) if alias is not None else None
+        )
         if key:
             prefix = self.api_key_prefix.get(identifier)
             if prefix:
@@ -470,9 +487,9 @@ class Configuration:
         password = ""
         if self.password is not None:
             password = self.password
-        return urllib3.util.make_headers(
-            basic_auth=username + ':' + password
-        ).get('authorization')
+        return urllib3.util.make_headers(basic_auth=username + ":" + password).get(
+            "authorization"
+        )
 
     def auth_settings(self):
         """Gets Auth Settings dict for api client.
@@ -487,12 +504,13 @@ class Configuration:
 
         :return: The report for debugging.
         """
-        return "Python SDK Debug Report:\n"\
-               "OS: {env}\n"\
-               "Python Version: {pyversion}\n"\
-               "Version of the API: {{version}}\n"\
-               "SDK Package Version: {{packageVersion}}".\
-               format(env=sys.platform, pyversion=sys.version)
+        return (
+            "Python SDK Debug Report:\n"
+            "OS: {env}\n"
+            "Python Version: {pyversion}\n"
+            "Version of the API: 1.x\n"
+            "SDK Package Version: 0.9.1".format(env=sys.platform, pyversion=sys.version)
+        )
 
     def get_host_settings(self):
         """Gets an array of host settings
@@ -500,33 +518,10 @@ class Configuration:
         :return: An array of host settings
         """
         return [
-            {{#servers}}
             {
-                'url': "{{{url}}}",
-                'description': "{{{description}}}{{^description}}No description provided{{/description}}",
-                {{#variables}}
-                {{#-first}}
-                'variables': {
-                {{/-first}}
-                    '{{{name}}}': {
-                        'description': "{{{description}}}{{^description}}No description provided{{/description}}",
-                        'default_value': "{{{defaultValue}}}",
-                        {{#enumValues}}
-                        {{#-first}}
-                        'enum_values': [
-                        {{/-first}}
-                            "{{{.}}}"{{^-last}},{{/-last}}
-                        {{#-last}}
-                        ]
-                        {{/-last}}
-                        {{/enumValues}}
-                        }{{^-last}},{{/-last}}
-                {{#-last}}
-                    }
-                {{/-last}}
-                {{/variables}}
-            }{{^-last}},{{/-last}}
-            {{/servers}}
+                "url": "",
+                "description": "No description provided",
+            }
         ]
 
     def get_host_from_settings(self, index, variables=None, servers=None):
@@ -547,22 +542,22 @@ class Configuration:
         except IndexError:
             raise ValueError(
                 "Invalid index {} when selecting the host settings. "
-                "Must be less than {}".format(index, len(servers)))
+                "Must be less than {}".format(index, len(servers))
+            )
 
-        url = server['url']
+        url = server["url"]
 
         # go through variables and replace placeholders
-        for variable_name, variable in server.get('variables', {}).items():
-            used_value = variables.get(
-                variable_name, variable['default_value'])
+        for variable_name, variable in server.get("variables", {}).items():
+            used_value = variables.get(variable_name, variable["default_value"])
 
-            if 'enum_values' in variable \
-                    and used_value not in variable['enum_values']:
+            if "enum_values" in variable and used_value not in variable["enum_values"]:
                 raise ValueError(
                     "The variable `{}` in the host URL has invalid value "
                     "{}. Must be {}.".format(
-                        variable_name, variables[variable_name],
-                        variable['enum_values']))
+                        variable_name, variables[variable_name], variable["enum_values"]
+                    )
+                )
 
             url = url.replace("{" + variable_name + "}", used_value)
 
@@ -575,48 +570,64 @@ class Configuration:
         """
         combined_url = self.api_url
         if self.api_url is None:
-            if self.api_host is None or self.api_host == '':
-                raise FgaValidationException('api_host is required but not configured.')
-            if self.api_scheme is None or self.api_scheme == '':
-                raise FgaValidationException('api_scheme is required but not configured.')
-            combined_url = self.api_scheme + '://' + self.api_host
+            if self.api_host is None or self.api_host == "":
+                raise FgaValidationException("api_host is required but not configured.")
+            if self.api_scheme is None or self.api_scheme == "":
+                raise FgaValidationException(
+                    "api_scheme is required but not configured."
+                )
+            combined_url = self.api_scheme + "://" + self.api_host
         parsed_url = None
         try:
             parsed_url = urllib.parse.urlparse(combined_url)
         except ValueError:
             if self.api_url is None:
-                raise ApiValueError('Either api_scheme `{}` or api_host `{}` is invalid'.format(
-                    self.api_scheme, self.api_host))
+                raise ApiValueError(
+                    "Either api_scheme `{}` or api_host `{}` is invalid".format(
+                        self.api_scheme, self.api_host
+                    )
+                )
             else:
                 raise ApiValueError(f"api_url `{self.api_url}` is invalid")
         if self.api_url is None:
-            if (parsed_url.scheme != 'http' and parsed_url.scheme != 'https'):
+            if parsed_url.scheme != "http" and parsed_url.scheme != "https":
                 raise ApiValueError(
-                    f'api_scheme `{self.api_scheme}` must be either `http` or `https`')
-            if (parsed_url.netloc == ''):
-                raise ApiValueError(f'api_host `{self.api_host}` is invalid')
-            if (parsed_url.path != ''):
+                    f"api_scheme `{self.api_scheme}` must be either `http` or `https`"
+                )
+            if parsed_url.netloc == "":
+                raise ApiValueError(f"api_host `{self.api_host}` is invalid")
+            if parsed_url.path != "":
                 raise ApiValueError(
-                    f'api_host `{self.api_scheme}` is not expected to have path specified')
-            if (parsed_url.query != ''):
+                    f"api_host `{self.api_scheme}` is not expected to have path specified"
+                )
+            if parsed_url.query != "":
                 raise ApiValueError(
-                    f'api_host `{self.api_scheme}` is not expected to have query specified')
+                    f"api_host `{self.api_scheme}` is not expected to have query specified"
+                )
 
-        if self.store_id is not None and self.store_id != "" and is_well_formed_ulid_string(self.store_id) is False:
+        if (
+            self.store_id is not None
+            and self.store_id != ""
+            and is_well_formed_ulid_string(self.store_id) is False
+        ):
             raise FgaValidationException(
-                "store_id ('%s') is not in a valid ulid format" % self.store_id)
+                "store_id ('%s') is not in a valid ulid format" % self.store_id
+            )
 
         if self._credentials is not None:
             self._credentials.validate_credentials_config()
 
         if self._timeout_millisec is not None:
             if not isinstance(self._timeout_millisec, int):
-                raise FgaValidationException(f"timeout_millisec unexpected type {self._timeout_millisec}")
+                raise FgaValidationException(
+                    f"timeout_millisec unexpected type {self._timeout_millisec}"
+                )
 
             ten_minutes = 10000 * 60
             if self._timeout_millisec < 0 or self._timeout_millisec > ten_minutes:
-                raise FgaValidationException(f"timeout_millisec not within reasonable range (0,60000), {self._timeout_millisec}")
-
+                raise FgaValidationException(
+                    f"timeout_millisec not within reasonable range (0,60000), {self._timeout_millisec}"
+                )
 
     @property
     def api_scheme(self):
