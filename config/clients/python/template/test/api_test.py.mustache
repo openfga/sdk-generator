@@ -1491,7 +1491,7 @@ class TestOpenFgaApi(IsolatedAsyncioTestCase):
                     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 ),
             )
-            with self.assertRaises(ServiceException) as api_exception:
+            with self.assertRaises(ServiceException):
                 {{#asyncio}}await {{/asyncio}}api_instance.check(
                     body=body,
                 )

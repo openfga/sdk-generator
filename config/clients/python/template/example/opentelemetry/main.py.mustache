@@ -1,3 +1,7 @@
+# ruff: noqa: E402
+
+{{>partial_header}}
+
 import asyncio
 import os
 import sys
@@ -198,16 +202,15 @@ async def main():
         print(f"Making {checks_requests} checks ...", end=" ")
         for _ in range(checks_requests):
             try:
-                allowed = app().unpack(
-                    await fga_client.check(
-                        body=ClientCheckRequest(
-                            user="user:anne", relation="owner", object="folder:foo"
-                        ),
+                await fga_client.check(
+                    body=ClientCheckRequest(
+                        user="user:anne", relation="owner", object="folder:foo"
                     ),
-                    "allowed",
                 )
+
             except FgaValidationException as error:
                 print(f"Checked failed due to validation exception: {error}")
+
         print("Done!")
 
 
