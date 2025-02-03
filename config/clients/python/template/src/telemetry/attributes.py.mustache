@@ -128,13 +128,13 @@ class TelemetryAttributes:
                     )
 
                     if attributeInstance is None:
-                        raise ValueError("Invalid attribute specified: %s" % attribute)
+                        raise ValueError(f"Invalid attribute specified: {attribute}")
 
                     attribute = attributeInstance
 
                 if not isinstance(attribute, TelemetryAttribute):
                     raise ValueError(
-                        "Invalid attribute specified: %s" % type(attribute)
+                       f"Invalid attribute specified: {type(attribute)}"
                     )
 
                 if filter is not None and attribute not in filter:

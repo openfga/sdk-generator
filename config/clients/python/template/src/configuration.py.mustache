@@ -506,10 +506,10 @@ class Configuration:
         """
         return (
             "Python SDK Debug Report:\n"
-            "OS: {env}\n"
-            "Python Version: {pyversion}\n"
+            f"OS: {sys.platform}\n"
+            f"Python Version: {sys.version}\n"
             "Version of the API: 1.x\n"
-            "SDK Package Version: 0.9.1".format(env=sys.platform, pyversion=sys.version)
+            "SDK Package Version: 0.9.1"
         )
 
     def get_host_settings(self):
@@ -541,8 +541,8 @@ class Configuration:
             server = servers[index]
         except IndexError:
             raise ValueError(
-                "Invalid index {} when selecting the host settings. "
-                "Must be less than {}".format(index, len(servers))
+                f"Invalid index {index} when selecting the host settings. "
+                f"Must be less than {len(servers)}"
             )
 
         url = server["url"]
@@ -583,9 +583,7 @@ class Configuration:
         except ValueError:
             if self.api_url is None:
                 raise ApiValueError(
-                    "Either api_scheme `{}` or api_host `{}` is invalid".format(
-                        self.api_scheme, self.api_host
-                    )
+                    f"Either api_scheme `{self.api_scheme}` or api_host `{self.api_host}` is invalid"
                 )
             else:
                 raise ApiValueError(f"api_url `{self.api_url}` is invalid")
@@ -611,7 +609,7 @@ class Configuration:
             and is_well_formed_ulid_string(self.store_id) is False
         ):
             raise FgaValidationException(
-                "store_id ('%s') is not in a valid ulid format" % self.store_id
+                f"store_id ('{self.store_id}') is not in a valid ulid format"
             )
 
         if self._credentials is not None:

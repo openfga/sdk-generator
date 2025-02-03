@@ -1,6 +1,6 @@
 {{>partial_header}}
 
-from typing import NamedTuple, Protocol, Type, runtime_checkable
+from typing import NamedTuple, Protocol, runtime_checkable
 
 from {{packageName}}.telemetry.attributes import TelemetryAttribute, TelemetryAttributes
 from {{packageName}}.telemetry.counters import TelemetryCounter, TelemetryCounters
@@ -993,7 +993,7 @@ class TelemetryMetricsConfiguration(TelemetryMetricsConfigurationProtocol):
 
 class TelemetryConfigurationType(NamedTuple):
     name: str
-    configurationClass: Type[TelemetryMetricsConfigurationProtocol]
+    configurationClass: type[TelemetryMetricsConfigurationProtocol]
 
 
 class TelemetryConfigurations:

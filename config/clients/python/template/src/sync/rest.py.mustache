@@ -29,15 +29,17 @@ class RESTResponse(io.IOBase):
     Represents an HTTP response object in the synchronous client.
     """
 
-    response: urllib3.BaseHTTPResponse
-    status: int
-    reason: str | None
-    data: bytes
+    _response: urllib3.BaseHTTPResponse
+    _data: bytes
+    _status: int
+    _reason: str | None
 
     def __init__(
         self,
-        resp: urllib3.BaseHTTPResponse,
+        response: urllib3.BaseHTTPResponse,
         data: bytes,
+        status: int | None = None,
+        reason: str | None = None,
     ) -> None:
         """
         Initializes a RESTResponse with a urllib3.BaseHTTPResponse and corresponding data.
@@ -45,10 +47,66 @@ class RESTResponse(io.IOBase):
         :param resp: The urllib3.BaseHTTPResponse object.
         :param data: The raw byte data read from the response.
         """
-        self.response = resp
-        self.status = resp.status
-        self.reason = resp.reason
-        self.data = data
+        self._response = response
+        self._data = data
+        self._status = status or response.status
+        self._reason = reason or response.reason
+
+    @property
+    def response(self) -> urllib3.BaseHTTPResponse:
+        """
+        Returns the underlying urllib3.BaseHTTPResponse object.
+        """
+        return self._response
+
+    @response.setter
+    def response(self, value: urllib3.BaseHTTPResponse) -> None:
+        """
+        Sets the underlying urllib3.BaseHTTPResponse object.
+        """
+        self._response = value
+
+    @property
+    def data(self) -> bytes:
+        """
+        Returns the raw byte data of the response.
+        """
+        return self._data
+
+    @data.setter
+    def data(self, value: bytes) -> None:
+        """
+        Sets the raw byte data of the response.
+        """
+        self._data = value
+
+    @property
+    def status(self) -> int:
+        """
+        Returns the HTTP status code of the response.
+        """
+        return self._status
+
+    @status.setter
+    def status(self, value: int) -> None:
+        """
+        Sets the HTTP status code of the response.
+        """
+        self._status = value
+
+    @property
+    def reason(self) -> str | None:
+        """
+        Returns the HTTP reason phrase of the response.
+        """
+        return self._reason
+
+    @reason.setter
+    def reason(self, value: str | None) -> None:
+        """
+        Sets the HTTP reason phrase of the response.
+        """
+        self._reason = value
 
     def getheaders(self) -> dict[str, str]:
         """
@@ -187,7 +245,7 @@ class RESTClientObject:
         post_params = post_params or {}
         timeout_val = _request_timeout or self._timeout_millisec
 
-        if isinstance(timeout_val, (float, int)):
+        if isinstance(timeout_val, float | int):
             if timeout_val > 100:
                 timeout_val /= 1000
             timeout = urllib3.Timeout(total=timeout_val)
@@ -232,7 +290,7 @@ class RESTClientObject:
                 args["fields"] = post_params
                 args["encode_multipart"] = True
 
-            elif isinstance(body, (str, bytes)):
+            elif isinstance(body, str | bytes):
                 args["body"] = body
             else:
                 msg = (
@@ -357,8 +415,7 @@ class RESTClientObject:
                 )
 
                 # Yield any complete objects
-                for obj in decoded_objects:
-                    yield obj
+                yield from decoded_objects
 
         except Exception as e:
             logger.exception("Stream error: %s", e)

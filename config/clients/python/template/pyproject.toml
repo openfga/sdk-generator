@@ -39,11 +39,11 @@ extend-select = [
   #"C4",   # flake8-comprehensions
   #"C9",   # mccabe
   "I",    # isort
-  #"PGH",  # pygrep-hooks
+  "PGH",  # pygrep-hooks
   #"RUF",  # ruff
-  #"UP",   # pyupgrade
-  #"W",    # pycodestyle
-  #"YTT",  # flake8-2020
+  "UP",   # pyupgrade
+  "W",    # pycodestyle
+  "YTT",  # flake8-2020
   #"TRY",  # tryceratops
   #"EM",   # flake8-errmsg
 ]
