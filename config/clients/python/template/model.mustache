@@ -1,9 +1,6 @@
 {{>partial_header}}
 
-try:
-    from inspect import getfullargspec
-except ImportError:
-    from inspect import getargspec as getfullargspec
+from inspect import getfullargspec
 import pprint
 
 from {{packageName}}.configuration import Configuration
@@ -37,13 +34,13 @@ class {{classname}}:
       attribute_map (dict): The key is attribute name
                             and the value is json key in definition.
     """
-    openapi_types = {
+    openapi_types: dict[str, str] = {
 {{#vars}}
         '{{name}}': '{{{dataType}}}'{{^-last}},{{/-last}}
 {{/vars}}
     }
 
-    attribute_map = {
+    attribute_map: dict[str, str] = {
 {{#vars}}
         '{{name}}': '{{baseName}}'{{^-last}},{{/-last}}
 {{/vars}}
