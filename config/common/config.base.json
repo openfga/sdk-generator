@@ -86,6 +86,7 @@
   "defaultMaxRetry": 3,
   "defaultMinWaitInMs": 100,
   "clientMaxMethodParallelRequests": 10,
+  "clientMaxBatchSize": 50,
   "defaultConnectionTimeoutInMs": 10000,
   "tokenExpiryThresholdBufferInSec": 300,
   "tokenExpiryJitterInSec": 300,
