@@ -1220,8 +1220,11 @@ func (client *{{appShortName}}Client) ReadChangesExecute(request SdkClientReadCh
 		req = req.ContinuationToken(*continuationToken)
 	}
 	requestBody := request.GetBody()
-	if requestBody != nil {
+	if requestBody.Type != "" {
 		req = req.Type_(requestBody.Type)
+	}
+	if !requestBody.StartTime.IsZero() {
+		req = req.StartTime(requestBody.StartTime)
 	}
 
 	data, _, err := req.Execute()
