@@ -1685,7 +1685,7 @@ public class OpenFgaClientTest {
                 ._object(DEFAULT_OBJECT)
                 .relation(DEFAULT_RELATION)
                 .user(DEFAULT_USER);
-        ClientBatchCheckClientRequestOptions options = new ClientBatchCheckClientRequestOptions()
+        ClientBatchCheckClientOptions options = new ClientBatchCheckClientOptions()
                 .authorizationModelId(DEFAULT_AUTH_MODEL_ID)
                 .consistency(ConsistencyPreference.MINIMIZE_LATENCY);
 
@@ -1727,7 +1727,7 @@ public class OpenFgaClientTest {
                     ._object(DEFAULT_OBJECT)
                     .relation(DEFAULT_RELATION)
                     .user(DEFAULT_USER);
-            ClientBatchCheckClientRequestOptions options = new ClientBatchCheckClientRequestOptions()
+            ClientBatchCheckClientOptions options = new ClientBatchCheckClientOptions()
                     .authorizationModelId(DEFAULT_AUTH_MODEL_ID)
                     .consistency(ConsistencyPreference.MINIMIZE_LATENCY);
 
@@ -1758,7 +1758,7 @@ public class OpenFgaClientTest {
                         .relation(DEFAULT_RELATION)
                         .user(DEFAULT_USER))
                 .collect(Collectors.toList());
-        ClientBatchCheckClientRequestOptions options = new ClientBatchCheckClientRequestOptions().authorizationModelId(DEFAULT_AUTH_MODEL_ID);
+        ClientBatchCheckClientOptions options = new ClientBatchCheckClientOptions().authorizationModelId(DEFAULT_AUTH_MODEL_ID);
 
         // When
         fga.clientBatchCheck(requests, options).get();
@@ -1780,7 +1780,7 @@ public class OpenFgaClientTest {
 
         // When
         var exception = assertThrows(FgaInvalidParameterException.class, () -> fga.clientBatchCheck(
-                        List.of(new ClientCheckRequest()), new ClientBatchCheckClientRequestOptions())
+                        List.of(new ClientCheckRequest()), new ClientBatchCheckClientOptions())
                 .get());
 
         // Then
@@ -1798,7 +1798,7 @@ public class OpenFgaClientTest {
 
         // When
         List<ClientBatchCheckClientResponse> response = fga.clientBatchCheck(
-                        List.of(new ClientCheckRequest()), new ClientBatchCheckClientRequestOptions())
+                        List.of(new ClientCheckRequest()), new ClientBatchCheckClientOptions())
                 .join();
 
         // Then
@@ -1824,7 +1824,7 @@ public class OpenFgaClientTest {
 
         // When
         List<ClientBatchCheckClientResponse> response = fga.clientBatchCheck(
-                        List.of(new ClientCheckRequest()), new ClientBatchCheckClientRequestOptions())
+                        List.of(new ClientCheckRequest()), new ClientBatchCheckClientOptions())
                 .join();
 
         // Then
@@ -1849,7 +1849,7 @@ public class OpenFgaClientTest {
 
         // When
         List<ClientBatchCheckClientResponse> response = fga.clientBatchCheck(
-                        List.of(new ClientCheckRequest()), new ClientBatchCheckClientRequestOptions())
+                        List.of(new ClientCheckRequest()), new ClientBatchCheckClientOptions())
                 .join();
 
         // Then

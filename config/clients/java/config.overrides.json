@@ -237,8 +237,8 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/BaseConfiguration.java",
       "templateType": "SupportingFiles"
     },
-    "config-ClientBatchCheckClientRequestOptions.java.mustache": {
-      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientBatchCheckClientRequestOptions.java",
+    "config-ClientBatchCheckClientOptions.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/configuration/ClientBatchCheckClientOptions.java",
       "templateType": "SupportingFiles"
     },
     "config-ClientBatchCheckRequestOptions.java.mustache": {

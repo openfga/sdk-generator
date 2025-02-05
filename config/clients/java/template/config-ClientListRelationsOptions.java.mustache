@@ -47,8 +47,8 @@ public class ClientListRelationsOptions implements AdditionalHeadersSupplier {
         return consistency;
     }
 
-     public ClientBatchCheckClientRequestOptions asClientBatchCheckClientRequestOptions() {
-        return new ClientBatchCheckClientRequestOptions()
+     public ClientBatchCheckClientOptions asClientBatchCheckClientOptions() {
+        return new ClientBatchCheckClientOptions()
                 .authorizationModelId(authorizationModelId)
                 .maxParallelRequests(maxParallelRequests)
                 .consistency(consistency);
