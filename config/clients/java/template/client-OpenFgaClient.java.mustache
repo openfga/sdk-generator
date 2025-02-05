@@ -630,14 +630,14 @@ public class OpenFgaClient {
      * @throws FgaInvalidParameterException When the Store ID is null, empty, or whitespace
      */
     public CompletableFuture<ClientBatchCheckResponse> batchCheck(
-            ClientBatchCheckRequest requests, ClientBatchCheckRequestOptions batchCheckOptions)
+            ClientBatchCheckRequest requests, ClientBatchCheckOptions batchCheckOptions)
             throws FgaInvalidParameterException, FgaValidationError {
         configuration.assertValid();
         configuration.assertValidStoreId();
 
         var options = batchCheckOptions != null
                 ? batchCheckOptions
-                : new ClientBatchCheckRequestOptions()
+                : new ClientBatchCheckOptions()
                         .maxParallelRequests(DEFAULT_MAX_METHOD_PARALLEL_REQS)
                         .maxBatchSize(DEFAULT_MAX_BATCH_SIZE);
         if (options.getAdditionalHeaders() == null) {

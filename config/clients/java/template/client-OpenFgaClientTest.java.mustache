@@ -1989,7 +1989,7 @@ public class OpenFgaClientTest {
                 .correlationId("cor-3");
         ClientBatchCheckRequest request = new ClientBatchCheckRequest().checks(List.of(item1, item2, item3));
 
-        ClientBatchCheckRequestOptions options = new ClientBatchCheckRequestOptions().maxBatchSize(2);
+        ClientBatchCheckOptions options = new ClientBatchCheckOptions().maxBatchSize(2);
 
         // When
         ClientBatchCheckResponse response = fga.batchCheck(request, options).join();

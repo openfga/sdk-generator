@@ -4,14 +4,14 @@ package {{configPackage}};
 import dev.openfga.sdk.api.model.ConsistencyPreference;
 import java.util.Map;
 
-public class ClientBatchCheckRequestOptions implements AdditionalHeadersSupplier {
+public class ClientBatchCheckOptions implements AdditionalHeadersSupplier {
     private Map<String, String> additionalHeaders;
     private Integer maxParallelRequests;
     private Integer maxBatchSize;
     private String authorizationModelId;
     private ConsistencyPreference consistency;
 
-    public ClientBatchCheckRequestOptions additionalHeaders(Map<String, String> additionalHeaders) {
+    public ClientBatchCheckOptions additionalHeaders(Map<String, String> additionalHeaders) {
         this.additionalHeaders = additionalHeaders;
         return this;
     }
@@ -21,7 +21,7 @@ public class ClientBatchCheckRequestOptions implements AdditionalHeadersSupplier
         return this.additionalHeaders;
     }
 
-    public ClientBatchCheckRequestOptions maxParallelRequests(Integer maxParallelRequests) {
+    public ClientBatchCheckOptions maxParallelRequests(Integer maxParallelRequests) {
         this.maxParallelRequests = maxParallelRequests;
         return this;
     }
@@ -30,7 +30,7 @@ public class ClientBatchCheckRequestOptions implements AdditionalHeadersSupplier
         return maxParallelRequests;
     }
 
-    public ClientBatchCheckRequestOptions maxBatchSize(Integer maxBatchSize) {
+    public ClientBatchCheckOptions maxBatchSize(Integer maxBatchSize) {
         this.maxBatchSize = maxBatchSize;
         return this;
     }
@@ -39,7 +39,7 @@ public class ClientBatchCheckRequestOptions implements AdditionalHeadersSupplier
         return maxBatchSize;
     }
 
-    public ClientBatchCheckRequestOptions authorizationModelId(String authorizationModelId) {
+    public ClientBatchCheckOptions authorizationModelId(String authorizationModelId) {
         this.authorizationModelId = authorizationModelId;
         return this;
     }
@@ -48,7 +48,7 @@ public class ClientBatchCheckRequestOptions implements AdditionalHeadersSupplier
         return authorizationModelId;
     }
 
-    public ClientBatchCheckRequestOptions consistency(ConsistencyPreference consistency) {
+    public ClientBatchCheckOptions consistency(ConsistencyPreference consistency) {
         this.consistency = consistency;
         return this;
     }
