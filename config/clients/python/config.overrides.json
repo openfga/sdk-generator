@@ -57,21 +57,10 @@
       "templateType": "SupportingFiles"
     },
 
-    "example/streamed-list-objects/.env.example": {},
-    "example/streamed-list-objects/.gitignore": {},
     "example/streamed-list-objects/README.md": {},
-    "example/streamed-list-objects/requirements.txt": {},
-    "example/streamed-list-objects/setup.cfg": {},
-    "example/streamed-list-objects/setup.py.mustache": {
-      "destinationFilename": "example/streamed-list-objects/setup.py",
-      "templateType": "SupportingFiles"
-    },
-    "example/streamed-list-objects/asynchronous.py.mustache": {
-      "destinationFilename": "example/streamed-list-objects/asynchronous.py",
-      "templateType": "SupportingFiles"
-    },
-    "example/streamed-list-objects/synchronous.py.mustache": {
-      "destinationFilename": "example/streamed-list-objects/synchronous.py",
+    "example/streamed-list-objects/model.json": {},
+    "example/streamed-list-objects/example.py.mustache": {
+      "destinationFilename": "example/streamed-list-objects/example.py",
       "templateType": "SupportingFiles"
     },
 
