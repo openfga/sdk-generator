@@ -77,13 +77,14 @@ public class RateLimitParser {
     /// <returns>Instance of <see cref="RateLimitParser"/> containing parsed rate limit headers.</returns>
     public static RateLimitParser Parse(HttpHeaders headers, HttpMethod method, string? apiName = null) {
         var reset = GetHeaderValue(headers, RateLimitHeader.LimitResetIn);
+        var resetTimespan = ComputeResetTimespan(reset);
         var limitUnit = GetRateLimitPeriodUnitValue(apiName);
         return new RateLimitParser {
             Limit = GetHeaderValue(headers, RateLimitHeader.LimitTotalInPeriod),
             Remaining = GetHeaderValue(headers, RateLimitHeader.LimitRemaining),
             LimitUnit = limitUnit,
-            ResetInMs = reset,
-            Reset = reset == 0 ? null : AddResetToCurrentTime(limitUnit, reset),
+            ResetInMs = resetTimespan?.Milliseconds,
+            Reset = resetTimespan == null ? null : DateTimeOffset.UtcNow.Add(resetTimespan.Value),
             Method = method,
             ApiName = apiName ?? "",
         };
@@ -105,11 +106,11 @@ public class RateLimitParser {
         };
     }
 
-    private static DateTimeOffset? AddResetToCurrentTime(PeriodUnit limitUnit, long reset) {
-        return limitUnit switch {
-            PeriodUnit.Second => DateTimeOffset.UtcNow.AddSeconds(reset),
-            PeriodUnit.Minute => DateTimeOffset.UtcNow.AddMinutes(reset),
-            _ => null
-        };
+    private static TimeSpan? ComputeResetTimespan(long reset) {
+        if (reset == 0)
+            return null;
+        
+        var retryAt = DateTimeOffset.FromUnixTimeSeconds(reset);
+        return retryAt - DateTimeOffset.UtcNow;
     }
 }
