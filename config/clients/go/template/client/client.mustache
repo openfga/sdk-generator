@@ -2428,7 +2428,7 @@ func (client *{{appShortName}}Client) ListRelationsExecute(request SdkClientList
 		options.MaxParallelRequests = request.GetOptions().MaxParallelRequests
 	}
 
-	batchResponse, err := client.BatchCheckClientExecute(&SdkClientBatchCheckClientRequest{
+	batchResponse, err := client.ClientBatchCheckExecute(&SdkClientBatchCheckClientRequest{
 		ctx:     request.GetContext(),
 		Client:  client,
 		body:    &batchRequestBody,
