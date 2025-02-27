@@ -13,6 +13,7 @@ public class RateLimitParser {
     /// Defines the string headers to be parsed
     /// </summary>
     public static class RateLimitHeader {
+        public const string RetryAfter = "retry-after";
         public const string LimitResetIn = "x-ratelimit-reset";
         public const string LimitTotalInPeriod = "x-ratelimit-limit";
         public const string LimitRemaining = "x-ratelimit-remaining";
@@ -76,13 +77,11 @@ public class RateLimitParser {
     /// <param name="apiName"></param>
     /// <returns>Instance of <see cref="RateLimitParser"/> containing parsed rate limit headers.</returns>
     public static RateLimitParser Parse(HttpHeaders headers, HttpMethod method, string? apiName = null) {
-        var reset = GetHeaderValue(headers, RateLimitHeader.LimitResetIn);
-        var resetTimespan = ComputeResetTimespan(reset);
-        var limitUnit = GetRateLimitPeriodUnitValue(apiName);
+        var resetTimespan = GetResetTimespan(headers);
         return new RateLimitParser {
             Limit = GetHeaderValue(headers, RateLimitHeader.LimitTotalInPeriod),
             Remaining = GetHeaderValue(headers, RateLimitHeader.LimitRemaining),
-            LimitUnit = limitUnit,
+            LimitUnit = GetRateLimitPeriodUnitValue(apiName),
             ResetInMs = resetTimespan?.Milliseconds,
             Reset = resetTimespan == null ? null : DateTimeOffset.UtcNow.Add(resetTimespan.Value),
             Method = method,
@@ -106,10 +105,20 @@ public class RateLimitParser {
         };
     }
 
-    private static TimeSpan? ComputeResetTimespan(long reset) {
-        if (reset == 0)
-            return null;
-        
+    private static TimeSpan? GetResetTimespan(HttpHeaders headers) {
+        var retryAfter = GetHeaderValue(headers, RateLimitHeader.RetryAfter);
+        if (retryAfter != 0) {
+            return TimeSpan.FromSeconds(retryAfter);
+        }
+
+        var rateLimitReset = GetHeaderValue(headers, RateLimitHeader.LimitResetIn);
+        if (rateLimitReset != 0)
+            return ComputeResetTimespanFromUnix(rateLimitReset);
+
+        return null;
+    }
+
+    private static TimeSpan? ComputeResetTimespanFromUnix(long reset) {
         var retryAt = DateTimeOffset.FromUnixTimeSeconds(reset);
         return retryAt - DateTimeOffset.UtcNow;
     }
