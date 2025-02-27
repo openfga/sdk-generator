@@ -153,6 +153,21 @@ test-client-java: build-client-java
 test-integration-client-java: test-client-java
 	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c 'gradle test-integration'"
 
+### Ruby
+.PHONY: tag-client-ruby
+tag-client-ruby: test-client-ruby
+	make utils-tag-client sdk_language=ruby
+
+.PHONY: build-client-ruby
+build-client-ruby:
+	make build-client sdk_language=ruby tmpdir=${TMP_DIR}
+	# ... any other custom build steps ...
+
+.PHONY: test-client-ruby
+test-client-ruby: build-client-ruby
+	# ... any custom test code ...
+
+
 .PHONY: run-in-docker
 run-in-docker:
 	docker run --rm \

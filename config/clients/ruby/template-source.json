@@ -1,0 +1,7 @@
+{
+  "repo": "https://github.com/OpenAPITools/openapi-generator",
+  "branch": "master",
+  "commit": "6e9a0559a8d575f341dd826fc2e5cd46bce2a0f3",
+  "url": "https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator/src/main/resources/ruby-client",
+  "docs": "https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/ruby-client.md"
+}
