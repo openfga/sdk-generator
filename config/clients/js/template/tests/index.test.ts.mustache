@@ -219,7 +219,9 @@ describe("{{appTitleCaseName}} SDK", function () {
     });
 
     it("should retry a failed attempt to request to exchange the credentials", async () => {
-      const scope1 = nocks.tokenExchange(OPENFGA_API_TOKEN_ISSUER, "test-token", 300, 500);
+      const scope1 = nocks.tokenExchange(OPENFGA_API_TOKEN_ISSUER, "test-token", 300, 500, {
+        'Retry-After': '1' // Add Retry-After header
+      });
       const scope2 = nocks.tokenExchange(OPENFGA_API_TOKEN_ISSUER);
       nocks.readAuthorizationModels(baseConfig.storeId!);
 
@@ -538,6 +540,8 @@ describe("{{appTitleCaseName}} SDK", function () {
           .reply(500, {
             code: "internal_error",
             message: "nock error",
+          }, {
+            'Retry-After': '1' 
           });
 
         nock(basePath)
