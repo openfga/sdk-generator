@@ -64,6 +64,7 @@ public class OAuth2Client {
     private AuthToken _authToken = new();
     private IDictionary<string, string> _authRequest { get; }
     private string _apiTokenIssuer { get; }
+    private string _apiTokenPath { get; }
     private readonly RetryParams _retryParams;
 
     #endregion
@@ -95,7 +96,9 @@ public class OAuth2Client {
         }
 
         _httpClient = httpClient;
-        _apiTokenIssuer = credentialsConfig.Config.ApiTokenIssuer;
+        var tokenEndpoint = BuildTokenEndpointUrl(credentialsConfig.Config.ApiTokenIssuer);
+        _apiTokenIssuer = tokenEndpoint.BasePath;
+        _apiTokenPath = tokenEndpoint.Path;
         _authRequest = new Dictionary<string, string> {
             { "client_id", credentialsConfig.Config.ClientId },
             { "client_secret", credentialsConfig.Config.ClientSecret },
@@ -118,8 +121,8 @@ public class OAuth2Client {
     private async Task ExchangeTokenAsync(CancellationToken cancellationToken = default) {
         var requestBuilder = new RequestBuilder<IDictionary<string, string>> {
             Method = HttpMethod.Post,
-            BasePath = $"https://{_apiTokenIssuer}",
-            PathTemplate = "/oauth/token",
+            BasePath = _apiTokenIssuer,
+            PathTemplate = _apiTokenPath,
             Body = _authRequest,
             ContentType = "application/x-www-form-urlencode"
         };
@@ -173,6 +176,13 @@ public class OAuth2Client {
                 await Task.Delay(waitInMs);
             }
         }
+    }
+
+    private static (string BasePath, string Path) BuildTokenEndpointUrl(string issuer) {
+        var uri = new Uri(issuer);
+        return uri.AbsolutePath.Equals("/") 
+            ? ($"{uri.Scheme}://{uri.Host}", "/oauth/token") 
+            : ($"{uri.Scheme}://{uri.Host}", uri.AbsolutePath);
     }
 
     /// <summary>

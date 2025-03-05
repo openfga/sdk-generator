@@ -118,11 +118,30 @@ namespace {{testPackageName}}.Api {
                 exceptionMissingApiToken.Message);
         }
 
-        // /// <summary>
-        // /// Test that the provided api token issuer is well-formed
-        // /// </summary>
+        /// <summary>
+        /// Test that api token issuer value is normalized
+        /// </summary>
+        [Theory]
+        [InlineData(null, null)]
+        [InlineData("tokenissuer.fga.example", "https://tokenissuer.fga.example")]
+        [InlineData("http://tokenissuer.fga.example", "http://tokenissuer.fga.example")]
+        [InlineData("https://tokenissuer.fga.example", "https://tokenissuer.fga.example")]
+        public void ApiTokenIssuerIsNormalized(string issuer, string expected) {
+            var config = new CredentialsConfig() {
+                ClientId = "some-id",
+                ClientSecret = "some-secret",
+                ApiTokenIssuer = issuer,
+                ApiAudience = "some-audience",
+            };
+
+            Assert.Equal(expected, config.ApiTokenIssuer);
+        }
+
+        /// <summary>
+        /// Test that providing malformed token issuer should error
+        /// </summary>
         [Fact]
-        public void ValidApiTokenIssuerWellFormed() {
+        public void ApiTokenIssuerIsMalformed() {
             var config = new Configuration.Configuration() {
                 ApiHost = _host,
                 Credentials = new Credentials() {
@@ -130,16 +149,39 @@ namespace {{testPackageName}}.Api {
                     Config = new CredentialsConfig() {
                         ClientId = "some-id",
                         ClientSecret = "some-secret",
-                        ApiTokenIssuer = "https://tokenissuer.{{sampleApiDomain}}",
+                        ApiTokenIssuer = "file://tokenissuer.fga.example",
                         ApiAudience = "some-audience",
                     }
                 }
             };
             void ActionMalformedApiTokenIssuer() => config.EnsureValid();
             var exception = Assert.Throws<FgaValidationError>(ActionMalformedApiTokenIssuer);
-            Assert.Equal("Configuration.ApiTokenIssuer does not form a valid URI (https://https://tokenissuer.{{sampleApiDomain}})", exception.Message);
+            Assert.Equal("Configuration.ApiTokenIssuer does not form a valid URI (https://file://tokenissuer.fga.example)", exception.Message);
         }
 
+        /// <summary>
+        /// Test that the provided api token issuer is well-formed
+        /// </summary>
+        [Theory]
+        [InlineData("tokenissuer.fga.example")]
+        [InlineData("http://tokenissuer.fga.example")]
+        [InlineData("https://tokenissuer.fga.example")]
+        public void ValidApiTokenIssuerWellFormed(string issuer) {
+            var config = new Configuration.Configuration() {
+                ApiHost = _host,
+                Credentials = new Credentials() {
+                    Method = CredentialsMethod.ClientCredentials,
+                    Config = new CredentialsConfig() {
+                        ClientId = "some-id",
+                        ClientSecret = "some-secret",
+                        ApiTokenIssuer = issuer,
+                        ApiAudience = "some-audience",
+                    }
+                }
+            };
+            config.EnsureValid();
+        }
+        
         /// <summary>
         /// Test that the authorization header is being sent
         /// </summary>
@@ -295,7 +337,7 @@ namespace {{testPackageName}}.Api {
                 .SetupSequence<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.Is<HttpRequestMessage>(req =>
-                        req.RequestUri == new Uri($"https://{config.Credentials.Config.ApiTokenIssuer}/oauth/token") &&
+                        req.RequestUri == new Uri($"{config.Credentials.Config.ApiTokenIssuer}/oauth/token") &&
                         req.Method == HttpMethod.Post &&
                         req.Content.Headers.ContentType.ToString().Equals("application/x-www-form-urlencoded")),
                     ItExpr.IsAny<CancellationToken>()
@@ -350,7 +392,7 @@ namespace {{testPackageName}}.Api {
                 "SendAsync",
                 Times.Exactly(1),
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    req.RequestUri == new Uri($"https://{config.Credentials.Config.ApiTokenIssuer}/oauth/token") &&
+                    req.RequestUri == new Uri($"{config.Credentials.Config.ApiTokenIssuer}/oauth/token") &&
                     req.Method == HttpMethod.Post &&
                     req.Content.Headers.ContentType.ToString().Equals("application/x-www-form-urlencoded")),
                 ItExpr.IsAny<CancellationToken>()
@@ -394,7 +436,7 @@ namespace {{testPackageName}}.Api {
                 .SetupSequence<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.Is<HttpRequestMessage>(req =>
-                        req.RequestUri == new Uri($"https://{config.Credentials.Config.ApiTokenIssuer}/oauth/token") &&
+                        req.RequestUri == new Uri($"{config.Credentials.Config.ApiTokenIssuer}/oauth/token") &&
                         req.Method == HttpMethod.Post &&
                         req.Content.Headers.ContentType.ToString().Equals("application/x-www-form-urlencoded")),
                     ItExpr.IsAny<CancellationToken>()
@@ -449,7 +491,7 @@ namespace {{testPackageName}}.Api {
                 "SendAsync",
                 Times.Exactly(2),
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    req.RequestUri == new Uri($"https://{config.Credentials.Config.ApiTokenIssuer}/oauth/token") &&
+                    req.RequestUri == new Uri($"{config.Credentials.Config.ApiTokenIssuer}/oauth/token") &&
                     req.Method == HttpMethod.Post &&
                     req.Content.Headers.ContentType.ToString().Equals("application/x-www-form-urlencoded")),
                 ItExpr.IsAny<CancellationToken>()
@@ -493,7 +535,7 @@ namespace {{testPackageName}}.Api {
                 .SetupSequence<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.Is<HttpRequestMessage>(req =>
-                        req.RequestUri == new Uri($"https://{config.Credentials.Config.ApiTokenIssuer}/oauth/token") &&
+                        req.RequestUri == new Uri($"{config.Credentials.Config.ApiTokenIssuer}/oauth/token") &&
                         req.Method == HttpMethod.Post &&
                         req.Content.Headers.ContentType.ToString().Equals("application/x-www-form-urlencoded")),
                     ItExpr.IsAny<CancellationToken>()
@@ -545,7 +587,7 @@ namespace {{testPackageName}}.Api {
                 "SendAsync",
                 Times.Exactly(3),
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    req.RequestUri == new Uri($"https://{config.Credentials.Config.ApiTokenIssuer}/oauth/token") &&
+                    req.RequestUri == new Uri($"{config.Credentials.Config.ApiTokenIssuer}/oauth/token") &&
                     req.Method == HttpMethod.Post &&
                     req.Content.Headers.ContentType.ToString().Equals("application/x-www-form-urlencoded")),
                 ItExpr.IsAny<CancellationToken>()
