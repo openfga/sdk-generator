@@ -9,11 +9,12 @@ import (
 	_nethttp "net/http"
 	"time"
 
+	"golang.org/x/sync/errgroup"
+
 	fgaSdk "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
 	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
 	internalutils "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/internal/utils"
 	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/telemetry"
-	"golang.org/x/sync/errgroup"
 )
 
 var (

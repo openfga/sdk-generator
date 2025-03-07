@@ -69,8 +69,20 @@
       "templateType": "SupportingFiles"
     },
     "oauth2/token_test.go": {},
-    "internal/utils/randomtime.mustache": {
-      "destinationFilename": "internal/utils/randomtime.go",
+    "internal/utils/retryutils/retryutils.mustache": {
+      "destinationFilename": "internal/utils/retryutils/retryutils.go",
+      "templateType": "SupportingFiles"
+    },
+    "internal/utils/retryutils/retryutils_test.mustache": {
+      "destinationFilename": "internal/utils/retryutils/retryutils_test.go",
+      "templateType": "SupportingFiles"
+    },
+    "internal/utils/retryutils/retryparams.mustache": {
+      "destinationFilename": "internal/utils/retryutils/retryparams.go",
+      "templateType": "SupportingFiles"
+    },
+    "internal/utils/retryutils/retryparams_test.mustache": {
+      "destinationFilename": "internal/utils/retryutils/retryparams_test.go",
       "templateType": "SupportingFiles"
     },
     "internal/utils/ulid.mustache": {
