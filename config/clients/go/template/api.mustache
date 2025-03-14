@@ -5,7 +5,9 @@ package {{packageName}}
 import (
 	"bytes"
 	"context"
+	"errors"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -92,11 +94,9 @@ func (a *{{{classname}}}Service) {{{nickname}}}(ctx context.Context{{#pathParams
  * @return {{{.}}}{{/returnType}}
  */
 func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request) ({{#returnType}}{{{.}}}, {{/returnType}}*http.Response, error) {
-	var requestStarted = time.Now()
-
-    retryParams := a.client.cfg.RetryParams
-	for i := 0; i < retryParams.MaxRetry+1; i++ {
 	var (
+		requestStarted       = time.Now()
+		operationName        = "{{nickname}}"
 		localVarHTTPMethod   = http.Method{{httpMethod}}
 		localVarPostBody     interface{}
 		{{#returnType}}
@@ -320,11 +320,16 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 		return {{#returnType}}localVarReturnValue, {{/returnType}}nil, err
 	}
 
+    retryParams := a.client.cfg.RetryParams
+	for i := 0; i < retryParams.MaxRetry+1; i++ {
 	localVarHTTPResponse, err := a.client.callAPI(req)
 	if err != nil || localVarHTTPResponse == nil {
         if i < retryParams.MaxRetry {
-            timeToWait := retryutils.GetTimeToWait(i, retryParams.MaxRetry, retryParams.MinWaitInMs, http.Header{}, "{{nickname}}")
+            timeToWait := retryutils.GetTimeToWait(i, retryParams.MaxRetry, retryParams.MinWaitInMs, http.Header{}, operationName)
             if timeToWait > 0 {
+                if a.client.cfg.Debug {
+                    log.Printf("\nWaiting %v to retry %v (%v %v) due to network error (error=%v) on attempt %v\n", timeToWait, operationName, req.Method, req.URL, err, i)
+                }
                 time.Sleep(timeToWait)
                 continue
             }
@@ -337,8 +342,11 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
         if i < retryParams.MaxRetry {
-            timeToWait := retryutils.GetTimeToWait(i, retryParams.MaxRetry, retryParams.MinWaitInMs, localVarHTTPResponse.Header, "{{nickname}}")
+            timeToWait := retryutils.GetTimeToWait(i, retryParams.MaxRetry, retryParams.MinWaitInMs, localVarHTTPResponse.Header, operationName)
             if timeToWait > 0 {
+                if a.client.cfg.Debug {
+                    log.Printf("\nWaiting %v to retry %v (%v %v) due to error parsing response body (err=%v) on attempt %v\n", timeToWait, operationName, req.Method, req.URL, err, i)
+                }
                 time.Sleep(timeToWait)
                 continue
             }
@@ -347,157 +355,28 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	}
 
 	if localVarHTTPResponse.StatusCode >= http.StatusMultipleChoices {
-
-		if localVarHTTPResponse.StatusCode == http.StatusBadRequest || localVarHTTPResponse.StatusCode == http.StatusUnprocessableEntity {
-			newErr := FgaApiValidationError{
-				body:    localVarBody,{{#pathParams.0}}
-				storeId: r.storeId,{{/pathParams.0}}
-				endpointCategory: "{{nickname}}",
-				requestBody: localVarPostBody,
-				requestMethod: localVarHTTPMethod,
-				responseStatusCode: localVarHTTPResponse.StatusCode,
-				responseHeader: localVarHTTPResponse.Header,
-		        }
-			// Due to CanonicalHeaderKey, header name is case-insensitive.
-			newErr.requestId = localVarHTTPResponse.Header.Get("Fga-Request-Id")
-			newErr.error = "{{nickname}} validation error for " + localVarHTTPMethod + " {{nickname}} with body " + string(localVarBody)
-			var v ValidationErrorMessageResponse
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.modelDecodeError = err
-				return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, newErr
-			}
-			newErr.model = v
-			newErr.responseCode = v.GetCode()
-			newErr.error += " with error code " + string(v.GetCode()) + " error message: " + v.GetMessage()
-
-			return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, newErr
-		}
-
-		if localVarHTTPResponse.StatusCode == http.StatusUnauthorized  || localVarHTTPResponse.StatusCode == http.StatusForbidden {
-			newErr := FgaApiAuthenticationError{
-				body:    localVarBody,{{#pathParams.0}}
-				storeId: r.storeId,{{/pathParams.0}}
-				endpointCategory: "{{nickname}}",
-				responseStatusCode: localVarHTTPResponse.StatusCode,
-				responseHeader: localVarHTTPResponse.Header,
-		        }
-			// Due to CanonicalHeaderKey, header name is case-insensitive.
-			newErr.requestId = localVarHTTPResponse.Header.Get("Fga-Request-Id")
-			newErr.error = "{{nickname}} auth error for " + localVarHTTPMethod + " {{nickname}} with body " + string(localVarBody)
-
-			return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, newErr
-		}
-
-		if localVarHTTPResponse.StatusCode == http.StatusNotFound {
-			newErr := FgaApiNotFoundError{
-				body:    localVarBody,{{#pathParams.0}}
-				storeId: r.storeId,{{/pathParams.0}}
-				endpointCategory: "{{nickname}}",
-				requestBody: localVarPostBody,
-				requestMethod: localVarHTTPMethod,
-				responseStatusCode: localVarHTTPResponse.StatusCode,
-				responseHeader: localVarHTTPResponse.Header,
-		        }
-			// Due to CanonicalHeaderKey, header name is case-insensitive.
-			newErr.requestId = localVarHTTPResponse.Header.Get("Fga-Request-Id")
-			newErr.error = "{{nickname}} validation error for " + localVarHTTPMethod + " {{nickname}} with body " + string(localVarBody)
-			var v PathUnknownErrorMessageResponse
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.modelDecodeError = err
-				return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, newErr
-			}
-			newErr.model = v
-			newErr.responseCode = v.GetCode()
-			newErr.error += " with error code " + string(v.GetCode()) + " error message: " + v.GetMessage()
-
-			return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, newErr
-		}
-
-		if localVarHTTPResponse.StatusCode == http.StatusTooManyRequests {
-			if i < retryParams.MaxRetry {
-                timeToWait := retryutils.GetTimeToWait(i, retryParams.MaxRetry, retryParams.MinWaitInMs, localVarHTTPResponse.Header, "{{nickname}}")
-                if timeToWait > 0 {
-                    time.Sleep(timeToWait)
-				    continue
-                }
-			}
-			// maximum number of retry reached
-			newErr := FgaApiRateLimitExceededError{
-				body:    localVarBody,{{#pathParams.0}}
-				storeId: r.storeId,{{/pathParams.0}}
-				endpointCategory: "{{nickname}}",
-				requestBody: localVarPostBody,
-				requestMethod: localVarHTTPMethod,
-				responseStatusCode: localVarHTTPResponse.StatusCode,
-				responseHeader: localVarHTTPResponse.Header,
-
-		        }
-			newErr.error = "{{nickname}} rate limit error for " + localVarHTTPMethod + " {{nickname}} with body " + string(localVarBody)
-
-			// Due to CanonicalHeaderKey, header name is case-insensitive.
-			newErr.requestId = localVarHTTPResponse.Header.Get("Fga-Request-Id")
-			return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, newErr
-		}
-
-		if localVarHTTPResponse.StatusCode >= http.StatusInternalServerError {
-            if localVarHTTPResponse.StatusCode != http.StatusNotImplemented && i < retryParams.MaxRetry {
-                timeToWait := retryutils.GetTimeToWait(i, retryParams.MaxRetry, retryParams.MinWaitInMs, localVarHTTPResponse.Header, "{{nickname}}")
-                if timeToWait > 0 {
-                    time.Sleep(timeToWait)
-                    continue
-                }
+        err := a.client.handleAPIError(localVarHTTPResponse, localVarBody, localVarPostBody, operationName, {{#pathParams.0}}r.storeId{{/pathParams.0}}{{^pathParams.0}}""{{/pathParams.0}})
+        if err != nil && i < retryParams.MaxRetry {
+            timeToWait := time.Duration(0)
+            var fgaApiRateLimitExceededError FgaApiRateLimitExceededError
+            var fgaApiInternalError FgaApiInternalError
+            switch {
+            case errors.As(err, &fgaApiRateLimitExceededError):
+                timeToWait = err.(FgaApiRateLimitExceededError).GetTimeToWait(i, *retryParams)
+            case errors.As(err, &fgaApiInternalError):
+                timeToWait = err.(FgaApiInternalError).GetTimeToWait(i, *retryParams)
             }
-			newErr := FgaApiInternalError{
-				body:    localVarBody,{{#pathParams.0}}
-				storeId: r.storeId,{{/pathParams.0}}
-				endpointCategory: "{{nickname}}",
-				requestBody: localVarPostBody,
-				requestMethod: localVarHTTPMethod,
-				responseStatusCode: localVarHTTPResponse.StatusCode,
-				responseHeader: localVarHTTPResponse.Header,
 
-		        }
-			newErr.error = "{{nickname}} internal error for " + localVarHTTPMethod + " {{nickname}} with body " + string(localVarBody)
-			newErr.requestId = localVarHTTPResponse.Header.Get("Fga-Request-Id")
+            if timeToWait > 0 {
+                if a.client.cfg.Debug {
+                    log.Printf("\nWaiting %v to retry %v (%v %v) due to api retryable error (status code %v, error=%v) on attempt %v\n", timeToWait, operationName, req.Method, req.URL, localVarHTTPResponse.StatusCode, err, i)
+                }
+                time.Sleep(timeToWait)
+                continue
+            }
+        }
 
-			var v InternalErrorMessageResponse
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.modelDecodeError = err
-				return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, newErr
-			}
-			newErr.model = v
-			newErr.responseCode = v.GetCode()
-			newErr.error += " with error code " + string(v.GetCode()) + " error message: " + v.GetMessage()
-
-			return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, newErr
-		}
-		newErr := FgaApiError{
-			body:    localVarBody,{{#pathParams.0}}
-            storeId: r.storeId,{{/pathParams.0}}
-			endpointCategory: "{{nickname}}",
-			requestBody: localVarPostBody,
-			requestMethod: localVarHTTPMethod,
-			responseStatusCode: localVarHTTPResponse.StatusCode,
-			responseHeader: localVarHTTPResponse.Header,
-
-		}
-		newErr.error = "{{nickname}} error for " + localVarHTTPMethod + " {{nickname}} with body " + string(localVarBody)
-		newErr.requestId = localVarHTTPResponse.Header.Get("Fga-Request-Id")
-
-		var v ErrorResponse
-		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-		if err != nil {
-			newErr.modelDecodeError = err
-			return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, newErr
-		}
-		newErr.model = v
-		newErr.responseCode = v.Code
-		newErr.error += " with error code " + v.Code + " error message: " + v.Message
-
-		return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, newErr
+        return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, err
 	}
 
 	{{#returnType}}
@@ -514,7 +393,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	metrics := telemetry.GetMetrics(telemetry.TelemetryFactoryParameters{Configuration: a.client.cfg.Telemetry})
 
 	var attrs, queryDuration, requestDuration, _ = metrics.BuildTelemetryAttributes(
-		"{{nickname}}",
+		operationName,
 		map[string]interface{}{ {{#pathParams.0}}
 			"storeId": r.storeId,{{/pathParams.0}}
 			"body": localVarPostBody,
@@ -535,9 +414,9 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 
 	return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, nil
 	}
+
 	// should never have reached this
 	{{#returnType}}
-	var localVarReturnValue {{{.}}}
 	return localVarReturnValue, nil, reportError("Error not handled properly")
 	{{/returnType}}
     {{^returnType}}
