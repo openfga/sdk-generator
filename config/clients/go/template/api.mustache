@@ -94,22 +94,24 @@ func (a *{{{classname}}}Service) {{{nickname}}}(ctx context.Context{{#pathParams
  * @return {{{.}}}{{/returnType}}
  */
 func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request) ({{#returnType}}{{{.}}}, {{/returnType}}*http.Response, error) {
+	const (
+		operationName = "{{operationId}}"
+		httpMethod   = http.Method{{httpMethod}}
+	)
 	var (
 		requestStarted       = time.Now()
-		operationName        = "{{nickname}}"
-		localVarHTTPMethod   = http.Method{{httpMethod}}
-		localVarPostBody     interface{}
+		requestBody     interface{}
 		{{#returnType}}
-		localVarReturnValue  {{{.}}}
+		returnValue  {{{.}}}
 		{{/returnType}}
 	)
 
-	localVarPath := "{{{path}}}"{{#pathParams}}
+	path := "{{{path}}}"{{#pathParams}}
 	if r.{{paramName}} == "" {
-		return {{#returnType}}localVarReturnValue, {{/returnType}}nil, reportError("{{paramName}} is required and must be specified")
+		return {{#returnType}}returnValue, {{/returnType}}nil, reportError("{{paramName}} is required and must be specified")
 	}
 
-    localVarPath = strings.Replace(localVarPath, "{"+"{{baseName}}"+"}", url.PathEscape(parameterToString(r.{{paramName}}, "{{#collectionFormat}}{{collectionFormat}}{{/collectionFormat}}")), -1){{/pathParams}}
+	path = strings.Replace(path, "{"+"{{baseName}}"+"}", url.PathEscape(parameterToString(r.{{paramName}}, "{{#collectionFormat}}{{collectionFormat}}{{/collectionFormat}}")), -1){{/pathParams}}
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -117,27 +119,27 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	{{#required}}
 	{{^isPathParam}}
 	if r.{{paramName}} == nil {
-		return {{#returnType}}localVarReturnValue, {{/returnType}}nil, reportError("{{paramName}} is required and must be specified")
+		return {{#returnType}}returnValue, {{/returnType}}nil, reportError("{{paramName}} is required and must be specified")
 	}
 	{{/isPathParam}}
 	{{#minItems}}
 	if len({{^isPathParam}}*{{/isPathParam}}r.{{paramName}}) < {{minItems}} {
-		return {{#returnType}}localVarReturnValue, {{/returnType}}nil, reportError("{{paramName}} must have at least {{minItems}} elements")
+		return {{#returnType}}returnValue, {{/returnType}}nil, reportError("{{paramName}} must have at least {{minItems}} elements")
 	}
 	{{/minItems}}
 	{{#maxItems}}
 	if len({{^isPathParam}}*{{/isPathParam}}r.{{paramName}}) > {{maxItems}} {
-		return {{#returnType}}localVarReturnValue, {{/returnType}}nil, reportError("{{paramName}} must have less than {{maxItems}} elements")
+		return {{#returnType}}returnValue, {{/returnType}}nil, reportError("{{paramName}} must have less than {{maxItems}} elements")
 	}
 	{{/maxItems}}
 	{{#minLength}}
 	if strlen({{^isPathParam}}*{{/isPathParam}}r.{{paramName}}) < {{minLength}} {
-		return {{#returnType}}localVarReturnValue, {{/returnType}}nil, reportError("{{paramName}} must have at least {{minLength}} elements")
+		return {{#returnType}}returnValue, {{/returnType}}nil, reportError("{{paramName}} must have at least {{minLength}} elements")
 	}
 	{{/minLength}}
 	{{#maxLength}}
 	if strlen({{^isPathParam}}*{{/isPathParam}}r.{{paramName}}) > {{maxLength}} {
-		return {{#returnType}}localVarReturnValue, {{/returnType}}nil, reportError("{{paramName}} must have less than {{maxLength}} elements")
+		return {{#returnType}}returnValue, {{/returnType}}nil, reportError("{{paramName}} must have less than {{maxLength}} elements")
 	}
 	{{/maxLength}}
 	{{#minimum}}
@@ -148,7 +150,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	{{^isString}}
 	if {{^isPathParam}}*{{/isPathParam}}r.{{paramName}} < {{minimum}} {
 	{{/isString}}
-		return {{#returnType}}localVarReturnValue, {{/returnType}}nil, reportError("{{paramName}} must be greater than {{minimum}}")
+		return {{#returnType}}returnValue, {{/returnType}}nil, reportError("{{paramName}} must be greater than {{minimum}}")
 	}
 	{{/minimum}}
 	{{#maximum}}
@@ -159,7 +161,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	{{^isString}}
 	if {{^isPathParam}}*{{/isPathParam}}r.{{paramName}} > {{maximum}} {
 	{{/isString}}
-		return {{#returnType}}localVarReturnValue, {{/returnType}}nil, reportError("{{paramName}} must be less than {{maximum}}")
+		return {{#returnType}}returnValue, {{/returnType}}nil, reportError("{{paramName}} must be less than {{maximum}}")
 	}
 	{{/maximum}}
 	{{/required}}
@@ -262,7 +264,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	if r.{{paramName}} != nil {
 		paramJson, err := parameterToJson(*r.{{paramName}})
 		if err != nil {
-			return {{#returnType}}localVarReturnValue, {{/returnType}}nil, err
+			return {{#returnType}}returnValue, {{/returnType}}nil, err
 		}
 		localVarFormParams.Add("{{baseName}}", paramJson)
 	}
@@ -277,7 +279,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 {{/formParams}}
 {{#bodyParams}}
 	// body params
-	localVarPostBody = r.{{paramName}}
+	requestBody = r.{{paramName}}
 {{/bodyParams}}
 {{#authMethods}}
 {{#isApiKey}}
@@ -315,15 +317,15 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 {{/isKeyInCookie}}
 {{/isApiKey}}
 {{/authMethods}}
-	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams)
+	req, err := a.client.prepareRequest(r.ctx, path, httpMethod, requestBody, localVarHeaderParams, localVarQueryParams)
 	if err != nil {
-		return {{#returnType}}localVarReturnValue, {{/returnType}}nil, err
+		return {{#returnType}}returnValue, {{/returnType}}nil, err
 	}
 
     retryParams := a.client.cfg.RetryParams
 	for i := 0; i < retryParams.MaxRetry+1; i++ {
-	localVarHTTPResponse, err := a.client.callAPI(req)
-	if err != nil || localVarHTTPResponse == nil {
+	httpResponse, err := a.client.callAPI(req)
+	if err != nil || httpResponse == nil {
         if i < retryParams.MaxRetry {
             timeToWait := retryutils.GetTimeToWait(i, retryParams.MaxRetry, retryParams.MinWaitInMs, http.Header{}, operationName)
             if timeToWait > 0 {
@@ -334,15 +336,15 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
                 continue
             }
         }
-		return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, err
+		return {{#returnType}}returnValue, {{/returnType}}httpResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
-	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	responseBody, err := io.ReadAll(httpResponse.Body)
+	httpResponse.Body.Close()
+	httpResponse.Body = io.NopCloser(bytes.NewBuffer(responseBody))
 	if err != nil {
         if i < retryParams.MaxRetry {
-            timeToWait := retryutils.GetTimeToWait(i, retryParams.MaxRetry, retryParams.MinWaitInMs, localVarHTTPResponse.Header, operationName)
+            timeToWait := retryutils.GetTimeToWait(i, retryParams.MaxRetry, retryParams.MinWaitInMs, httpResponse.Header, operationName)
             if timeToWait > 0 {
                 if a.client.cfg.Debug {
                     log.Printf("\nWaiting %v to retry %v (%v %v) due to error parsing response body (err=%v) on attempt %v\n", timeToWait, operationName, req.Method, req.URL, err, i)
@@ -351,11 +353,11 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
                 continue
             }
         }
-		return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, err
+		return {{#returnType}}returnValue, {{/returnType}}httpResponse, err
 	}
 
-	if localVarHTTPResponse.StatusCode >= http.StatusMultipleChoices {
-        err := a.client.handleAPIError(localVarHTTPResponse, localVarBody, localVarPostBody, operationName, {{#pathParams.0}}r.storeId{{/pathParams.0}}{{^pathParams.0}}""{{/pathParams.0}})
+	if httpResponse.StatusCode >= http.StatusMultipleChoices {
+        err := a.client.handleAPIError(httpResponse, responseBody, requestBody, operationName, {{#pathParams.0}}r.storeId{{/pathParams.0}}{{^pathParams.0}}""{{/pathParams.0}})
         if err != nil && i < retryParams.MaxRetry {
             timeToWait := time.Duration(0)
             var fgaApiRateLimitExceededError FgaApiRateLimitExceededError
@@ -369,24 +371,24 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 
             if timeToWait > 0 {
                 if a.client.cfg.Debug {
-                    log.Printf("\nWaiting %v to retry %v (%v %v) due to api retryable error (status code %v, error=%v) on attempt %v\n", timeToWait, operationName, req.Method, req.URL, localVarHTTPResponse.StatusCode, err, i)
+                    log.Printf("\nWaiting %v to retry %v (%v %v) due to api retryable error (status code %v, error=%v) on attempt %v\n", timeToWait, operationName, req.Method, req.URL, httpResponse.StatusCode, err, i)
                 }
                 time.Sleep(timeToWait)
                 continue
             }
         }
 
-        return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, err
+        return {{#returnType}}returnValue, {{/returnType}}httpResponse, err
 	}
 
 	{{#returnType}}
-	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	err = a.client.decode(&returnValue, responseBody, httpResponse.Header.Get("Content-Type"))
 	if err != nil {
 		newErr := GenericOpenAPIError{
-			body:  localVarBody,
+			body:  responseBody,
 			error: err.Error(),
 		}
-		return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, newErr
+		return {{#returnType}}returnValue, {{/returnType}}httpResponse, newErr
 	}
 
 	{{/returnType}}
@@ -396,10 +398,10 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 		operationName,
 		map[string]interface{}{ {{#pathParams.0}}
 			"storeId": r.storeId,{{/pathParams.0}}
-			"body": localVarPostBody,
+			"body": requestBody,
 		},
 		req,
-		localVarHTTPResponse,
+		httpResponse,
 		requestStarted,
 		i,
 	)
@@ -412,12 +414,12 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 		metrics.QueryDuration(queryDuration, attrs)
 	}
 
-	return {{#returnType}}localVarReturnValue, {{/returnType}}localVarHTTPResponse, nil
+	return {{#returnType}}returnValue, {{/returnType}}httpResponse, nil
 	}
 
 	// should never have reached this
 	{{#returnType}}
-	return localVarReturnValue, nil, reportError("Error not handled properly")
+	return returnValue, nil, reportError("Error not handled properly")
 	{{/returnType}}
     {{^returnType}}
 	return nil, reportError("Error not handled properly")
