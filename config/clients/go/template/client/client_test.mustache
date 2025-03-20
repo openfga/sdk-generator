@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
+
 	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
 	. "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/client"
 )
@@ -1515,42 +1516,6 @@ func Test{{appShortName}}Client(t *testing.T) {
 		}
 	})
 
-	t.Run("Write with invalid auth", func(t *testing.T) {
-		test := TestDefinition{
-			Name:           "Write",
-			JsonResponse:   `{}`,
-			ResponseStatus: http.StatusOK,
-			Method:         http.MethodPost,
-			RequestPath:    "write",
-		}
-		requestBody := ClientWriteRequest{
-			Writes: []ClientTupleKey{ {
-				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-				Relation: "viewer",
-				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
-			} },
-		}
-		options := ClientWriteOptions{
-			AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
-		}
-
-		httpmock.Activate()
-		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
-			func(req *http.Request) (*http.Response, error) {
-				return httpmock.NewStringResponse(http.StatusUnauthorized, ""), nil
-			},
-		)
-		_, err = fgaClient.Write(context.Background()).Body(requestBody).Options(options).Execute()
-		if err == nil {
-			t.Fatalf("Expect error with invalid auth but there is none")
-		}
-
-		if _, ok := err.({{packageName}}.FgaApiAuthenticationError); !ok {
-			t.Fatalf("Expected an api auth error")
-		}
-	})
-
 	t.Run("WriteNonTransaction only some options set", func(t *testing.T) {
 		test := TestDefinition{
 			Name:           "Write",
@@ -1674,6 +1639,42 @@ func Test{{appShortName}}Client(t *testing.T) {
 			if response.Error != nil {
 				t.Fatalf("OpenFgaClient.%v()|%d/ %v", test.Name, index, response.Error)
 			}
+		}
+	})
+
+	t.Run("Write with invalid auth", func(t *testing.T) {
+		test := TestDefinition{
+			Name:           "Write",
+			JsonResponse:   `{}`,
+			ResponseStatus: http.StatusOK,
+			Method:         http.MethodPost,
+			RequestPath:    "write",
+		}
+		requestBody := ClientWriteRequest{
+			Writes: []ClientTupleKey{ {
+				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+				Relation: "viewer",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+			} },
+		}
+		options := ClientWriteOptions{
+			AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+		}
+
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
+			func(req *http.Request) (*http.Response, error) {
+				return httpmock.NewStringResponse(http.StatusUnauthorized, ""), nil
+			},
+		)
+		_, err = fgaClient.Write(context.Background()).Body(requestBody).Options(options).Execute()
+		if err == nil {
+			t.Fatalf("Expect error with invalid auth but there is none")
+		}
+
+		if _, ok := err.({{packageName}}.FgaApiAuthenticationError); !ok {
+			t.Fatalf("Expected an api auth error")
 		}
 	})
 
