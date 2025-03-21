@@ -317,20 +317,21 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 {{/isKeyInCookie}}
 {{/isApiKey}}
 {{/authMethods}}
+
+    retryParams := a.client.cfg.RetryParams
+	for i := 0; i < retryParams.MaxRetry+1; i++ {
 	req, err := a.client.prepareRequest(r.ctx, path, httpMethod, requestBody, localVarHeaderParams, localVarQueryParams)
 	if err != nil {
 		return {{#returnType}}returnValue, {{/returnType}}nil, err
 	}
 
-    retryParams := a.client.cfg.RetryParams
-	for i := 0; i < retryParams.MaxRetry+1; i++ {
 	httpResponse, err := a.client.callAPI(req)
 	if err != nil || httpResponse == nil {
         if i < retryParams.MaxRetry {
             timeToWait := retryutils.GetTimeToWait(i, retryParams.MaxRetry, retryParams.MinWaitInMs, http.Header{}, operationName)
             if timeToWait > 0 {
                 if a.client.cfg.Debug {
-                    log.Printf("\nWaiting %v to retry %v (%v %v) due to network error (error=%v) on attempt %v\n", timeToWait, operationName, req.Method, req.URL, err, i)
+                    log.Printf("\nWaiting %v to retry %v (%v %v) due to network error (error=%v) on attempt %v. Request body: %v\n", timeToWait, operationName, req.Method, req.URL, err, i, requestBody)
                 }
                 time.Sleep(timeToWait)
                 continue
@@ -347,7 +348,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
             timeToWait := retryutils.GetTimeToWait(i, retryParams.MaxRetry, retryParams.MinWaitInMs, httpResponse.Header, operationName)
             if timeToWait > 0 {
                 if a.client.cfg.Debug {
-                    log.Printf("\nWaiting %v to retry %v (%v %v) due to error parsing response body (err=%v) on attempt %v\n", timeToWait, operationName, req.Method, req.URL, err, i)
+                    log.Printf("\nWaiting %v to retry %v (%v %v) due to error parsing response body (err=%v) on attempt %v. Request body: %v\n", timeToWait, operationName, req.Method, req.URL, err, i, requestBody)
                 }
                 time.Sleep(timeToWait)
                 continue
@@ -371,7 +372,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 
             if timeToWait > 0 {
                 if a.client.cfg.Debug {
-                    log.Printf("\nWaiting %v to retry %v (%v %v) due to api retryable error (status code %v, error=%v) on attempt %v\n", timeToWait, operationName, req.Method, req.URL, httpResponse.StatusCode, err, i)
+                    log.Printf("\nWaiting %v to retry %v (%v %v) due to api retryable error (status code %v, error=%v) on attempt %v. Request body: %v\n", timeToWait, operationName, req.Method, req.URL, httpResponse.StatusCode, err, i, requestBody)
                 }
                 time.Sleep(timeToWait)
                 continue
