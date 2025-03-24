@@ -3103,7 +3103,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 			},
 		)
 
-		got, err := fgaClient.ListUsers(context.Background()).
+		got, _ := fgaClient.ListUsers(context.Background()).
 			Body(requestBody).
 			Options(options).
 			Execute()
