@@ -111,7 +111,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 		return {{#returnType}}returnValue, {{/returnType}}nil, reportError("{{paramName}} is required and must be specified")
 	}
 
-	path = strings.Replace(path, "{"+"{{baseName}}"+"}", url.PathEscape(parameterToString(r.{{paramName}}, "{{#collectionFormat}}{{collectionFormat}}{{/collectionFormat}}")), -1){{/pathParams}}
+	path = strings.ReplaceAll(path, "{"+"{{baseName}}"+"}", url.PathEscape(parameterToString(r.{{paramName}}, "{{#collectionFormat}}{{collectionFormat}}{{/collectionFormat}}"))){{/pathParams}}
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
