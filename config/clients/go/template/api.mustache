@@ -341,7 +341,9 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	}
 
 	responseBody, err := io.ReadAll(httpResponse.Body)
-	httpResponse.Body.Close()
+	if err := httpResponse.Body.Close(); err != nil {
+		_ = err
+	}
 	httpResponse.Body = io.NopCloser(bytes.NewBuffer(responseBody))
 	if err != nil {
         if i < retryParams.MaxRetry {
@@ -408,11 +410,11 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	)
 
 	if requestDuration > 0 {
-		metrics.RequestDuration(requestDuration, attrs)
+		_, _ = metrics.RequestDuration(requestDuration, attrs)
 	}
 
 	if queryDuration > 0 {
-		metrics.QueryDuration(queryDuration, attrs)
+		_, _ = metrics.QueryDuration(queryDuration, attrs)
 	}
 
 	return {{#returnType}}returnValue, {{/returnType}}httpResponse, nil

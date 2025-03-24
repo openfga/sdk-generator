@@ -254,7 +254,7 @@ func singleTokenRoundTrip(ctx context.Context, req *http.Request) (*Token, error
 		return nil, err
 	}
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1<<20))
-	r.Body.Close()
+	_ = r.Body.Close()
 	if err != nil {
 		return nil, fmt.Errorf("oauth2: cannot fetch token: %v", err)
 	}
@@ -296,7 +296,7 @@ func singleTokenRoundTrip(ctx context.Context, req *http.Request) (*Token, error
 			Expiry:       tj.expiry(),
 			Raw:          make(map[string]interface{}),
 		}
-		json.Unmarshal(body, &token.Raw) // no error checks for optional fields
+		_ = json.Unmarshal(body, &token.Raw) // no error checks for optional fields
 	}
 	if token.AccessToken == "" {
 		return nil, errors.New("oauth2: server response missing access_token")
@@ -319,7 +319,7 @@ func doTokenRoundTrip(ctx context.Context, req *http.Request, config RequestConf
 			if otel := telemetry.Extract(ctx); otel != nil {
 				attrs := make(map[*telemetry.Attribute]string)
 				attrs[telemetry.HTTPRequestResendCount] = strconv.Itoa(i)
-				otel.Metrics.CredentialsRequest(1, attrs)
+				_, _ = otel.Metrics.CredentialsRequest(1, attrs)
 			}
 			return token, err
 		}

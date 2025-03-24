@@ -365,7 +365,9 @@ func Test{{appShortName}}Client(t *testing.T) {
 		}
 
 		storeId := got1.Id
-		fgaClient.SetStoreId(storeId)
+		if err := fgaClient.SetStoreId(storeId); err != nil {
+			_ = err
+		}
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
