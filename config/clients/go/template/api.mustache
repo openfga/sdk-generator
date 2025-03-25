@@ -341,7 +341,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	}
 
 	responseBody, err := io.ReadAll(httpResponse.Body)
-	if err := httpResponse.Body.Close(); err != nil {
+	_  = httpResponse.Body.Close()
 		_ = err
 	}
 	httpResponse.Body = io.NopCloser(bytes.NewBuffer(responseBody))
