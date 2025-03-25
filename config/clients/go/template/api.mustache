@@ -341,9 +341,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	}
 
 	responseBody, err := io.ReadAll(httpResponse.Body)
-	_  = httpResponse.Body.Close()
-		_ = err
-	}
+	_ = httpResponse.Body.Close()
 	httpResponse.Body = io.NopCloser(bytes.NewBuffer(responseBody))
 	if err != nil {
         if i < retryParams.MaxRetry {

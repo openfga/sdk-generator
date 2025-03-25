@@ -2287,11 +2287,12 @@ func (client *OpenFgaClient) SingleBatchCheck(ctx _context.Context, body fgaSdk.
 		return nil, err
 	}
 
+	requestID := fmt.Sprintf("%d", time.Now().UnixNano())
+	
+	client.APIClient.GetConfig().AddDefaultHeader("X-OpenFGA-Client-Bulk-Request-Id", requestID)
+	
 	req := client.OpenFgaApi.BatchCheck(ctx, *storeId)
 	req = req.Body(body)
-
-	requestID := fmt.Sprintf("%d", time.Now().UnixNano())
-	client.APIClient.GetConfig().AddDefaultHeader("X-Fga-Client-Bulk-Request-Id", requestID)
 
 	response, _, err := req.Execute()
 	if err != nil {
