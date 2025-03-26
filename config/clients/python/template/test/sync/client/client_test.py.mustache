@@ -1,6 +1,8 @@
 {{>partial_header}}
 
+import json
 import uuid
+
 from datetime import datetime
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import ANY, patch
@@ -74,6 +76,7 @@ from {{packageName}}.models.write_authorization_model_response import (
 )
 from {{packageName}}.sync import rest
 from {{packageName}}.sync.client.client import OpenFgaClient
+
 
 store_id = "01YCP46JKYM8FJCQ37NMBYHE5X"
 request_id = "x1y2z3"
@@ -177,6 +180,68 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
                 _request_timeout=None,
             )
             api_client.close()
+
+    @patch.object(rest.RESTClientObject, "request")
+    def test_list_stores_with_name(self, mock_request):
+        """Test list_stores with name option"""
+        continuation_token = uuid.uuid4().hex
+
+        response_body = json.dumps(
+            {
+                "stores": [
+                    {
+                        "id": "01H0K5JSRNKM3P8T1SVZ9RGX90",
+                        "name": "test-store",
+                        "created_at": "2022-07-25T21:15:37.524Z",
+                        "updated_at": "2022-07-25T21:15:37.524Z",
+                        "deleted_at": "2022-07-25T21:15:37.524Z",
+                    }
+                ],
+                "continuation_token": continuation_token,
+            }
+        )
+
+        store = Store(
+            id="01H0K5JSRNKM3P8T1SVZ9RGX90",
+            name="test-store",
+            created_at=datetime.fromisoformat("2022-07-25T21:15:37.524+00:00"),
+            updated_at=datetime.fromisoformat("2022-07-25T21:15:37.524+00:00"),
+            deleted_at=datetime.fromisoformat("2022-07-25T21:15:37.524+00:00"),
+        )
+
+        mock_request.return_value = mock_response(response_body, 200)
+        configuration = self.configuration
+
+        with OpenFgaClient(configuration) as api_client:
+            api_response = api_client.list_stores(
+                options={
+                    "name": "test-store",
+                    "page_size": 1,
+                    "continuation_token": continuation_token,
+                }
+            )
+
+            self.assertIsInstance(api_response, ListStoresResponse)
+            self.assertEqual(api_response.continuation_token, continuation_token)
+            self.assertEqual(len(api_response.stores), 1)
+            self.assertEqual(api_response.stores[0], store)
+            self.assertEqual(api_response.stores[0].name, "test-store")
+            self.assertEqual(api_response.stores[0].id, "01H0K5JSRNKM3P8T1SVZ9RGX90")
+
+            mock_request.assert_called_once_with(
+                "GET",
+                "http://api.fga.example/stores",
+                headers=ANY,
+                body=ANY,
+                query_params=[
+                    ("page_size", 1),
+                    ("continuation_token", continuation_token),
+                    ("name", "test-store"),
+                ],
+                post_params=ANY,
+                _preload_content=ANY,
+                _request_timeout=ANY,
+            )
 
     @patch.object(rest.RESTClientObject, "request")
     def test_create_store(self, mock_request):
@@ -312,7 +377,6 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
         with OpenFgaClient(configuration) as api_client:
-
             # Return a particular version of an authorization model
             api_response = api_client.read_authorization_models(options={})
             self.assertIsInstance(api_response, ReadAuthorizationModelsResponse)
@@ -483,7 +547,6 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
         with OpenFgaClient(configuration) as api_client:
-
             # Return a particular version of an authorization model
             api_response = api_client.read_authorization_model(
                 options={"authorization_model_id": "01G5JAVJ41T49E9TT3SKVS7X1J"}
@@ -574,7 +637,6 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
         with OpenFgaClient(configuration) as api_client:
-
             # Return a particular version of an authorization model
             api_response = api_client.read_latest_authorization_model(options={})
             self.assertIsInstance(api_response, ReadAuthorizationModelResponse)
@@ -634,7 +696,6 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
         with OpenFgaClient(configuration) as api_client:
-
             # Return a particular version of an authorization model
             api_response = api_client.read_latest_authorization_model(options={})
             self.assertIsInstance(api_response, ReadAuthorizationModelResponse)
@@ -677,7 +738,6 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration.store_id = store_id
         # Enter a context with an instance of the API client
         with OpenFgaClient(configuration) as api_client:
-
             # Return a particular version of an authorization model
             api_response = api_client.read_changes(
                 ClientReadChangesRequest("document", "2022-01-01T00:00:00+00:00"),
@@ -906,7 +966,6 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         with OpenFgaClient(configuration) as api_client:
-
             body = ClientWriteRequest(
                 writes=[
                     ClientTuple(
@@ -972,7 +1031,6 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         with OpenFgaClient(configuration) as api_client:
-
             body = ClientWriteRequest(
                 deletes=[
                     ClientTuple(
@@ -1021,7 +1079,6 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         with OpenFgaClient(configuration) as api_client:
-
             body = ClientWriteRequest(
                 writes=[
                     ClientTuple(
@@ -1164,7 +1221,6 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         with OpenFgaClient(configuration) as api_client:
-
             body = ClientWriteRequest(
                 writes=[
                     ClientTuple(
@@ -1307,7 +1363,6 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         with OpenFgaClient(configuration) as api_client:
-
             body = ClientWriteRequest(
                 writes=[
                     ClientTuple(
@@ -1441,7 +1496,6 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         with OpenFgaClient(configuration) as api_client:
-
             body = ClientWriteRequest(
                 writes=[
                     ClientTuple(
@@ -1589,7 +1643,6 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         with OpenFgaClient(configuration) as api_client:
-
             body = ClientWriteRequest(
                 deletes=[
                     ClientTuple(
@@ -1643,7 +1696,6 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         with OpenFgaClient(configuration) as api_client:
-
             api_client.write_tuples(
                 [
                     ClientTuple(
@@ -1707,7 +1759,6 @@ class TestOpenFgaClient(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         with OpenFgaClient(configuration) as api_client:
-
             api_client.delete_tuples(
                 [
                     ClientTuple(
