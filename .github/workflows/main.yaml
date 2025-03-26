@@ -127,8 +127,9 @@ jobs:
         uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
 
       - name: Run All Tests
-        run: |-
-          make test-client-python
+        run: make test-client-python
+        env:
+          OPEN_API_REF: f9709139a3693f6624efda12a001e242c5d506b6
 
       - name: Check for SDK changes
         run: |
