@@ -20,6 +20,7 @@
     "oauth2/internal/transport.go": {},
     "oauth2/transport.go": {},
     "oauth2/transport_test.go": {},
+    ".golangci.yaml": {},
     "api_test.mustache": {
       "destinationFilename": "api_open_fga_test.go",
       "templateType": "SupportingFiles"
