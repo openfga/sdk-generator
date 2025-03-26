@@ -389,13 +389,13 @@ type SdkClient interface {
 	BatchCheckExecute(request SdkClientBatchCheckRequestInterface) (*fgaSdk.BatchCheckResponse, error)
 
 	/*
-	 * SingleBatchCheck Run a single batch check on the server.
+	 * singleBatchCheck Run a single batch check on the server.
 	 * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	 * @param body BatchCheckRequest - the request to send to the server.
 	 * @param options *BatchCheckOptions - options for the request.
 	 * @return *BatchCheckResponse
 	 */
-	SingleBatchCheck(ctx _context.Context, body fgaSdk.BatchCheckRequest, options *BatchCheckOptions) (*fgaSdk.BatchCheckResponse, error)
+	singleBatchCheck(ctx _context.Context, body fgaSdk.BatchCheckRequest, options *BatchCheckOptions) (*fgaSdk.BatchCheckResponse, error)
 
 	/*
 	 * Expand Expands the relationships in userset tree format.
@@ -2226,7 +2226,7 @@ func (client *OpenFgaClient) BatchCheckExecute(request SdkClientBatchCheckReques
 		wg.Go(func() error {
 			batchCheckRequest := createBatchCheckRequest(chunkCopy, authorizationModelId, options.Consistency)
 
-			response, err := client.SingleBatchCheck(ctx, batchCheckRequest, options)
+			response, err := client.singleBatchCheck(ctx, batchCheckRequest, options)
 			if err != nil {
 				errorChan <- err
 				return err
@@ -2275,13 +2275,13 @@ func (client *OpenFgaClient) BatchCheckExecute(request SdkClientBatchCheckReques
 }
 
 /*
- * SingleBatchCheck performs a single batch check request to the API
+ * singleBatchCheck performs a single batch check request to the API
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc.
  * @param body fgaSdk.BatchCheckRequest - the request body
  * @param options *BatchCheckOptions - options for the request
  * @return *fgaSdk.BatchCheckResponse
  */
-func (client *OpenFgaClient) SingleBatchCheck(ctx _context.Context, body fgaSdk.BatchCheckRequest, options *BatchCheckOptions) (*fgaSdk.BatchCheckResponse, error) {
+func (client *OpenFgaClient) singleBatchCheck(ctx _context.Context, body fgaSdk.BatchCheckRequest, options *BatchCheckOptions) (*fgaSdk.BatchCheckResponse, error) {
 	storeId, err := client.getStoreId(options.StoreId)
 	if err != nil {
 		return nil, err
