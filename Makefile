@@ -1,7 +1,9 @@
 # Main config
 OPENFGA_DOCKER_TAG = v1
-OPEN_API_REF ?= 0bb89b73d6550b627f79c53b4b97dec1ee3fe0ad
+OPEN_API_REF ?= a03cf03166fe1af5418c3115f76a0c3558d750df
 OPEN_API_URL = https://raw.githubusercontent.com/openfga/api/${OPEN_API_REF}/docs/openapiv2/apidocs.swagger.json
+OPEN_API_REF_NEXT ?= f9709139a3693f6624efda12a001e242c5d506b6
+OPEN_API_URL_NEXT = https://raw.githubusercontent.com/openfga/api/${OPEN_API_REF_NEXT}/docs/openapiv2/apidocs.swagger.json
 OPENAPI_GENERATOR_CLI_DOCKER_TAG = v6.4.0
 NODE_DOCKER_TAG = 20-alpine
 GO_DOCKER_TAG = 1
@@ -188,7 +190,7 @@ build-client-streamed: build-openapi-streamed
 
 .PHONY: build-openapi-streamed
 build-openapi-streamed: init get-openapi-doc
-	cat "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.json" | \
+	cat "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.next.json" | \
 		jq '(.. | .tags? | select(.)) |= ["OpenFga"] | (.tags? | select(.)) |= [{"name":"OpenFga"}] | del(.definitions.ReadTuplesParams, .definitions.ReadTuplesResponse, .paths."/stores/{store_id}/read-tuples")' > \
 		${DOCS_CACHE_DIR}/openfga.openapiv2.json
 	sed -i -e 's/"Object"/"FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
@@ -200,6 +202,8 @@ get-openapi-doc:
 	mkdir -p "${DOCS_CACHE_DIR}"
 	curl "${OPEN_API_URL}" \
 	     -o "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.json"
+	curl "${OPEN_API_URL_NEXT}" \
+	     -o "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.next.json"
 
 # Note you need to make sure fossaComplianceNoticeId has been set in the config overrides before running this
 .PHONY: update-fossa-reports
