@@ -20,6 +20,7 @@
     "oauth2/internal/transport.go": {},
     "oauth2/transport.go": {},
     "oauth2/transport_test.go": {},
+    ".golangci.yaml": {},
     "api_test.mustache": {
       "destinationFilename": "api_open_fga_test.go",
       "templateType": "SupportingFiles"
@@ -56,6 +57,10 @@
       "destinationFilename": "credentials/credentials.go",
       "templateType": "SupportingFiles"
     },
+    "errors.mustache": {
+      "destinationFilename": "errors.go",
+      "templateType": "SupportingFiles"
+    },
     "oauth2/oauth2.mustache": {
       "destinationFilename": "oauth2/oauth2.go",
       "templateType": "SupportingFiles"
@@ -69,8 +74,20 @@
       "templateType": "SupportingFiles"
     },
     "oauth2/token_test.go": {},
-    "internal/utils/randomtime.mustache": {
-      "destinationFilename": "internal/utils/randomtime.go",
+    "internal/utils/retryutils/retryutils.mustache": {
+      "destinationFilename": "internal/utils/retryutils/retryutils.go",
+      "templateType": "SupportingFiles"
+    },
+    "internal/utils/retryutils/retryutils_test.mustache": {
+      "destinationFilename": "internal/utils/retryutils/retryutils_test.go",
+      "templateType": "SupportingFiles"
+    },
+    "internal/utils/retryutils/retryparams.mustache": {
+      "destinationFilename": "internal/utils/retryutils/retryparams.go",
+      "templateType": "SupportingFiles"
+    },
+    "internal/utils/retryutils/retryparams_test.mustache": {
+      "destinationFilename": "internal/utils/retryutils/retryparams_test.go",
       "templateType": "SupportingFiles"
     },
     "internal/utils/ulid.mustache": {

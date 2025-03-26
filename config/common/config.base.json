@@ -85,6 +85,8 @@
   "retryMaxAllowedNumber": 15,
   "defaultMaxRetry": 3,
   "defaultMinWaitInMs": 100,
+  "maxBackoffTimeInSec": 120,
+  "retryHeaderMaxAllowableDurationInSec": 1800,
   "clientMaxMethodParallelRequests": 10,
   "clientMaxBatchSize": 50,
   "defaultConnectionTimeoutInMs": 10000,
