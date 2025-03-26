@@ -110,6 +110,12 @@ def options_to_transaction_info(options: dict[str, int | str | dict[str, int | s
         return options["transaction"]
     return WriteTransactionOpts()
 
+def _check_errored(response: ClientBatchCheckClientResponse):
+    """
+    Helper function to return whether the response is errored
+    """
+    return response.error is not None
+
 def _check_allowed(response: ClientBatchCheckClientResponse):
     """
     Helper function to return whether the response is check is allowed
@@ -847,6 +853,13 @@ class OpenFgaClient:
 
         request_body = [construct_check_request(user=body.user, relation=i, object=body.object, contextual_tuples=body.contextual_tuples, context=body.context) for i in body.relations]
         result = {{#asyncio}}await {{/asyncio}}self.client_batch_check(request_body, options)
+
+        # filter out any errored responses and raise the first error
+        errored_result_iterator = filter(_check_errored, result)
+        errored_result_list = list(errored_result_iterator)
+        if len(errored_result_list) > 0:
+            raise errored_result_list[0].error
+
         # need to filter with the allowed response
         result_iterator = filter(_check_allowed, result)
         result_list = list(result_iterator)
