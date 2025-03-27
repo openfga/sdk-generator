@@ -1552,14 +1552,14 @@ class TestOpenFgaApi(IsolatedAsyncioTestCase):
             self.assertTrue(api_response.allowed)
             mock_request.assert_called()
             self.assertEqual(mock_request.call_count, 2)
-            self.assertEqual(mock_sleep.call_args[0][0], retry_after_in_sec)
+            self.assertTrue(retry_after_in_sec-1 <= mock_sleep.call_args[0][0] <= retry_after_in_sec)
 
     @patch('asyncio.sleep')
     @patch.object(rest.RESTClientObject, "request")
     {{#asyncio}}async {{/asyncio}}def test_429_error_retry_configured_with_delay_seconds(self, mock_request, mock_sleep):
         """
         Test to ensure 429 errors are handled properly.
-        For this case, retry is configured and the Retry-After header is provided in seconds.
+        For this case, retry is configured and the Retry-After header is provided as an HTTP date.
         """
         response_body = '{"allowed": true, "resolution": "1234"}'
         error_response_body = """
