@@ -34,13 +34,14 @@ from {{packageName}}.telemetry.attributes import TelemetryAttribute, TelemetryAt
 DEFAULT_USER_AGENT = '{{{userAgent}}}'
 
 
-def random_time(loop_count, min_wait_in_ms):
+def random_time(loop_count, min_wait_in_ms, max_wait_in_sec) -> float:
     """
     Helper function to return the time (in s) to wait before retry
     """
-    minimum = math.ceil(2 ** loop_count * min_wait_in_ms)
+    minimum = math.ceil(2**loop_count * min_wait_in_ms)
     maximum = math.ceil(2 ** (loop_count + 1) * min_wait_in_ms)
-    return random.randrange(minimum, maximum) / 1000
+    randomised_wait_time = random.randrange(minimum, maximum) / 1000
+    return min(randomised_wait_time, max_wait_in_sec)
 
 
 class ApiClient:
@@ -237,13 +238,16 @@ class ApiClient:
             # use server/host defined in path or operation instead
             url = self.configuration.api_scheme + '://' + _host + resource_path
 
-        max_retry = self.configuration.retry_params.max_retry if (self.configuration.retry_params is not None and self.configuration.retry_params.max_retry is not None) else 0
-        min_wait_in_ms = self.configuration.retry_params.min_wait_in_ms if (self.configuration.retry_params is not None and self.configuration.retry_params.min_wait_in_ms is not None) else 0
+        max_retry = self.configuration.retry_params.max_retry if (self.configuration.retry_params is not None and self.configuration.retry_params.max_retry is not None) else {{defaultMaxRetry}}
+        min_wait_in_ms = self.configuration.retry_params.min_wait_in_ms if (self.configuration.retry_params is not None and self.configuration.retry_params.min_wait_in_ms is not None) else {{defaultMinWaitInMs}}
+        max_wait_in_sec = self.configuration.retry_params.max_wait_in_sec if (self.configuration.retry_params is not None and self.configuration.retry_params.max_wait_in_sec is not None) else {{maxBackoffTimeInSec}}
         if _retry_params is not None:
             if _retry_params.max_retry is not None:
                 max_retry = _retry_params.max_retry
             if _retry_params.min_wait_in_ms is not None:
                 max_retry = _retry_params.min_wait_in_ms
+            if _retry_params.max_wait_in_sec is not None:
+                max_retry = _retry_params.max_wait_in_sec
 
         _telemetry_attributes = TelemetryAttributes.fromRequest(
             user_agent=self.user_agent,
@@ -285,8 +289,16 @@ class ApiClient:
                         configuration=self.configuration.telemetry,
                     )
 
-                    {{#asyncio}}await asyncio.sleep(random_time(retry, min_wait_in_ms)){{/asyncio}}
-                    {{^asyncio}}time.sleep(random_time(retry, min_wait_in_ms)){{/asyncio}}
+                    wait_time_in_sec = random_time(retry, min_wait_in_ms, max_wait_in_sec)
+
+                    if retry_after_header := e.header.get("retry-after"):
+                        try:
+                            wait_time_in_sec = self._parse_retry_after_header(retry_after_header)
+                        except ValueError:
+                            pass
+
+                    {{#asyncio}}await asyncio.sleep(wait_time_in_sec){{/asyncio}}
+                    {{^asyncio}}time.sleep(wait_time_in_sec){{/asyncio}}
                     continue
                 e.body = e.body.decode('utf-8')
                 response_type = response_types_map.get(e.status, None)
@@ -389,6 +401,19 @@ class ApiClient:
                 raise tornado.gen.Return((return_data, response_data.status,
                                         response_data.getheaders()))
 {{/tornado}}
+
+    def _parse_retry_after_header(self, retry_after_header) -> int:
+        try:
+            parsed_http_date = self.__deserialize_datetime(retry_after_header).replace(tzinfo=datetime.timezone.utc)
+            now = datetime.datetime.now(datetime.timezone.utc)
+            wait_time_in_sec = (parsed_http_date - now).total_seconds()
+        except ApiException:
+            wait_time_in_sec = int(retry_after_header)
+
+        if wait_time_in_sec > 1800 or wait_time_in_sec < 1:
+            raise ValueError("Retry-After header is invalid")
+
+        return math.ceil(wait_time_in_sec)
 
     def sanitize_for_serialization(self, obj):
         """Builds a JSON POST object.
@@ -817,7 +842,7 @@ class ApiClient:
             return parse(string)
         except ImportError:
             return string
-        except ValueError:
+        except (TypeError, ValueError):
             raise rest.ApiException(
                 status=0,
                 reason=(f"Failed to parse `{string}` as datetime object"),
