@@ -223,8 +223,8 @@ class ApiClient:
             # use server/host defined in path or operation instead
             url = self.configuration.api_scheme + '://' + _host + resource_path
 
-        max_retry = self.configuration.retry_params.max_retry if (self.configuration.retry_params is not None and self.configuration.retry_params.max_retry is not None) else {{defaultMaxRetry}}
-        min_wait_in_ms = self.configuration.retry_params.min_wait_in_ms if (self.configuration.retry_params is not None and self.configuration.retry_params.min_wait_in_ms is not None) else {{defaultMinWaitInMs}}
+        max_retry = self.configuration.retry_params.max_retry if (self.configuration.retry_params is not None and self.configuration.retry_params.max_retry is not None) else 0
+        min_wait_in_ms = self.configuration.retry_params.min_wait_in_ms if (self.configuration.retry_params is not None and self.configuration.retry_params.min_wait_in_ms is not None) else 0
         max_wait_in_sec = self.configuration.retry_params.max_wait_in_sec if (self.configuration.retry_params is not None and self.configuration.retry_params.max_wait_in_sec is not None) else {{maxBackoffTimeInSec}}
         if _retry_params is not None:
             if _retry_params.max_retry is not None:
@@ -232,7 +232,7 @@ class ApiClient:
             if _retry_params.min_wait_in_ms is not None:
                 max_retry = _retry_params.min_wait_in_ms
             if _retry_params.max_wait_in_sec is not None:
-                max_retry = _retry_params.max_wait_in_sec
+                max_wait_in_sec = _retry_params.max_wait_in_sec
 
         _telemetry_attributes = TelemetryAttributes.fromRequest(
             user_agent=self.user_agent,
@@ -267,7 +267,6 @@ class ApiClient:
                         response=e.body.decode("utf-8"),
                         credentials=self.configuration.credentials,
                         attributes=_telemetry_attributes,
-                        start=start,
                     )
 
                     self._telemetry.metrics.request(
@@ -302,7 +301,6 @@ class ApiClient:
                     response=e,
                     credentials=self.configuration.credentials,
                     attributes=_telemetry_attributes,
-                    start=start,
                 )
 
                 self._telemetry.metrics.request(
@@ -329,7 +327,6 @@ class ApiClient:
                 response=response_data,
                 credentials=self.configuration.credentials,
                 attributes=_telemetry_attributes,
-                start=start,
             )
 
             self._telemetry.metrics.request(
