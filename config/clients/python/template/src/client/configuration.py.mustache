@@ -2,6 +2,14 @@
 
 from {{packageName}}.configuration import Configuration
 from {{packageName}}.exceptions import FgaValidationException
+from {{packageName}}.telemetry.attributes import TelemetryAttribute
+from {{packageName}}.telemetry.configuration import (
+    TelemetryConfigurationType,
+    TelemetryMetricConfiguration,
+    TelemetryMetricsConfiguration,
+)
+from {{packageName}}.telemetry.counters import TelemetryCounter
+from {{packageName}}.telemetry.histograms import TelemetryHistogram
 from {{packageName}}.validation import is_well_formed_ulid_string
 
 class ClientConfiguration(Configuration):
@@ -20,8 +28,32 @@ class ClientConfiguration(Configuration):
             ssl_ca_cert=None,
             api_url=None, # TODO: restructure when removing api_scheme/api_host
             timeout_millisec: int | None = None,
+            telemetry: (
+                dict[
+                    TelemetryConfigurationType | str,
+                    TelemetryMetricsConfiguration
+                    | dict[
+                        TelemetryHistogram | TelemetryCounter | str,
+                        TelemetryMetricConfiguration
+                        | dict[TelemetryAttribute | str, bool]
+                        | None,
+                    ]
+                    | None,
+                ]
+                | None
+            ) = None,
         ):
-        super().__init__(api_scheme, api_host, store_id, credentials, retry_params, ssl_ca_cert=ssl_ca_cert, api_url=api_url, timeout_millisec=timeout_millisec)
+        super().__init__(
+            api_scheme,
+            api_host,
+            store_id,
+            credentials,
+            retry_params,
+            ssl_ca_cert=ssl_ca_cert,
+            api_url=api_url,
+            timeout_millisec=timeout_millisec,
+            telemetry=telemetry,
+        )
         self._authorization_model_id = authorization_model_id
 
     def is_valid(self):

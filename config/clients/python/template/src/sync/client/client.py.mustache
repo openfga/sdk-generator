@@ -92,6 +92,8 @@ def options_to_kwargs(
     """
     kwargs = {}
     if options is not None:
+        if options.get("name"):
+            kwargs["name"] = options["name"]
         if options.get("page_size"):
             kwargs["page_size"] = options["page_size"]
         if options.get("continuation_token"):
@@ -109,6 +111,12 @@ def options_to_transaction_info(options: dict[str, int | str | dict[str, int | s
     if options is not None and options.get("transaction"):
         return options["transaction"]
     return WriteTransactionOpts()
+
+def _check_errored(response: ClientBatchCheckClientResponse):
+    """
+    Helper function to return whether the response is errored
+    """
+    return response.error is not None
 
 def _check_allowed(response: ClientBatchCheckClientResponse):
     """
@@ -201,6 +209,7 @@ class OpenFgaClient:
     def list_stores(self, options: dict[str, int | str | dict[str, int | str]] | None = None):
         """
         List the stores in the system
+        :param name(options) - The name parameter instructs the API to only include results that match that name. Multiple results may be returned. Only exact matches will be returned; substring matches and regexes will not be evaluated.
         :param page_size(options) - Number of items returned per request
         :param continuation_token(options) - No continuation_token by default
         :param header(options) - Custom headers to send alongside the request
@@ -821,6 +830,13 @@ class OpenFgaClient:
 
         request_body = [construct_check_request(user=body.user, relation=i, object=body.object, contextual_tuples=body.contextual_tuples, context=body.context) for i in body.relations]
         result = self.client_batch_check(request_body, options)
+
+        # filter out any errored responses and raise the first error
+        errored_result_iterator = filter(_check_errored, result)
+        errored_result_list = list(errored_result_iterator)
+        if len(errored_result_list) > 0:
+            raise errored_result_list[0].error
+
         # need to filter with the allowed response
         result_iterator = filter(_check_allowed, result)
         result_list = list(result_iterator)
