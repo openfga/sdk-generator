@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"math"
 	_nethttp "net/http"
-	"sync"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -64,8 +63,7 @@ func newClientConfiguration(cfg *fgaSdk.Configuration) ClientConfiguration {
 type {{appShortName}}Client struct {
 	config ClientConfiguration
 	SdkClient
-	*fgaSdk.APIClient
-	headerMutex sync.RWMutex
+	fgaSdk.APIClient
 }
 
 func NewSdkClient(cfg *ClientConfiguration) (*{{appShortName}}Client, error) {
@@ -104,7 +102,7 @@ func NewSdkClient(cfg *ClientConfiguration) (*{{appShortName}}Client, error) {
 
 	return &{{appShortName}}Client{
 		config:    clientConfig,
-		APIClient: apiClient,
+		APIClient: *apiClient,
 	}, nil
 }
 
@@ -1098,7 +1096,7 @@ func (client *{{appShortName}}Client) ReadAuthorizationModel(ctx _context.Contex
 // / ReadLatestAuthorizationModel
 type SdkClientReadLatestAuthorizationModelRequest struct {
 	ctx    _context.Context
-	Client *{{appShortName}}Client
+	Client {{appShortName}}Client
 
 	options *ClientReadLatestAuthorizationModelOptions
 }
@@ -1118,7 +1116,7 @@ type ClientReadLatestAuthorizationModelOptions struct {
 
 func (client *{{appShortName}}Client) ReadLatestAuthorizationModel(ctx _context.Context) SdkClientReadLatestAuthorizationModelRequestInterface {
 	return &SdkClientReadLatestAuthorizationModelRequest{
-		Client: client,
+		Client: *client,
 		ctx:    ctx,
 	}
 }
@@ -2290,22 +2288,13 @@ func (client *OpenFgaClient) singleBatchCheck(ctx _context.Context, body fgaSdk.
 	}
 
 	requestID := fmt.Sprintf("%d", time.Now().UnixNano())
-	headerName := "X-OpenFGA-Client-Bulk-Request-Id"
 	
-	// Create a mutex-protected copy of headers to avoid race conditions
-	client.headerMutex.Lock()
-	client.APIClient.GetConfig().AddDefaultHeader(headerName, requestID)
+	client.APIClient.GetConfig().AddDefaultHeader("X-OpenFGA-Client-Bulk-Request-Id", requestID)
 	
 	req := client.OpenFgaApi.BatchCheck(ctx, *storeId)
 	req = req.Body(body)
 
 	response, _, err := req.Execute()
-	
-	// Remove the header after use to clean up
-	client.APIClient.GetConfig().DefaultHeaders[headerName] = ""
-	delete(client.APIClient.GetConfig().DefaultHeaders, headerName)
-	client.headerMutex.Unlock()
-	
 	if err != nil {
 		return nil, err
 	}
