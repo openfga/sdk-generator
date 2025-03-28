@@ -1,3 +1,4 @@
+{{>licenseInfo}}
 package {{telemetryPackage}};
 
 import {{configPackage}}.Configuration;
@@ -19,7 +20,7 @@ public class Telemetry {
      */
     public Metrics metrics() {
         if (metrics == null) {
-            metrics = new Metrics(this.configuration);
+            metrics = new Metrics(configuration);
         }
 
         return metrics;

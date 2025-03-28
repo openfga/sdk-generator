@@ -15,7 +15,6 @@ import {{configPackage}}.Configuration;
 import {{errorsPackage}}.FgaInvalidParameterException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpRequest;
@@ -29,8 +28,6 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Configuration and utility class for API clients.
@@ -161,16 +158,6 @@ public class ApiClient {
       }
 
       return builder;
-  }
-
-  /**
-   * URL encode a string in the UTF-8 encoding.
-   *
-   * @param s String to encode.
-   * @return URL-encoded representation of the input string.
-   */
-  public static String urlEncode(String s) {
-    return URLEncoder.encode(s, UTF_8).replaceAll("\\+", "%20");
   }
 
   protected ObjectMapper createDefaultObjectMapper() {

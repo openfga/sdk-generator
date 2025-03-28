@@ -1,3 +1,4 @@
+{{>licenseInfo}}
 package {{telemetryPackage}};
 
 /**
@@ -17,4 +18,6 @@ public class Histograms {
     public static final Histogram QUERY_DURATION = new Histogram(
             "fga-client.query.duration",
             "The total time it took (in milliseconds) for the FGA server to process and evaluate the request.");
+
+    private Histograms() {} // Instantiation prevented.
 }
