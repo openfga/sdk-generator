@@ -1,14 +1,22 @@
 {{>partial_header}}
 
-# Specifc FGA header to be parsed
-X_RATELIMIT_LIMIT = 'x-ratelimit-limit'
-X_RATELIMIT_REMAINING = 'x_ratelimit_remaining'
-X_RATELIMIT_RESET = 'x_ratelimit_reset'
-FGA_REQUEST_ID = 'fga-request-id'
-FGA_QUERY_DURATION_MS = 'fga-query-duration-ms'
-OPENFGA_AUTHORIZATION_MODEL_ID = 'openfga_authorization_model_id'
-RESPONSE_HEADERS_TO_KEEP = [X_RATELIMIT_LIMIT, X_RATELIMIT_REMAINING, X_RATELIMIT_RESET,
-    FGA_REQUEST_ID, FGA_QUERY_DURATION_MS, OPENFGA_AUTHORIZATION_MODEL_ID]
+# Specific FGA header to be parsed
+X_RATELIMIT_LIMIT = "x-ratelimit-limit"
+X_RATELIMIT_REMAINING = "x_ratelimit_remaining"
+X_RATELIMIT_RESET = "x_ratelimit_reset"
+FGA_REQUEST_ID = "fga-request-id"
+FGA_QUERY_DURATION_MS = "fga-query-duration-ms"
+OPENFGA_AUTHORIZATION_MODEL_ID = "openfga_authorization_model_id"
+RETRY_AFTER="retry-after"
+RESPONSE_HEADERS_TO_KEEP = [
+    X_RATELIMIT_LIMIT,
+    X_RATELIMIT_REMAINING,
+    X_RATELIMIT_RESET,
+    FGA_REQUEST_ID,
+    FGA_QUERY_DURATION_MS,
+    OPENFGA_AUTHORIZATION_MODEL_ID,
+    RETRY_AFTER
+]
 
 
 class OpenApiException(Exception):
