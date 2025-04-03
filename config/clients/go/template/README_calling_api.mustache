@@ -414,7 +414,8 @@ options := BatchCheckOptions{
     MaxParallelRequests: {{packageName}}.PtrInt32(5), // Max number of requests to issue in parallel, defaults to 10
 }
 
-body := BatchCheckBody{ {
+body := ClientBatchCheckRequest{
+	Items: []openfga.ClientBatchCheckItem{ {
     User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     Relation: "viewer",
     Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
@@ -441,8 +442,9 @@ body := BatchCheckBody{ {
     Relation: "deleter",
     Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 } }
+}
 
-data, err := fgaClient.BatchCheck(context.Background()).Body(requestBody).Options(options).Execute()
+data, err := fgaClient.BatchCheck(context.Background()).Body(body).Options(options).Execute()
 
 /*
 data = [{

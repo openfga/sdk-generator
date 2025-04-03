@@ -244,6 +244,36 @@ func mainInner() error {
 	}
 	fmt.Printf("Allowed: %v\n", checkResponse.Allowed)
 
+	// BatchCheck
+	fmt.Println("Batch checking for access")
+	batchCheckResponse, err := fgaClient.BatchCheck(ctx).Body(client.ClientBatchCheckRequest{
+		Items: []client.ClientBatchCheckItem{
+			{
+				TupleKey: client.ClientTupleKey{
+					User:     "user:anne",
+					Relation: "viewer",
+					Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+				},
+				Context: &map[string]interface{}{"ViewCount": 100},
+			},
+			{
+				TupleKey: client.ClientTupleKey{
+					User:     "user:bob",
+					Relation: "viewer",
+					Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+				},
+				Context: &map[string]interface{}{"ViewCount": 100},
+			},
+		},
+	}).Execute()
+	if err != nil {
+		return err
+	}
+	fmt.Println("BatchCheck results:")
+	for i, response := range batchCheckResponse.Responses {
+		fmt.Printf("Item %d - Allowed: %v\n", i, response.Allowed)
+	}
+
 	// ListObjects
 	fmt.Println("Listing objects user has access to")
 	listObjectsResponse, err := fgaClient.ListObjects(ctx).Body(client.ClientListObjectsRequest{
