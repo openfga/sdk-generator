@@ -390,15 +390,6 @@ type SdkClient interface {
 	BatchCheckExecute(request SdkClientBatchCheckRequestInterface) (*fgaSdk.BatchCheckResponse, error)
 
 	/*
-	 * singleBatchCheck Run a single batch check on the server.
-	 * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	 * @param body BatchCheckRequest - the request to send to the server.
-	 * @param options *BatchCheckOptions - options for the request.
-	 * @return *BatchCheckResponse
-	 */
-	singleBatchCheck(ctx _context.Context, body fgaSdk.BatchCheckRequest, options *BatchCheckOptions) (*fgaSdk.BatchCheckResponse, error)
-
-	/*
 	 * Expand Expands the relationships in userset tree format.
 	 * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	 * @return SdkClientExpandRequestInterface
