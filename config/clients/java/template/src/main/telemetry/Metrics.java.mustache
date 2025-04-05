@@ -1,3 +1,4 @@
+{{>licenseInfo}}
 package {{telemetryPackage}};
 
 import {{configPackage}}.Configuration;
@@ -13,18 +14,13 @@ import java.util.Map;
  * The Metrics class provides methods for creating and publishing metrics using OpenTelemetry.
  */
 public class Metrics {
-
     private final Meter meter;
     private final Map<String, LongCounter> counters;
     private final Map<String, DoubleHistogram> histograms;
     private final Configuration configuration;
 
     public Metrics() {
-        this.meter = OpenTelemetry.noop().getMeterProvider().get("{{artifactId}}");
-        this.counters = new HashMap<>();
-        this.histograms = new HashMap<>();
-        this.configuration = new Configuration();
-        this.configuration.telemetryConfiguration(new TelemetryConfiguration());
+        this(new Configuration());
     }
 
     public Metrics(Configuration configuration) {
