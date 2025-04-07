@@ -48,13 +48,25 @@ public class {{classname}} : IDisposable {
 
         {{#pathParams}}
         if ({{paramName}} != null) {
+            {{#isDateTime}}
+            // call the specific date time stringify
+            pathParams.Add("{{baseName}}", {{paramName}}?.ToString("0"));
+            {{/isDateTime}}
+            {{^isDateTime}}
             pathParams.Add("{{baseName}}", {{paramName}}.ToString());
+            {{/isDateTime}}
         }
         {{/pathParams}}
         var queryParams = new Dictionary<string, string>();
         {{#queryParams}}
         if ({{paramName}} != null) {
+            {{#isDateTime}}
+            // call the specific date time stringify
+            queryParams.Add("{{baseName}}", {{paramName}}?.ToString("O"));
+            {{/isDateTime}}
+            {{^isDateTime}}
             queryParams.Add("{{baseName}}", {{paramName}}.ToString());
+            {{/isDateTime}}
         }
         {{/queryParams}}
 
