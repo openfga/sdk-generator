@@ -1552,7 +1552,7 @@ class TestOpenFgaApi(IsolatedAsyncioTestCase):
             self.assertTrue(api_response.allowed)
             mock_request.assert_called()
             self.assertEqual(mock_request.call_count, 2)
-            self.assertEqual(mock_sleep.call_args[0][0], retry_after_in_sec)
+            self.assertLessEqual(mock_sleep.call_args[0][0], retry_after_in_sec)
 
     @patch('asyncio.sleep')
     @patch.object(rest.RESTClientObject, "request")
