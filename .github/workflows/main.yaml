@@ -93,6 +93,8 @@ jobs:
 
       - name: Run All Tests
         run: make test-client-dotnet
+        env:
+          OPEN_API_REF: f9709139a3693f6624efda12a001e242c5d506b6
 
       - name: Check for SDK changes
         run: |
