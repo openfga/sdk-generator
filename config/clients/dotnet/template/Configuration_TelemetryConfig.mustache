@@ -51,6 +51,26 @@ public class TelemetryConfig {
     /// </summary>
     /// <returns></returns>
     private static IDictionary<string, MetricConfig> GetDefaultMetricsConfiguration() {
+        #if NETSTANDARD2_0
+        var defaultAttributes = new HashSet<string>();
+        defaultAttributes.Add(TelemetryAttribute.HttpHost);
+        defaultAttributes.Add(TelemetryAttribute.HttpStatus);
+        defaultAttributes.Add(TelemetryAttribute.HttpUserAgent);
+        defaultAttributes.Add(TelemetryAttribute.RequestMethod);
+        defaultAttributes.Add(TelemetryAttribute.RequestClientId);
+        defaultAttributes.Add(TelemetryAttribute.RequestStoreId);
+        defaultAttributes.Add(TelemetryAttribute.RequestModelId);
+        defaultAttributes.Add(TelemetryAttribute.RequestRetryCount);
+        defaultAttributes.Add(TelemetryAttribute.ResponseModelId);
+
+        var metricsConfig = new Dictionary<string, MetricConfig>();
+        metricsConfig.Add(TelemetryMeter.TokenExchangeCount, new MetricConfig { Attributes = defaultAttributes });
+        metricsConfig.Add(TelemetryMeter.RequestDuration, new MetricConfig { Attributes = defaultAttributes });
+        metricsConfig.Add(TelemetryMeter.QueryDuration, new MetricConfig { Attributes = defaultAttributes });
+        // metricsConfig.Add(TelemetryMeters.RequestCount, new MetricConfig { Attributes = defaultAttributes });
+        
+        return metricsConfig;
+        #else
         var defaultAttributes = new HashSet<string> {
             TelemetryAttribute.HttpHost,
             TelemetryAttribute.HttpStatus,
@@ -77,6 +97,7 @@ public class TelemetryConfig {
             { TelemetryMeter.QueryDuration, new MetricConfig { Attributes = defaultAttributes } },
             // { TelemetryMeters.RequestCount, new MetricConfig { Attributes = defaultAttributes } }
         };
+        #endif
     }
 
     /// <summary>

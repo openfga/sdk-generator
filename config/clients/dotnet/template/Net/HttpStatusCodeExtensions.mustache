@@ -1,0 +1,22 @@
+{{>partial_header}}
+
+#if NETSTANDARD2_0
+namespace System.Net
+{
+    /// <summary>
+    /// Extensions for HttpStatusCode for .NET Standard 2.0 compatibility
+    /// </summary>
+    public static class HttpStatusCodeExtensions
+    {
+        /// <summary>
+        /// Unprocessable Entity status code (422) as defined in RFC 4918
+        /// </summary>
+        public static HttpStatusCode UnprocessableEntity { get; } = (HttpStatusCode)422;
+        
+        /// <summary>
+        /// Too Many Requests status code (429) as defined in RFC 6585
+        /// </summary>
+        public static HttpStatusCode TooManyRequests { get; } = (HttpStatusCode)429;
+    }
+}
+#endif

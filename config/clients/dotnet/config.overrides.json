@@ -29,6 +29,7 @@
   "sortParamsByRequiredFlag": true,
   "sourceFolder": "src",
   "targetFramework": "net6.0",
+  "multiTarget": true,
   "validatable": true,
   "enablePostProcessFile": true,
   "hashCodeBasePrimeNumber": 9661,
@@ -65,6 +66,14 @@
     },
     "Client/ClientConfiguration.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/ClientConfiguration.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/ClientExtensions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/ClientExtensions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/DictionaryExtensions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/DictionaryExtensions.cs",
       "templateType": "SupportingFiles"
     },
     "Client/Model/AuthorizationModelIdOptions.mustache": {
@@ -247,6 +256,10 @@
       "destinationFilename": "src/OpenFga.Sdk/Telemetry/Metrics.cs",
       "templateType": "SupportingFiles"
     },
+    "Telemetry/Standard20TelemetryTypes.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Telemetry/Standard20TelemetryTypes.cs",
+      "templateType": "SupportingFiles"
+    },
     "Configuration_Configuration.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Configuration/Configuration.cs",
       "templateType": "SupportingFiles"
@@ -303,6 +316,10 @@
       "destinationFilename": "src/OpenFga.Sdk/Exceptions/ValidationError.cs",
       "templateType": "SupportingFiles"
     },
+    "Net/HttpStatusCodeExtensions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Net/HttpStatusCodeExtensions.cs",
+      "templateType": "SupportingFiles"
+    },
     "Configuration_Credentials.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Configuration/Credentials.cs",
       "templateType": "SupportingFiles"
@@ -321,6 +338,10 @@
     },
     "OpenTelemetry.md.mustache": {
       "destinationFilename": "OpenTelemetry.md",
+      "templateType": "SupportingFiles"
+    },
+    "GlobalUsings.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/GlobalUsings.cs",
       "templateType": "SupportingFiles"
     },
     "example/Makefile": {},

@@ -1,5 +1,7 @@
 {{>partial_header}}
 
+using System.Collections.Generic;
+
 namespace {{packageName}}.Telemetry;
 
 /// <summary>
@@ -35,11 +37,20 @@ public static class TelemetryMeter {
     /// Return all supported meter names
     /// </summary>
     public static HashSet<string> GetAllMeters() {
+        #if NETSTANDARD2_0
+        var meters = new HashSet<string>();
+        meters.Add(RequestDuration);
+        meters.Add(QueryDuration);
+        meters.Add(TokenExchangeCount);
+        meters.Add(RequestCount);
+        return meters;
+        #else
         return new() {
             RequestDuration,
             QueryDuration,
             TokenExchangeCount,
             RequestCount
         };
+        #endif
     }
 }

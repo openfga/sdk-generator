@@ -1,9 +1,19 @@
 {{>partial_header}}
 
 using {{packageName}}.Exceptions;
+using System;
+using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading;
+using System.Threading.Tasks;
+
+#if NETSTANDARD2_0
+using System.Text.Json;
+#else
 using System.Net.Http.Json;
+#endif
 
 namespace {{packageName}}.ApiClient;
 
@@ -113,9 +123,16 @@ public class BaseClient : IDisposable {
 
             T responseContent = default;
             if (response.Content != null && response.StatusCode != HttpStatusCode.NoContent) {
+                #if NETSTANDARD2_0
+                var contentString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                if (!string.IsNullOrEmpty(contentString)) {
+                    responseContent = JsonSerializer.Deserialize<T>(contentString) ?? throw new FgaError();
+                }
+                #else
                 responseContent = await response.Content.ReadFromJsonAsync<T>(cancellationToken: cancellationToken)
                                       .ConfigureAwait(false) ??
                                   throw new FgaError();
+                #endif
             }
 
             return new ResponseWrapper<T> { rawResponse = response, responseContent = responseContent };

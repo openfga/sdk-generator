@@ -22,7 +22,11 @@ public class JsonStringEnumMemberConverter<EnumTemplate> : JsonConverter<EnumTem
     public JsonStringEnumMemberConverter()
     {
       var type = typeof(EnumTemplate);
+#if NETSTANDARD2_0
+      var values = (EnumTemplate[])System.Enum.GetValues(typeof(EnumTemplate));
+#else
       var values = System.Enum.GetValues<EnumTemplate>();
+#endif
 
       foreach (var value in values)
       {

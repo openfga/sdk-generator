@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <TargetFramework{{#multiTarget}}s{{/multiTarget}}>{{targetFramework}}</TargetFramework{{#multiTarget}}s{{/multiTarget}}>
+    <TargetFramework{{#multiTarget}}s{{/multiTarget}}>netstandard2.0;{{targetFramework}}</TargetFramework{{#multiTarget}}s{{/multiTarget}}>
     <AssemblyName>{{packageName}}</AssemblyName>
     <PackageId>{{packageName}}</PackageId>
     <OutputType>Library</OutputType>
@@ -25,14 +25,27 @@
     <Nullable>annotations</Nullable>
     <Nullable>enable</Nullable>
     {{/nullableReferenceTypes}}
-    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <!-- Disable implicit usings since we use .NET Standard 2.0 -->
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <Folder Include="Models"/>
     <None Include="../../assets/FGAIcon.png" Pack="true" Visible="false" PackagePath=""/>
     <None Include="../../README.md" Pack="true" PackagePath=""/>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageReference Include="System.Net.Http.Json" Version="7.0.1" />
+    <PackageReference Include="System.Text.Json" Version="7.0.3" />
   </ItemGroup>
 
 </Project>
