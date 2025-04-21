@@ -4,9 +4,10 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>{{testPackageName}}</AssemblyName>
     <RootNamespace>{{testPackageName}}</RootNamespace>
-    <TargetFramework{{#multiTarget}}s{{/multiTarget}}>{{testTargetFramework}}</TargetFramework{{#multiTarget}}s{{/multiTarget}}>
+    <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>10.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

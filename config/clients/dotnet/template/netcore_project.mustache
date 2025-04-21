@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <TargetFramework{{#multiTarget}}s{{/multiTarget}}>netstandard2.0;{{targetFramework}}</TargetFramework{{#multiTarget}}s{{/multiTarget}}>
+    <TargetFramework>{{targetFramework}}</TargetFramework>
     <AssemblyName>{{packageName}}</AssemblyName>
     <PackageId>{{packageName}}</PackageId>
     <OutputType>Library</OutputType>
@@ -27,11 +27,8 @@
     {{/nullableReferenceTypes}}
     <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <!-- Disable implicit usings since we use .NET Standard 2.0 -->
+    <!-- Disable implicit usings for .NET Standard 2.0 -->
     <ImplicitUsings>disable</ImplicitUsings>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
 
@@ -41,7 +38,7 @@
     <None Include="../../README.md" Pack="true" PackagePath=""/>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+  <ItemGroup>
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Net.Http.Json" Version="7.0.1" />

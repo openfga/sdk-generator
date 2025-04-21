@@ -126,7 +126,6 @@ public static class TelemetryAttribute {
     ///     Return all supported attribute names for the client
     /// </summary>
     public static HashSet<string> GetAllAttributes() {
-        #if NETSTANDARD2_0
         var attributes = new HashSet<string>();
         attributes.Add(RequestMethod);
         attributes.Add(RequestStoreId);
@@ -149,34 +148,9 @@ public static class TelemetryAttribute {
         attributes.Add(ResponseStatus);
         attributes.Add(ResponseSuccess);
         return attributes;
-        #else
-        return new() {
-            RequestMethod,
-            RequestStoreId,
-            RequestModelId,
-            RequestClientId,
-            RequestRetryCount,
-            HttpHost,
-            HttpStatus,
-            HttpUserAgent,
-            HttpScheme,
-            HttpMethod,
-            HttpUrl,
-            ResponseModelId,
-            FgaRequestUser,
-            FgaRequestContext,
-            FgaRequestObject,
-            FgaRequestRelation,
-            FgaRequestType,
-            RetryCount,
-            ResponseStatus,
-            ResponseSuccess
-        };
-        #endif
     }
 }
 
-#if !NETSTANDARD2_0
 /// <summary>
 ///     Helper class for building attribute tags for telemetry
 /// </summary>
@@ -189,7 +163,7 @@ public static class Attributes {
     /// <returns>A tag list containing only the allowed attributes</returns>
     public static TagList FilterAttributes(TagList fullAttributes, HashSet<string>? allowedAttributes) {
         if (allowedAttributes == null || allowedAttributes.Count == 0) {
-            return new();
+            return new TagList();
         }
 
         var filteredAttributes = new TagList();
@@ -213,7 +187,7 @@ public static class Attributes {
     public static TagList BuildAttributesForClientCredentials(HashSet<string> enabledAttributeNames, Credentials? credentials, 
         Stopwatch requestDuration, int retryCount = 0) {
         if (enabledAttributeNames.Count == 0) {
-            return new();
+            return new TagList();
         }
 
         var tagList = new TagList();
@@ -250,7 +224,7 @@ public static class Attributes {
     public static TagList BuildAttributesForResponse<T>(HashSet<string> enabledAttributeNames, Credentials? credentials, 
         string? apiName, HttpResponseMessage response, RequestBuilder<T> requestBuilder, Stopwatch requestDuration, int retryCount = 0) {
         if (enabledAttributeNames.Count == 0) {
-            return new();
+            return new TagList();
         }
 
         var tagList = new TagList();
@@ -370,32 +344,3 @@ public static class Attributes {
         return tagList;
     }
 }
-#else
-/// <summary>
-///     Stub implementation of Attributes for .NET Standard 2.0
-/// </summary>
-public static class Attributes {
-    /// <summary>
-    ///     Filter all attributes against the allowed attributes hash set
-    /// </summary>
-    public static TagList FilterAttributes(TagList fullAttributes, HashSet<string>? allowedAttributes) {
-        return new TagList();
-    }
-
-    /// <summary>
-    ///     Builds the attribute tags for metrics for client credentials exchange requests
-    /// </summary>
-    public static TagList BuildAttributesForClientCredentials(HashSet<string> enabledAttributeNames, Credentials? credentials, 
-        Stopwatch requestDuration, int retryCount = 0) {
-        return new TagList();
-    }
-
-    /// <summary>
-    ///     Builds the attribute tags for metrics for a response
-    /// </summary>
-    public static TagList BuildAttributesForResponse<T>(HashSet<string> enabledAttributeNames, Credentials? credentials, 
-        string? apiName, HttpResponseMessage response, RequestBuilder<T> requestBuilder, Stopwatch requestDuration, int retryCount = 0) {
-        return new TagList();
-    }
-}
-#endif
