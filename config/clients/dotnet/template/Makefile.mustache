@@ -1,0 +1,17 @@
+ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+
+.PHONY: test
+test:
+	dotnet test $(ROOT_DIR)/src/OpenFga.Sdk.Test/OpenFga.Sdk.Test.csproj
+
+.PHONY: test-framework
+test-framework:
+	dotnet test $(ROOT_DIR)/src/OpenFga.Sdk.Test.Framework/OpenFga.Sdk.Test.Framework.csproj
+
+.PHONY: build
+build:
+	dotnet build $(ROOT_DIR)/src/OpenFga.Sdk/OpenFga.Sdk.csproj
+
+.PHONY: pack
+pack:
+	dotnet pack $(ROOT_DIR)/src/OpenFga.Sdk/OpenFga.Sdk.csproj -c Release

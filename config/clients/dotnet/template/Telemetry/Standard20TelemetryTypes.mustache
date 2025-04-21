@@ -1,10 +1,9 @@
 {{>partial_header}}
 
-#if NETSTANDARD2_0
 namespace {{packageName}}.Telemetry
 {
     /// <summary>
-    /// TagList implementation for .NET Standard 2.0 compatibility
+    /// TagList implementation for telemetry attributes
     /// </summary>
     public class TagList : Dictionary<string, object>
     {
@@ -30,7 +29,7 @@ namespace {{packageName}}.Telemetry
     }
 
     /// <summary>
-    /// Meter implementation for .NET Standard 2.0 compatibility
+    /// Meter implementation for telemetry
     /// </summary>
     public class Meter
     {
@@ -67,7 +66,7 @@ namespace {{packageName}}.Telemetry
     }
 
     /// <summary>
-    /// Counter implementation for .NET Standard 2.0 compatibility
+    /// Counter implementation for telemetry
     /// </summary>
     /// <typeparam name="T">Type of the counter</typeparam>
     public class Counter<T>
@@ -81,12 +80,12 @@ namespace {{packageName}}.Telemetry
 
         public void Add(T value, TagList tags = null)
         {
-            // No-op in .NET Standard 2.0
+            // No-op implementation
         }
     }
 
     /// <summary>
-    /// Histogram implementation for .NET Standard 2.0 compatibility
+    /// Histogram implementation for telemetry
     /// </summary>
     /// <typeparam name="T">Type of the histogram</typeparam>
     public class Histogram<T>
@@ -100,8 +99,7 @@ namespace {{packageName}}.Telemetry
 
         public void Record(T value, TagList tags = null)
         {
-            // No-op in .NET Standard 2.0
+            // No-op implementation
         }
     }
 }
-#endif

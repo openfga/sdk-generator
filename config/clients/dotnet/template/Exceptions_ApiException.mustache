@@ -56,11 +56,7 @@ public class ApiException : Exception {
         
         // Handle validation errors
         if (statusCode == HttpStatusCode.BadRequest || 
-#if NETSTANDARD2_0
-            statusCode == (HttpStatusCode)422) { // UnprocessableEntity
-#else
-            statusCode == HttpStatusCode.UnprocessableEntity) {
-#endif
+            statusCode == HttpStatusCodeExtensions.UnprocessableEntity) {
             return await FgaApiValidationError.CreateAsync(response, request, apiName).ConfigureAwait(false);
         }
         
@@ -70,11 +66,7 @@ public class ApiException : Exception {
         }
         
         // Handle rate limit errors
-#if NETSTANDARD2_0
-        if (statusCode == (HttpStatusCode)429) { // TooManyRequests
-#else
-        if (statusCode == HttpStatusCode.TooManyRequests) {
-#endif
+        if (statusCode == HttpStatusCodeExtensions.TooManyRequests) {
             return await FgaApiRateLimitExceededError.CreateAsync(response, request, apiName).ConfigureAwait(false);
         }
         

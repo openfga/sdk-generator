@@ -3,16 +3,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace {{packageName}}.Client
 {
     /// <summary>
-    /// Extensions methods for .NET Standard 2.0 compatibility
+    /// Extensions methods for collections
     /// </summary>
     internal static class Extensions
     {
-#if NETSTANDARD2_0
         /// <summary>
         /// Splits a list into chunks of a specified size.
         /// </summary>
@@ -60,6 +60,5 @@ namespace {{packageName}}.Client
 
             await Task.WhenAll(tasks);
         }
-#endif
     }
 }
