@@ -53,6 +53,14 @@
       "destinationFilename": "src/OpenFga.Sdk.Test.Framework/FrameworkCompatibilityTests.cs",
       "templateType": "SupportingFiles"
     },
+    "netcore31_testproject.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk.Test.NetCore31/OpenFga.Sdk.Test.NetCore31.csproj",
+      "templateType": "SupportingFiles"
+    },
+    "NetCore31CompatibilityTest.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk.Test.NetCore31/NetCore31CompatibilityTests.cs",
+      "templateType": "SupportingFiles"
+    },
     "Client_OAuth2Client.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/ApiClient/OAuth2Client.cs",
       "templateType": "SupportingFiles"
