@@ -11,6 +11,7 @@ import org.openapitools.jackson.nullable.JsonNullableModule;
 {{/openApiNullable}}
 
 import {{utilPackage}}.Pair;
+import {{utilPackage}}.StringUtil;
 import {{configPackage}}.Configuration;
 import {{errorsPackage}}.FgaInvalidParameterException;
 import java.io.InputStream;
@@ -164,11 +165,13 @@ public class ApiClient {
   }
 
   /**
-   * URL encode a string in the UTF-8 encoding.
-   *
-   * @param s String to encode.
-   * @return URL-encoded representation of the input string.
-   */
+    * URL encode a string in the UTF-8 encoding.
+    *
+    * @param s String to encode.
+    * @return URL-encoded representation of the input string.
+    * @deprecated in favor of {@link StringUtil#urlEncode(String)}
+    */
+  @Deprecated(forRemoval = true, since = "0.8.2")
   public static String urlEncode(String s) {
     return URLEncoder.encode(s, UTF_8).replaceAll("\\+", "%20");
   }

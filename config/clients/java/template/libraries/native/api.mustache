@@ -1,7 +1,6 @@
 {{>licenseInfo}}
 package {{package}};
 
-import static {{clientPackage}}.ApiClient.urlEncode;
 import static {{utilPackage}}.StringUtil.isNullOrWhitespace;
 import static {{utilPackage}}.Validation.assertParamExists;
 
@@ -12,6 +11,7 @@ import {{telemetryPackage}}.Attribute;
 import {{telemetryPackage}}.Attributes;
 import {{telemetryPackage}}.Telemetry;
 import {{utilPackage}}.Pair;
+import {{utilPackage}}.StringUtil;
 import {{errorsPackage}}.*;
 
 {{#imports}}
@@ -172,7 +172,7 @@ public class OpenFgaApi {
     assertParamExists({{paramName}}, "{{paramName}}", "{{operationId}}");
     {{/required}}{{/allParams}}
 
-    String path = "{{{path}}}"{{#pathParams}}.replace({{=<% %>=}}"{<%baseName%>}"<%={{ }}=%>, ApiClient.urlEncode({{{paramName}}}.toString())){{/pathParams}};
+    String path = "{{{path}}}"{{#pathParams}}.replace({{=<% %>=}}"{<%baseName%>}"<%={{ }}=%>, StringUtil.urlEncode({{{paramName}}}.toString())){{/pathParams}};
     {{#hasQueryParams}}
     path = pathWithParams(path, {{#queryParams}}"{{baseName}}", {{paramName}}{{^-last}}, {{/-last}}{{/queryParams}});
     {{/hasQueryParams}}
