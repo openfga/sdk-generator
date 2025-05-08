@@ -1,0 +1,59 @@
+// Helper methods for property equality
+private bool ArePropertiesEqual({{classname}} input) {
+        {{#vars}}{{#parent}}
+    if (!base.Equals(input)) {
+        return false;
+    }
+    {{/parent}}{{^isContainer}}
+    if (!IsPropertyEqual(this.{{name}}, input.{{name}})) {
+        return false;
+    }
+    {{/isContainer}}{{#isContainer}}
+    if (!IsCollectionPropertyEqual(this.{{name}}, input.{{name}})) {
+        return false;
+    }
+    {{/isContainer}}{{/vars}}
+
+    {{#isAdditionalPropertiesTrue}}
+    // Check if additional properties are equal
+    if (!AreAdditionalPropertiesEqual(input)) {
+        return false;
+    }
+    {{/isAdditionalPropertiesTrue}}
+
+    return true;
+}
+
+{{#isAdditionalPropertiesTrue}}
+private bool AreAdditionalPropertiesEqual({{classname}} input) {
+    if (this.AdditionalProperties.Count != input.AdditionalProperties.Count) {
+        return false;
+    }
+
+    return !this.AdditionalProperties.Except(input.AdditionalProperties).Any();
+}
+{{/isAdditionalPropertiesTrue}}
+
+private bool IsPropertyEqual<T>(T thisValue, T otherValue) {
+    if (thisValue == null && otherValue == null) {
+        return true;
+    }
+
+    if (thisValue == null || otherValue == null) {
+        return false;
+    }
+
+    return thisValue.Equals(otherValue);
+}
+
+private bool IsCollectionPropertyEqual<T>(IEnumerable<T> thisValue, IEnumerable<T> otherValue) {
+    if (thisValue == null && otherValue == null) {
+        return true;
+    }
+
+    if (thisValue == null || otherValue == null) {
+        return false;
+    }
+
+    return thisValue.SequenceEqual(otherValue);
+}

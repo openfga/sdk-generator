@@ -1,0 +1,46 @@
+        /// <summary>
+        /// Returns true if objects are equal
+        /// </summary>
+        /// <param name="input">Object to be compared</param>
+        /// <returns>Boolean</returns>
+        public override bool Equals(object input)
+        {
+            {{#useCompareNetObjects}}
+            return OpenAPIClientUtils.compareLogic.Compare(this, input as {{classname}}).AreEqual;
+            {{/useCompareNetObjects}}
+            {{^useCompareNetObjects}}
+            // Proper type checking in the Equals method - don't use 'as' operator
+            if (input == null)
+                return false;
+                
+            if (ReferenceEquals(this, input))
+                return true;
+                
+            if (this.GetType() != input.GetType())
+                return false;
+                
+            return Equals(({{classname}})input);
+            {{/useCompareNetObjects}}
+        }
+
+        /// <summary>
+        /// Returns true if {{classname}} instances are equal
+        /// </summary>
+        /// <param name="input">Instance of {{classname}} to be compared</param>
+        /// <returns>Boolean</returns>
+        public bool Equals({{classname}} input)
+        {
+            {{#useCompareNetObjects}}
+            return OpenAPIClientUtils.compareLogic.Compare(this, input).AreEqual;
+            {{/useCompareNetObjects}}
+            {{^useCompareNetObjects}}
+            if (input == null)
+            {
+                return false;
+            }
+            
+            return ArePropertiesEqual(input);
+            {{/useCompareNetObjects}}
+        }
+
+{{>modelEqualsComplexCondition}}
