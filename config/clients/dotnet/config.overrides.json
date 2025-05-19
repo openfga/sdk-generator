@@ -113,6 +113,10 @@
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientBatchCheckResponse.cs",
       "templateType": "SupportingFiles"
     },
+    "Client/Model/ClientBatchCheckResponseTest.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk.Test/Models/Client/ClientBatchCheckResponseTest.cs",
+      "templateType": "SupportingFiles"
+    },
     "Client/Model/ClientCheckOptions.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientCheckOptions.cs",
       "templateType": "SupportingFiles"
@@ -163,6 +167,10 @@
     },
     "Client/Model/ClientListStoresOptions.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientListStoresOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Model/ClientListStoresRequest.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Model/ClientListStoresRequest.cs",
       "templateType": "SupportingFiles"
     },
     "Client/Model/ClientListUsersOptions.mustache": {
