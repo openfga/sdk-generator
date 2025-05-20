@@ -1,6 +1,7 @@
 {{>partial_header}}
 
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace {{packageName}}.Telemetry;
 
@@ -33,5 +34,5 @@ public class TelemetryCounters {
     ///     Increments the counter for an API request.
     /// </summary>
     /// <param name="attributes">The attributes associated with the telemetry data.</param>
-    public void IncrementRequestCounter(TagList attributes) => TokenExchangeCounter.Add(1, attributes);
+    public void IncrementRequestCounter(TagList attributes) => RequestCounter.Add(1, attributes);
 }

@@ -1,0 +1,132 @@
+{{>partial_header}}
+
+using System.Collections.Generic;
+using System.Diagnostics.Metrics;
+
+namespace {{packageName}}.Telemetry
+{
+    // These classes provide OpenTelemetry support for .NET Standard 2.0
+
+    /// <summary>
+    /// Meter class for creating metrics
+    /// </summary>
+    public class Meter
+    {
+        private readonly System.Diagnostics.Metrics.Meter _meter;
+
+        /// <summary>
+        /// Gets the name of the meter
+        /// </summary>
+        public string Name { get { return _meter.Name; } }
+
+        /// <summary>
+        /// Creates a new meter with the specified name
+        /// </summary>
+        public Meter(string name)
+        {
+            _meter = new System.Diagnostics.Metrics.Meter(name);
+        }
+
+        /// <summary>
+        /// Creates a new meter with the specified name and version
+        /// </summary>
+        public Meter(string name, string version)
+        {
+            _meter = new System.Diagnostics.Metrics.Meter(name, version);
+        }
+
+        /// <summary>
+        /// Creates a counter with the specified name
+        /// </summary>
+        public Counter<T> CreateCounter<T>(string name, string description = null, string unit = null) where T : struct
+        {
+            var counter = _meter.CreateCounter<T>(name, unit, description);
+            return new Counter<T>(counter);
+        }
+
+        /// <summary>
+        /// Creates a histogram with the specified name
+        /// </summary>
+        public Histogram<T> CreateHistogram<T>(string name, string description = null, string unit = null) where T : struct
+        {
+            var histogram = _meter.CreateHistogram<T>(name, unit, description);
+            return new Histogram<T>(histogram);
+        }
+    }
+
+    /// <summary>
+    /// Counter class for counting metrics
+    /// </summary>
+    public class Counter<T> where T : struct
+    {
+        private readonly System.Diagnostics.Metrics.Counter<T> _counter;
+
+        /// <summary>
+        /// Creates a new counter wrapper
+        /// </summary>
+        public Counter(System.Diagnostics.Metrics.Counter<T> counter)
+        {
+            _counter = counter;
+        }
+
+        /// <summary>
+        /// Adds the specified value to the counter with optional tags
+        /// </summary>
+        public void Add(T value, TagList tags = null)
+        {
+            if (tags == null || tags.Count == 0)
+            {
+                _counter.Add(value);
+                return;
+            }
+
+            // Convert TagList to KeyValuePair array
+            var tagArray = new KeyValuePair<string, object>[tags.Count];
+            int i = 0;
+            foreach (var tag in tags)
+            {
+                tagArray[i++] = new KeyValuePair<string, object>(tag.Key, tag.Value);
+            }
+            
+            _counter.Add(value, tagArray);
+        }
+    }
+
+    /// <summary>
+    /// Histogram class for recording distributions of metrics
+    /// </summary>
+    public class Histogram<T> where T : struct
+    {
+        private readonly System.Diagnostics.Metrics.Histogram<T> _histogram;
+
+        /// <summary>
+        /// Creates a new histogram wrapper
+        /// </summary>
+        public Histogram(System.Diagnostics.Metrics.Histogram<T> histogram)
+        {
+            _histogram = histogram;
+        }
+
+        /// <summary>
+        /// Records the specified value in the histogram with optional tags
+        /// </summary>
+        public void Record(T value, TagList tags = null)
+        {
+            if (tags == null || tags.Count == 0)
+            {
+                _histogram.Record(value);
+                return;
+            }
+
+            // Convert TagList to KeyValuePair array
+            var tagArray = new KeyValuePair<string, object>[tags.Count];
+            int i = 0;
+            foreach (var tag in tags)
+            {
+                tagArray[i++] = new KeyValuePair<string, object>(tag.Key, tag.Value);
+            }
+            
+            _histogram.Record(value, tagArray);
+        }
+    }
+}
