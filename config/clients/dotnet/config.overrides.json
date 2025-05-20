@@ -289,12 +289,8 @@
       "destinationFilename": "src/OpenFga.Sdk/Telemetry/Metrics.cs",
       "templateType": "SupportingFiles"
     },
-    "Telemetry/TagList.cs.mustache": {
-      "destinationFilename": "src/OpenFga.Sdk/Telemetry/TagList.cs",
-      "templateType": "SupportingFiles"
-    },
-    "Telemetry/TelemetryTypes.cs.mustache": {
-      "destinationFilename": "src/OpenFga.Sdk/Telemetry/TelemetryTypes.cs",
+    "Telemetry/Standard20TelemetryTypes.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Telemetry/Standard20TelemetryTypes.cs",
       "templateType": "SupportingFiles"
     },
     "Configuration_Configuration.mustache": {
