@@ -82,7 +82,7 @@ public class {{appShortName}}Client : IDisposable {
     public async Task<CreateStoreResponse> CreateStore(ClientCreateStoreRequest body,
         ClientRequestOptions? options = default,
         CancellationToken cancellationToken = default) =>
-        await api.CreateStore(body, cancellationToken);
+        await api.CreateStore((CreateStoreRequest)body, cancellationToken);
 
     /**
    * GetStore - Get information about the current store
