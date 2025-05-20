@@ -73,34 +73,28 @@ public class {{appShortName}}Client : IDisposable {
    * ListStores - Get a paginated list of stores.
    */
     public async Task<ListStoresResponse> ListStores(IClientListStoresOptions? options = default,
-        CancellationToken cancellationToken = default) {
-        return await api.ListStores(options?.PageSize, options?.ContinuationToken, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        await api.ListStores(options?.PageSize, options?.ContinuationToken, cancellationToken);
 
     /**
    * CreateStore - Initialize a store
    */
     public async Task<CreateStoreResponse> CreateStore(ClientCreateStoreRequest body,
         ClientRequestOptions? options = default,
-        CancellationToken cancellationToken = default) {
-        return await api.CreateStore(body, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        await api.CreateStore((CreateStoreRequest)body, cancellationToken);
 
     /**
    * GetStore - Get information about the current store
    */
-    public async Task<GetStoreResponse> GetStore(IClientRequestOptionsWithStoreId? options = default, CancellationToken cancellationToken = default) {
-        string storeId = GetStoreId(options);
-        return await api.GetStore(storeId, cancellationToken);
-    }
+    public async Task<GetStoreResponse> GetStore(IClientRequestOptionsWithStoreId? options = default, CancellationToken cancellationToken = default) =>
+        await api.GetStore(GetStoreId(options), cancellationToken);
 
     /**
    * DeleteStore - Delete a store
    */
-    public async Task DeleteStore(IClientRequestOptionsWithStoreId? options = default, CancellationToken cancellationToken = default) {
-        string storeId = GetStoreId(options);
-        await api.DeleteStore(storeId, cancellationToken);
-    }
+    public async Task DeleteStore(IClientRequestOptionsWithStoreId? options = default, CancellationToken cancellationToken = default) =>
+        await api.DeleteStore(GetStoreId(options), cancellationToken);
 
     /************************
      * Authorization Models *
@@ -111,20 +105,16 @@ public class {{appShortName}}Client : IDisposable {
      */
     public async Task<ReadAuthorizationModelsResponse> ReadAuthorizationModels(
         IClientReadAuthorizationModelsOptions? options = default,
-        CancellationToken cancellationToken = default) {
-        string storeId = GetStoreId(options);
-        return await api.ReadAuthorizationModels(storeId, options?.PageSize, options?.ContinuationToken, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        await api.ReadAuthorizationModels(GetStoreId(options), options?.PageSize, options?.ContinuationToken, cancellationToken);
 
     /**
      * WriteAuthorizationModel - Create a new version of the authorization model
      */
     public async Task<WriteAuthorizationModelResponse> WriteAuthorizationModel(ClientWriteAuthorizationModelRequest body,
         IClientRequestOptionsWithStoreId? options = default,
-        CancellationToken cancellationToken = default) {
-        string storeId = GetStoreId(options);
-        return await api.WriteAuthorizationModel(storeId, body, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        await api.WriteAuthorizationModel(GetStoreId(options), body, cancellationToken);
 
     /**
      * ReadAuthorizationModel - Read the current authorization model
@@ -137,8 +127,7 @@ public class {{appShortName}}Client : IDisposable {
             throw new FgaRequiredParamError("ClientConfiguration", "AuthorizationModelId");
         }
 
-        string storeId = GetStoreId(options);
-        return await api.ReadAuthorizationModel(storeId, authorizationModelId, cancellationToken);
+        return await api.ReadAuthorizationModel(GetStoreId(options), authorizationModelId, cancellationToken);
     }
 
     /**
@@ -166,10 +155,8 @@ public class {{appShortName}}Client : IDisposable {
      */
     public async Task<ReadChangesResponse> ReadChanges(ClientReadChangesRequest? body = default,
         ClientReadChangesOptions? options = default,
-        CancellationToken cancellationToken = default) {
-        string storeId = GetStoreId(options);
-        return await api.ReadChanges(storeId, body?.Type, options?.PageSize, options?.ContinuationToken, body?.StartTime, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        await api.ReadChanges(GetStoreId(options), body?.Type, options?.PageSize, options?.ContinuationToken, body?.StartTime, cancellationToken);
 
     /**
      * Read - Read tuples previously written to the store (does not evaluate)
@@ -180,16 +167,11 @@ public class {{appShortName}}Client : IDisposable {
         if (body != null && (body.User != null || body.Relation != null || body.Object != null)) {
             tupleKey = body;
         }
-        
-        string storeId = GetStoreId(options);
-        var request = new ReadRequest {
-            TupleKey = tupleKey, 
-            PageSize = options?.PageSize, 
-            ContinuationToken = options?.ContinuationToken, 
-            Consistency = options?.Consistency,
-        };
-        
-        return await api.Read(storeId, request, cancellationToken);
+        return await api.Read(
+            GetStoreId(options),
+            new ReadRequest {
+                TupleKey = tupleKey, PageSize = options?.PageSize, ContinuationToken = options?.ContinuationToken, Consistency = options?.Consistency,
+            }, cancellationToken);
     }
 
     /**
@@ -215,8 +197,7 @@ public class {{appShortName}}Client : IDisposable {
                 requestBody.Deletes = new WriteRequestDeletes(body.Deletes.ConvertAll(key => key.ToTupleKeyWithoutCondition()));
             }
 
-            string storeId = GetStoreId(options);
-            await api.Write(storeId, requestBody, cancellationToken);
+            await api.Write(GetStoreId(options), requestBody, cancellationToken);
             return new ClientWriteResponse {
                 Writes =
                     body.Writes?.ConvertAll(tupleKey =>
@@ -353,17 +334,15 @@ public class {{appShortName}}Client : IDisposable {
      * WriteTuples - Utility method to write tuples, wraps Write
      */
     public async Task<ClientWriteResponse> WriteTuples(List<ClientTupleKey> body, IClientWriteOptions? options = default,
-        CancellationToken cancellationToken = default) {
-        return await Write(new ClientWriteRequest {Writes = body}, options, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        await Write(new ClientWriteRequest {Writes = body}, options, cancellationToken);
 
     /**
      * DeleteTuples - Utility method to delete tuples, wraps Write
      */
     public async Task<ClientWriteResponse> DeleteTuples(List<ClientTupleKeyWithoutCondition> body, IClientWriteOptions? options = default,
-        CancellationToken cancellationToken = default) {
-        return await Write(new ClientWriteRequest {Deletes = body}, options, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        await Write(new ClientWriteRequest {Deletes = body}, options, cancellationToken);
 
     /************************
      * Relationship Queries *
@@ -374,21 +353,20 @@ public class {{appShortName}}Client : IDisposable {
    */
     public async Task<CheckResponse> Check(IClientCheckRequest body,
         IClientCheckOptions? options = default,
-        CancellationToken cancellationToken = default) {
-        string storeId = GetStoreId(options);
-        var request = new CheckRequest {
-            TupleKey = new CheckRequestTupleKey {User = body.User, Relation = body.Relation, Object = body.Object},
-            ContextualTuples = new ContextualTupleKeys {
-                TupleKeys = body.ContextualTuples?.ConvertAll(tupleKey => tupleKey.ToTupleKey()) ??
-                            new List<TupleKey>()
-            },
-            Context = body.Context,
-            AuthorizationModelId = GetAuthorizationModelId(options),
-            Consistency = options?.Consistency,
-        };
-        
-        return await api.Check(storeId, request, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        await api.Check(
+            GetStoreId(options),
+            new CheckRequest {
+                TupleKey = new CheckRequestTupleKey {User = body.User, Relation = body.Relation, Object = body.Object},
+                ContextualTuples =
+                    new ContextualTupleKeys {
+                        TupleKeys = body.ContextualTuples?.ConvertAll(tupleKey => tupleKey.ToTupleKey()) ??
+                                    new List<TupleKey>()
+                    },
+                Context = body.Context,
+                AuthorizationModelId = GetAuthorizationModelId(options),
+                Consistency = options?.Consistency,
+            }, cancellationToken);
 
     /**
    * BatchCheck - Run a set of checks (evaluates)
@@ -433,43 +411,39 @@ public class {{appShortName}}Client : IDisposable {
    */
     public async Task<ExpandResponse> Expand(IClientExpandRequest body,
         IClientExpandOptions? options = default,
-        CancellationToken cancellationToken = default) {
-        string storeId = GetStoreId(options);
-        var request = new ExpandRequest {
-            TupleKey = new ExpandRequestTupleKey {Relation = body.Relation, Object = body.Object},
-            ContextualTuples = new ContextualTupleKeys {
-                TupleKeys = body.ContextualTuples?.ConvertAll(tupleKey => tupleKey.ToTupleKey()) ??
-                            new List<TupleKey>()
-            },
-            AuthorizationModelId = GetAuthorizationModelId(options),
-            Consistency = options?.Consistency
-        };
-        
-        return await api.Expand(storeId, request, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        await api.Expand(
+            GetStoreId(options),
+            new ExpandRequest {
+                TupleKey = new ExpandRequestTupleKey {Relation = body.Relation, Object = body.Object},
+                ContextualTuples =
+                    new ContextualTupleKeys {
+                        TupleKeys = body.ContextualTuples?.ConvertAll(tupleKey => tupleKey.ToTupleKey()) ??
+                                    new List<TupleKey>()
+                    },
+                AuthorizationModelId = GetAuthorizationModelId(options),
+                Consistency = options?.Consistency
+            }, cancellationToken);
 
     /**
      * ListObjects - List the objects of a particular type that the user has a certain relation to (evaluates)
      */
     public async Task<ListObjectsResponse> ListObjects(IClientListObjectsRequest body,
         IClientListObjectsOptions? options = default,
-        CancellationToken cancellationToken = default) {
-        string storeId = GetStoreId(options);
-        var request = new ListObjectsRequest {
+        CancellationToken cancellationToken = default) =>
+        await api.ListObjects(GetStoreId(options), new ListObjectsRequest {
             User = body.User,
             Relation = body.Relation,
             Type = body.Type,
-            ContextualTuples = new ContextualTupleKeys {
-                TupleKeys = body.ContextualTuples?.ConvertAll(tupleKey => tupleKey.ToTupleKey()) ??
-                            new List<TupleKey>()
-            },
+            ContextualTuples =
+                new ContextualTupleKeys {
+                    TupleKeys = body.ContextualTuples?.ConvertAll(tupleKey => tupleKey.ToTupleKey()) ??
+                                new List<TupleKey>()
+                },
             Context = body.Context,
             AuthorizationModelId = GetAuthorizationModelId(options),
             Consistency = options?.Consistency,
-        };
-        
-        return await api.ListObjects(storeId, request, cancellationToken);
-    }
+        }, cancellationToken);
 
 
     /**
@@ -516,21 +490,17 @@ public class {{appShortName}}Client : IDisposable {
      */
     public async Task<ListUsersResponse> ListUsers(IClientListUsersRequest body,
         IClientListUsersOptions? options = default,
-        CancellationToken cancellationToken = default) {
-        string storeId = GetStoreId(options);
-        var request = new ListUsersRequest {
+        CancellationToken cancellationToken = default) =>
+        await api.ListUsers(GetStoreId(options), new ListUsersRequest {
             Object = body.Object,
             Relation = body.Relation,
             UserFilters = body.UserFilters,
-            ContextualTuples = body.ContextualTuples?.ConvertAll(tupleKey => tupleKey.ToTupleKey()) ??
-                               new List<TupleKey>(),
+            ContextualTuples =  body.ContextualTuples?.ConvertAll(tupleKey => tupleKey.ToTupleKey()) ??
+                                new List<TupleKey>(),
             Context = body.Context,
             AuthorizationModelId = GetAuthorizationModelId(options),
             Consistency = options?.Consistency
-        };
-        
-        return await api.ListUsers(storeId, request, cancellationToken);
-    }
+        });
 
     /**************
      * Assertions *
@@ -546,8 +516,7 @@ public class {{appShortName}}Client : IDisposable {
             throw new FgaRequiredParamError("ClientConfiguration", "AuthorizationModelId");
         }
 
-        string storeId = GetStoreId(options);
-        return await api.ReadAssertions(storeId, authorizationModelId, cancellationToken);
+        return await api.ReadAssertions(GetStoreId(options), authorizationModelId, cancellationToken);
     }
 
     /**
@@ -575,8 +544,7 @@ public class {{appShortName}}Client : IDisposable {
             });
         }
 
-        string storeId = GetStoreId(options);
-        await api.WriteAssertions(storeId, authorizationModelId,
+        await api.WriteAssertions(GetStoreId(options), authorizationModelId,
             new WriteAssertionsRequest {Assertions = assertions}, cancellationToken);
     }
 }
