@@ -73,10 +73,8 @@ public class {{appShortName}}Client : IDisposable {
    * ListStores - Get a paginated list of stores.
    */
     public async Task<ListStoresResponse> ListStores(IClientListStoresRequest? body, IClientListStoresOptions? options = default,
-        CancellationToken cancellationToken = default) {
-        // Note: body?.Name is not used because the OpenAPI spec doesn't define a 'name' query parameter for this endpoint
-        return await api.ListStores(options?.PageSize, options?.ContinuationToken, cancellationToken);
-    }
+        CancellationToken cancellationToken = default) =>
+        await api.ListStores(options?.PageSize, options?.ContinuationToken, body?.Name, cancellationToken);
 
     /**
    * CreateStore - Initialize a store

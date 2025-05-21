@@ -144,7 +144,7 @@ public class {{appShortName}}ClientTests {
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    req.RequestUri == new Uri($"{_config.BasePath}/stores") &&
+                    req.RequestUri == new Uri($"{_config.BasePath}/stores?name=TestStore&") &&
                     req.Method == HttpMethod.Get),
                 ItExpr.IsAny<CancellationToken>()
             )
@@ -157,7 +157,7 @@ public class {{appShortName}}ClientTests {
 
         var response = await fgaClient.ListStores(
             new ClientListStoresRequest() {
-                Name = "TestStore" // Note: The Name parameter is not used in the API call
+                Name = "TestStore"
             },
             new ClientListStoresOptions() {}
         );
@@ -166,7 +166,7 @@ public class {{appShortName}}ClientTests {
             "SendAsync",
             Times.Exactly(1),
             ItExpr.Is<HttpRequestMessage>(req =>
-                req.RequestUri == new Uri($"{_config.BasePath}/stores") &&
+                req.RequestUri == new Uri($"{_config.BasePath}/stores?name=TestStore&") &&
                 req.Method == HttpMethod.Get),
             ItExpr.IsAny<CancellationToken>()
         );
