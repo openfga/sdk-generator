@@ -500,7 +500,7 @@ public class {{appShortName}}Client : IDisposable {
             Context = body.Context,
             AuthorizationModelId = GetAuthorizationModelId(options),
             Consistency = options?.Consistency
-        });
+        }, cancellationToken);
 
     /**************
      * Assertions *
