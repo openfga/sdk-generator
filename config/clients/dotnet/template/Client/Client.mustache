@@ -490,17 +490,19 @@ public class {{appShortName}}Client : IDisposable {
      */
     public async Task<ListUsersResponse> ListUsers(IClientListUsersRequest body,
         IClientListUsersOptions? options = default,
-        CancellationToken cancellationToken = default) =>
-        await api.ListUsers(GetStoreId(options), new ListUsersRequest {
+        CancellationToken cancellationToken = default) {
+        var requestBody = new ListUsersRequest {
             Object = body.Object,
             Relation = body.Relation,
             UserFilters = body.UserFilters,
-            ContextualTuples =  body.ContextualTuples?.ConvertAll(tupleKey => tupleKey.ToTupleKey()) ??
-                                new List<TupleKey>(),
+            ContextualTuples = body.ContextualTuples?.ConvertAll(tupleKey => tupleKey.ToTupleKey()) ??
+                              new List<TupleKey>(),
             Context = body.Context,
             AuthorizationModelId = GetAuthorizationModelId(options),
             Consistency = options?.Consistency
-        }, cancellationToken);
+        };
+        return await api.ListUsers(GetStoreId(options), requestBody, cancellationToken);
+    }
 
     /**************
      * Assertions *
