@@ -21,7 +21,7 @@ using {{packageName}}.Exceptions;
 using {{packageName}}.Exceptions.Parsers;
 using {{packageName}}.Model;
 
-namespace {{packageName}}.Test.Client {
+namespace {{packageName}}.Test.Client;
 
 public class {{appShortName}}ClientTests {
     private readonly string _storeId;
@@ -144,7 +144,7 @@ public class {{appShortName}}ClientTests {
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    req.RequestUri == new Uri($"{_config.BasePath}/stores?page_size=10&") &&
+                    req.RequestUri == new Uri($"{_config.BasePath}/stores?name=TestStore&") &&
                     req.Method == HttpMethod.Get),
                 ItExpr.IsAny<CancellationToken>()
             )
@@ -156,17 +156,17 @@ public class {{appShortName}}ClientTests {
         var fgaClient = new {{appShortName}}Client(_config, httpClient);
 
         var response = await fgaClient.ListStores(
-            new ClientListStoresOptions() {
-                PageSize = 10,
-                ContinuationToken = null
-            }
+            new ClientListStoresRequest() {
+                Name = "TestStore"
+            },
+            new ClientListStoresOptions() {}
         );
 
         mockHandler.Protected().Verify(
             "SendAsync",
             Times.Exactly(1),
             ItExpr.Is<HttpRequestMessage>(req =>
-                req.RequestUri == new Uri($"{_config.BasePath}/stores?page_size=10&") &&
+                req.RequestUri == new Uri($"{_config.BasePath}/stores?name=TestStore&") &&
                 req.Method == HttpMethod.Get),
             ItExpr.IsAny<CancellationToken>()
         );
@@ -199,7 +199,7 @@ public class {{appShortName}}ClientTests {
         var httpClient = new HttpClient(mockHandler.Object);
         var fgaClient = new {{appShortName}}Client(_config, httpClient);
 
-        var response = await fgaClient.ListStores();
+        var response = await fgaClient.ListStores(new ClientListStoresRequest());
         mockHandler.Protected().Verify(
             "SendAsync",
             Times.Exactly(1),
@@ -238,7 +238,7 @@ public class {{appShortName}}ClientTests {
         var httpClient = new HttpClient(mockHandler.Object);
         var fgaClient = new {{appShortName}}Client(_config, httpClient);
 
-        var response = await fgaClient.ListStores();
+        var response = await fgaClient.ListStores(new ClientListStoresRequest());
         mockHandler.Protected().Verify(
             "SendAsync",
             Times.Exactly(1),
@@ -1746,5 +1746,4 @@ public class {{appShortName}}ClientTests {
             ItExpr.IsAny<CancellationToken>()
         );
     }
-}
 }
