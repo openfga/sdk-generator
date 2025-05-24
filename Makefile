@@ -122,18 +122,18 @@ build-client-python:
 		patch -p1 /module/openfga_sdk/sync/open_fga_api.py /config/clients/python/patches/open_fga_api_sync.py.patch && \
 		patch -p1 /module/docs/OpenFgaApi.md /config/clients/python/patches/OpenFgaApi.md.patch'"
 
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install --upgrade pip && \
-		python -m pip install --upgrade setuptools wheel && \
-		python -m pip install -r test-requirements.txt && \
-		python -m ruff check --select I --fix . && \
-		python -m ruff format . && \
-		python setup.py sdist bdist_wheel'"
+	make run-in-docker sdk_language=python image=ghcr.io/astral-sh/uv:python${PYTHON_DOCKER_TAG}-alpine command="/bin/sh -c 'export UV_LINK_MODE=copy && \
+		uv sync && \
+		uv run ruff check --select I --fix . && \
+		uv run ruff format . && \
+		uv build'"
 
 .PHONY: test-client-python
 test-client-python: build-client-python
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt && \
-		pytest --cov-report term-missing --cov=openfga_sdk test/ && \
-		ruff check .'"
+	make run-in-docker sdk_language=python image=ghcr.io/astral-sh/uv:python${PYTHON_DOCKER_TAG}-alpine command="/bin/sh -c 'export UV_LINK_MODE=copy && \
+		uv sync && \
+		uv run pytest --cov-report term-missing --cov=openfga_sdk test/ && \
+		uv run ruff check .'"
 
 ### Java
 .PHONY: tag-client-java
