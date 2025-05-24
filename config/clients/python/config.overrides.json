@@ -14,8 +14,9 @@
   "supportsStreamedListObjects": "streamed_list_objects",
   "files": {
     ".snyk": {},
-    "pyproject.toml": {},
-
+    "pyproject.toml.mustache": {
+      "destinationFilename": "pyproject.toml"
+    },
     "api_sync.mustache": {
       "folder": "openfga_sdk/sync",
       "destinationFilename": "_sync.py",
