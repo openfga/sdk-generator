@@ -6,6 +6,7 @@ OPENAPI_GENERATOR_CLI_DOCKER_TAG = v6.4.0
 NODE_DOCKER_TAG = 20-alpine
 GO_DOCKER_TAG = 1
 DOTNET_DOCKER_TAG = 6.0
+DOTNET_TEST_IMAGE = openfga-dotnet-test:latest
 GOLINT_DOCKER_TAG = latest-alpine
 BUSYBOX_DOCKER_TAG = 1
 GRADLE_DOCKER_TAG = 8.2
@@ -36,6 +37,7 @@ pull-docker-images:
 	docker pull mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG}
 	docker pull busybox:${BUSYBOX_DOCKER_TAG}
 	docker pull gradle:${GRADLE_DOCKER_TAG}
+	docker build -t ${DOTNET_TEST_IMAGE} -f docker/dotnet-test.Dockerfile .
 
 ## Building and Testing
 .PHONY: test
@@ -89,9 +91,13 @@ build-client-go:
 tag-client-dotnet: test-client-dotnet
 	make utils-tag-client sdk_language=dotnet
 
+.PHONY: build-dotnet-test-image
+build-dotnet-test-image:
+	docker build -t ${DOTNET_TEST_IMAGE} -f docker/dotnet-test.Dockerfile .
+
 .PHONY: test-client-dotnet
-test-client-dotnet: build-client-dotnet
-	make run-in-docker sdk_language=dotnet image=mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet test'"
+test-client-dotnet: build-client-dotnet build-dotnet-test-image
+	make run-in-docker sdk_language=dotnet image=${DOTNET_TEST_IMAGE} command="/bin/sh -c 'make test && make test-netcore31 && make test-framework'"
 
 .PHONY: build-client-dotnet
 build-client-dotnet:
