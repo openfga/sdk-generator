@@ -1677,13 +1677,13 @@ public class OpenFgaApiTest {
                 .consistency(ConsistencyPreference.HIGHER_CONSISTENCY);
 
         // When
-        var results = fga.streamedListObjects(DEFAULT_STORE_ID, request).get();
+        var response = fga.streamedListObjects(DEFAULT_STORE_ID, request).get();
 
         // Then
         mockHttpClient.verify().post(postPath).withBody(is(expectedBody)).called(1);
-        assertNotNull(results);
-        assertEquals(1, results.size());
-        assertEquals(DEFAULT_OBJECT, results.get(0).getObject());
+        assertNotNull(response.getData());
+        assertNotNull(response.getData().getResult());
+        assertEquals(DEFAULT_OBJECT, response.getData().getResult().getObject());
     }
 
     @Test
