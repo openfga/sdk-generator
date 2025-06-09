@@ -345,6 +345,8 @@ var response = await fgaClient.Check(body, options);
 Run a set of [checks](#check). Batch Check will return `allowed: false` if it encounters an error, and will return the error in the body.
 If 429s or 5xxs are encountered, the underlying check will retry up to {{defaultMaxRetry}} times before giving up.
 
+> **Note**: The order of `BatchCheck` results is not guaranteed to match the order of the checks provided. Use `correlationId` to pair responses with requests.
+
 ```csharp
 var options = new ClientBatchCheckOptions {
     // You can rely on the model id set in the configuration or override it for this specific request

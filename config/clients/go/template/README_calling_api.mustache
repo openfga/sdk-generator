@@ -401,6 +401,8 @@ Similar to [Check](#Check), but instead of checking a single user-object relatio
 
 [API Documentation](https://openfga.dev/api/service#/Relationship%20Queries/BatchCheck)
 
+> **Note**: The order of `BatchCheck` results is not guaranteed to match the order of the checks provided. Use `correlationId` to pair responses with requests.
+
 If you are using an OpenFGA version less than 1.8.0, you can use the `ClientBatchCheck` function, 
 which calls `check` in parallel. It will return `allowed: false` if it encounters an error, and will return the error in the body.
 If 429s or 5xxs are encountered, the underlying check will retry up to 3 times before giving up.
