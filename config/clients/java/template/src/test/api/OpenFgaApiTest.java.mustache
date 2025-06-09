@@ -1659,6 +1659,119 @@ public class OpenFgaApiTest {
     }
 
     /**
+     * Stream all objects of the given type that the user has a relation with.
+     */
+    @Test
+    public void streamedListObjectsTest() throws Exception {
+        // Given
+        String postPath = "https://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/streamed-list-objects";
+        String expectedBody = String.format(
+                "{\"authorization_model_id\":\"%s\",\"type\":null,\"relation\":\"%s\",\"user\":\"%s\",\"contextual_tuples\":null,\"context\":null,\"consistency\":\"%s\"}",
+                DEFAULT_AUTH_MODEL_ID, DEFAULT_RELATION, DEFAULT_USER, ConsistencyPreference.HIGHER_CONSISTENCY);
+        String responseBody = String.format("{\"result\":{\"object\":\"%s\"}}\n", DEFAULT_OBJECT);
+        mockHttpClient.onPost(postPath).withBody(is(expectedBody)).doReturn(200, responseBody);
+        ListObjectsRequest request = new ListObjectsRequest()
+                .authorizationModelId(DEFAULT_AUTH_MODEL_ID)
+                .relation(DEFAULT_RELATION)
+                .user(DEFAULT_USER)
+                .consistency(ConsistencyPreference.HIGHER_CONSISTENCY);
+
+        // When
+        var results = fga.streamedListObjects(DEFAULT_STORE_ID, request).get();
+
+        // Then
+        mockHttpClient.verify().post(postPath).withBody(is(expectedBody)).called(1);
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        assertEquals(DEFAULT_OBJECT, results.get(0).getObject());
+    }
+
+    @Test
+    public void streamedListObjects_storeIdRequired() {
+        // When
+        var exception =
+                assertThrows(FgaInvalidParameterException.class, () -> fga.streamedListObjects(null, new ListObjectsRequest())
+                        .get());
+
+        // Then
+        assertEquals("Required parameter storeId was invalid when calling streamedListObjects.", exception.getMessage());
+    }
+
+    @Test
+    public void streamedListObjects_bodyRequired() {
+        // When
+        var exception = assertThrows(FgaInvalidParameterException.class, () -> fga.streamedListObjects(DEFAULT_STORE_ID, null)
+                .get());
+
+        // Then
+        assertEquals("Required parameter body was invalid when calling streamedListObjects.", exception.getMessage());
+    }
+
+    @Test
+    public void streamedListObjects_400() throws Exception {
+        // Given
+        String postUrl = "https://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/streamed-list-objects";
+        mockHttpClient
+                .onPost(postUrl)
+                .doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
+
+        // When
+        ExecutionException execException =
+                assertThrows(ExecutionException.class, () -> fga.streamedListObjects(DEFAULT_STORE_ID, new ListObjectsRequest())
+                        .get());
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        var exception = assertInstanceOf(FgaApiValidationError.class, execException.getCause());
+        assertEquals(400, exception.getStatusCode());
+        assertEquals(
+                "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}",
+                exception.getResponseData());
+    }
+
+    @Test
+    public void streamedListObjects_404() throws Exception {
+        // Given
+        String postUrl = "https://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/streamed-list-objects";
+        mockHttpClient
+                .onPost(postUrl)
+                .doReturn(404, "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}");
+
+        // When
+        ExecutionException execException =
+                assertThrows(ExecutionException.class, () -> fga.streamedListObjects(DEFAULT_STORE_ID, new ListObjectsRequest())
+                        .get());
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1);
+        var exception = assertInstanceOf(FgaApiNotFoundError.class, execException.getCause());
+        assertEquals(404, exception.getStatusCode());
+        assertEquals(
+                "{\"code\":\"undefined_endpoint\",\"message\":\"Endpoint not enabled\"}", exception.getResponseData());
+    }
+
+    @Test
+    public void streamedListObjects_500() throws Exception {
+        // Given
+        String postUrl = "https://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/streamed-list-objects";
+        mockHttpClient
+                .onPost(postUrl)
+                .doReturn(500, "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}");
+
+        // When
+        ExecutionException execException =
+                assertThrows(ExecutionException.class, () -> fga.streamedListObjects(DEFAULT_STORE_ID, new ListObjectsRequest())
+                        .get());
+
+        // Then
+        mockHttpClient.verify().post(postUrl).called(1 + DEFAULT_MAX_RETRIES);
+        var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
+        assertEquals(500, exception.getStatusCode());
+        assertEquals(
+                "{\"code\":\"internal_error\",\"message\":\"Internal Server Error\"}", exception.getResponseData());
+    }
+
+    /**
      * Read assertions for an authorization model ID.
      */
     @Test
