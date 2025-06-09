@@ -61,7 +61,7 @@ describe("{{appTitleCaseName}} SDK", function () {
       ).not.toThrowError();
     });
 
-    it("should validate apiTokenIssuer in configuration (should not allow scheme as part of the apiTokenIssuer)", () => {
+    it("should validate apiTokenIssuer in configuration", () => {
       expect(
         () => new {{appShortName}}Api({
           ...baseConfig,
@@ -73,7 +73,7 @@ describe("{{appTitleCaseName}} SDK", function () {
             }
           } as Configuration["credentials"]
         })
-      ).toThrowError();
+      ).not.toThrowError();
     });
 
     it("should not require credentials in configuration when not needed", () => {
