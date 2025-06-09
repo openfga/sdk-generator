@@ -1,10 +1,21 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using System.Net;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 namespace {{packageName}}.Exceptions;
+#else
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Runtime.Serialization;
+using System.Threading.Tasks;
+
+namespace {{packageName}}.Exceptions
+{
+#endif
 
 public class ApiException : Exception {
     /// <summary>
@@ -79,3 +90,6 @@ public class ApiException : Exception {
         return await FgaApiError.CreateAsync(response, request, apiName).ConfigureAwait(false);
     }
 }
+#if NETSTANDARD2_0
+}
+#endif

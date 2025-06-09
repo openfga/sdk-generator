@@ -1,10 +1,24 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using {{packageName}}.ApiClient;
 using {{packageName}}.Exceptions;
 using {{packageName}}.{{modelPackage}};
 
 namespace {{packageName}}.{{apiPackage}};
+#else
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using {{packageName}}.ApiClient;
+using {{packageName}}.Exceptions;
+using {{packageName}}.{{modelPackage}};
+
+namespace {{packageName}}.{{apiPackage}}
+{
+#endif
 
 public class {{classname}} : IDisposable {
     private readonly ApiClient.ApiClient _apiClient;
@@ -92,3 +106,6 @@ public class {{classname}} : IDisposable {
         _apiClient.Dispose();
     }
 }
+#if NETSTANDARD2_0
+}
+#endif

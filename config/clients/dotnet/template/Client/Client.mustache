@@ -1,7 +1,8 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using System.Collections.Concurrent;
-
+using System.Linq;
 using {{packageName}}.Api;
 using {{packageName}}.Client.Model;
 using {{packageName}}.Exceptions;
@@ -9,6 +10,23 @@ using {{packageName}}.Exceptions.Parsers;
 using {{packageName}}.Model;
 
 namespace {{packageName}}.Client;
+#else
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using {{packageName}}.Api;
+using {{packageName}}.Client.Model;
+using {{packageName}}.Exceptions;
+using {{packageName}}.Exceptions.Parsers;
+using {{packageName}}.Model;
+
+namespace {{packageName}}.Client
+{
+#endif
 
 public class {{appShortName}}Client : IDisposable {
     private readonly ClientConfiguration _configuration;
@@ -548,3 +566,6 @@ public class {{appShortName}}Client : IDisposable {
             new WriteAssertionsRequest {Assertions = assertions}, cancellationToken);
     }
 }
+#if NETSTANDARD2_0
+}
+#endif

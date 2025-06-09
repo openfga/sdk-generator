@@ -1,10 +1,21 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
-
 namespace {{packageName}}.Client.Model;
+#else
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
+
+namespace {{packageName}}.Client.Model
+{
+#endif
 
 [DataContract(Name = "BatchCheckSingleResponse")]
 public class BatchCheckSingleResponse : IEquatable<BatchCheckSingleResponse>, IValidatableObject {
@@ -194,3 +205,7 @@ public class ClientBatchCheckClientResponse : IEquatable<ClientBatchCheckClientR
     /// <param name="response"></param>
     public void AppendResponse(BatchCheckSingleResponse response) => Responses.Add(response);
 }
+
+#if NETSTANDARD2_0
+}
+#endif

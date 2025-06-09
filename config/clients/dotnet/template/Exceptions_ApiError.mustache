@@ -1,11 +1,21 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using {{packageName}}.Exceptions.Parsers;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Text.Json.Serialization;
 
 namespace {{packageName}}.Exceptions;
+#else
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using {{packageName}}.Exceptions.Parsers;
+
+namespace {{packageName}}.Exceptions
+{
+#endif
 
 public class FgaApiError : ApiException {
     /// <summary>
@@ -152,3 +162,6 @@ public class FgaApiError : ApiException {
         return new FgaApiError(response, request, apiName, await ApiErrorParser.Parse(response).ConfigureAwait(false));
     }
 }
+#if NETSTANDARD2_0
+}
+#endif

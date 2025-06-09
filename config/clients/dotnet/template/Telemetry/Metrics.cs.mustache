@@ -1,5 +1,14 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
+using {{packageName}}.ApiClient;
+using {{packageName}}.Configuration;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
+using System.Net.Http;
+
+namespace {{packageName}}.Telemetry;
+#else
 using {{packageName}}.ApiClient;
 using {{packageName}}.Configuration;
 using System.Diagnostics;
@@ -7,7 +16,9 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Linq;
 
-namespace {{packageName}}.Telemetry;
+namespace {{packageName}}.Telemetry
+{
+#endif
 
 /// <summary>
 ///     Class for managing metrics.
@@ -16,22 +27,35 @@ public class Metrics {
     public const string Name = "{{packageName}}";
 
     // This is to store all the enabled attributes across all metrics so that they can be computed only once
+#if NET6_0_OR_GREATER
+    private readonly HashSet<string> _allEnabledAttributes = new();
+#else
     private readonly HashSet<string> _allEnabledAttributes = new HashSet<string>();
+#endif
     private readonly Credentials? _credentialsConfig;
 
     private readonly TelemetryConfig _telemetryConfig;
 
     private TelemetryCounters Counters { get; }
     private TelemetryHistograms Histograms { get; }
+#if NET6_0_OR_GREATER
+    public Meter Meter { get; } = new(Name, Configuration.Configuration.Version);
+#else
     public Meter Meter { get; }
+#endif
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="Metrics" /> class.
     /// </summary>
     public Metrics(Configuration.Configuration config) {
+#if NET6_0_OR_GREATER
+        Histograms = new TelemetryHistograms(Meter);
+        Counters = new TelemetryCounters(Meter);
+#else
         Meter = new Meter(Name, Configuration.Configuration.Version);
         Histograms = new TelemetryHistograms(Meter);
         Counters = new TelemetryCounters(Meter);
+#endif
         _telemetryConfig = config.Telemetry ?? new TelemetryConfig().UseDefaultConfig();
         _credentialsConfig = config.Credentials;
 
@@ -104,3 +128,6 @@ public class Metrics {
         HttpResponseMessage response, RequestBuilder<T> requestBuilder, Stopwatch requestDuration, int retryCount) =>
         BuildForResponse("ClientCredentialsExchange", response, requestBuilder, requestDuration, retryCount);
 }
+#if NETSTANDARD2_0
+}
+#endif

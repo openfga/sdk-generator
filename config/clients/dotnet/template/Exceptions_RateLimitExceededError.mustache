@@ -1,8 +1,18 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using {{packageName}}.Exceptions.Parsers;
 
 namespace {{packageName}}.Exceptions;
+#else
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+using {{packageName}}.Exceptions.Parsers;
+
+namespace {{packageName}}.Exceptions
+{
+#endif
 
 /// <summary>
 /// FGA API Rate Limit Exceeded Error - Corresponding to HTTP Error Code 429
@@ -63,3 +73,6 @@ public class FgaApiRateLimitExceededError : FgaApiError {
             await ApiErrorParser.Parse(response).ConfigureAwait(false));
     }
 }
+#if NETSTANDARD2_0
+}
+#endif

@@ -1,7 +1,21 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 namespace {{packageName}}.Client.Model;
+#else
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+
+namespace {{packageName}}.Client.Model
+{
+#endif
 
 public interface IClientCreateStoreOptions : ClientRequestOptions {}
 
 public class ClientCreateStoreOptions: IClientCreateStoreOptions {}
+
+#if NETSTANDARD2_0
+}
+#endif

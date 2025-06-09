@@ -2,7 +2,12 @@
 
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    {{#multiTarget}}
+    <TargetFrameworks>{{targetFramework}}</TargetFrameworks>
+    {{/multiTarget}}
+    {{^multiTarget}}
     <TargetFramework>{{targetFramework}}</TargetFramework>
+    {{/multiTarget}}
     <AssemblyName>{{packageName}}</AssemblyName>
     <PackageId>{{packageName}}</PackageId>
     <OutputType>Library</OutputType>
@@ -27,9 +32,18 @@
     {{/nullableReferenceTypes}}
     <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    {{#multiTarget}}
+    <!-- Enable implicit usings for .NET 6.0+, disable for .NET Standard 2.0 -->
+    <ImplicitUsings Condition="'$(TargetFramework)' == 'net6.0'">enable</ImplicitUsings>
+    <ImplicitUsings Condition="'$(TargetFramework)' == 'netstandard2.0'">disable</ImplicitUsings>
+    <DefineConstants Condition="'$(TargetFramework)' == 'netstandard2.0'">NETSTANDARD2_0</DefineConstants>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net6.0'">NET6_0_OR_GREATER</DefineConstants>
+    {{/multiTarget}}
+    {{^multiTarget}}
     <!-- Disable implicit usings for .NET Standard 2.0 -->
     <ImplicitUsings>disable</ImplicitUsings>
     <DefineConstants>NETSTANDARD2_0</DefineConstants>
+    {{/multiTarget}}
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,11 +52,21 @@
     <None Include="../../README.md" Pack="true" PackagePath=""/>
   </ItemGroup>
 
+  {{#multiTarget}}
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageReference Include="System.Net.Http.Json" Version="7.0.1" />
+    <PackageReference Include="System.Text.Json" Version="7.0.3" />
+  </ItemGroup>
+  {{/multiTarget}}
+  {{^multiTarget}}
   <ItemGroup>
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Net.Http.Json" Version="7.0.1" />
     <PackageReference Include="System.Text.Json" Version="7.0.3" />
   </ItemGroup>
+  {{/multiTarget}}
 
 </Project>

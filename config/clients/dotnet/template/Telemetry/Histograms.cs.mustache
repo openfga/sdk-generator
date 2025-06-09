@@ -1,10 +1,19 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
+using System.Net.Http;
+
+namespace {{packageName}}.Telemetry;
+#else
 using System.Diagnostics;
 using System.Net.Http;
 using System.Linq;
 
-namespace {{packageName}}.Telemetry;
+namespace {{packageName}}.Telemetry
+{
+#endif
 
 /// <summary>
 ///     Class for managing telemetry histograms.
@@ -37,6 +46,7 @@ public class TelemetryHistograms {
     /// <param name="response">The HTTP response message.</param>
     /// <param name="attributes">The attributes associated with the telemetry data.</param>
     public void RecordQueryDuration(HttpResponseMessage response, TagList attributes) {
+#if NET6_0_OR_GREATER
         if (response.Headers.Contains("fga-query-duration-ms") &&
             response.Headers.GetValues("fga-query-duration-ms").Any()) {
             var durationHeader = response.Headers.GetValues("fga-query-duration-ms").First();
@@ -44,6 +54,15 @@ public class TelemetryHistograms {
                 QueryDurationHistogram?.Record(durationFloat, attributes);
             }
         }
+#else
+        if (response.Headers.Contains("fga-query-duration-ms") &&
+            response.Headers.GetValues("fga-query-duration-ms").Any()) {
+            var durationHeader = response.Headers.GetValues("fga-query-duration-ms").First();
+            if (!string.IsNullOrEmpty(durationHeader) && float.TryParse(durationHeader, out var durationFloat)) {
+                QueryDurationHistogram?.Record(durationFloat, attributes);
+            }
+        }
+#endif
     }
 
     /// <summary>
@@ -55,3 +74,6 @@ public class TelemetryHistograms {
     public void RecordRequestDuration(Stopwatch requestDuration, TagList attributes) =>
         RequestDurationHistogram.Record(requestDuration.ElapsedMilliseconds, attributes);
 }
+#if NETSTANDARD2_0
+}
+#endif

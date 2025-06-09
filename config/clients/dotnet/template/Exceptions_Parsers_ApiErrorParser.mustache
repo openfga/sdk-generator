@@ -1,9 +1,20 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace {{packageName}}.Exceptions.Parsers;
+#else
+using System;
+using System.Net.Http;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+
+namespace {{packageName}}.Exceptions.Parsers
+{
+#endif
 
 public class ApiErrorParser {
     /// <summary>
@@ -49,3 +60,6 @@ public class ApiErrorParser {
         }
     }
 }
+#if NETSTANDARD2_0
+}
+#endif

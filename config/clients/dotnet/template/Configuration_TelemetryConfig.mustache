@@ -1,9 +1,19 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using {{packageName}}.Exceptions;
 using {{packageName}}.Telemetry;
 
 namespace {{packageName}}.Configuration;
+#else
+using System;
+using System.Collections.Generic;
+using {{packageName}}.Exceptions;
+using {{packageName}}.Telemetry;
+
+namespace {{packageName}}.Configuration
+{
+#endif
 
 /// <summary>
 ///     Configuration for a specific metric, including its enabled attributes.
@@ -95,3 +105,6 @@ public class TelemetryConfig {
         }
     }
 }
+#if NETSTANDARD2_0
+}
+#endif

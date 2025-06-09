@@ -1,8 +1,23 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using {{packageName}}.Model;
 
 namespace {{packageName}}.Client.Model;
+#else
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using {{packageName}}.Model;
+
+namespace {{packageName}}.Client.Model
+{
+#endif
 
 public class ClientReadRequest : ReadRequestTupleKey {
 }
+
+#if NETSTANDARD2_0
+}
+#endif

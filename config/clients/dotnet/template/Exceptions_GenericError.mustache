@@ -1,8 +1,14 @@
 {{>partial_header}}
 
-using System;
+#if NET6_0_OR_GREATER
 
 namespace {{packageName}}.Exceptions;
+#else
+using System;
+
+namespace {{packageName}}.Exceptions
+{
+#endif
 
 /// <summary>
 /// Base FGA Exception
@@ -22,3 +28,6 @@ public class FgaError : Exception {
     public FgaError(string message, Exception innerException) : base(message, innerException) {
     }
 }
+#if NETSTANDARD2_0
+}
+#endif

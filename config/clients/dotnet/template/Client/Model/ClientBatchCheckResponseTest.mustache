@@ -1,8 +1,23 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using {{packageName}}.Client.Model;
 using System.Collections.Generic;
 using Xunit;
+
+namespace {{packageName}}.Client.Model;
+#else
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using {{packageName}}.Client.Model;
+using {{packageName}}.Model;
+using Xunit;
+
+namespace {{packageName}}.Client.Model
+{
+#endif
 
 public class ClientBatchCheckClientResponseTests
 {
@@ -39,3 +54,7 @@ public class ClientBatchCheckClientResponseTests
         Assert.Contains(response, clientResponse.Responses);
     }
 }
+
+#if NETSTANDARD2_0
+}
+#endif

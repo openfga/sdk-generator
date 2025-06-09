@@ -1,10 +1,23 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
+using System;
 using System.Net;
-
+using System.Net.Http;
+using System.Threading.Tasks;
 using {{packageName}}.Exceptions.Parsers;
 
 namespace {{packageName}}.Exceptions;
+#else
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using {{packageName}}.Exceptions.Parsers;
+
+namespace {{packageName}}.Exceptions
+{
+#endif
 
 /// <summary>
 /// FGA API Authentication Error - Corresponding to HTTP Error Codes 401 and 403
@@ -33,3 +46,6 @@ public class FgaApiAuthenticationError : FgaApiError {
             await ApiErrorParser.Parse(response).ConfigureAwait(false));
     }
 }
+#if NETSTANDARD2_0
+}
+#endif

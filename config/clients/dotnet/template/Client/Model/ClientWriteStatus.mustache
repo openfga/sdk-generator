@@ -1,9 +1,23 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
+using {{packageName}}.Model;
 
 namespace {{packageName}}.Client.Model;
+#else
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
+using {{packageName}}.Model;
+
+namespace {{packageName}}.Client.Model
+{
+#endif
 
 /// <summary>
 ///     ClientWriteStatus
@@ -22,3 +36,7 @@ public enum ClientWriteStatus {
     [EnumMember(Value = "CLIENT_WRITE_STATUS_FAILURE")]
     FAILURE = 2
 }
+
+#if NETSTANDARD2_0
+}
+#endif

@@ -1,9 +1,20 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 namespace {{packageName}}.Client.Model;
+#else
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text.Json;
+
+namespace {{packageName}}.Client.Model
+{
+#endif
 
 public interface IClientReadChangesRequest {
     string Type { get; set; }
@@ -50,3 +61,7 @@ public class ClientReadChangesRequest : IClientReadChangesRequest, IEquatable<Cl
         }
     }
 }
+
+#if NETSTANDARD2_0
+}
+#endif

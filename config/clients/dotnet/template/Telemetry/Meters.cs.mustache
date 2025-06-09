@@ -1,8 +1,13 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
+namespace {{packageName}}.Telemetry;
+#else
 using System.Collections.Generic;
 
-namespace {{packageName}}.Telemetry;
+namespace {{packageName}}.Telemetry
+{
+#endif
 
 /// <summary>
 ///     Meter names for telemetry.
@@ -37,11 +42,23 @@ public static class TelemetryMeter {
     /// Return all supported meter names
     /// </summary>
     public static HashSet<string> GetAllMeters() {
+#if NET6_0_OR_GREATER
+        return new() {
+            RequestDuration,
+            QueryDuration,
+            TokenExchangeCount,
+            RequestCount
+        };
+#else
         var meters = new HashSet<string>();
         meters.Add(RequestDuration);
         meters.Add(QueryDuration);
         meters.Add(TokenExchangeCount);
         meters.Add(RequestCount);
         return meters;
+#endif
     }
 }
+#if NETSTANDARD2_0
+}
+#endif

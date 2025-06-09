@@ -1,7 +1,17 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using {{packageName}}.Exceptions.Parsers;
+
 namespace {{packageName}}.Exceptions;
+#else
+using System.Net.Http;
+using System.Threading.Tasks;
+using {{packageName}}.Exceptions.Parsers;
+
+namespace {{packageName}}.Exceptions
+{
+#endif
 
 public class FgaApiInternalError : FgaApiError {
     public FgaApiInternalError(HttpResponseMessage response, HttpRequestMessage request, string? apiName,
@@ -13,3 +23,6 @@ public class FgaApiInternalError : FgaApiError {
             await ApiErrorParser.Parse(response).ConfigureAwait(false));
     }
 }
+#if NETSTANDARD2_0
+}
+#endif

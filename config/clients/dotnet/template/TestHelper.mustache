@@ -22,6 +22,8 @@ namespace {{packageName}}.Test.Helpers
             return ".NET Core 3.1";
 #elif NET6_0
             return ".NET 6.0";
+#elif NETSTANDARD2_0
+            return ".NET Standard 2.0";
 #else
             return "Unknown Framework";
 #endif
@@ -34,7 +36,8 @@ namespace {{packageName}}.Test.Helpers
             Action defaultAction,
             Action netFrameworkAction = null,
             Action netCoreAction = null,
-            Action net6Action = null)
+            Action net6Action = null,
+            Action netStandard20Action = null)
         {
 #if NET48
             if (netFrameworkAction != null)
@@ -51,6 +54,11 @@ namespace {{packageName}}.Test.Helpers
                 net6Action();
             else
                 defaultAction();
+#elif NETSTANDARD2_0
+            if (netStandard20Action != null)
+                netStandard20Action();
+            else
+                defaultAction();
 #else
             defaultAction();
 #endif
@@ -63,7 +71,8 @@ namespace {{packageName}}.Test.Helpers
             Func<Task> defaultAction,
             Func<Task> netFrameworkAction = null,
             Func<Task> netCoreAction = null,
-            Func<Task> net6Action = null)
+            Func<Task> net6Action = null,
+            Func<Task> netStandard20Action = null)
         {
 #if NET48
             if (netFrameworkAction != null)
@@ -78,6 +87,11 @@ namespace {{packageName}}.Test.Helpers
 #elif NET6_0
             if (net6Action != null)
                 await net6Action();
+            else
+                await defaultAction();
+#elif NETSTANDARD2_0
+            if (netStandard20Action != null)
+                await netStandard20Action();
             else
                 await defaultAction();
 #else

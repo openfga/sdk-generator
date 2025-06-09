@@ -1,5 +1,6 @@
 {{>partial_header}}
 
+#if NETSTANDARD2_0
 using System.Collections.Generic;
 
 namespace {{packageName}}.Telemetry
@@ -215,3 +216,4 @@ namespace {{packageName}}.Telemetry
         }
     }
 }
+#endif

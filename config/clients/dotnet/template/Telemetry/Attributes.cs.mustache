@@ -1,13 +1,32 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using {{packageName}}.ApiClient;
 using {{packageName}}.Configuration;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net.Http.Headers;
+using System.Net.Http;
 using System.Text.Json;
 using {{packageName}}.Client; // For extensions
 
 namespace {{packageName}}.Telemetry;
+#else
+using {{packageName}}.ApiClient;
+using {{packageName}}.Configuration;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
+using {{packageName}}.Client; // For extensions
+
+namespace {{packageName}}.Telemetry
+{
+#endif
 
 /// <summary>
 ///     Common attribute (tag) names.
@@ -348,3 +367,6 @@ public static class Attributes {
         return tagList;
     }
 }
+#if NETSTANDARD2_0
+}
+#endif

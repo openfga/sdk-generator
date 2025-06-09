@@ -1,9 +1,20 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 namespace {{packageName}}.Client.Model;
+#else
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text.Json;
+
+namespace {{packageName}}.Client.Model
+{
+#endif
 
 internal interface IListRelationsResponse {
     public List<string> Relations { get; set; }
@@ -59,3 +70,6 @@ public class ListRelationsResponse : IListRelationsResponse, IEquatable<ListRela
         }
     }
 }
+#if NETSTANDARD2_0
+}
+#endif

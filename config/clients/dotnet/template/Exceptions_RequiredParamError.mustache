@@ -1,6 +1,13 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
+
 namespace {{packageName}}.Exceptions;
+#else
+
+namespace {{packageName}}.Exceptions
+{
+#endif
 
 /// <summary>
 /// An error indicating that a parameter was required but not provided
@@ -23,3 +30,6 @@ public class FgaRequiredParamError : FgaValidationError {
         : base($"Required parameter {paramName} was not defined when calling {functionName}.") {
     }
 }
+#if NETSTANDARD2_0
+}
+#endif

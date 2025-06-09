@@ -1,13 +1,29 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
+using System.Diagnostics;
 using {{packageName}}.Client.Model;
 using {{packageName}}.Configuration;
 using {{packageName}}.Exceptions;
 using {{packageName}}.Telemetry;
-using System.Diagnostics;
-using System.Text.Json.Serialization;
 
 namespace {{packageName}}.ApiClient;
+#else
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net.Http;
+using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
+using {{packageName}}.Client.Model;
+using {{packageName}}.Configuration;
+using {{packageName}}.Exceptions;
+using {{packageName}}.Telemetry;
+
+namespace {{packageName}}.ApiClient
+{
+#endif
 
 /// <summary>
 ///     OAuth2 Client to exchange the credentials for an access token using the client credentials flow
@@ -193,3 +209,6 @@ public class OAuth2Client {
 
     #endregion
 }
+#if NETSTANDARD2_0
+}
+#endif
