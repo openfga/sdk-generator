@@ -137,6 +137,18 @@ class Example1 {
             System.out.println("Failed due to: " + e.getMessage());
         }
 
+        // StreamedListObjects
+        System.out.println("Streaming objects for writer access");
+        var streamRequest = new ClientListObjectsRequest()
+                .user("user:anne")
+                .relation("writer")
+                .type("document");
+
+        var streamed = fgaClient.streamedListObjects(streamRequest).get();
+        for (var item : streamed) {
+            System.out.println("Streamed object: " + item.getObject());
+        }
+
         // Checking for access with context
         // TODO: Add ClientCheckRequest.context
         // System.out.println("Checking for access with context");
