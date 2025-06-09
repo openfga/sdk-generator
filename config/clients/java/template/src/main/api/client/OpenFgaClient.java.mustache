@@ -10,10 +10,13 @@ import {{clientPackage}}.model.*;
 import {{configPackage}}.*;
 import {{modelPackage}}.*;
 import {{errorsPackage}}.*;
+import {{utilPackage}}.StringUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -822,6 +825,75 @@ public class OpenFgaClient {
         var overrides = new ConfigurationOverride().addHeaders(options);
 
         return call(() -> api.listObjects(storeId, body, overrides)).thenApply(ClientListObjectsResponse::new);
+    }
+
+    public CompletableFuture<List<ClientStreamedListObjectsResponse>> streamedListObjects(
+            ClientListObjectsRequest request) throws FgaInvalidParameterException {
+        return streamedListObjects(request, null);
+    }
+
+    public CompletableFuture<List<ClientStreamedListObjectsResponse>> streamedListObjects(
+            ClientListObjectsRequest request, ClientListObjectsOptions options) throws FgaInvalidParameterException {
+        configuration.assertValid();
+        String storeId = configuration.getStoreIdChecked();
+
+        ListObjectsRequest body = new ListObjectsRequest();
+
+        if (request != null) {
+            body.user(request.getUser()).relation(request.getRelation()).type(request.getType());
+            if (request.getContextualTupleKeys() != null) {
+                var contextualTuples = request.getContextualTupleKeys();
+                var bodyContextualTuples = ClientTupleKey.asContextualTupleKeys(contextualTuples);
+                body.contextualTuples(bodyContextualTuples);
+            }
+            if (request.getContext() != null) {
+                body.context(request.getContext());
+            }
+        }
+
+        if (options != null) {
+            if (options.getConsistency() != null) {
+                body.consistency(options.getConsistency());
+            }
+
+            String authorizationModelId = !isNullOrWhitespace(options.getAuthorizationModelId())
+                    ? options.getAuthorizationModelId()
+                    : configuration.getAuthorizationModelId();
+            body.authorizationModelId(authorizationModelId);
+        } else {
+            body.setAuthorizationModelId(configuration.getAuthorizationModelId());
+        }
+
+        var overrides = new ConfigurationOverride().addHeaders(options);
+        var config = configuration.override(overrides);
+
+        try {
+            byte[] bodyBytes = apiClient.getObjectMapper().writeValueAsBytes(body);
+            String path = "/stores/" + StringUtil.urlEncode(storeId) + "/streamed-list-objects";
+            HttpRequest requestHttp = ApiClient.requestBuilder("POST", path, bodyBytes, config).build();
+
+            return apiClient.getHttpClient()
+                    .sendAsync(requestHttp, HttpResponse.BodyHandlers.ofLines())
+                    .thenApply(resp -> {
+                        List<ClientStreamedListObjectsResponse> results = new ArrayList<>();
+                        resp.body().forEach(line -> {
+                            if (line == null || line.isBlank()) return;
+                            try {
+                                StreamResultOfStreamedListObjectsResponse item =
+                                        apiClient.getObjectMapper().readValue(line, StreamResultOfStreamedListObjectsResponse.class);
+                                if (item.getResult() != null) {
+                                    ApiResponse<StreamedListObjectsResponse> apiResp = new ApiResponse<>(
+                                            resp.statusCode(), resp.headers().map(), line, item.getResult());
+                                    results.add(new ClientStreamedListObjectsResponse(apiResp));
+                                }
+                            } catch (Exception ignored) {
+                            }
+                        });
+                        return results;
+                    });
+        } catch (Exception e) {
+            return CompletableFuture.failedFuture(e);
+        }
     }
 
     /**
