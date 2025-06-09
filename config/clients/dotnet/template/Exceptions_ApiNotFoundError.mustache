@@ -1,8 +1,17 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using {{packageName}}.Exceptions.Parsers;
 
 namespace {{packageName}}.Exceptions;
+#else
+using System.Net.Http;
+using System.Threading.Tasks;
+using {{packageName}}.Exceptions.Parsers;
+
+namespace {{packageName}}.Exceptions
+{
+#endif
 
 /// <summary>
 /// FGA API Not Found Error - Corresponding to HTTP Error Codes 400 and 422
@@ -18,3 +27,6 @@ public class FgaApiNotFoundError : FgaApiError {
             await ApiErrorParser.Parse(response).ConfigureAwait(false));
     }
 }
+#if NETSTANDARD2_0
+}
+#endif

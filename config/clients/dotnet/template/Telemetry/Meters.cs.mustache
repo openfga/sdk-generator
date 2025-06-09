@@ -1,6 +1,13 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 namespace {{packageName}}.Telemetry;
+#else
+using System.Collections.Generic;
+
+namespace {{packageName}}.Telemetry
+{
+#endif
 
 /// <summary>
 ///     Meter names for telemetry.
@@ -27,7 +34,7 @@ public static class TelemetryMeter {
     public static readonly string TokenExchangeCount = "fga-client.credentials.request";
 
     /// <summary>
-    ///     The total number of times a new token was requested when using ClientCredentials.
+    ///     The total number of requests made to the FGA server.
     /// </summary>
     public static readonly string RequestCount = "fga-client.request.count";
 
@@ -35,11 +42,23 @@ public static class TelemetryMeter {
     /// Return all supported meter names
     /// </summary>
     public static HashSet<string> GetAllMeters() {
+#if NET6_0_OR_GREATER
         return new() {
             RequestDuration,
             QueryDuration,
             TokenExchangeCount,
             RequestCount
         };
+#else
+        var meters = new HashSet<string>();
+        meters.Add(RequestDuration);
+        meters.Add(QueryDuration);
+        meters.Add(TokenExchangeCount);
+        meters.Add(RequestCount);
+        return meters;
+#endif
     }
 }
+#if NETSTANDARD2_0
+}
+#endif

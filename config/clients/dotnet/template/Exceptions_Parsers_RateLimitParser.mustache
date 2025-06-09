@@ -1,9 +1,20 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using System.Net.Http.Headers;
 using System.Runtime.Serialization;
 
 namespace {{packageName}}.Exceptions.Parsers;
+#else
+using System;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Runtime.Serialization;
+
+namespace {{packageName}}.Exceptions.Parsers
+{
+#endif
 
 /// <summary>
 /// Represents information about the rate limit for API calls.
@@ -113,3 +124,6 @@ public class RateLimitParser {
         };
     }
 }
+#if NETSTANDARD2_0
+}
+#endif
