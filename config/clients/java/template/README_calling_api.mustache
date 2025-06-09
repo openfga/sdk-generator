@@ -603,6 +603,23 @@ var response = fgaClient.listObjects(request, options).get();
 // response.getObjects() = ["document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"]
 ```
 
+##### Streamed List Objects
+
+List the objects of a particular type a user has access to, using the streaming API.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/StreamedListObjects)
+
+```java
+var request = new ClientListObjectsRequest()
+    .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
+    .relation("writer")
+    .type("document");
+
+var results = fgaClient.streamedListObjects(request).get();
+
+// results.get(0).getObject() = "document:..."
+```
+
 ##### List Relations
 
 List the relations a user has on an object.

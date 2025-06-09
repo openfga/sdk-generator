@@ -142,8 +142,8 @@ tag-client-java: test-client-java
 
 .PHONY: build-client-java
 build-client-java:
-	make build-client sdk_language=java tmpdir=${TMP_DIR}
-	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c 'chmod +x ./gradlew && gradle fmt build'"
+       make build-client sdk_language=java tmpdir=${TMP_DIR}
+       make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c 'chmod +x ./gradlew && gradle fmt build'"
 
 .PHONY: test-client-java
 test-client-java: build-client-java
@@ -173,9 +173,9 @@ build-client: build-openapi
 
 .PHONY: build-openapi
 build-openapi: init get-openapi-doc
-	cat "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.json" | \
-		jq '(.. | .tags? | select(.)) |= ["OpenFga"] | (.tags? | select(.)) |= [{"name":"OpenFga"}] | del(.definitions.ReadTuplesParams, .definitions.ReadTuplesResponse, .paths."/stores/{store_id}/read-tuples", .definitions.StreamedListObjectsRequest, .definitions.StreamedListObjectsResponse, .paths."/stores/{store_id}/streamed-list-objects")' > \
-		${DOCS_CACHE_DIR}/openfga.openapiv2.json
+       cat "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.json" | \
+               jq '(.. | .tags? | select(.)) |= ["OpenFga"] | (.tags? | select(.)) |= [{"name":"OpenFga"}] | del(.definitions.ReadTuplesParams, .definitions.ReadTuplesResponse, .paths."/stores/{store_id}/read-tuples")' > \
+               ${DOCS_CACHE_DIR}/openfga.openapiv2.json
 	sed -i -e 's/"Object"/"FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
 	sed -i -e 's/#\/definitions\/Object"/#\/definitions\/FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
 	sed -i -e 's/v1.//g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json

@@ -1,0 +1,33 @@
+{{>licenseInfo}}
+package {{clientPackage}}.model;
+
+import {{clientPackage}}.ApiResponse;
+import {{modelPackage}}.StreamedListObjectsResponse;
+import java.util.List;
+import java.util.Map;
+
+public class ClientStreamedListObjectsResponse extends StreamedListObjectsResponse {
+    private final int statusCode;
+    private final Map<String, List<String>> headers;
+    private final String rawResponse;
+
+    public ClientStreamedListObjectsResponse(ApiResponse<StreamedListObjectsResponse> apiResponse) {
+        this.statusCode = apiResponse.getStatusCode();
+        this.headers = apiResponse.getHeaders();
+        this.rawResponse = apiResponse.getRawResponse();
+        StreamedListObjectsResponse response = apiResponse.getData();
+        this.setObject(response.getObject());
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public Map<String, List<String>> getHeaders() {
+        return headers;
+    }
+
+    public String getRawResponse() {
+        return rawResponse;
+    }
+}
