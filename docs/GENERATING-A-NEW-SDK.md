@@ -538,6 +538,8 @@ BatchCheck should set the following headers for all individual Check operations 
 ClientBatchCheckOptions should have a `maxParallelRequests` value, and the BatchCheck operation
 should restrict the number of individual Check operations in flight to this number.
 
+Note: The order of `BatchCheck` results is not guaranteed to match the order of the checks provided. Use `correlationId` to pair responses with requests.
+
 BatchCheck should return a future/promise/async of a List of ClientBatchCheckResponse.
 
 #### ListRelations
