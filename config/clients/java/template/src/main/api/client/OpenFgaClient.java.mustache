@@ -705,7 +705,10 @@ public class OpenFgaClient {
                     String authorizationModelId = !isNullOrWhitespace(options.getAuthorizationModelId())
                             ? options.getAuthorizationModelId()
                             : configuration.getAuthorizationModelId();
-                    body.authorizationModelId(authorizationModelId);
+
+                    if (!isNullOrWhitespace(authorizationModelId)) {
+                        body.authorizationModelId(authorizationModelId);
+                    }
 
                     return api.batchCheck(configuration.getStoreId(), body, override);
                 })
