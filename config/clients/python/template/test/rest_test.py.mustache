@@ -403,3 +403,62 @@ async def test_stream_partial_chunks():
 
     client.handle_response_exception.assert_awaited_once()
     mock_response.release.assert_called_once()
+
+
+def test_api_exception_with_restresponse():
+    """Test ApiException with RESTResponse object (has data property)"""
+    from {{packageName}}.exceptions import ApiException
+    
+    # Create a mock RESTResponse object
+    class MockRESTResponse:
+        def __init__(self):
+            self.status = 400
+            self.reason = "Bad Request"
+            self.headers = {"content-type": "application/json"}
+        
+        def getheaders(self):
+            return self.headers.items()
+        
+        @property
+        def data(self):
+            return b'{"error": "test error"}'
+    
+    mock_resp = MockRESTResponse()
+    exception = ApiException(http_resp=mock_resp)
+    
+    assert exception.status == 400
+    assert exception.reason == "Bad Request"
+    assert exception.body == b'{"error": "test error"}'
+
+
+def test_api_exception_with_aiohttp_response():
+    """Test ApiException with aiohttp ClientResponse object (no data property)"""
+    from {{packageName}}.exceptions import ApiException
+    
+    # Create a mock aiohttp ClientResponse object
+    class MockAiohttpResponse:
+        def __init__(self):
+            self.status = 400
+            self.reason = "Bad Request"
+            self.headers = {"content-type": "application/json"}
+        
+        def items(self):
+            return self.headers.items()
+    
+    mock_aiohttp_resp = MockAiohttpResponse()
+    exception = ApiException(http_resp=mock_aiohttp_resp)
+    
+    assert exception.status == 400
+    assert exception.reason == "Bad Request"
+    assert exception.body is None  # Should be None for aiohttp responses
+
+
+def test_api_exception_without_response():
+    """Test ApiException without http_resp parameter"""
+    from {{packageName}}.exceptions import ApiException
+    
+    exception = ApiException(status=500, reason="Internal Server Error")
+    
+    assert exception.status == 500
+    assert exception.reason == "Internal Server Error"
+    assert exception.body is None
