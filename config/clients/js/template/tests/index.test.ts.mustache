@@ -219,7 +219,9 @@ describe("{{appTitleCaseName}} SDK", function () {
     });
 
     it("should retry a failed attempt to request to exchange the credentials", async () => {
-      const scope1 = nocks.tokenExchange(OPENFGA_API_TOKEN_ISSUER, "test-token", 300, 500);
+      const scope1 = nocks.tokenExchange(OPENFGA_API_TOKEN_ISSUER, "test-token", 300, 500, {
+        'Retry-After': '1' // Add Retry-After header
+      });
       const scope2 = nocks.tokenExchange(OPENFGA_API_TOKEN_ISSUER);
       nocks.readAuthorizationModels(baseConfig.storeId!);
 
@@ -525,6 +527,24 @@ describe("{{appTitleCaseName}} SDK", function () {
           fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey }, { retryParams: { maxRetry: 0 }})
         ).rejects.toThrow(FgaApiInternalError);
       });
+      it("should throw FgaApiInternalError for 500 error without Retry-After header", async () => {
+        nock(basePath)
+          .post(
+            `/stores/${storeId}/check`,
+            {
+              tuple_key: tupleKey,
+            },
+            expect.objectContaining({ Authorization: "Bearer test-token" })
+          )
+          .reply(500, {
+            code: "internal_error",
+            message: "nock error",
+          });
+
+        await expect(
+          fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey })
+        ).rejects.toThrow(FgaApiInternalError);
+      });
 
       it("should not throw FgaApiInternalError with default retries", async () => {
         nock(basePath)
@@ -538,6 +558,8 @@ describe("{{appTitleCaseName}} SDK", function () {
           .reply(500, {
             code: "internal_error",
             message: "nock error",
+          }, {
+            'Retry-After': '1' 
           });
 
         nock(basePath)
