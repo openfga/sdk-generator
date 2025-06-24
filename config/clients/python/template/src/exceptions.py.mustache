@@ -117,7 +117,15 @@ class ApiException(OpenApiException):
 
             self.status = http_resp.status
             self.reason = http_resp.reason
-            self.body = http_resp.data
+            # Fix for aiohttp ClientResponse - it doesn't have a 'data' attribute
+            # RESTResponse objects have a 'data' property, but aiohttp.ClientResponse doesn't
+            if hasattr(http_resp, 'data'):
+                # This is a RESTResponse object which has a data property
+                self.body = http_resp.data
+            else:
+                # This is likely an aiohttp.ClientResponse object
+                # We can't access the body synchronously, so set it to None
+                self.body = None
             self._parsed_exception = None
             normalized_headers = {k.lower(): v for k, v in headers}
             self.header = dict()
