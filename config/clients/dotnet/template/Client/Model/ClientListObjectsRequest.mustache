@@ -1,11 +1,23 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
 namespace {{packageName}}.Client.Model;
+#else
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace {{packageName}}.Client.Model
+{
+#endif
 
 public interface IClientListObjectsRequest : IClientQueryContextWrapper {
     public string User { get; set; }
@@ -125,3 +137,7 @@ public class ClientListObjectsRequest : IClientListObjectsRequest, IEquatable<Cl
         }
     }
 }
+
+#if NETSTANDARD2_0
+}
+#endif

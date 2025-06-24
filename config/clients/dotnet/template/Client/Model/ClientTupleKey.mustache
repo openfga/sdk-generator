@@ -1,12 +1,25 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using {{packageName}}.Model;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
 namespace {{packageName}}.Client.Model;
+#else
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using {{packageName}}.Model;
+using System.Runtime.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace {{packageName}}.Client.Model
+{
+#endif
 
 public interface IClientTupleKey: IClientTupleKeyWithoutCondition {
     public RelationshipCondition? Condition { get; set; }
@@ -115,3 +128,7 @@ public class ClientTupleKey : IClientTupleKey {
         yield break;
     }
 }
+
+#if NETSTANDARD2_0
+}
+#endif
