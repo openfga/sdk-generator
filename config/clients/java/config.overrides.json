@@ -32,6 +32,7 @@
   "allowUnicodeIdentifiers": true,
   "caseInsensitiveResponseHeaders": true,
   "openTelemetryDocumentation": "OpenTelemetry.md",
+  "supportsStreamedListObjects": "streamed_list_objects",
   "files": {
     "src/main/api/auth/AccessToken.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/AccessToken.java",
@@ -103,6 +104,10 @@
     },
     "src/main/api/client/model/ClientListObjectsResponse.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientListObjectsResponse.java",
+      "templateType": "SupportingFiles"
+    },
+    "src/main/api/client/model/ClientStreamedListObjectsResponse.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientStreamedListObjectsResponse.java",
       "templateType": "SupportingFiles"
     },
     "src/main/api/client/model/ClientListRelationsRequest.java.mustache": {
