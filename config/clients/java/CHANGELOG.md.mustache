@@ -1,10 +1,20 @@
 # Changelog
 
-## [Unreleased](https://github.com/openfga/java-sdk/compare/v{{packageVersion}}...HEAD)
+## [Unreleased](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v{{packageVersion}}...HEAD)
+
+## v0.8.2
+
+### [0.8.2](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.8.1...v0.8.2) (2025-07-02)
+
+Added:
+- client: allow accessing the internal api client via `getApi` (#178)
+
+Fixed:
+- client: fix BatchCheck ignoring passed in model ID override  (#177)
 
 ## v0.8.1
 
-### [0.8.1](https://github.com/openfga/java-sdk/compare/v0.8.0...v0.8.1) (2025-02-18)
+### [0.8.1](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.8.0...v0.8.1) (2025-02-18)
 
 - fix: use HTTP 1.1 by default (#148)
 - fix: ensure default telemetry attributes are sent (#145)
@@ -12,7 +22,7 @@
  
 ## v0.8.0
 
-### [0.8.0](https://github.com/openfga/java-sdk/compare/v0.7.2...v0.8.0) (2025-02-07)
+### [0.8.0](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.7.2...v0.8.0) (2025-02-07)
 
 - feat!: add support for server-side [`batchCheck`](https://openfga.dev/docs/interacting/relationship-queries#batch-check) method (#141) - thanks @piotrooo!!
   This is a more efficient way to check on multiple tuples than calling the existing client-side `batchCheck`. Using this method requires an OpenFGA [v1.8.0+](https://github.com/openfga/openfga/releases/tag/v1.8.0) server.
@@ -25,13 +35,13 @@ BREAKING CHANGES:
 
 ## v0.7.2
 
-### [0.7.2](https://github.com/openfga/java-sdk/compare/v0.7.1...v0.7.2) (2024-12-18)
+### [0.7.2](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.7.1...v0.7.2) (2024-12-18)
 
 - fix: Ensure executor is shutdown (#133)
 
 ## v0.7.1
 
-### [0.7.1](https://github.com/openfga/java-sdk/compare/v0.7.0...v0.7.1) (2024-09-23)
+### [0.7.1](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.7.0...v0.7.1) (2024-09-23)
 
 - refactor(OpenTelemetry): remove SDK version from meter name
 - fix(OpenTelemetry): `http.request.method` should be enabled by default (#114)
