@@ -472,9 +472,25 @@ class ApiClient:
 
         # fetch data from response object
         try:
-            data = json.loads(response.data)
+            # Handle both RESTResponse and objects with data attribute
+            if hasattr(response, 'data'):
+                response_data = response.data
+            else:
+                # This should not happen in normal operation since we expect RESTResponse objects
+                # but handle gracefully
+                response_data = response
+            
+            # Decode bytes to string if necessary
+            if isinstance(response_data, bytes):
+                response_data = response_data.decode('utf-8')
+            
+            data = json.loads(response_data)
         except ValueError:
-            data = response.data
+            # If JSON parsing fails, use raw data
+            if hasattr(response, 'data'):
+                data = response.data
+            else:
+                data = response
 
         return self.__deserialize(data, response_type)
 

@@ -108,7 +108,19 @@ class OAuth2Client:
 
             if 200 <= raw_response.status <= 299:
                 try:
-                    api_response = json.loads(raw_response.data)
+                    # Handle both RESTResponse and aiohttp.ClientResponse objects
+                    if hasattr(raw_response, 'data'):
+                        # RESTResponse object
+                        response_data = raw_response.data
+                    else:
+                        # aiohttp.ClientResponse object - read the data
+                        response_data = await raw_response.read()
+                    
+                    # Decode bytes to string if necessary
+                    if isinstance(response_data, bytes):
+                        response_data = response_data.decode('utf-8')
+                    
+                    api_response = json.loads(response_data)
                 except Exception:
                     raise AuthenticationError(http_resp=raw_response)
 
