@@ -28,13 +28,39 @@
   "releaseNote": "",
   "sortParamsByRequiredFlag": true,
   "sourceFolder": "src",
-  "targetFramework": "net6.0",
+  "targetFramework": "netstandard2.0;net6.0",
+  "multiTarget": true,
   "validatable": true,
   "enablePostProcessFile": true,
   "hashCodeBasePrimeNumber": 9661,
   "hashCodeMultiplierPrimeNumber": 9923,
   "supportsOpenTelemetry": true,
+  "testTargetFramework": "net6.0",
   "files": {
+    "TestHelper.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk.Test/Helpers/FrameworkCompat.cs",
+      "templateType": "SupportingFiles"
+    },
+    "FrameworkCompatibilityTests.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk.Test/FrameworkCompatibility/FrameworkTests.cs",
+      "templateType": "SupportingFiles"
+    },
+    "netframework_testproject.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk.Test.Framework/OpenFga.Sdk.Test.Framework.csproj",
+      "templateType": "SupportingFiles"
+    },
+    "FrameworkCompatibilityTest.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk.Test.Framework/FrameworkCompatibilityTests.cs",
+      "templateType": "SupportingFiles"
+    },
+    "netcore31_testproject.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk.Test.NetCore31/OpenFga.Sdk.Test.NetCore31.csproj",
+      "templateType": "SupportingFiles"
+    },
+    "NetCore31CompatibilityTest.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk.Test.NetCore31/NetCore31CompatibilityTests.cs",
+      "templateType": "SupportingFiles"
+    },
     "Client_OAuth2Client.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/ApiClient/OAuth2Client.cs",
       "templateType": "SupportingFiles"
@@ -65,6 +91,14 @@
     },
     "Client/ClientConfiguration.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/ClientConfiguration.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/ClientExtensions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/ClientExtensions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/DictionaryExtensions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/DictionaryExtensions.cs",
       "templateType": "SupportingFiles"
     },
     "Client/Model/AuthorizationModelIdOptions.mustache": {
@@ -255,6 +289,10 @@
       "destinationFilename": "src/OpenFga.Sdk/Telemetry/Metrics.cs",
       "templateType": "SupportingFiles"
     },
+    "Telemetry/Standard20TelemetryTypes.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Telemetry/Standard20TelemetryTypes.cs",
+      "templateType": "SupportingFiles"
+    },
     "Configuration_Configuration.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Configuration/Configuration.cs",
       "templateType": "SupportingFiles"
@@ -311,6 +349,10 @@
       "destinationFilename": "src/OpenFga.Sdk/Exceptions/ValidationError.cs",
       "templateType": "SupportingFiles"
     },
+    "Net/HttpStatusCodeExtensions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Net/HttpStatusCodeExtensions.cs",
+      "templateType": "SupportingFiles"
+    },
     "Configuration_Credentials.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Configuration/Credentials.cs",
       "templateType": "SupportingFiles"
@@ -331,6 +373,10 @@
       "destinationFilename": "OpenTelemetry.md",
       "templateType": "SupportingFiles"
     },
+    "GlobalUsings.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/GlobalUsings.cs",
+      "templateType": "SupportingFiles"
+    },
     "example/Makefile": {},
     "example/README.md": {},
     "example/Example1/Example1.cs": {},
@@ -339,6 +385,10 @@
     "example/OpenTelemetryExample/OpenTelemetryExample.cs": {},
     "example/OpenTelemetryExample/OpenTelemetryExample.csproj": {},
     "assets/FGAIcon.png": {},
-    ".editorconfig": {}
+    ".editorconfig": {},
+    "Makefile.mustache": {
+      "destinationFilename": "Makefile",
+      "templateType": "SupportingFiles"
+    }
   }
 }
