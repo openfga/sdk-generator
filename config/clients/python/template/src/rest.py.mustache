@@ -266,25 +266,40 @@ class RESTClientObject:
         if 200 <= response.status <= 299:
             return
 
-        if isinstance(response, aiohttp.ClientResponse) and not hasattr(response, "data"):
-            # Read the body once and expose it for downstream error handlers
-            response.data = await response.read()
+        # Create a wrapper response object with data attribute for error handling
+        error_response = response
+        if isinstance(response, aiohttp.ClientResponse):
+            # Read the response data and create a wrapper with data attribute
+            response_data = await response.read()
+            
+            # Create a simple wrapper object that has the data attribute
+            class ResponseWrapper:
+                def __init__(self, aiohttp_response, data):
+                    self.status = aiohttp_response.status
+                    self.reason = aiohttp_response.reason
+                    self.headers = aiohttp_response.headers
+                    self.data = data
+                    
+                def getheaders(self):
+                    return dict(self.headers)
+            
+            error_response = ResponseWrapper(response, response_data)
 
         match response.status:
             case 400:
-                raise ValidationException(http_resp=response)
+                raise ValidationException(http_resp=error_response)
             case 401:
-                raise UnauthorizedException(http_resp=response)
+                raise UnauthorizedException(http_resp=error_response)
             case 403:
-                raise ForbiddenException(http_resp=response)
+                raise ForbiddenException(http_resp=error_response)
             case 404:
-                raise NotFoundException(http_resp=response)
+                raise NotFoundException(http_resp=error_response)
             case 429:
-                raise RateLimitExceededError(http_resp=response)
+                raise RateLimitExceededError(http_resp=error_response)
             case _ if 500 <= response.status <= 599:
-                raise ServiceException(http_resp=response)
+                raise ServiceException(http_resp=error_response)
             case _:
-                raise ApiException(http_resp=response)
+                raise ApiException(http_resp=error_response)
 
     def _accumulate_json_lines(
         self, leftover: bytes, data: bytes, buffer: bytearray
