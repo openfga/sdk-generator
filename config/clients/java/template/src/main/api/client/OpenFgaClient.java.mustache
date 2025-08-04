@@ -400,7 +400,9 @@ public class OpenFgaClient {
                     
             List<ClientWriteSingleResponse> deleteResponses = deleteTuples != null ?
                 deleteTuples.stream()
-                    .map(tuple -> new ClientWriteSingleResponse(tuple.asTupleKeyWithoutCondition(), ClientWriteStatus.SUCCESS))
+                    .map(tuple -> new ClientWriteSingleResponse(
+                        new TupleKey().user(tuple.getUser()).relation(tuple.getRelation())._object(tuple.getObject()), 
+                        ClientWriteStatus.SUCCESS))
                     .collect(Collectors.toList()) : new ArrayList<>();
                     
             return new ClientWriteResponse(writeResponses, deleteResponses);
@@ -467,7 +469,9 @@ public class OpenFgaClient {
                         .thenApply(response -> {
                             // On success, mark all tuples in this chunk as successful
                             return chunk.stream()
-                                .map(tuple -> new ClientWriteSingleResponse(tuple.asTupleKeyWithoutCondition(), ClientWriteStatus.SUCCESS))
+                                .map(tuple -> new ClientWriteSingleResponse(
+                                    new TupleKey().user(tuple.getUser()).relation(tuple.getRelation())._object(tuple.getObject()), 
+                                    ClientWriteStatus.SUCCESS))
                                 .collect(Collectors.toList());
                         })
                         .exceptionally(exception -> {
@@ -479,7 +483,9 @@ public class OpenFgaClient {
                             
                             // On failure, mark all tuples in this chunk as failed, but continue processing other chunks
                             return chunk.stream()
-                                .map(tuple -> new ClientWriteSingleResponse(tuple.asTupleKeyWithoutCondition(), ClientWriteStatus.FAILURE, 
+                                .map(tuple -> new ClientWriteSingleResponse(
+                                    new TupleKey().user(tuple.getUser()).relation(tuple.getRelation())._object(tuple.getObject()), 
+                                    ClientWriteStatus.FAILURE, 
                                     cause instanceof Exception ? (Exception) cause : new Exception(cause)))
                                 .collect(Collectors.toList());
                         });
@@ -600,7 +606,9 @@ public class OpenFgaClient {
 
         return call(() -> api.write(storeId, body, overrides)).thenApply(apiResponse -> {
             List<ClientWriteSingleResponse> deleteResponses = tupleKeys.stream()
-                .map(tuple -> new ClientWriteSingleResponse(tuple.asTupleKeyWithoutCondition(), ClientWriteStatus.SUCCESS))
+                .map(tuple -> new ClientWriteSingleResponse(
+                    new TupleKey().user(tuple.getUser()).relation(tuple.getRelation())._object(tuple.getObject()), 
+                    ClientWriteStatus.SUCCESS))
                 .collect(Collectors.toList());
             return new ClientWriteResponse(new ArrayList<>(), deleteResponses);
         });
