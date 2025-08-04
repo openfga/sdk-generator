@@ -434,19 +434,19 @@ public class OpenFgaClient {
                 CompletableFuture<List<ClientWriteSingleResponse>> chunkFuture = 
                     this.writeTransactions(storeId, ClientWriteRequest.ofWrites(chunk), options)
                         .thenApply(response -> {
-                            // On success, mark all tuples as successful
+                            // On success, mark all tuples in this chunk as successful
                             return chunk.stream()
                                 .map(tuple -> new ClientWriteSingleResponse(tuple.toTupleKey(), ClientWriteStatus.SUCCESS))
                                 .collect(Collectors.toList());
                         })
                         .exceptionally(exception -> {
-                            // Re-throw authentication errors
+                            // Re-throw authentication errors to stop all processing
                             Throwable cause = exception instanceof CompletionException ? exception.getCause() : exception;
                             if (cause instanceof FgaApiAuthenticationError) {
                                 throw new CompletionException(cause);
                             }
                             
-                            // On failure, mark all tuples in this chunk as failed
+                            // On failure, mark all tuples in this chunk as failed, but continue processing other chunks
                             return chunk.stream()
                                 .map(tuple -> new ClientWriteSingleResponse(tuple.toTupleKey(), ClientWriteStatus.FAILURE, 
                                     cause instanceof Exception ? (Exception) cause : new Exception(cause)))
@@ -465,19 +465,19 @@ public class OpenFgaClient {
                 CompletableFuture<List<ClientWriteSingleResponse>> chunkFuture = 
                     this.writeTransactions(storeId, ClientWriteRequest.ofDeletes(chunk), options)
                         .thenApply(response -> {
-                            // On success, mark all tuples as successful
+                            // On success, mark all tuples in this chunk as successful
                             return chunk.stream()
                                 .map(tuple -> new ClientWriteSingleResponse(tuple.toTupleKey(), ClientWriteStatus.SUCCESS))
                                 .collect(Collectors.toList());
                         })
                         .exceptionally(exception -> {
-                            // Re-throw authentication errors
+                            // Re-throw authentication errors to stop all processing
                             Throwable cause = exception instanceof CompletionException ? exception.getCause() : exception;
                             if (cause instanceof FgaApiAuthenticationError) {
                                 throw new CompletionException(cause);
                             }
                             
-                            // On failure, mark all tuples in this chunk as failed
+                            // On failure, mark all tuples in this chunk as failed, but continue processing other chunks
                             return chunk.stream()
                                 .map(tuple -> new ClientWriteSingleResponse(tuple.toTupleKey(), ClientWriteStatus.FAILURE, 
                                     cause instanceof Exception ? (Exception) cause : new Exception(cause)))
