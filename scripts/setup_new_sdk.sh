@@ -69,17 +69,14 @@ tmpdir=$(mktemp -d)
 cd "${tmpdir:?}" || exit
 echo " - Done. Temporary directory created at $tmpdir"
 printf "Task 2.2: Run git init"
-# shellcheck disable=SC2091
-$(git init > /dev/null 2>&1) && echo " - Done"
+git init > /dev/null 2>&1 && echo " - Done"
 git remote add origin $TEMPLATE_SOURCE_REPO
 FETCH_CMD="git fetch -u --depth 1 origin $TEMPLATE_SOURCE_BRANCH:refs/heads/$TEMPLATE_SOURCE_BRANCH "
 CLONE_CMD="git checkout $TEMPLATE_SOURCE_BRANCH -- $TEMPLATE_SOURCE_PATH"
 printf "Task 2.3: Run fetch command: %s" "$FETCH_CMD"
-# shellcheck disable=SC2091
-$($FETCH_CMD > /dev/null 2>&1) && echo " - Done"
+$FETCH_CMD > /dev/null 2>&1 && echo " - Done"
 printf "Task 2.4: Run clone command: %s" "$CLONE_CMD"
-# shellcheck disable=SC2091
-$($CLONE_CMD > /dev/null 2>&1) && echo " - Done"
+$CLONE_CMD > /dev/null 2>&1 && echo " - Done"
 printf "Task 2: Done\n\n"
 
 COMMIT_HASH="$(git log -1 --format=format:"%H" origin/$TEMPLATE_SOURCE_BRANCH)"
@@ -98,8 +95,7 @@ echo "$TEMPLATE_SOURCE_DATA" > "${CONFIG_PATH}/template-source.json"
 echo "Task 3: Copy template to config directory"
 COPY_CMD="cp -r "$TEMPLATE_SOURCE_PATH/" "${CONFIG_PATH}/template""
 printf "Task 3.1: Run copy command: %s" "$COPY_CMD"
-# shellcheck disable=SC2091
-$($COPY_CMD > /dev/null 2>&1) && echo " - Done"
+$COPY_CMD > /dev/null 2>&1 && echo " - Done"
 printf "Task 3: Done\n\n"
 
 echo "Task 4: Add sample commands to makefile"
