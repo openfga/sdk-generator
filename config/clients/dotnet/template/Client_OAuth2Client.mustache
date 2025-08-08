@@ -95,7 +95,7 @@ public class OAuth2Client {
         }
 
         _httpClient = httpClient;
-        _apiTokenIssuer = credentialsConfig.Config.ApiTokenIssuer;
+        _apiTokenIssuer = BuildApiTokenEndpoint(credentialsConfig.Config.ApiTokenIssuer);
         _authRequest = new Dictionary<string, string> {
             { "client_id", credentialsConfig.Config.ClientId },
             { "client_secret", credentialsConfig.Config.ClientSecret },
@@ -118,8 +118,8 @@ public class OAuth2Client {
     private async Task ExchangeTokenAsync(CancellationToken cancellationToken = default) {
         var requestBuilder = new RequestBuilder<IDictionary<string, string>> {
             Method = HttpMethod.Post,
-            BasePath = $"https://{_apiTokenIssuer}",
-            PathTemplate = "/oauth/token",
+            BasePath = _apiTokenIssuer,
+            PathTemplate = "",
             Body = _authRequest,
             ContentType = "application/x-www-form-urlencode"
         };
@@ -189,6 +189,26 @@ public class OAuth2Client {
         await ExchangeTokenAsync();
 
         return _authToken.AccessToken ?? throw new InvalidOperationException();
+    }
+
+    private static string BuildApiTokenEndpoint(string issuer) {
+        issuer = issuer.Trim();
+
+        if (!Uri.TryCreate(issuer, UriKind.Absolute, out var uri)) {
+            if (!Uri.TryCreate($"https://{issuer}", UriKind.Absolute, out uri)) {
+                throw new FgaValidationError($"Configuration.ApiTokenIssuer does not form a valid URI ({issuer})");
+            }
+        }
+
+        if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps) {
+            throw new FgaValidationError("Configuration.ApiTokenIssuer scheme must be http or https");
+        }
+
+        if (string.IsNullOrEmpty(uri.AbsolutePath) || uri.AbsolutePath == "/") {
+            uri = new Uri($"{uri.Scheme}://{uri.Authority}/oauth/token");
+        }
+
+        return uri.ToString();
     }
 
     #endregion
