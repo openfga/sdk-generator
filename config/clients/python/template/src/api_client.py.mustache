@@ -16,7 +16,7 @@ import tornado.gen
 {{/tornado}}
 from multiprocessing.pool import ThreadPool
 
-from dateutil.parser import parse
+from dateutil.parser import parse  # type: ignore[import-untyped]
 
 import {{modelPackage}}
 from {{packageName}} import rest, oauth2
@@ -34,7 +34,7 @@ from {{packageName}}.telemetry.attributes import TelemetryAttribute, TelemetryAt
 DEFAULT_USER_AGENT = '{{{userAgent}}}'
 
 
-def random_time(loop_count, min_wait_in_ms):
+def random_time(loop_count, min_wait_in_ms) -> float:
     """
     Helper function to return the time (in s) to wait before retry
     """
@@ -175,19 +175,13 @@ class ApiClient:
         _request_auth=None,
         _retry_params=None,
         _oauth2_client=None,
-        _telemetry_attributes: dict[TelemetryAttribute | str, str] = None,
+        _telemetry_attributes: dict[TelemetryAttribute, str | bool | int | float] | None = None,
+        _streaming: bool = False,
     ):
 
         self.configuration.is_valid()
         config = self.configuration
-
-        benchmark: dict[str, float] = {"start": float(time.time())}
-        _telemetry_attributes = _telemetry_attributes or {}
-
-        _telemetry_attributes[TelemetryAttributes().http_host] = urllib.parse.urlparse(
-            config.api_url
-        ).hostname
-        _telemetry_attributes[TelemetryAttributes().http_method] = method
+        start = float(time.time())
 
         # header parameters
         header_params = header_params or {}
@@ -206,10 +200,9 @@ class ApiClient:
                                                     collection_formats)
             for k, v in path_params:
                 # specified safe chars, encode everything
-                resource_path = resource_path.replace(
-                    '{%s}' % k,
-                    urllib.parse.quote(str(v), safe=config.safe_chars_for_path_param)
-                )
+                _k = urllib.parse.quote(str(k), safe=config.safe_chars_for_path_param)
+                _v = urllib.parse.quote(str(v), safe=config.safe_chars_for_path_param)
+                resource_path = resource_path.replace("{" + str(k) + "}", _v)
 
         # query parameters
         if query_params:
@@ -246,23 +239,63 @@ class ApiClient:
 
         max_retry = self.configuration.retry_params.max_retry if (self.configuration.retry_params is not None and self.configuration.retry_params.max_retry is not None) else 0
         min_wait_in_ms = self.configuration.retry_params.min_wait_in_ms if (self.configuration.retry_params is not None and self.configuration.retry_params.min_wait_in_ms is not None) else 0
+        max_wait_in_sec = self.configuration.retry_params.max_wait_in_sec if (self.configuration.retry_params is not None and self.configuration.retry_params.max_wait_in_sec is not None) else {{maxBackoffTimeInSec}}
         if _retry_params is not None:
             if _retry_params.max_retry is not None:
                 max_retry = _retry_params.max_retry
             if _retry_params.min_wait_in_ms is not None:
                 max_retry = _retry_params.min_wait_in_ms
+            if _retry_params.max_wait_in_sec is not None:
+                max_wait_in_sec = _retry_params.max_wait_in_sec
+
+        _telemetry_attributes = TelemetryAttributes.fromRequest(
+            user_agent=self.user_agent,
+            fga_method=resource_path,
+            http_method=method,
+            url=url,
+            resend_count=0,
+            start=start,
+            credentials=self.configuration.credentials,
+            attributes=_telemetry_attributes,
+        )
+
         for retry in range(max_retry + 1):
+            _telemetry_attributes[TelemetryAttributes.http_request_resend_count] = retry
+
             try:
                 # perform request and return response
                 response_data = {{#asyncio}}await {{/asyncio}}{{#tornado}}yield {{/tornado}}self.request(
-                    method, url, query_params=query_params, headers=header_params,
-                    post_params=post_params, body=body,
+                    method,
+                    url,
+                    query_params=query_params,
+                    headers=header_params,
+                    post_params=post_params,
+                    body=body,
                     _preload_content=_preload_content,
-                    _request_timeout=_request_timeout)
+                    _request_timeout=_request_timeout,
+                    _streaming=_streaming,
+                )
             except (RateLimitExceededError, ServiceException) as e:
                 if retry < max_retry and e.status != 501:
-                    {{#asyncio}}await asyncio.sleep(random_time(retry, min_wait_in_ms)){{/asyncio}}
-                    {{^asyncio}}time.sleep(random_time(retry, min_wait_in_ms)){{/asyncio}}
+                    _telemetry_attributes = TelemetryAttributes.fromResponse(
+                        response=e.body.decode("utf-8"),
+                        credentials=self.configuration.credentials,
+                        attributes=_telemetry_attributes,
+                        start=start,
+                    )
+
+                    self._telemetry.metrics.request(
+                        attributes=_telemetry_attributes,
+                        configuration=self.configuration.telemetry,
+                    )
+
+                    try:
+                        wait_time_in_sec = self._parse_retry_after_header(e.header)
+                    except ValueError:
+                        wait_time_in_sec = min(random_time(retry, min_wait_in_ms), max_wait_in_sec)
+
+                    {{#asyncio}}await asyncio.sleep(wait_time_in_sec){{/asyncio}}
+                    {{^asyncio}}time.sleep(wait_time_in_sec){{/asyncio}}
                     continue
                 e.body = e.body.decode('utf-8')
                 response_type = response_types_map.get(e.status, None)
@@ -278,39 +311,57 @@ class ApiClient:
                     e.parsed_exception = self.__deserialize(
                         json.loads(e.body), response_type)
                     e.body = None
+
+                _telemetry_attributes = TelemetryAttributes.fromResponse(
+                    response=e,
+                    credentials=self.configuration.credentials,
+                    attributes=_telemetry_attributes,
+                    start=start,
+                )
+
+                self._telemetry.metrics.request(
+                    attributes=_telemetry_attributes,
+                    configuration=self.configuration.telemetry,
+                )
+
+                self._telemetry.metrics.queryDuration(
+                    attributes=_telemetry_attributes,
+                    configuration=self.configuration.telemetry,
+                )
+
+                self._telemetry.metrics.requestDuration(
+                    attributes=_telemetry_attributes,
+                    configuration=self.configuration.telemetry,
+                )
                 raise e
 
             self.last_response = response_data
 
             return_data = response_data
 
-            benchmark["end"] = float(time.time())
-
-            _telemetry_attributes[TelemetryAttributes().request_retries] = retry
-
-            _telemetry_attributes.update(
-                TelemetryAttributes().fromResponse(response_data)
+            _telemetry_attributes = TelemetryAttributes.fromResponse(
+                response=response_data,
+                credentials=self.configuration.credentials,
+                attributes=_telemetry_attributes,
+                start=start,
             )
 
-            try:
-                if self.configuration.credentials.configuration.client_id is not None:
-                    _telemetry_attributes[TelemetryAttributes().request_client_id] = (
-                        self.configuration.credentials.configuration.client_id
-                    )
-            except AttributeError:
-                pass
-
-            duration = response_data.getheader("fga-query-duration-ms")
-            attributes = TelemetryAttributes().prepare(_telemetry_attributes)
-
-            if duration is not None:
-                self._telemetry.metrics().queryDuration(int(duration, 10), attributes)
-
-            self._telemetry.metrics().requestDuration().record(
-                float(benchmark["end"] - benchmark["start"]), attributes
+            self._telemetry.metrics.request(
+                attributes=_telemetry_attributes,
+                configuration=self.configuration.telemetry,
             )
 
-            if not _preload_content:
+            self._telemetry.metrics.queryDuration(
+                attributes=_telemetry_attributes,
+                configuration=self.configuration.telemetry,
+            )
+
+            self._telemetry.metrics.requestDuration(
+                attributes=_telemetry_attributes,
+                configuration=self.configuration.telemetry,
+            )
+
+            if not _preload_content or _streaming:
                 {{^tornado}}
                 return return_data
                 {{/tornado}}
@@ -350,6 +401,23 @@ class ApiClient:
                                         response_data.getheaders()))
 {{/tornado}}
 
+    def _parse_retry_after_header(self, headers) -> int:
+        retry_after_header = headers.get("retry-after")
+        if not retry_after_header:
+            raise ValueError("Retry-After header is not present")
+
+        try:
+            parsed_http_date = self.__deserialize_datetime(retry_after_header).replace(tzinfo=datetime.timezone.utc)
+            now = datetime.datetime.now(datetime.timezone.utc)
+            wait_time_in_sec = (parsed_http_date - now).total_seconds()
+        except ApiException:
+            wait_time_in_sec = int(retry_after_header)
+
+        if wait_time_in_sec > 1800 or wait_time_in_sec < 1:
+            raise ValueError("Retry-After header is invalid")
+
+        return math.ceil(wait_time_in_sec)
+
     def sanitize_for_serialization(self, obj):
         """Builds a JSON POST object.
 
@@ -374,7 +442,7 @@ class ApiClient:
         elif isinstance(obj, tuple):
             return tuple(self.sanitize_for_serialization(sub_obj)
                          for sub_obj in obj)
-        elif isinstance(obj, (datetime.datetime, datetime.date)):
+        elif isinstance(obj, datetime.datetime | datetime.date):
             return obj.isoformat()
 
         if isinstance(obj, dict):
@@ -440,14 +508,17 @@ class ApiClient:
 
         if klass in self.PRIMITIVE_TYPES:
             return self.__deserialize_primitive(data, klass)
-        elif klass == object:
+
+        if klass is object:
             return self.__deserialize_object(data)
-        elif klass == datetime.date:
+
+        if klass is datetime.date:
             return self.__deserialize_date(data)
-        elif klass == datetime.datetime:
+
+        if klass is datetime.datetime:
             return self.__deserialize_datetime(data)
-        else:
-            return self.__deserialize_model(data, klass)
+
+        return self.__deserialize_model(data, klass)
 
     {{#asyncio}}async {{/asyncio}}def call_api(
         self,
@@ -470,7 +541,8 @@ class ApiClient:
         _request_auth=None,
         _retry_params=None,
         _oauth2_client=None,
-        _telemetry_attributes: dict[TelemetryAttribute, str] = None,
+        _telemetry_attributes: dict[TelemetryAttribute, str | bool | int | float] | None = None,
+        _streaming: bool = False,
     ):
         """Makes the HTTP request (synchronous) and returns deserialized data.
 
@@ -532,6 +604,7 @@ class ApiClient:
                 _retry_params,
                 _oauth2_client,
                 _telemetry_attributes,
+                _streaming,
             ){{#asyncio}}){{/asyncio}}
 
         return self.pool.apply_async(
@@ -555,6 +628,7 @@ class ApiClient:
                 _retry_params,
                 _oauth2_client,
                 _telemetry_attributes,
+                _streaming,
             ),
         )
 
@@ -568,76 +642,35 @@ class ApiClient:
         body=None,
         _preload_content=True,
         _request_timeout=None,
+        _streaming: bool = False,
     ):
-        """Makes the HTTP request using RESTClient."""
-        if method == "GET":
-            return {{#asyncio}}await ({{/asyncio}} self.rest_client.GET(
-                url,
-                query_params=query_params,
-                _preload_content=_preload_content,
-                _request_timeout=_request_timeout,
-                headers=headers,
-            ){{#asyncio}}){{/asyncio}}
-        elif method == "HEAD":
-            return {{#asyncio}}await ({{/asyncio}} self.rest_client.HEAD(
-                url,
-                query_params=query_params,
-                _preload_content=_preload_content,
-                _request_timeout=_request_timeout,
-                headers=headers,
-            ){{#asyncio}}){{/asyncio}}
-        elif method == "OPTIONS":
-            return {{#asyncio}}await ({{/asyncio}} self.rest_client.OPTIONS(
-                url,
-                query_params=query_params,
-                headers=headers,
-                _preload_content=_preload_content,
-                _request_timeout=_request_timeout,
-            ){{#asyncio}}){{/asyncio}}
-        elif method == "POST":
-            return {{#asyncio}}await ({{/asyncio}} self.rest_client.POST(
-                url,
-                query_params=query_params,
-                headers=headers,
-                post_params=post_params,
-                _preload_content=_preload_content,
-                _request_timeout=_request_timeout,
-                body=body,
-            ){{#asyncio}}){{/asyncio}}
-        elif method == "PUT":
-            return {{#asyncio}}await ({{/asyncio}} self.rest_client.PUT(
-                url,
-                query_params=query_params,
-                headers=headers,
-                post_params=post_params,
-                _preload_content=_preload_content,
-                _request_timeout=_request_timeout,
-                body=body,
-            ){{#asyncio}}){{/asyncio}}
-        elif method == "PATCH":
-            return {{#asyncio}}await ({{/asyncio}} self.rest_client.PATCH(
-                url,
-                query_params=query_params,
-                headers=headers,
-                post_params=post_params,
-                _preload_content=_preload_content,
-                _request_timeout=_request_timeout,
-                body=body,
-            ){{#asyncio}}){{/asyncio}}
-        elif method == "DELETE":
-            return {{#asyncio}}await ({{/asyncio}} self.rest_client.DELETE(
-                url,
-                query_params=query_params,
-                headers=headers,
-                _preload_content=_preload_content,
-                _request_timeout=_request_timeout,
-                body=body,
-            ){{#asyncio}}){{/asyncio}}
-        else:
+        if method not in ["GET", "HEAD", "OPTIONS", "POST", "PATCH", "PUT", "DELETE"]:
             raise ApiValueError(
                 "http method must be `GET`, `HEAD`, `OPTIONS`,"
                 " `POST`, `PATCH`, `PUT` or `DELETE`."
             )
+
+        if _streaming:
+            return self.rest_client.stream(
+                method,
+                url,
+                query_params=query_params,
+                headers=headers,
+                post_params=post_params,
+                body=body,
+                _request_timeout=_request_timeout,
+            )
+
+        return {{#asyncio}}await {{/asyncio}}self.rest_client.request(
+            method,
+            url,
+            query_params=query_params,
+            headers=headers,
+            post_params=post_params,
+            body=body,
+            _preload_content=_preload_content,
+            _request_timeout=_request_timeout,
+        )
 
     def parameters_to_tuples(self, params, collection_formats):
         """Get parameters as list of tuples, formatting collections.
@@ -727,7 +760,7 @@ class ApiClient:
                 headers['Authorization'] = f'Bearer {credentials.configuration.api_token}'
             if credentials.method == 'client_credentials':
                 if oauth2_client is None:
-                    oauth2_client = oauth2.OAuth2Client(credentials)
+                    oauth2_client = oauth2.OAuth2Client(credentials, self.configuration)
                 oauth2_headers = await oauth2_client.get_authentication_header(self.rest_client)
                 for key, value in oauth2_headers.items():
                     headers[key] = value
@@ -812,7 +845,7 @@ class ApiClient:
             return parse(string)
         except ImportError:
             return string
-        except ValueError:
+        except (TypeError, ValueError):
             raise rest.ApiException(
                 status=0,
                 reason=(f"Failed to parse `{string}` as datetime object"),
@@ -835,7 +868,7 @@ class ApiClient:
         kwargs = {}
         if (data is not None
                 and klass.openapi_types is not None
-                and isinstance(data, (list, dict))):
+                and isinstance(data, list | dict)):
             for attr, attr_type in klass.openapi_types.items():
                 if klass.attribute_map[attr] in data:
                     value = data[klass.attribute_map[attr]]

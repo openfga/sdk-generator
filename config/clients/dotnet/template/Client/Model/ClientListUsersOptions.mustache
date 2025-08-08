@@ -1,0 +1,19 @@
+{{>partial_header}}
+
+using OpenFga.Sdk.Model;
+
+namespace {{packageName}}.Client.Model;
+
+public interface IClientListUsersOptions : IClientRequestOptionsWithAuthZModelIdAndConsistency {
+}
+
+public class ClientListUsersOptions : IClientListUsersOptions {
+    /// <inheritdoc />
+    public string? StoreId { get; set; }
+
+    /// <inheritdoc />
+    public string? AuthorizationModelId { get; set; }
+
+    /// <inheritdoc />
+    public ConsistencyPreference? Consistency { get; set; }
+}

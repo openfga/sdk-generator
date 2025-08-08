@@ -1,11 +1,14 @@
-from {{packageName}}.telemetry.metrics import MetricsTelemetry
+{{>partial_header}}
+
+from {{packageName}}.telemetry.metrics import TelemetryMetrics
 
 
 class Telemetry:
-    _metrics: MetricsTelemetry = None
+    _metrics: TelemetryMetrics | None = None
 
-    def metrics(self) -> MetricsTelemetry:
-        if not self._metrics:
-            self._metrics = MetricsTelemetry()
+    @property
+    def metrics(self) -> TelemetryMetrics:
+        if self._metrics is None:
+            self._metrics = TelemetryMetrics()
 
         return self._metrics

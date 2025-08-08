@@ -1,5 +1,99 @@
 # Changelog
 
+## [Unreleased](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v{{packageVersion}}...HEAD)
+
+## v0.7.1
+
+### [0.7.1](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.7.0...v0.7.1) (2025-04-07)
+
+- fix: resolves issue where SDK could stall when MaxParallelRequests * MaxBatchSize < body.Checks length
+- fix: resolves issue where private singleBatchCheck method in SdkClient prevented mocking
+
+## v0.7.0
+
+### [0.7.0](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.6.5...v0.7.0) (2025-04-02)
+
+- feat: fix and improve retries and rate limit handling. (#176)
+  The SDK now retries on network errors and the default retry handling has been fixed
+  for both the calls to the OpenFGA API and the API Token Issuer for those using ClientCredentials
+  The SDK now also respects the rate limit headers (`Retry-After`) returned by the server and will retry the request after the specified time.
+  If the header is not sent or on network errors, it will fall back to exponential backoff.
+- feat: retry on network errors when calling the token issuer (#182)
+- feat: add support for server-side BatchCheck (#187)
+- fix: use defaults when transaction options were only partially set (#183)
+- chore: log retry attempts when debug mode is enabled (#182)
+
+[!WARNING]
+BREAKING CHANGES:
+This release contains a breaking change around it's handling of `BatchCheck`
+- The new `BatchCheck` requires OpenFGA [v1.8.0+](https://github.com/openfga/openfga/releases/tag/v1.8.0) server.
+- The existing `BatchCheck` method has been renamed to `ClientBatchCheck`. The existing `BatchCheckResponse` has been renamed to `ClientBatchCheckResponse`.
+
+NOTE:
+This release was previously released as `v0.6.6`, but has been re-released as `v0.7.0` due to the breaking changes.
+
+## v0.6.6
+
+### [0.6.6](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.6.5...v0.6.6) (2025-04-02)
+[!WARNING]
+BREAKING CHANGES: This has been re-released as [v0.7.0](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/releases/tag/v0.7.0) due to breaking changes around `BatchCheck`.
+
+## v0.6.5
+
+### [0.6.5](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.6.4...v0.6.5) (2025-02-06)
+
+- feat: support assertions with context and contextual tuples (#169)
+- fix: populate start_time in request (#166)
+
+## v0.6.4
+
+### [0.6.4](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.6.3...v0.6.4) (2025-01-29)
+
+- feat: add support for `start_time` parameter in `ReadChanges` endpoint (#158)
+- fix: correctly set request level storeId in non-transactional write (#162)
+- fix: api client should set default telemetry if not specified (#160)
+- docs: replace readable names with uuid (#146) - thanks @sccalabr 
+- fix: support marshaling client.ClientWriteResponse (#145) - thanks @Fedot-Compot
+- fix: update client interface with store and model getter/setter (#155)
+- fix: api client should set default telemetry if not specified (#160) 
+- fix: Do not ignore request level storeId in non-transactional write (#162)
+
+## v0.6.3
+
+### [0.6.3](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.6.2...v0.6.3) (2024-10-22)
+
+- fix: fix metrics data race issues (#139)
+
+## v0.6.2
+
+### [0.6.2](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}k/compare/v0.6.1...v0.6.2) (2024-10-21)
+
+- fix: fix batch check consistency (#131)
+- fix: fix data race on TelemetryInstances (#136) - thanks @Kryvchun!
+
+NOTE: `TelemetryInstances` in `telemetry.go` has been deprecated, as its usage is intended to be internal. It will be removed in a future release.
+
+## v0.6.1
+
+### [0.6.1](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.6.0...v0.6.1) (2024-09-23)
+
+- refactor(OpenTelemetry): move configuration API into public package namespace (#122)
+- docs(OpenTelemetry): initial documentation and example (#123)
+
+## v0.6.0
+
+### [0.6.0](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.5.0...v0.6.0) (2024-08-29)
+
+- feat: support OpenTelemetry metrics reporting (#115)
+- feat!: support for sending the consistency parameter to the read, check, list users, list objects, and expand endpoints (#117)
+- chore(docs): update stale README (#113) - thanks @Code2Life
+
+BREAKING CHANGE:
+
+When the generator converts enums in the open API definition, by default it removes the type prefix. For example, `TYPE_NAME_UNSPECIFIED` is converted to a const named `UNSPECIFIED`. This leads to potential collisions with other enums, and as the consistency type is a new enum, we finally got a collision (was just a matter of time).
+
+The fix for this is to specify `"enumClassPrefix": true` in the generation config. This will then include the class name on the const name, which resoles collision issues. This means any enum value, such as `INT` now becomes `TYPENAME_INT`. The main impact of this is the `TypeName` consts and error codes. The fix is to add the class name prefix as discussed above.
+
 ## v0.5.0
 
 ### [0.5.0](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.4.0...v0.5.0) (2024-06-14)
@@ -159,7 +253,7 @@ Updated to include support for [OpenFGA 0.3.0](https://github.com/openfga/openfg
 
 Changes:
 - [BREAKING] feat(list-objects)!: response has been changed to include the object type
-    e.g. response that was `{"object_ids":["roadmap"]}`, will now be `{"objects":["document:roadmap"]}`
+    e.g. response that was `{"object_ids":["roadmap"]}`, will now be `{"objects":["document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"]}`
 
 Fixes:
 - [BREAKING] fix(models): update interfaces that had incorrectly optional fields to make them required

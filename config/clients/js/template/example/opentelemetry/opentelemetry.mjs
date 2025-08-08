@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { CredentialsMethod, FgaApiValidationError, OpenFgaClient } from "@openfga/sdk";
+import { CredentialsMethod, FgaApiValidationError, OpenFgaClient, TelemetryAttribute, TelemetryConfiguration, TelemetryMetric } from "@openfga/sdk";
 
 let credentials;
 if (process.env.FGA_CLIENT_ID) {
@@ -14,11 +14,51 @@ if (process.env.FGA_CLIENT_ID) {
   };
 }
 
+const telemetryConfig = {
+  metrics: {
+    [TelemetryMetric.CounterCredentialsRequest]: {
+      attributes: new Set([
+        TelemetryAttribute.UrlScheme,
+        TelemetryAttribute.UserAgentOriginal,
+        TelemetryAttribute.HttpRequestMethod,
+        TelemetryAttribute.FgaClientRequestClientId,
+        TelemetryAttribute.FgaClientRequestStoreId,
+        TelemetryAttribute.FgaClientRequestModelId,
+        TelemetryAttribute.HttpRequestResendCount,
+      ])
+    },
+    [TelemetryMetric.HistogramRequestDuration]: {
+      attributes: new Set([
+        TelemetryAttribute.HttpResponseStatusCode,
+        TelemetryAttribute.UserAgentOriginal,
+        TelemetryAttribute.FgaClientRequestMethod,
+        TelemetryAttribute.FgaClientRequestClientId,
+        TelemetryAttribute.FgaClientRequestStoreId,
+        TelemetryAttribute.FgaClientRequestModelId,
+        TelemetryAttribute.HttpRequestResendCount,
+      ])
+    },
+    [TelemetryMetric.HistogramQueryDuration]: {
+      attributes: new Set([
+        TelemetryAttribute.FgaClientRequestBatchCheckSize,
+        TelemetryAttribute.HttpResponseStatusCode,
+        TelemetryAttribute.UserAgentOriginal,
+        TelemetryAttribute.FgaClientRequestMethod,
+        TelemetryAttribute.FgaClientRequestClientId,
+        TelemetryAttribute.FgaClientRequestStoreId,
+        TelemetryAttribute.FgaClientRequestModelId,
+        TelemetryAttribute.HttpRequestResendCount,
+      ])
+    }
+  }
+};
+
 const fgaClient = new OpenFgaClient({
   apiUrl: process.env.FGA_API_URL,
   storeId: process.env.FGA_STORE_ID,
   authorizationModelId: process.env.FGA_MODEL_ID,
-  credentials
+  credentials,
+  telemetry: telemetryConfig,
 });
 
 async function main () {
@@ -60,6 +100,34 @@ async function main () {
     }
   }
 
+  console.log("Calling BatcCheck")
+  await fgaClient.batchCheck({
+    checks: [
+      {
+        object: "doc:roadmap",
+        relation: "can_read",
+        user: "user:anne",
+      },
+      {
+        object: "doc:roadmap",
+        relation: "can_read",
+        user: "user:dan",
+      },
+      {
+        object: "doc:finances",
+        relation: "can_read",
+        user: "user:dan"
+      },
+      {
+        object: "doc:finances",
+        relation: "can_reads",
+        user: "user:anne",
+      }
+    ]
+  }, {
+    authorizationModelId: "01JC6KPJ0CKSZ69C5Z26CYWX2N"
+  });
+  
   console.log("writing tuple");
   await fgaClient.write({
     writes: [

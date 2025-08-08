@@ -6,9 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/jarcoal/httpmock"
+
 	openfga "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}"
 	. "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/client"
 )
@@ -410,7 +413,9 @@ func Test{{appShortName}}Client(t *testing.T) {
 		}
 
 		storeId := got1.Id
-		fgaClient.SetStoreId(storeId)
+		if err := fgaClient.SetStoreId(storeId); err != nil {
+			_ = err
+		}
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
@@ -733,13 +738,13 @@ func Test{{appShortName}}Client(t *testing.T) {
 					Expression: "ViewCount < 200",
 					Parameters: &map[string]{{packageName}}.ConditionParamTypeRef{
 						"ViewCount": {
-							TypeName: {{packageName}}.INT,
+							TypeName: {{packageName}}.TYPENAME_INT,
 						},
 						"Type": {
-							TypeName: {{packageName}}.STRING,
+							TypeName: {{packageName}}.TYPENAME_STRING,
 						},
 						"Name": {
-							TypeName: {{packageName}}.STRING,
+							TypeName: {{packageName}}.TYPENAME_STRING,
 						},
 					},
 				},
@@ -839,13 +844,13 @@ func Test{{appShortName}}Client(t *testing.T) {
 				Expression: "ViewCount < 200",
 				Parameters: &map[string]{{packageName}}.ConditionParamTypeRef{
 					"ViewCount": {
-						TypeName: {{packageName}}.INT,
+						TypeName: {{packageName}}.TYPENAME_INT,
 					},
 					"Type": {
-						TypeName: {{packageName}}.STRING,
+						TypeName: {{packageName}}.TYPENAME_STRING,
 					},
 					"Name": {
-						TypeName: {{packageName}}.STRING,
+						TypeName: {{packageName}}.TYPENAME_STRING,
 					},
 				},
 			},
@@ -1063,7 +1068,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 	t.Run("ReadChanges", func(t *testing.T) {
 		test := TestDefinition{
 			Name:           "ReadChanges",
-			JsonResponse:   `{"changes":[{"tuple_key":{"user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b","relation":"viewer","object":"document:roadmap"},"operation":"TUPLE_OPERATION_WRITE","timestamp": "2000-01-01T00:00:00Z"}],"continuation_token":"eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="}`,
+			JsonResponse:   `{"changes":[{"tuple_key":{"user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b","relation":"viewer","object":"document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"},"operation":"TUPLE_OPERATION_WRITE","timestamp": "2000-01-01T00:00:00Z"}],"continuation_token":"eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="}`,
 			ResponseStatus: http.StatusOK,
 			Method:         http.MethodGet,
 			RequestPath:    "changes",
@@ -1085,8 +1090,13 @@ func Test{{appShortName}}Client(t *testing.T) {
 				return resp, nil
 			},
 		)
+		startTime, err := time.Parse(time.RFC3339,"2022-01-01T00:00:00Z")
+		if err != nil {
+			t.Fatalf("Failed to parse startTime: %v", err)
+		}
 		body := ClientReadChangesRequest{
 			Type: "document",
+			StartTime: startTime,
 		}
 		options := ClientReadChangesOptions{ContinuationToken: {{packageName}}.PtrString("eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="), PageSize: {{packageName}}.PtrInt32(25)}
 		got, err := fgaClient.ReadChanges(context.Background()).Body(body).Options(options).Execute()
@@ -1140,7 +1150,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 	t.Run("Read", func(t *testing.T) {
 		test := TestDefinition{
 			Name:           "Read",
-			JsonResponse:   `{"tuples":[{"key":{"user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b","relation":"viewer","object":"document:roadmap"},"timestamp": "2000-01-01T00:00:00Z"}]}`,
+			JsonResponse:   `{"tuples":[{"key":{"user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b","relation":"viewer","object":"document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"},"timestamp": "2000-01-01T00:00:00Z"}]}`,
 			ResponseStatus: http.StatusOK,
 			Method:         http.MethodPost,
 			RequestPath:    "read",
@@ -1149,7 +1159,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 		requestBody := ClientReadRequest{
 			User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
 			Relation: {{packageName}}.PtrString("viewer"),
-			Object:   {{packageName}}.PtrString("document:roadmap"),
+			Object:   {{packageName}}.PtrString("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"),
 		}
 
 		var expectedResponse {{packageName}}.ReadResponse
@@ -1221,6 +1231,50 @@ func Test{{appShortName}}Client(t *testing.T) {
 		}
 	})
 
+	t.Run("ReadWithConsistency", func(t *testing.T) {
+		test := TestDefinition{
+			Name:           "Read",
+			JsonResponse:   `{"tuples":[{"key":{"user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b","relation":"viewer","object":"document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"},"timestamp": "2000-01-01T00:00:00Z"}]}`,
+			ResponseStatus: http.StatusOK,
+			Method:         http.MethodPost,
+			RequestPath:    "read",
+		}
+
+		requestBody := ClientReadRequest{
+			User:     {{packageName}}.PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
+			Relation: {{packageName}}.PtrString("viewer"),
+			Object:   {{packageName}}.PtrString("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"),
+		}
+
+		var expectedResponse {{packageName}}.ReadResponse
+		if err := json.Unmarshal([]byte(test.JsonResponse), &expectedResponse); err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		httpmock.RegisterMatcherResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
+			httpmock.BodyContainsString(`"consistency":"MINIMIZE_LATENCY"`),
+			func(req *http.Request) (*http.Response, error) {
+				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+				}
+				return resp, nil
+			},
+		)
+
+		options := ClientReadOptions{
+			PageSize:          {{packageName}}.PtrInt32(10),
+			ContinuationToken: {{packageName}}.PtrString("eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="),
+			Consistency:       {{packageName}}.CONSISTENCYPREFERENCE_MINIMIZE_LATENCY.Ptr(),
+		}
+		_, err := fgaClient.Read(context.Background()).Body(requestBody).Options(options).Execute()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+	})
+
 	t.Run("Write", func(t *testing.T) {
 		test := TestDefinition{
 			Name:           "Write",
@@ -1233,7 +1287,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 			Writes: []ClientTupleKey{ {
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			} },
 			Deletes: []ClientTupleKeyWithoutCondition{},
 		}
@@ -1337,7 +1391,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 			Writes: []ClientTupleKey{ {
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			} },
 		}
 		options := ClientWriteOptions{
@@ -1367,7 +1421,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 			Writes: []ClientTupleKey{ {
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			} },
 		}
 		options := ClientWriteOptions{
@@ -1397,7 +1451,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 			Writes: []ClientTupleKey{ {
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			}, {
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
@@ -1478,6 +1532,164 @@ func Test{{appShortName}}Client(t *testing.T) {
 				t.Fatalf("%v", err)
 			}
 		}
+
+		// store can be overridden
+		storeOverrideOptions := ClientWriteOptions{
+			AuthorizationModelId: openfga.PtrString(authModelId),
+			Transaction: &TransactionOptions{
+				Disable:             true,
+				MaxParallelRequests: 5,
+				MaxPerChunk:         1,
+			},
+			StoreId: openfga.PtrString("7777HCE4YVKPQEKZQHT2R89MQV"),
+		}
+		httpmock.Reset()
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, *storeOverrideOptions.StoreId, test.RequestPath),
+			func(req *http.Request) (*http.Response, error) {
+				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+				}
+				return resp, nil
+			},
+		)
+		data, err = fgaClient.Write(context.Background()).Body(requestBody).Options(storeOverrideOptions).Execute()
+		if err != nil {
+			t.Fatalf("%v", data)
+		}
+
+		for index := 0; index < len(data.Writes); index++ {
+			response := data.Writes[index]
+			if response.Error != nil {
+				t.Fatalf("OpenFgaClient.%v()|%d/ %v", test.Name, index, response.Error)
+			}
+		}
+	})
+
+	t.Run("WriteNonTransaction only some options set", func(t *testing.T) {
+		test := TestDefinition{
+			Name:           "Write",
+			JsonResponse:   `{}`,
+			ResponseStatus: http.StatusOK,
+			Method:         http.MethodPost,
+			RequestPath:    "write",
+		}
+		requestBody := ClientWriteRequest{
+			Writes: []ClientTupleKey{ {
+				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+				Relation: "viewer",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+			}, {
+				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+				Relation: "viewer",
+				Object:   "document:budget",
+			} },
+			Deletes: []ClientTupleKeyWithoutCondition{ {
+				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+				Relation: "viewer",
+				Object:   "document:planning",
+			} },
+		}
+		const authModelId = "01GAHCE4YVKPQEKZQHT2R89MQV"
+		options := ClientWriteOptions{
+			AuthorizationModelId: openfga.PtrString(authModelId),
+			Transaction: &TransactionOptions{
+				Disable:     true,
+				MaxPerChunk: 1,
+			},
+		}
+
+		var expectedResponse map[string]interface{}
+		if err := json.Unmarshal([]byte(test.JsonResponse), &expectedResponse); err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
+			func(req *http.Request) (*http.Response, error) {
+				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+				}
+				return resp, nil
+			},
+		)
+
+		data, err := fgaClient.Write(context.Background()).Body(requestBody).Options(options).Execute()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		if len(data.Writes) != 2 {
+			t.Fatalf("OpenFgaClient.%v() - expected %v Writes, got %v", test.Name, 2, len(data.Writes))
+		}
+
+		if len(data.Deletes) != 1 {
+			t.Fatalf("OpenFgaClient.%v() - expected %v Deletes, got %v", test.Name, 1, len(data.Deletes))
+		}
+
+		for index := 0; index < len(data.Writes); index++ {
+			response := data.Writes[index]
+			if response.Error != nil {
+				t.Fatalf("OpenFgaClient.%v()|%d/ %v", test.Name, index, response.Error)
+			}
+			if response.HttpResponse.StatusCode != test.ResponseStatus {
+				t.Fatalf("OpenFgaClient.%v() = %v, want %v", test.Name, response.HttpResponse.StatusCode, test.ResponseStatus)
+			}
+
+			_, err := response.MarshalJSON()
+			if err != nil {
+				t.Fatalf("%v", err)
+			}
+		}
+
+		for index := 0; index < len(data.Deletes); index++ {
+			response := data.Deletes[index]
+			if response.Error != nil {
+				t.Fatalf("OpenFgaClient.%v()|%d/ %v", test.Name, index, response.Error)
+			}
+			if response.HttpResponse.StatusCode != test.ResponseStatus {
+				t.Fatalf("OpenFgaClient.%v() = %v, want %v", test.Name, response.HttpResponse.StatusCode, test.ResponseStatus)
+			}
+
+			_, err := response.MarshalJSON()
+			if err != nil {
+				t.Fatalf("%v", err)
+			}
+		}
+
+		// store can be overridden
+		storeOverrideOptions := ClientWriteOptions{
+			AuthorizationModelId: openfga.PtrString(authModelId),
+			Transaction: &TransactionOptions{
+				Disable:             true,
+				MaxParallelRequests: 5,
+				MaxPerChunk:         1,
+			},
+			StoreId: openfga.PtrString("7777HCE4YVKPQEKZQHT2R89MQV"),
+		}
+		httpmock.Reset()
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, *storeOverrideOptions.StoreId, test.RequestPath),
+			func(req *http.Request) (*http.Response, error) {
+				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+				}
+				return resp, nil
+			},
+		)
+		data, err = fgaClient.Write(context.Background()).Body(requestBody).Options(storeOverrideOptions).Execute()
+		if err != nil {
+			t.Fatalf("%v", data)
+		}
+
+		for index := 0; index < len(data.Writes); index++ {
+			response := data.Writes[index]
+			if response.Error != nil {
+				t.Fatalf("OpenFgaClient.%v()|%d/ %v", test.Name, index, response.Error)
+			}
+		}
 	})
 
 	t.Run("Write with invalid auth", func(t *testing.T) {
@@ -1492,7 +1704,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 			Writes: []ClientTupleKey{ {
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			} },
 		}
 		options := ClientWriteOptions{
@@ -1528,7 +1740,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 			Writes: []ClientTupleKey{ {
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			} },
 		}
 		options := ClientWriteOptions{
@@ -1560,7 +1772,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 			Deletes: []{{packageName}}.TupleKeyWithoutCondition{ {
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			} },
 		}
 
@@ -1587,7 +1799,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 			Writes: []ClientTupleKey{ {
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			} },
 		}
 		options := ClientWriteOptions{
@@ -1619,7 +1831,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 			Deletes: []{{packageName}}.TupleKeyWithoutCondition{ {
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			} },
 		}
 
@@ -1645,7 +1857,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 		requestBody := []ClientTupleKey{ {
 			User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 			Relation: "viewer",
-			Object:   "document:roadmap",
+			Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 		} }
 		options := ClientWriteOptions{
 			AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
@@ -1756,7 +1968,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 		requestBody := []ClientTupleKeyWithoutCondition{ {
 			User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 			Relation: "viewer",
-			Object:   "document:roadmap",
+			Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 		} }
 		options := ClientWriteOptions{
 			AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
@@ -1867,11 +2079,11 @@ func Test{{appShortName}}Client(t *testing.T) {
 		requestBody := ClientCheckRequest{
 			User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 			Relation: "viewer",
-			Object:   "document:roadmap",
+			Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			ContextualTuples: []ClientContextualTupleKey{ {
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "editor",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			} },
 		}
 
@@ -1952,7 +2164,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 	})
 
-	t.Run("BatchCheck", func(t *testing.T) {
+	t.Run("CheckWithConsistency", func(t *testing.T) {
 		test := TestDefinition{
 			Name:           "Check",
 			JsonResponse:   `{"allowed":true, "resolution":""}`,
@@ -1960,37 +2172,84 @@ func Test{{appShortName}}Client(t *testing.T) {
 			Method:         http.MethodPost,
 			RequestPath:    "check",
 		}
-		requestBody := ClientBatchCheckBody{ {
+		requestBody := ClientCheckRequest{
 			User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 			Relation: "viewer",
-			Object:   "document:roadmap",
+			Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			ContextualTuples: []ClientContextualTupleKey{ {
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "editor",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+			} },
+		}
+
+		options := ClientCheckOptions{
+			AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+			Consistency:          {{packageName}}.CONSISTENCYPREFERENCE_HIGHER_CONSISTENCY.Ptr(),
+		}
+
+		var expectedResponse {{packageName}}.CheckResponse
+		if err := json.Unmarshal([]byte(test.JsonResponse), &expectedResponse); err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		httpmock.RegisterMatcherResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
+			httpmock.BodyContainsString(`"consistency":"HIGHER_CONSISTENCY"`),
+			func(req *http.Request) (*http.Response, error) {
+				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+				}
+				return resp, nil
+			},
+		)
+		_, err := fgaClient.Check(context.Background()).Body(requestBody).Options(options).Execute()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+	})
+
+	t.Run("ClientBatchCheck", func(t *testing.T) {
+		test := TestDefinition{
+			Name:           "Check",
+			JsonResponse:   `{"allowed":true, "resolution":""}`,
+			ResponseStatus: http.StatusOK,
+			Method:         http.MethodPost,
+			RequestPath:    "check",
+		}
+		requestBody := ClientBatchCheckClientBody{{
+			User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+			Relation: "viewer",
+			Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+			ContextualTuples: []ClientContextualTupleKey{ {
+				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+				Relation: "editor",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			} },
 		}, {
 			User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 			Relation: "admin",
-			Object:   "document:roadmap",
+			Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			ContextualTuples: []ClientContextualTupleKey{ {
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "editor",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			} },
 		}, {
 			User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 			Relation: "creator",
-			Object:   "document:roadmap",
+			Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 		}, {
 			User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 			Relation: "deleter",
-			Object:   "document:roadmap",
+			Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 		} }
 
 		const authModelId = "01GAHCE4YVKPQEKZQHT2R89MQV"
 
-		options := ClientBatchCheckOptions{
+		options := ClientBatchCheckClientOptions{
 			AuthorizationModelId: {{packageName}}.PtrString(authModelId),
 			MaxParallelRequests:  {{packageName}}.PtrInt32(5),
 		}
@@ -2012,7 +2271,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 			},
 		)
 
-		got, err := fgaClient.BatchCheck(context.Background()).Body(requestBody).Options(options).Execute()
+		got, err := fgaClient.ClientBatchCheck(context.Background()).Body(requestBody).Options(options).Execute()
 		if err != nil {
 			t.Fatalf("%v", err)
 		}
@@ -2043,28 +2302,28 @@ func Test{{appShortName}}Client(t *testing.T) {
 				t.Fatalf("{{appShortName}}Client.%v() = %v, want %v", test.Name, string(responseJson), test.JsonResponse)
 			}
 		}
-		// BatchCheck without options should work
-		_, err = fgaClient.BatchCheck(context.Background()).Body(requestBody).Execute()
+		// ClientBatchCheck without options should work
+		_, err = fgaClient.ClientBatchCheck(context.Background()).Body(requestBody).Execute()
 		if err != nil {
 			t.Fatalf("%v", err)
 		}
 
 		httpmock.ZeroCallCounters()
-		// BatchCheck with invalid auth model ID should fail
-		badOptions := ClientBatchCheckOptions{
+		// ClientBatchCheck with invalid auth model ID should fail
+		badOptions := ClientBatchCheckClientOptions{
 			AuthorizationModelId: {{packageName}}.PtrString("INVALID"),
 			MaxParallelRequests:  {{packageName}}.PtrInt32(5),
 		}
-		_, err = fgaClient.BatchCheck(context.Background()).Body(requestBody).Options(badOptions).Execute()
+		_, err = fgaClient.ClientBatchCheck(context.Background()).Body(requestBody).Options(badOptions).Execute()
 		if err == nil {
 			t.Fatalf("Expect error with invalid auth model id but there is none")
 		}
 		// invalid store ID should fail
-		badStoreOptions := ClientBatchCheckOptions{
+		badStoreOptions := ClientBatchCheckClientOptions{
 			StoreId:             {{packageName}}.PtrString("INVALID"),
 			MaxParallelRequests: {{packageName}}.PtrInt32(5),
 		}
-		_, err = fgaClient.BatchCheck(context.Background()).Body(requestBody).Options(badStoreOptions).Execute()
+		_, err = fgaClient.ClientBatchCheck(context.Background()).Body(requestBody).Options(badStoreOptions).Execute()
 		if err == nil {
 			t.Fatalf("Expect error with invalid auth model id but there is none")
 		}
@@ -2079,14 +2338,14 @@ func Test{{appShortName}}Client(t *testing.T) {
 				return httpmock.NewStringResponse(http.StatusUnauthorized, ""), nil
 			},
 		)
-		// BatchCheck with invalid auth should fail
-		_, err = fgaClient.BatchCheck(context.Background()).Body(requestBody).Options(options).Execute()
+		// ClientBatchCheck with invalid auth should fail
+		_, err = fgaClient.ClientBatchCheck(context.Background()).Body(requestBody).Options(options).Execute()
 		if err == nil {
 			t.Fatalf("Expect error with invalid auth but there is none")
 		}
 
 		// store should be overridden
-		storeOverrideOptions := ClientBatchCheckOptions{
+		storeOverrideOptions := ClientBatchCheckClientOptions{
 			StoreId:             {{packageName}}.PtrString("7777HCE4YVKPQEKZQHT2R89MQV"),
 			MaxParallelRequests: {{packageName}}.PtrInt32(5),
 		}
@@ -2100,16 +2359,220 @@ func Test{{appShortName}}Client(t *testing.T) {
 			},
 		)
 
-		_, err = fgaClient.BatchCheck(context.Background()).Body(requestBody).Options(storeOverrideOptions).Execute()
+		_, err = fgaClient.ClientBatchCheck(context.Background()).Body(requestBody).Options(storeOverrideOptions).Execute()
 		if err != nil {
 			t.Fatalf("%v", err)
 		}
 	})
 
+	t.Run("ClientBatchCheckWithConsistency", func(t *testing.T) {
+		test := TestDefinition{
+			Name:           "Check",
+			JsonResponse:   `{"allowed":true, "resolution":""}`,
+			ResponseStatus: http.StatusOK,
+			Method:         http.MethodPost,
+			RequestPath:    "check",
+		}
+		requestBody := ClientBatchCheckClientBody{{
+			User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+			Relation: "viewer",
+			Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+			ContextualTuples: []ClientContextualTupleKey{ {
+				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+				Relation: "editor",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+			} },
+		}, {
+			User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+			Relation: "admin",
+			Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+			ContextualTuples: []ClientContextualTupleKey{ {
+				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+				Relation: "editor",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+			} },
+		}, {
+			User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+			Relation: "creator",
+			Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+		}, {
+			User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+			Relation: "deleter",
+			Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+		} }
+
+		const authModelId = "01GAHCE4YVKPQEKZQHT2R89MQV"
+
+		options := ClientBatchCheckClientOptions{
+			AuthorizationModelId: {{packageName}}.PtrString(authModelId),
+			MaxParallelRequests:  {{packageName}}.PtrInt32(5),
+			Consistency:          {{packageName}}.CONSISTENCYPREFERENCE_HIGHER_CONSISTENCY.Ptr(),
+		}
+
+		var expectedResponse {{packageName}}.CheckResponse
+		if err := json.Unmarshal([]byte(test.JsonResponse), &expectedResponse); err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		httpmock.RegisterMatcherResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
+			httpmock.BodyContainsString(`"consistency":"HIGHER_CONSISTENCY"`),
+			func(req *http.Request) (*http.Response, error) {
+				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+				}
+				return resp, nil
+			},
+		)
+
+		checks, err := fgaClient.ClientBatchCheck(context.Background()).Body(requestBody).Options(options).Execute()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		for _, check := range *checks {
+			if check.Error != nil {
+				t.Fatalf("a check failed %v", check.Error)
+			}
+		}
+	})
+
+	t.Run("BatchCheck", func(t *testing.T) {
+		test := TestDefinition{
+			Name:           "BatchCheck",
+			JsonResponse:   `{"result":{"test1":{"allowed":true},"test2":{"allowed":false}}}`,
+			ResponseStatus: http.StatusOK,
+			Method:         http.MethodPost,
+			RequestPath:    "batch-check",
+		}
+
+		requestBody := ClientBatchCheckRequest{
+			Checks: []ClientBatchCheckItem{
+				{
+					User:          "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+					Relation:      "viewer",
+					Object:        "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+					CorrelationId: "test1",
+					ContextualTuples: []ClientContextualTupleKey{
+						{
+							User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+							Relation: "editor",
+							Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+						},
+					},
+				},
+				{
+					User:          "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+					Relation:      "admin",
+					Object:        "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+					CorrelationId: "test2",
+				},
+			},
+		}
+
+		options := BatchCheckOptions{
+			AuthorizationModelId: openfga.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+			MaxParallelRequests:  openfga.PtrInt32(5),
+			MaxBatchSize:         openfga.PtrInt32(10),
+		}
+
+		var expectedResponse openfga.BatchCheckResponse
+		if err := json.Unmarshal([]byte(test.JsonResponse), &expectedResponse); err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
+			func(req *http.Request) (*http.Response, error) {
+				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+				}
+				return resp, nil
+			},
+		)
+
+		ctxMain, cancelMain := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancelMain()
+		got, err := fgaClient.BatchCheck(ctxMain).Body(requestBody).Options(options).Execute()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		if httpmock.GetTotalCallCount() != 1 {
+			t.Fatalf("OpenFgaClient.%v() - wanted %v call to /batch-check, got %v", test.Name, 1, httpmock.GetTotalCallCount())
+		}
+
+		if len(got.GetResult()) != len(requestBody.Checks) {
+			t.Fatalf("OpenFgaClient.%v() - Response Length = %v, want %v", test.Name, len(got.GetResult()), len(requestBody.Checks))
+		}
+
+		// BatchCheck without options should work
+		httpmock.ZeroCallCounters()
+		ctxNoOpts, cancelNoOpts := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancelNoOpts()
+		_, err = fgaClient.BatchCheck(ctxNoOpts).Body(requestBody).Execute()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		httpmock.ZeroCallCounters()
+		// BatchCheck with invalid auth model ID should fail
+		badOptions := BatchCheckOptions{
+			AuthorizationModelId: openfga.PtrString("INVALID"),
+			MaxParallelRequests:  openfga.PtrInt32(5),
+		}
+		ctxBad, cancelBad := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancelBad()
+		_, err = fgaClient.BatchCheck(ctxBad).Body(requestBody).Options(badOptions).Execute()
+		if err == nil {
+			t.Fatalf("Expect error with invalid auth model id but there is none")
+		}
+
+		// Invalid store ID should fail
+		badStoreOptions := BatchCheckOptions{
+			StoreId:             openfga.PtrString("INVALID"),
+			MaxParallelRequests: openfga.PtrInt32(5),
+		}
+		ctxStore, cancelStore := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancelStore()
+		_, err = fgaClient.BatchCheck(ctxStore).Body(requestBody).Options(badStoreOptions).Execute()
+		if err == nil {
+			t.Fatalf("Expect error with invalid store id but there is none")
+		}
+
+		// Store should be overridden
+		storeOverrideOptions := BatchCheckOptions{
+			StoreId:             openfga.PtrString("7777HCE4YVKPQEKZQHT2R89MQV"),
+			MaxParallelRequests: openfga.PtrInt32(5),
+		}
+
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, *storeOverrideOptions.StoreId, test.RequestPath),
+			func(req *http.Request) (*http.Response, error) {
+				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+				}
+				return resp, nil
+			},
+		)
+
+		ctxOverride, cancelOverride := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancelOverride()
+		_, err = fgaClient.BatchCheck(ctxOverride).Body(requestBody).Options(storeOverrideOptions).Execute()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+	})
+
+
 	t.Run("Expand", func(t *testing.T) {
 		test := TestDefinition{
 			Name:           "Expand",
-			JsonResponse:   `{"tree":{"root":{"name":"document:roadmap#viewer","union":{"nodes":[{"name": "document:roadmap#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b"]}}}]}}}}`,
+			JsonResponse:   `{"tree":{"root":{"name":"document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a#viewer","union":{"nodes":[{"name": "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b"]}}}]}}}}`,
 			ResponseStatus: http.StatusOK,
 			Method:         http.MethodPost,
 			RequestPath:    "expand",
@@ -2117,7 +2580,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		requestBody := ClientExpandRequest{
 			Relation: "viewer",
-			Object:   "document:roadmap",
+			Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 		}
 		options := ClientExpandOptions{
 			AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
@@ -2191,10 +2654,51 @@ func Test{{appShortName}}Client(t *testing.T) {
 		}
 	})
 
+	t.Run("ExpandWithConsistency", func(t *testing.T) {
+		test := TestDefinition{
+			Name:           "Expand",
+			JsonResponse:   `{"tree":{"root":{"name":"document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a#viewer","union":{"nodes":[{"name": "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b"]}}}]}}}}`,
+			ResponseStatus: http.StatusOK,
+			Method:         http.MethodPost,
+			RequestPath:    "expand",
+		}
+
+		requestBody := ClientExpandRequest{
+			Relation: "viewer",
+			Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+		}
+		options := ClientExpandOptions{
+			AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+			Consistency:          {{packageName}}.CONSISTENCYPREFERENCE_MINIMIZE_LATENCY.Ptr(),
+		}
+
+		var expectedResponse {{packageName}}.ExpandResponse
+		if err := json.Unmarshal([]byte(test.JsonResponse), &expectedResponse); err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		httpmock.RegisterMatcherResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
+			httpmock.BodyContainsString(`"consistency":"MINIMIZE_LATENCY"`),
+			func(req *http.Request) (*http.Response, error) {
+				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+				}
+				return resp, nil
+			},
+		)
+		_, err := fgaClient.Expand(context.Background()).Body(requestBody).Options(options).Execute()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+	})
+
 	t.Run("ListObjects", func(t *testing.T) {
 		test := TestDefinition{
 			Name:           "ListObjects",
-			JsonResponse:   `{"objects":["document:roadmap"]}`,
+			JsonResponse:   `{"objects":["document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"]}`,
 			ResponseStatus: http.StatusOK,
 			Method:         http.MethodPost,
 			RequestPath:    "list-objects",
@@ -2211,7 +2715,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 			}, {
 				User:     "folder:product",
 				Relation: "parent",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			} },
 		}
 		options := ClientListObjectsOptions{
@@ -2302,6 +2806,60 @@ func Test{{appShortName}}Client(t *testing.T) {
 		}
 	})
 
+	t.Run("ListObjectsWithConsistency", func(t *testing.T) {
+		test := TestDefinition{
+			Name:           "ListObjects",
+			JsonResponse:   `{"objects":["document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"]}`,
+			ResponseStatus: http.StatusOK,
+			Method:         http.MethodPost,
+			RequestPath:    "list-objects",
+		}
+
+		requestBody := ClientListObjectsRequest{
+			User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+			Relation: "can_read",
+			Type:     "document",
+			ContextualTuples: []ClientContextualTupleKey{ {
+				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+				Relation: "editor",
+				Object:   "folder:product",
+			}, {
+				User:     "folder:product",
+				Relation: "parent",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+			} },
+		}
+		options := ClientListObjectsOptions{
+			AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+			Consistency:          {{packageName}}.CONSISTENCYPREFERENCE_MINIMIZE_LATENCY.Ptr(),
+		}
+
+		var expectedResponse {{packageName}}.ListObjectsResponse
+		if err := json.Unmarshal([]byte(test.JsonResponse), &expectedResponse); err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		httpmock.RegisterMatcherResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
+			httpmock.BodyContainsString(`"consistency":"MINIMIZE_LATENCY"`),
+			func(req *http.Request) (*http.Response, error) {
+				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+				}
+				return resp, nil
+			},
+		)
+		_, err := fgaClient.ListObjects(context.Background()).
+			Body(requestBody).
+			Options(options).
+			Execute()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+	})
+
 	t.Run("ListRelations", func(t *testing.T) {
 		test := TestDefinition{
 			Name:           "ListRelations",
@@ -2313,12 +2871,12 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		requestBody := ClientListRelationsRequest{
 			User:      "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-			Object:    "document:roadmap",
+			Object:    "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			Relations: []string{"can_view", "can_edit", "can_delete", "can_rename"},
 			ContextualTuples: []ClientContextualTupleKey{ {
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "editor",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			} },
 		}
 		const authModelId = "01GAHCE4YVKPQEKZQHT2R89MQV"
@@ -2439,6 +2997,68 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 	})
 
+	t.Run("ListRelationsWithConsistency", func(t *testing.T) {
+		test := TestDefinition{
+			Name:           "ListRelations",
+			JsonResponse:   `{"allowed":true, "resolution":""}`,
+			ResponseStatus: http.StatusOK,
+			Method:         http.MethodPost,
+			RequestPath:    "check",
+		}
+
+		requestBody := ClientListRelationsRequest{
+			User:      "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+			Object:    "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+			Relations: []string{"can_view", "can_edit", "can_delete", "can_rename"},
+			ContextualTuples: []ClientContextualTupleKey{ {
+				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+				Relation: "editor",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+			} },
+		}
+		const authModelId = "01GAHCE4YVKPQEKZQHT2R89MQV"
+		options := ClientListRelationsOptions{
+			AuthorizationModelId: {{packageName}}.PtrString(authModelId),
+			Consistency:          {{packageName}}.CONSISTENCYPREFERENCE_HIGHER_CONSISTENCY.Ptr(),
+		}
+
+		var expectedResponse {{packageName}}.CheckResponse
+		if err := json.Unmarshal([]byte(test.JsonResponse), &expectedResponse); err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		httpmock.RegisterMatcherResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
+			httpmock.BodyContainsString(`"consistency":"HIGHER_CONSISTENCY"`),
+			func(req *http.Request) (*http.Response, error) {
+				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, {{packageName}}.CheckResponse{Allowed: {{packageName}}.PtrBool(false)})
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+				}
+				return resp, nil
+			},
+		)
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
+			func(req *http.Request) (*http.Response, error) {
+				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+				}
+				return resp, nil
+			},
+		)
+
+		_, err := fgaClient.ListRelations(context.Background()).
+			Body(requestBody).
+			Options(options).
+			Execute()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+	})
+
+
 	t.Run("ListRelationsNoRelationsProvided", func(t *testing.T) {
 		test := TestDefinition{
 			Name:           "ListRelations",
@@ -2450,12 +3070,12 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		requestBody := ClientListRelationsRequest{
 			User:      "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-			Object:    "document:roadmap",
+			Object:    "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			Relations: []string{},
 			ContextualTuples: []ClientContextualTupleKey{ {
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "editor",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			} },
 		}
 		options := ClientListRelationsOptions{
@@ -2505,7 +3125,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 			}, {
 				User:     "folder:product",
 				Relation: "parent",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			}},
 <%={{ }}=%>
 			Context: &map[string]interface{}{"ViewCount": 100},
@@ -2531,7 +3151,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 			},
 		)
 
-		got, err := fgaClient.ListUsers(context.Background()).
+		got, _ := fgaClient.ListUsers(context.Background()).
 			Body(requestBody).
 			Options(options).
 			Execute()
@@ -2611,12 +3231,80 @@ func Test{{appShortName}}Client(t *testing.T) {
 		}
 	})
 
+	t.Run("ListUsersWithConsistency", func(t *testing.T) {
+		test := TestDefinition{
+			Name: "ListUsers",
+			// A real API would not return all these for the filter provided, these are just for test purposes
+			JsonResponse:   `{"users":[{"object":{"id":"81684243-9356-4421-8fbf-a4f8d36aa31b","type":"user"}},{"userset":{"id":"fga","relation":"member","type":"team"}},{"wildcard":{"type":"user"}}]}`,
+			ResponseStatus: http.StatusOK,
+			Method:         http.MethodPost,
+			RequestPath:    "list-users",
+		}
+
+		requestBody := ClientListUsersRequest{
+			Object: {{packageName}}.FgaObject{
+				Type: "document",
+				Id:   "roadmap",
+			},
+			Relation: "can_read",
+{{=<% %>=}}
+			// API does not allow sending multiple filters, done here for testing purposes
+			UserFilters: []openfga.UserTypeFilter{{
+				Type: "user",
+			}, {
+				Type:     "team",
+				Relation: openfga.PtrString("member"),
+			}},
+			ContextualTuples: []ClientContextualTupleKey{{
+				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+				Relation: "editor",
+				Object:   "folder:product",
+			}, {
+				User:     "folder:product",
+				Relation: "parent",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+			}},
+<%={{ }}=%>
+			Context: &map[string]interface{}{"ViewCount": 100},
+		}
+		options := ClientListUsersOptions{
+			AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+			Consistency:          openfga.CONSISTENCYPREFERENCE_MINIMIZE_LATENCY.Ptr(),
+		}
+
+		var expectedResponse {{packageName}}.ListUsersResponse
+		if err := json.Unmarshal([]byte(test.JsonResponse), &expectedResponse); err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		httpmock.RegisterMatcherResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
+			httpmock.BodyContainsString(`"consistency":"MINIMIZE_LATENCY"`),
+			func(req *http.Request) (*http.Response, error) {
+				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+				}
+				return resp, nil
+			},
+		)
+
+		_, err := fgaClient.ListUsers(context.Background()).
+			Body(requestBody).
+			Options(options).
+			Execute()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+	})
+
 	/* Assertions */
 	t.Run("ReadAssertions", func(t *testing.T) {
 		modelId := "01GAHCE4YVKPQEKZQHT2R89MQV"
 		test := TestDefinition{
 			Name:           "ReadAssertions",
-			JsonResponse:   fmt.Sprintf(`{"assertions":[{"tuple_key":{"user":"user:anna","relation":"can_view","object":"document:roadmap"},"expectation":true}],"authorization_model_id":"%s"}`, modelId),
+			JsonResponse:   fmt.Sprintf(`{"assertions":[{"tuple_key":{"user":"user:anna","relation":"can_view","object":"document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"},"expectation":true}],"authorization_model_id":"%s","context":{"context":"value"},"contextual_tuples":[{"object":"document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a","relation":"can_view","user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b"}]}`, modelId),
 			ResponseStatus: http.StatusOK,
 			Method:         http.MethodGet,
 			RequestPath:    "assertions",
@@ -2723,8 +3411,18 @@ func Test{{appShortName}}Client(t *testing.T) {
 			{
 				User:        "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation:    "can_view",
-				Object:      "document:roadmap",
+				Object:      "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 				Expectation: true,
+				Context: &map[string]interface{}{
+					"context": "value",
+				},
+				ContextualTuples: []ClientContextualTupleKey{
+					{
+						User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+						Relation: "can_view",
+						Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+					},
+				},
 			},
 		}
 		options := ClientWriteAssertionsOptions{
@@ -2799,6 +3497,138 @@ func Test{{appShortName}}Client(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%v", err)
 		}
+	})
+
+	t.Run("BatchCheckMaxBatchSize", func(t *testing.T) {
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		
+		fgaClient, err := NewSdkClient(&ClientConfiguration{
+			ApiUrl:  "https://api.fga.example",
+			StoreId: "01GXSB9YR785C4FYS3C0RTG7B2",
+		})
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		result := map[string]openfga.BatchCheckSingleResult{
+			"test1": {Allowed: openfga.PtrBool(true)},
+		}
+		response := openfga.BatchCheckResponse{
+			Result: &result,
+		}
+		
+		var callCountMu sync.Mutex
+		callCount := 0
+		
+		httpmock.RegisterResponder(
+			http.MethodPost,
+			fmt.Sprintf("%s/stores/%s/batch-check", fgaClient.GetConfig().ApiUrl, "01GXSB9YR785C4FYS3C0RTG7B2"),
+			func(req *http.Request) (*http.Response, error) {
+				callCountMu.Lock()
+				callCount++
+				callCountMu.Unlock()
+				resp, err := httpmock.NewJsonResponse(http.StatusOK, response)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, err.Error()), nil
+				}
+				return resp, nil
+			},
+		)
+		
+		// Create basic item template
+		createItem := func(i int) ClientBatchCheckItem {
+			return ClientBatchCheckItem{
+				User:          fmt.Sprintf("user:%d", i),
+				Relation:      "viewer",
+				Object:        fmt.Sprintf("document:%d", i),
+				CorrelationId: fmt.Sprintf("test%d", i),
+			}
+		}
+
+		t.Run("Simple case with MaxBatchSize=1", func(t *testing.T) {
+			callCountMu.Lock()
+			callCount = 0
+			callCountMu.Unlock()
+			
+			items := []ClientBatchCheckItem{
+				createItem(1),
+				createItem(2),
+				createItem(3),
+			}
+			
+			requestBody := ClientBatchCheckRequest{
+				Checks: items,
+			}
+
+			options := BatchCheckOptions{
+				MaxBatchSize: openfga.PtrInt32(1),
+			}
+
+			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+			defer cancel()
+
+			_, err = fgaClient.BatchCheck(ctx).
+				Body(requestBody).
+				Options(options).
+				Execute()
+
+			if err != nil {
+				t.Fatalf("BatchCheck error: %v", err)
+			}
+
+			expectedCallCount := len(items) // With MaxBatchSize=1, we expect one call per item
+			callCountMu.Lock()
+			actualCallCount := callCount
+			callCountMu.Unlock()
+			if actualCallCount != expectedCallCount {
+				t.Errorf("Expected exactly %d API calls with MaxBatchSize=1, got %d", expectedCallCount, actualCallCount)
+			}
+		})
+
+		t.Run("Edge case where MaxParallelRequests * MaxBatchSize < len(items)", func(t *testing.T) {
+			callCountMu.Lock()
+			callCount = 0
+			callCountMu.Unlock()
+			
+			// Create 101 items
+			var items []ClientBatchCheckItem
+			for i := 1; i <= 101; i++ {
+				items = append(items, createItem(i))
+			}
+			
+			requestBody := ClientBatchCheckRequest{
+				Checks: items,
+			}
+
+			options := BatchCheckOptions{
+				MaxParallelRequests: openfga.PtrInt32(2),  // 2 parallel requests
+				MaxBatchSize:        openfga.PtrInt32(50), // 50 items per batch
+			}
+			// Total capacity: 2*50 = 100, but we have 101 items
+
+			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+			defer cancel()
+
+			_, err = fgaClient.BatchCheck(ctx).
+				Body(requestBody).
+				Options(options).
+				Execute()
+
+			if err != nil {
+				t.Fatalf("BatchCheck error with MaxParallelRequests=2, MaxBatchSize=50, Items=101: %v", err)
+			}
+
+			// We expect 3 API calls (2 batches of 50 + 1 batch of 1)
+			expectedCallCount := 3
+			callCountMu.Lock()
+			actualCallCount := callCount
+			callCountMu.Unlock()
+			if actualCallCount != expectedCallCount {
+				t.Errorf("Expected exactly %d API calls with MaxParallelRequests=2, MaxBatchSize=50, Items=101, got %d", 
+				          expectedCallCount, actualCallCount)
+			}
+		})
 	})
 }
 

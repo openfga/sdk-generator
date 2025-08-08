@@ -1,5 +1,62 @@
 # Changelog
 
+
+## [Unreleased](https://github.com/openfga/js-sdk/compare/v{{packageVersion}}...HEAD)
+
+## v0.9.0
+
+### [v0.9.0](https://github.com/openfga/js-sdk/compare/v0.8.1...v0.9.0) (2025-06-04)
+
+- feat: support client assertion for client credentials authentication (#228)
+
+## v0.8.1
+
+### [v0.8.1](https://github.com/openfga/js-sdk/compare/v0.8.0...v0.8.1) (2025-04-24)
+
+- fix: change check for Node.js environment to fix issue where `process.title` cannot be read (#222)
+
+## v0.8.0
+
+### [0.8.0](https://github.com/openfga/js-sdk/compare/v0.7.0...v0.8.0) (2025-01-14)
+
+- feat!: add support for server-side `BatchCheck` method. This is a more efficient way to check on multiple tuples than calling the existing client-side `BatchCheck`. Using this method requires an OpenFGA [v1.8.0+](https://github.com/openfga/openfga/releases/tag/v1.8.0) server.
+    - The existing `BatchCheck` method has been renamed to `clientBatchCheck` and it now bundles the results in a field called `result` instead of `responses`.
+    - The existing `BatchCheckResponse` has been renamed to `ClientBatchCheckResponse`.
+- feat: add support for  startTime` parameter in `ReadChanges` endpoint
+- feat: support contextual tuples and context in assertions
+- feat: support contextual tuples in Expand
+- fix: error correctly if apiUrl is not provided - thanks @Waheedsys (#161)
+- fix: use provided axios instance in credentials refresh - thanks @Siddhant-K-code (#193)
+- fix!: The minimum node version required by this SDK is now v16.15.0
+- chore(docs): various cleanup and improvements - thanks @tmsagarofficial (#164), @vil02 (https://github.com/openfga/sdk-generator/pull/424, https://github.com/openfga/sdk-generator/pull/422), @sccalabr (https://github.com/openfga/sdk-generator/pull/433)
+
+BREAKING CHANGES:
+- The minimum node version required by this SDK is now v16.15.0
+- Usage of the existing `batchCheck` method should now use the `clientBatchCheck` method. The existing `BatchCheckResponse` has been renamed to `ClientBatchCheckResponse` and it now bundles the results in a field called `result` instead of `responses`.
+
+## v0.7.0
+
+### [0.7.0](https://github.com/openfga/js-sdk/compare/v0.6.3...v0.7.0) (2024-08-30)
+
+- feat!: enhancements to OpenTelemetry support (#149)
+
+BREAKING CHANGE:
+
+This version changes the way in which telemetry is configured and reported. See #149 for additional information.
+
+## v0.6.3
+
+### [0.6.3](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.6.2...v0.6.3) (2024-08-28)
+
+- fix: set the consistency parameter correctly in OpenFgaClient (#143)
+
+## v0.6.2
+
+### [0.6.2](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.6.1...v0.6.2) (2024-07-31)
+- feat: add support for specifying consistency when evaluating or reading (#129)
+  Note: To use this feature, you need to be running OpenFGA v1.5.7+ with the experimental flag
+  `enable-consistency-params` enabled. See the [v1.5.7 release notes](https://github.com/openfga/openfga/releases/tag/v1.5.7) for details.
+
 ## v0.6.1
 
 ### [0.6.1](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.6.0...v0.6.1) (2024-07-11)
@@ -166,7 +223,7 @@ Updated to include support for [OpenFGA 0.3.0](https://github.com/openfga/openfg
 
 Changes:
 - [BREAKING] feat(list-objects)!: response has been changed to include the object type
-    e.g. response that was `{"object_ids":["roadmap"]}`, will now be `{"objects":["document:roadmap"]}`
+    e.g. response that was `{"object_ids":["roadmap"]}`, will now be `{"objects":["document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"]}`
 
 Fixes:
 - fix(models): update interfaces that had incorrectly optional fields to make them required

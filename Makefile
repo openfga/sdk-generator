@@ -1,14 +1,14 @@
 # Main config
-OPENFGA_DOCKER_TAG = v1.5.3
-OPEN_API_REF ?= f33cb24bcd9707c5fba8cbbc4a4441ab24a3442d
+OPENFGA_DOCKER_TAG = v1
+OPEN_API_REF ?= 0bb89b73d6550b627f79c53b4b97dec1ee3fe0ad
 OPEN_API_URL = https://raw.githubusercontent.com/openfga/api/${OPEN_API_REF}/docs/openapiv2/apidocs.swagger.json
 OPENAPI_GENERATOR_CLI_DOCKER_TAG = v6.4.0
 NODE_DOCKER_TAG = 20-alpine
 GO_DOCKER_TAG = 1
 DOTNET_DOCKER_TAG = 6.0
-GOLINT_DOCKER_TAG = v1.54-alpine
+GOLINT_DOCKER_TAG = latest-alpine
 BUSYBOX_DOCKER_TAG = 1
-GRADLE_DOCKER_TAG = 8.2
+GRADLE_DOCKER_TAG = 8.12-jdk17
 PYTHON_DOCKER_TAG = 3.10
 # Other config
 CONFIG_DIR = ${PWD}/config
@@ -66,7 +66,6 @@ build-client-js:
 	sed -i -e "s|_this|this|g" ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*.md
 	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*-e
 	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm i --lockfile-version 2 && npm run lint:fix -- --quiet'"
-	make run-in-docker sdk_language=js image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 api.ts /config/clients/js/patches/add-method-specific-attributes.patch'"
 	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm run lint:fix && npm run build;'"
 
 ### Go
@@ -111,7 +110,7 @@ tag-client-python: test-client-python
 
 .PHONY: build-client-python
 build-client-python:
-	make build-client sdk_language=python tmpdir=${TMP_DIR} library="asyncio"
+	make build-client-streamed sdk_language=python tmpdir=${TMP_DIR} library="asyncio"
 
 	mv ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/api/open_fga_api_sync.py ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/sync/open_fga_api.py
 	mv ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/test/test_open_fga_api.py ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/test/api/open_fga_api_test.py
@@ -123,18 +122,18 @@ build-client-python:
 		patch -p1 /module/openfga_sdk/sync/open_fga_api.py /config/clients/python/patches/open_fga_api_sync.py.patch && \
 		patch -p1 /module/docs/OpenFgaApi.md /config/clients/python/patches/OpenFgaApi.md.patch'"
 
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install --upgrade pip && \
-		python -m pip install --upgrade setuptools wheel && \
-		python -m pip install -r test-requirements.txt && \
-		python -m pyupgrade \`find . -name *.py -type f\` --py310-plus --keep-runtime-typing && \
-		python -m isort . --profile black && \
-		python -m autoflake --exclude=__init__.py --in-place --remove-unused-variables --remove-all-unused-imports -r . && \
-		python -m black . && \
-		python setup.py sdist bdist_wheel'"
+	make run-in-docker sdk_language=python image=ghcr.io/astral-sh/uv:python${PYTHON_DOCKER_TAG}-alpine command="/bin/sh -c 'export UV_LINK_MODE=copy && \
+		uv sync && \
+		uv run ruff check --select I --fix . && \
+		uv run ruff format . && \
+		uv build'"
 
 .PHONY: test-client-python
 test-client-python: build-client-python
-	make run-in-docker sdk_language=python image=python:${PYTHON_DOCKER_TAG} command="/bin/sh -c 'python -m pip install -r test-requirements.txt; pytest --cov-report term-missing --cov=openfga_sdk test/; flake8 . --count --show-source --statistics'"
+	make run-in-docker sdk_language=python image=ghcr.io/astral-sh/uv:python${PYTHON_DOCKER_TAG}-alpine command="/bin/sh -c 'export UV_LINK_MODE=copy && \
+		uv sync && \
+		uv run pytest --cov-report term-missing --cov=openfga_sdk test/ && \
+		uv run ruff check .'"
 
 ### Java
 .PHONY: tag-client-java
@@ -176,6 +175,21 @@ build-client: build-openapi
 build-openapi: init get-openapi-doc
 	cat "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.json" | \
 		jq '(.. | .tags? | select(.)) |= ["OpenFga"] | (.tags? | select(.)) |= [{"name":"OpenFga"}] | del(.definitions.ReadTuplesParams, .definitions.ReadTuplesResponse, .paths."/stores/{store_id}/read-tuples", .definitions.StreamedListObjectsRequest, .definitions.StreamedListObjectsResponse, .paths."/stores/{store_id}/streamed-list-objects")' > \
+		${DOCS_CACHE_DIR}/openfga.openapiv2.json
+	sed -i -e 's/"Object"/"FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
+	sed -i -e 's/#\/definitions\/Object"/#\/definitions\/FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
+	sed -i -e 's/v1.//g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
+
+.EXPORT_ALL_VARIABLES:
+.PHONY: build-client-streamed
+build-client-streamed: build-openapi-streamed
+	SDK_LANGUAGE="${sdk_language}" TMP_DIR="${tmpdir}" LIBRARY_TEMPLATE="${library}"\
+		./scripts/build_client.sh
+
+.PHONY: build-openapi-streamed
+build-openapi-streamed: init get-openapi-doc
+	cat "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.json" | \
+		jq '(.. | .tags? | select(.)) |= ["OpenFga"] | (.tags? | select(.)) |= [{"name":"OpenFga"}] | del(.definitions.ReadTuplesParams, .definitions.ReadTuplesResponse, .paths."/stores/{store_id}/read-tuples")' > \
 		${DOCS_CACHE_DIR}/openfga.openapiv2.json
 	sed -i -e 's/"Object"/"FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
 	sed -i -e 's/#\/definitions\/Object"/#\/definitions\/FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json

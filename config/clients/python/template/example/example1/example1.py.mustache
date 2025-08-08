@@ -1,5 +1,16 @@
+# ruff: noqa: E402
+
+{{>partial_header}}
+
 import asyncio
 import os
+import sys
+import uuid
+
+from dotenv import load_dotenv
+
+sdk_path = os.path.realpath(os.path.join(os.path.abspath(__file__), "..", "..", ".."))
+sys.path.insert(0, sdk_path)
 
 from {{packageName}} import (
     ClientConfiguration,
@@ -16,10 +27,13 @@ from {{packageName}} import (
     TypeDefinition,
     Userset,
     Usersets,
+    UserTypeFilter,
     WriteAuthorizationModelRequest,
 )
 from {{packageName}}.client.models import (
     ClientAssertion,
+    ClientBatchCheckItem,
+    ClientBatchCheckRequest,
     ClientCheckRequest,
     ClientListObjectsRequest,
     ClientListRelationsRequest,
@@ -34,6 +48,8 @@ from {{packageName}}.models.fga_object import FgaObject
 
 
 async def main():
+    load_dotenv()
+
     credentials = Credentials()
     if os.getenv("FGA_CLIENT_ID") is not None:
         credentials = Credentials(
@@ -179,7 +195,7 @@ async def main():
                 ClientTuple(
                     user="user:anne",
                     relation="writer",
-                    object="document:roadmap",
+                    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
                     condition=RelationshipCondition(
                         name="ViewCountLessThan200",
                         context=dict(
@@ -245,7 +261,7 @@ async def main():
         try:
             response = await fga_client.check(
                 ClientCheckRequest(
-                    user="user:anne", relation="viewer", object="document:roadmap"
+                    user="user:anne", relation="viewer", object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
                 )
             )
             print(f"Allowed: {response.allowed}")
@@ -259,11 +275,41 @@ async def main():
             ClientCheckRequest(
                 user="user:anne",
                 relation="viewer",
-                object="document:roadmap",
+                object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
                 context=dict(ViewCount=100),
             )
         )
         print(f"Allowed: {response.allowed}")
+
+        # Performing a BatchCheck
+        print("Checking for access via BatchCheck")
+
+        anne_cor_id = str(uuid.uuid4())
+        response = await fga_client.batch_check(
+            ClientBatchCheckRequest(
+                checks=[
+                    ClientBatchCheckItem(
+                        user="user:anne",
+                        relation="viewer",
+                        object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+                        context=dict(ViewCount=100),
+                        correlation_id=anne_cor_id, # correlation_id is an optional parameter, the SDK will insert a value if not provided.
+                    ),
+                    ClientBatchCheckItem(
+                        user="user:bob",
+                        relation="viewer",
+                        object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+                        context=dict(ViewCount=100),
+                    ),
+                ]
+            )
+        )
+
+        for result in response.result:
+            if result.correlation_id == anne_cor_id:
+                print(f"Anne allowed: {result.allowed}")
+            else:
+                print(f"{result.request.user} allowed: {result.allowed}")
 
         # List objects with context
         print("Listing objects for access with context")
@@ -285,7 +331,7 @@ async def main():
             ClientListRelationsRequest(
                 user="user:anne",
                 relations=["viewer", "writer"],
-                object="document:roadmap",
+                object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
             )
         )
         print(f"Relations: {response}")
@@ -297,7 +343,7 @@ async def main():
             ClientListRelationsRequest(
                 user="user:anne",
                 relations=["viewer", "writer"],
-                object="document:roadmap",
+                object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
                 context=dict(ViewCount=100),
             )
         )
@@ -306,16 +352,17 @@ async def main():
         # ListUsers
         print("Listing user who have access to object")
 
-        response = await fga_client.list_objects(
+        response = await fga_client.list_users(
             ClientListUsersRequest(
                 relation="viewer",
                 object=FgaObject(type="document", id="roadmap"),
                 user_filters=[
-                    FgaObject(type="user"),
+                    UserTypeFilter(type="user"),
                 ],
+                context=dict(ViewCount=100),
             )
         )
-        print(f"Users: {response.objects}")
+        print(f"Users: {response.users}")
 
         # WriteAssertions
         await fga_client.write_assertions(
@@ -329,7 +376,7 @@ async def main():
                 ClientAssertion(
                     user="user:anne",
                     relation="viewer",
-                    object="document:roadmap",
+                    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
                     expectation=False,
                 ),
             ]

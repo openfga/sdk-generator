@@ -22,7 +22,7 @@ public class {{appShortName}}Client : IDisposable {
         ClientConfiguration configuration,
         HttpClient? httpClient = null
     ) {
-        configuration.IsValid();
+        configuration.EnsureValid();
         _configuration = configuration;
         api = new {{appShortName}}Api(_configuration, httpClient);
     }
@@ -72,9 +72,9 @@ public class {{appShortName}}Client : IDisposable {
     /**
    * ListStores - Get a paginated list of stores.
    */
-    public async Task<ListStoresResponse> ListStores(IClientListStoresOptions? options = default,
+    public async Task<ListStoresResponse> ListStores(IClientListStoresRequest? body, IClientListStoresOptions? options = default,
         CancellationToken cancellationToken = default) =>
-        await api.ListStores(options?.PageSize, options?.ContinuationToken, cancellationToken);
+        await api.ListStores(options?.PageSize, options?.ContinuationToken, body?.Name, cancellationToken);
 
     /**
    * CreateStore - Initialize a store
@@ -154,9 +154,9 @@ public class {{appShortName}}Client : IDisposable {
      * Read Changes - Read the list of historical relationship tuple writes and deletes
      */
     public async Task<ReadChangesResponse> ReadChanges(ClientReadChangesRequest? body = default,
-        IClientReadChangesOptions? options = default,
+        ClientReadChangesOptions? options = default,
         CancellationToken cancellationToken = default) =>
-        await api.ReadChanges(GetStoreId(options), body?.Type, options?.PageSize, options?.ContinuationToken, cancellationToken);
+        await api.ReadChanges(GetStoreId(options), body?.Type, options?.PageSize, options?.ContinuationToken, body?.StartTime, cancellationToken);
 
     /**
      * Read - Read tuples previously written to the store (does not evaluate)
@@ -170,7 +170,7 @@ public class {{appShortName}}Client : IDisposable {
         return await api.Read(
             GetStoreId(options),
             new ReadRequest {
-                TupleKey = tupleKey, PageSize = options?.PageSize, ContinuationToken = options?.ContinuationToken
+                TupleKey = tupleKey, PageSize = options?.PageSize, ContinuationToken = options?.ContinuationToken, Consistency = options?.Consistency,
             }, cancellationToken);
     }
 
@@ -284,7 +284,7 @@ public class {{appShortName}}Client : IDisposable {
    * Check - Check if a user has a particular relation with an object (evaluates)
    */
     public async Task<CheckResponse> Check(IClientCheckRequest body,
-        IClientRequestOptionsWithAuthZModelId? options = default,
+        IClientCheckOptions? options = default,
         CancellationToken cancellationToken = default) =>
         await api.Check(
             GetStoreId(options),
@@ -296,13 +296,14 @@ public class {{appShortName}}Client : IDisposable {
                                     new List<TupleKey>()
                     },
                 Context = body.Context,
-                AuthorizationModelId = GetAuthorizationModelId(options)
+                AuthorizationModelId = GetAuthorizationModelId(options),
+                Consistency = options?.Consistency,
             }, cancellationToken);
 
     /**
    * BatchCheck - Run a set of checks (evaluates)
    */
-    public async Task<BatchCheckResponse> BatchCheck(List<ClientCheckRequest> body,
+    public async Task<ClientBatchCheckClientResponse> BatchCheck(List<ClientCheckRequest> body,
         IClientBatchCheckOptions? options = default,
         CancellationToken cancellationToken = default) {
         var responses = new ConcurrentBag<BatchCheckSingleResponse>();
@@ -320,27 +321,33 @@ public class {{appShortName}}Client : IDisposable {
                 }
             });
 
-        return new BatchCheckResponse {Responses = responses.ToList()};    
+        return new ClientBatchCheckClientResponse {Responses = responses.ToList()};    
     }
 
     /**
    * Expand - Expands the relationships in userset tree format (evaluates)
    */
     public async Task<ExpandResponse> Expand(IClientExpandRequest body,
-        IClientRequestOptionsWithAuthZModelId? options = default,
+        IClientExpandOptions? options = default,
         CancellationToken cancellationToken = default) =>
         await api.Expand(
             GetStoreId(options),
             new ExpandRequest {
                 TupleKey = new ExpandRequestTupleKey {Relation = body.Relation, Object = body.Object},
-                AuthorizationModelId = GetAuthorizationModelId(options)
+                ContextualTuples =
+                    new ContextualTupleKeys {
+                        TupleKeys = body.ContextualTuples?.ConvertAll(tupleKey => tupleKey.ToTupleKey()) ??
+                                    new List<TupleKey>()
+                    },
+                AuthorizationModelId = GetAuthorizationModelId(options),
+                Consistency = options?.Consistency
             }, cancellationToken);
 
     /**
      * ListObjects - List the objects of a particular type that the user has a certain relation to (evaluates)
      */
     public async Task<ListObjectsResponse> ListObjects(IClientListObjectsRequest body,
-        IClientRequestOptionsWithAuthZModelId? options = default,
+        IClientListObjectsOptions? options = default,
         CancellationToken cancellationToken = default) =>
         await api.ListObjects(GetStoreId(options), new ListObjectsRequest {
             User = body.User,
@@ -352,8 +359,10 @@ public class {{appShortName}}Client : IDisposable {
                                 new List<TupleKey>()
                 },
             Context = body.Context,
-            AuthorizationModelId = GetAuthorizationModelId(options)
-        });
+            AuthorizationModelId = GetAuthorizationModelId(options),
+            Consistency = options?.Consistency,
+        }, cancellationToken);
+
 
     /**
      * ListRelations - List all the relations a user has with an object (evaluates)
@@ -380,8 +389,12 @@ public class {{appShortName}}Client : IDisposable {
 
         var batchCheckResponse = await BatchCheck(batchCheckRequests, options, cancellationToken);
 
-        for (var index = 0; index < batchCheckResponse.Responses.Count; index++) {
-            var batchCheckSingleResponse = batchCheckResponse.Responses[index];
+
+        foreach (var batchCheckSingleResponse in batchCheckResponse.Responses) {
+            if (batchCheckSingleResponse.Error != null) {
+                throw batchCheckSingleResponse.Error;
+            }
+
             if (batchCheckSingleResponse.Allowed && batchCheckSingleResponse.Request?.Relation != null) {
                 responses.AddRelation(batchCheckSingleResponse.Request.Relation);
             }
@@ -394,7 +407,7 @@ public class {{appShortName}}Client : IDisposable {
      * ListUsers - List all users of the given type that the object has a relation with (evaluates)
      */
     public async Task<ListUsersResponse> ListUsers(IClientListUsersRequest body,
-        IClientRequestOptionsWithAuthZModelId? options = default,
+        IClientListUsersOptions? options = default,
         CancellationToken cancellationToken = default) =>
         await api.ListUsers(GetStoreId(options), new ListUsersRequest {
             Object = body.Object,
@@ -403,7 +416,8 @@ public class {{appShortName}}Client : IDisposable {
             ContextualTuples =  body.ContextualTuples?.ConvertAll(tupleKey => tupleKey.ToTupleKey()) ??
                                 new List<TupleKey>(),
             Context = body.Context,
-            AuthorizationModelId = GetAuthorizationModelId(options)
+            AuthorizationModelId = GetAuthorizationModelId(options),
+            Consistency = options?.Consistency
         });
 
     /**************

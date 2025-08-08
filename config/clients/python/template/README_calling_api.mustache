@@ -4,7 +4,7 @@
 
 Get a paginated list of stores.
 
-[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/ListStores)
+[API Documentation]({{apiDocsUrl}}#/Stores/ListStores)
 
 ```python
 # from {{packageName}}.sync import OpenFgaClient
@@ -23,7 +23,7 @@ response = await fga_client.list_stores(options)
 
 Create and initialize a store.
 
-[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/CreateStore)
+[API Documentation]({{apiDocsUrl}}#/Stores/CreateStore)
 
 ```python
 # from {{packageName}} import CreateStoreRequest, OpenFgaClient
@@ -43,7 +43,7 @@ response = await fga_client.create_store(body)
 
 Get information about the current store.
 
-[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/GetStore)
+[API Documentation]({{apiDocsUrl}}#/Stores/GetStore)
 
 > Requires a client initialized with a storeId
 
@@ -62,7 +62,7 @@ response = await fga_client.get_store()
 
 Delete a store.
 
-[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/DeleteStore)
+[API Documentation]({{apiDocsUrl}}#/Stores/DeleteStore)
 
 > Requires a client initialized with a storeId
 
@@ -117,48 +117,46 @@ Create a new authorization model.
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
 
-body = WriteAuthorizationModelRequest(
-    schema_version="1.1",
-    type_definitions=[
-        TypeDefinition(
-            type="user"
+user_type = TypeDefinition(type="user")
+
+document_relations = dict(
+    writer=Userset(this=dict()),
+    viewer=Userset(
+        union=Usersets(
+            child=[
+                Userset(this=dict()),
+                Userset(computed_userset=ObjectRelation(
+                    object="",
+                    relation="writer",
+                )),
+            ],
         ),
-        TypeDefinition(
-            type="document",
-            relations=dict(
-                writer=Userset(
-                    this=dict(),
-                ),
-                viewer=Userset(
-                    union=Usersets(
-                        child=[
-                            Userset(this=dict()),
-                            Userset(computed_userset=ObjectRelation(
-                                object="",
-                                relation="writer",
-                            )),
-                        ],
-                    ),
-                ),
+    ),
+)
+
+document_metadata = Metadata(
+        relations=dict(
+            writer=RelationMetadata(
+                directly_related_user_types=[
+                    RelationReference(type="user"),
+                    RelationReference(type="user", condition="ViewCountLessThan200"),
+                ]
             ),
-            metadata=Metadata(
-                relations=dict(
-                    writer=RelationMetadata(
-                        directly_related_user_types=[
-                            RelationReference(type="user"),
-                            RelationReference(type="user", condition="ViewCountLessThan200"),
-                        ]
-                    ),
-                    viewer=RelationMetadata(
-                        directly_related_user_types=[
-                            RelationReference(type="user"),
-                        ]
-                    )
-                )
+            viewer=RelationMetadata(
+                directly_related_user_types=[
+                    RelationReference(type="user"),
+                ]
             )
         )
-    ],
-    conditions=dict(
+)
+
+document_type = TypeDefinition(
+    type="document",
+    relations=document_relations,
+    metadata=document_metadata
+)
+
+conditions = dict(
         ViewCountLessThan200=Condition(
             name="ViewCountLessThan200",
             expression="ViewCount < 200",
@@ -175,6 +173,14 @@ body = WriteAuthorizationModelRequest(
             )
         )
     )
+
+body = WriteAuthorizationModelRequest(
+    schema_version="1.1",
+    type_definitions=[
+        user_type,
+        document_type
+    ],
+    conditions=conditions
 )
 
 response = await fga_client.write_authorization_model(body)
@@ -247,7 +253,7 @@ options = {
     "page_size": "25",
     "continuation_token": "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
 }
-body = ClientReadChangesRequest(type="document")
+body = ClientReadChangesRequest(type="document", start_time="2022-01-01T00:00:00Z")
 
 response = await fga_client.read_changes(body, options)
 # response.continuation_token = ...
@@ -270,7 +276,7 @@ Reads the relationship tuples stored in the database. It does not evaluate nor e
 body = ReadRequestTupleKey(
     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     relation="viewer",
-    object="document:roadmap",
+    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 )
 
 response = await fga_client.read(body)
@@ -286,7 +292,7 @@ response = await fga_client.read(body)
 # Find all relationship tuples where a certain user has a relationship as any relation to a certain document
 body = ReadRequestTupleKey(
     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-    object="document:roadmap",
+    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 )
 
 response = await fga_client.read(body)
@@ -319,7 +325,7 @@ response = await fga_client.read(body)
 
 # Find all relationship tuples where any user has a relationship as any relation with a particular document
 body = ReadRequestTupleKey(
-    object="document:roadmap",
+    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 )
 
 response = await fga_client.read(body)
@@ -365,7 +371,7 @@ body = ClientWriteRequest(
         ClientTuple(
             user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             relation="viewer",
-            object="document:roadmap",
+            object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
             condition=RelationshipCondition(
               name='ViewCountLessThan200',
               context=dict(
@@ -377,14 +383,14 @@ body = ClientWriteRequest(
         ClientTuple(
             user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             relation="viewer",
-            object="document:budget",
+            object="document:0192ab2d-d36e-7cb3-a4a8-5d1d67a300c5",
         ),
     ],
     deletes=[
         ClientTuple(
             user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             relation="writer",
-            object="document:roadmap",
+            object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
         ),
     ],
 )
@@ -419,12 +425,12 @@ body = ClientWriteRequest(
         ClientTuple(
             user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             relation="viewer",
-            object="document:roadmap",
+            object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
         ),
         ClientTuple(
             user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             relation="viewer",
-            object="document:budget",
+            object="document:0192ab2d-d36e-7cb3-a4a8-5d1d67a300c5",
             condition=RelationshipCondition(
               name='ViewCountLessThan200',
               context=dict(
@@ -438,7 +444,7 @@ body = ClientWriteRequest(
         ClientTuple(
             user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             relation="writer",
-            object="document:roadmap",
+            object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
         ),
     ],
 )
@@ -468,7 +474,7 @@ options = {
 body = ClientCheckRequest(
     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     relation="writer",
-    object="document:roadmap",
+    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
     context=dict(
         ViewCount=100
     ),
@@ -481,14 +487,122 @@ response = await fga_client.check(body, options)
 
 ##### Batch Check
 
-Run a set of [checks](#check). Batch Check will return `allowed: false` if it encounters an error, and will return the error in the body.
-If 429s or 5xxs are encountered, the underlying check will retry up to {{defaultMaxRetry}} times before giving up.
+Similar to [check](#check), but instead of checking a single user-object relationship, accepts a list of relationships to check. Requires OpenFGA version 1.8.0 or greater.
+
+[API Documentation](https://openfga.dev/api/service#/Relationship%20Queries/BatchCheck)
+
+> **Note**: The order of `batch_check` results is not guaranteed to match the order of the checks provided. Use `correlation_id` to pair responses with requests.
 
 ```python
-# from {{packageName}} import OpenFgaClient
-# from {{packageName}}.client import ClientCheckRequest
-# from {{packageName}}.client.models import ClientTuple
+# from openfga_sdk import OpenFgaClient
+# from openfga_sdk.client.models import (
+#   ClientTuple,
+#   ClientBatchCheckItem,
+#   ClientBatchCheckRequest,
+# )
+# Initialize the fga_client
+# fga_client = OpenFgaClient(configuration)
 
+options = {
+    # You can rely on the model id set in the configuration or override it for this specific request
+    "authorization_model_id": "01GXSA8YR785C4FYS3C0RTG7B1"
+}
+checks = [ClientBatchCheckItem(
+    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation="viewer",
+    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+    contextual_tuples=[  # optional
+        ClientTuple(
+            user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+            relation="editor",
+            object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+        ),
+    ],
+    context=dict(
+        ViewCount=100
+    )
+), ClientBatchCheckItem(
+    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation="admin",
+    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+    contextual_tuples=[  # optional
+        ClientTuple(
+            user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+            relation="editor",
+            object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+        ),
+    ]
+), ClientBatchCheckItem(
+    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation="creator",
+    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+), ClientBatchCheckItem(
+    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation="deleter",
+    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+)]
+
+response = await fga_client.batch_check(ClientBatchCheckRequest(checks=checks), options)
+# response.result = [{
+#   allowed: false,
+#   correlation_id: "de3630c2-f9be-4ee5-9441-cb1fbd82ce75",
+#   tuple: {
+#     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+#     relation: "viewer",
+#     object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+#     contextual_tuples: [{
+#       user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+#       relation: "editor",
+#       object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
+#     }],
+#    context=dict(
+#        ViewCount=100
+#    )
+#   }
+# }, {
+#   allowed: false,
+#   correlation_id: "6d7c7129-9607-480e-bfd0-17c16e46b9ec",
+#   tuple: {
+#     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+#     relation: "admin",
+#     object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+#     contextual_tuples: [{
+#       user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+#       relation: "editor",
+#       object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
+#     }]
+#   }
+# }, {
+#   allowed: false,
+#   correlation_id: "210899b9-6bc3-4491-bdd1-d3d79780aa31",
+#   tuple: {
+#     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+#     relation: "creator",
+#     object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+#   },
+#   error: {
+#       input_error: "validation_error",
+#       message: "relation 'document#creator' not found"
+#   }
+# }, {
+#   allowed: true,
+#   correlation_id: "55cc1946-9fc3-4710-bd40-8fe2687ed8da",
+#   request: {
+#     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+#     relation: "deleter",
+#     object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+#   }},
+# ]
+```
+
+If you are using an OpenFGA version less than 1.8.0, you can use `client_batch_check`, 
+which calls `check` in parallel. It will return `allowed: false` if it encounters an error, and will return the error in the body.
+If 429s or 5xxs are encountered, the underlying check will retry up to 3 times before giving up.
+
+```python
+# from openfga_sdk import OpenFgaClient
+# from openfga_sdk.client import ClientCheckRequest
+# from openfga_sdk.client.models import ClientTuple
 # Initialize the fga_client
 # fga_client = OpenFgaClient(configuration)
 
@@ -499,12 +613,12 @@ options = {
 body = [ClientCheckRequest(
     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     relation="viewer",
-    object="document:roadmap",
+    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
     contextual_tuples=[  # optional
         ClientTuple(
             user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             relation="editor",
-            object="document:roadmap",
+            object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
         ),
     ],
     context=dict(
@@ -513,35 +627,35 @@ body = [ClientCheckRequest(
 ), ClientCheckRequest(
     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     relation="admin",
-    object="document:roadmap",
+    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
     contextual_tuples=[  # optional
         ClientTuple(
             user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             relation="editor",
-            object="document:roadmap",
+            object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
         ),
     ]
 ), ClientCheckRequest(
     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     relation="creator",
-    object="document:roadmap",
+    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 ), ClientCheckRequest(
     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     relation="deleter",
-    object="document:roadmap",
+    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 )]
 
-response = await fga_client.batch_check(body, options)
+response = await fga_client.client_batch_check(body, options)
 # response.responses = [{
 #   allowed: false,
 #   request: {
 #     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 #     relation: "viewer",
-#     object: "document:roadmap",
+#     object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 #     contextual_tuples: [{
 #       user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 #       relation: "editor",
-#       object: "document:roadmap"
+#       object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
 #     }],
 #    context=dict(
 #        ViewCount=100
@@ -552,11 +666,11 @@ response = await fga_client.batch_check(body, options)
 #   request: {
 #     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 #     relation: "admin",
-#     object: "document:roadmap",
+#     object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 #     contextual_tuples: [{
 #       user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 #       relation: "editor",
-#       object: "document:roadmap"
+#       object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
 #     }]
 #   }
 # }, {
@@ -564,7 +678,7 @@ response = await fga_client.batch_check(body, options)
 #   request: {
 #     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 #     relation: "creator",
-#     object: "document:roadmap",
+#     object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 #   },
 #   error: <FgaError ...>
 # }, {
@@ -572,10 +686,11 @@ response = await fga_client.batch_check(body, options)
 #   request: {
 #     user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 #     relation: "deleter",
-#     object: "document:roadmap",
+#     object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 #   }},
 # ]
 ```
+
 
 #### Expand
 
@@ -596,11 +711,11 @@ options = {
 }
 body = ClientExpandRequest(
     relation="viewer",
-    object="document:roadmap",
+    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 )
 
 response = await fga_client.expand(body. options)
-# response = ExpandResponse({"tree": UsersetTree({"root": Node({"name": "document:roadmap#viewer", "leaf": Leaf({"users": Users({"users": ["user:81684243-9356-4421-8fbf-a4f8d36aa31b", "user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]})})})})})
+# response = ExpandResponse({"tree": UsersetTree({"root": Node({"name": "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a#viewer", "leaf": Leaf({"users": Users({"users": ["user:81684243-9356-4421-8fbf-a4f8d36aa31b", "user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]})})})})})
 ```
 
 #### List Objects
@@ -628,7 +743,7 @@ body = ClientListObjectsRequest(
         ClientTuple(
             user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             relation="writer",
-            object="document:budget",
+            object="document:0192ab2d-d36e-7cb3-a4a8-5d1d67a300c5",
         ),
     ],
     context=dict(
@@ -637,7 +752,34 @@ body = ClientListObjectsRequest(
 )
 
 response = await fga_client.list_objects(body)
-# response.objects = ["document:roadmap"]
+# response.objects = ["document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"]
+```
+
+#### Streamed List Objects
+
+List the objects of a particular type a user has access to, using the streaming API.
+
+[API Documentation](https://openfga.dev/api/service#/Relationship%20Queries/StreamedListObjects)
+
+```python
+# from openfga_sdk import OpenFgaClient
+# from openfga_sdk.client.models import ClientListObjectsRequest
+
+# Initialize the fga_client
+# fga_client = OpenFgaClient(configuration)
+
+results = []
+
+documents = ClientListObjectsRequest(
+    type="document",
+    relation="writer",
+    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+)
+
+async for response in fga_client.streamed_list_objects(request):
+    results.append(response)
+
+# results = ["document:...", ...]
 ```
 
 #### List Relations
@@ -657,13 +799,13 @@ options = {
 }
 body = ClientListRelationsRequest(
     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-    object="document:roadmap",
+    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
     relations=["can_view", "can_edit", "can_delete", "can_rename"],
     contextual_tuples=[  # optional
         ClientTuple(
             user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             relation="writer",
-            object="document:budget",
+            object="document:0192ab2d-d36e-7cb3-a4a8-5d1d67a300c5",
         ),
     ],
     context=dict(
@@ -714,7 +856,7 @@ async with OpenFgaClient(configuration) as api_client:
             ClientTuple(
                 user="folder:product",
                 relation="parent",
-                object="document:roadmap",
+                object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
             ),
         ],
     )
@@ -767,7 +909,7 @@ options = {
 body = [ClientAssertion(
     user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     relation="viewer",
-    object="document:roadmap",
+    object="document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
     expectation=True,
 )]
 

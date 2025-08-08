@@ -4,7 +4,7 @@
 
 Get a paginated list of stores.
 
-[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/ListStores)
+[API Documentation]({{apiDocsUrl}}#/Stores/ListStores)
 
 ```csharp
 var options = new ClientListStoresOptions {
@@ -20,7 +20,7 @@ var response = await fgaClient.ListStores(options);
 
 Initialize a store.
 
-[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/CreateStore)
+[API Documentation]({{apiDocsUrl}}#/Stores/CreateStore)
 
 ```csharp
 var store = await fgaClient.CreateStore(new ClientCreateStoreRequest(){Name = "FGA Demo"})
@@ -39,7 +39,7 @@ fgaClient.StoreId = storeId;
 
 Get information about the current store.
 
-[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/GetStore)
+[API Documentation]({{apiDocsUrl}}#/Stores/GetStore)
 
 > Requires a client initialized with a storeId
 
@@ -53,7 +53,7 @@ var store = await fgaClient.GetStore();
 
 Delete a store.
 
-[API Documentation]({{apiDocsUrl}}/docs/api#/Stores/DeleteStore)
+[API Documentation]({{apiDocsUrl}}#/Stores/DeleteStore)
 
 > Requires a client initialized with a storeId
 
@@ -176,7 +176,8 @@ Reads the list of historical relationship tuple writes and deletes.
 [API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/ReadChanges)
 
 ```csharp
-var body = new ClientReadChangesRequest { Type = "document" };
+var startTime = DateTime.Parse("2022-01-01T00:00:00Z");
+var body = new ClientReadChangesRequest { Type = "document", StartTime = startTime };
 var options = new ClientReadChangesOptions {
     PageSize = 10,
     ContinuationToken = "...",
@@ -202,13 +203,13 @@ Reads the relationship tuples stored in the database. It does not evaluate nor e
 var body = new ClientReadRequest() {
     User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     Relation = "viewer",
-    Object = "document:roadmap",
+    Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 };
 
 // Find all relationship tuples where a certain user has a relationship as any relation to a certain document
 var body = new ClientReadRequest() {
     User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-    Object = "document:roadmap",
+    Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 };
 
 // Find all relationship tuples where a certain user is a viewer of any document
@@ -221,7 +222,7 @@ var body = new ClientReadRequest() {
 // Find all relationship tuples where any user has a relationship as any relation with a particular document
 
 var body = new ClientReadRequest() {
-    Object = "document:roadmap",
+    Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 };
 
 // Read all stored relationship tuples
@@ -254,19 +255,19 @@ var body = new ClientWriteRequest() {
         new() {
             User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             Relation = "viewer",
-            Object = "document:roadmap",
+            Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
         },
         new() {
             User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             Relation = "viewer",
-            Object = "document:budget",
+            Object = "document:0192ab2d-d36e-7cb3-a4a8-5d1d67a300c5",
         }
     },
     Deletes = new List<ClientTupleKeyWithoutCondition> {
         new() {
             User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             Relation = "writer",
-            Object = "document:roadmap",
+            Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
         }
     },
 };
@@ -289,19 +290,19 @@ var body = new ClientWriteRequest() {
         new() {
             User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             Relation = "viewer",
-            Object = "document:roadmap",
+            Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
         },
         new() {
             User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             Relation = "viewer",
-            Object = "document:budget",
+            Object = "document:0192ab2d-d36e-7cb3-a4a8-5d1d67a300c5",
         }
     },
     Deletes = new List<ClientTupleKeyWithoutCondition> {
         new() {
             User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             Relation = "writer",
-            Object = "document:roadmap",
+            Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
         }
     },
 };
@@ -333,7 +334,7 @@ var options = new ClientCheckOptions {
 var body = new ClientCheckRequest {
     User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     Relation = "writer",
-    Object = "document:roadmap"
+    Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
 };
 var response = await fgaClient.Check(body, options);
 // response.Allowed = true
@@ -343,6 +344,8 @@ var response = await fgaClient.Check(body, options);
 
 Run a set of [checks](#check). Batch Check will return `allowed: false` if it encounters an error, and will return the error in the body.
 If 429s or 5xxs are encountered, the underlying check will retry up to {{defaultMaxRetry}} times before giving up.
+
+> **Note**: The order of `BatchCheck` results is not guaranteed to match the order of the checks provided. Use `correlationId` to pair responses with requests.
 
 ```csharp
 var options = new ClientBatchCheckOptions {
@@ -354,36 +357,36 @@ var body = new List<ClientCheckRequest>(){
     new() {
         User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
         Relation = "viewer",
-        Object = "document:roadmap",
+        Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
         ContextualTuples = new List<ClientTupleKey>() {
             new() {
                 User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 Relation = "editor",
-                Object = "document:roadmap",
+                Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
             }
         },
     },
     new() {
         User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
         Relation = "admin",
-        Object = "document:roadmap",
+        Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
         ContextualTuples = new List<ClientTupleKey>() {
             new() {
                 User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 Relation = "editor",
-                Object = "document:roadmap",
+                Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
             }
         },
     },
     new() {
         User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
         Relation = "creator",
-        Object = "document:roadmap",
+        Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
     },
     new() {
         User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
         Relation = "deleter",
-        Object = "document:roadmap",
+        Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
     }
 };
 
@@ -395,11 +398,11 @@ response.Responses = [{
   Request: {
     User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     Relation: "viewer",
-    Object: "document:roadmap",
+    Object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
     ContextualTuples: [{
       User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
       Relation: "editor",
-      Object: "document:roadmap"
+      Object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
     }]
   }
 }, {
@@ -407,11 +410,11 @@ response.Responses = [{
   Request: {
     User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     Relation: "admin",
-    Object: "document:roadmap",
+    Object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
     ContextualTuples: [{
       User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
       Relation: "editor",
-      Object: "document:roadmap"
+      Object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
     }]
   }
 }, {
@@ -419,7 +422,7 @@ response.Responses = [{
   Request: {
     User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     Relation: "creator",
-    Object: "document:roadmap",
+    Object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
   },
   Error: <FgaError ...>
 }, {
@@ -427,7 +430,7 @@ response.Responses = [{
   Request: {
     User: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     Relation: "deleter",
-    Object: "document:roadmap",
+    Object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
   }},
 ]
 */
@@ -446,11 +449,11 @@ var options = new ClientCheckOptions {
 };
 var body = new ClientExpandRequest {
     Relation = "viewer",
-    Object = "document:roadmap",
+    Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 };
 var response = await fgaClient.Expand(body, options);
 
-// response.Tree.Root = {"name":"document:roadmap#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b","user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]}}}
+// response.Tree.Root = {"name":"document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b","user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"]}}}
 ```
 
 ##### List Objects
@@ -472,13 +475,13 @@ var body = new ClientListObjectsRequest {
         new() {
             User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             Relation = "writer",
-            Object = "document:budget",
+            Object = "document:0192ab2d-d36e-7cb3-a4a8-5d1d67a300c5",
         },
     },
 };
 var response = await fgaClient.ListObjects(body, options);
 
-// response.Objects = ["document:roadmap"]
+// response.Objects = ["document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"]
 ```
 
 ##### List Relations
@@ -486,16 +489,16 @@ var response = await fgaClient.ListObjects(body, options);
 List the relations a user has on an object.
 
 ```csharp
-ListRelationsRequest body =
-    new ListRelationsRequest() {
+ClientListRelationsRequest body =
+    new ClientListRelationsRequest() {
         User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-        Object = "document:roadmap",
+        Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
         Relations = new List<string> {"can_view", "can_edit", "can_delete", "can_rename"},
         ContextualTuples = new List<ClientTupleKey>() {
             new ClientTupleKey {
                 User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 Relation = "editor",
-                Object = "document:roadmap",
+                Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
             }
         }
     };
@@ -511,39 +514,30 @@ List the users who have a certain relation to a particular type.
 [API Documentation](https://openfga.dev/api/service#/Relationship%20Queries/ListUsers)
 
 ```csharp
-const options = {};
-
-// To override the authorization model id for this request
-options.authorization_model_id = "1uHxCSuTP0VKPYSnkq1pbb1jeZw";
-
-// Only a single filter is allowed for the time being
-const userFilters = [{type: "user"}];
-// user filters can also be of the form
-// const userFilters = [{type: "team", relation: "member"}];
-
-const response = await fgaClient.listUsers({
-  object: {
-    type: "document",
-    id: "roadmap"
-  },
-  relation: "can_read",
-  user_filters: userFilters,
-  context: {
-    "view_count": 100
-  },
-  contextualTuples:
-    [{
-      user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-      relation: "editor",
-      object: "folder:product"
-    }, {
-      user: "folder:product",
-      relation: "parent",
-      object: "document:roadmap"
-    }]
-}, options);
-
-// response.users = [{object: {type: "user", id: "81684243-9356-4421-8fbf-a4f8d36aa31b"}}, {userset: { type: "user" }}, ...]
+var body = new ClientListUsersRequest()
+{
+    Object = new FgaObject()
+    {
+        Type = "document",
+        Id = "roadmap"
+    },
+    Relation = "can_read",
+    UserFilters = new List<UserTypeFilter>
+    {
+        new UserTypeFilter()
+        {
+            Type = "user"
+        }
+    },
+    ContextualTuples = new List<ClientTupleKey>() {
+        new ClientTupleKey {
+            User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+            Relation = "editor",
+            Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+        }
+    }
+};
+var response = await fgaClient.ListUsers(body);
 ```
 
 #### Assertions
@@ -576,7 +570,7 @@ var options = new ClientWriteAssertionsOptions {
 var body = new List<ClientAssertion>() {new ClientAssertion() {
     User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
     Relation = "viewer",
-    Object = "document:roadmap",
+    Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
     Expectation = true,
 }};
 await fgaClient.WriteAssertions(body, options);

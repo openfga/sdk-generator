@@ -10,6 +10,9 @@ import {
   FgaValidationError,
   {{appShortName}}Client,
   ListUsersResponse,
+  ConsistencyPreference,
+  ErrorCode,
+  BatchCheckRequest,
 } from "../index";
 import { baseConfig, defaultConfiguration, getNocks } from "./helpers";
 
@@ -134,7 +137,7 @@ describe("{{appTitleCaseName}} Client", () => {
 
 
       it("should allow overriding the store ID", async () => {
-        const overriddenStoreId = "01HWD53SDGYRXHBXTYA10PF6T4"
+        const overriddenStoreId = "01HWD53SDGYRXHBXTYA10PF6T4";
 
         const store = { id: overriddenStoreId, name: "some-name" };
         const scope = nocks.getStore(store.id, defaultConfiguration.getBasePath(), {
@@ -248,12 +251,13 @@ describe("{{appTitleCaseName}} Client", () => {
       it("should properly call the ReadChanges API", async () => {
         const type = "repo";
         const pageSize = 25;
+        const startTime = "2022-01-01T00:00:00Z";
         const continuationToken = "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==";
 
-        const scope = nocks.readChanges(baseConfig.storeId!, type, pageSize, continuationToken);
+        const scope = nocks.readChanges(baseConfig.storeId!, type, pageSize, continuationToken, startTime);
 
         expect(scope.isDone()).toBe(false);
-        const response = await fgaClient.readChanges({ type }, { pageSize, continuationToken });
+        const response = await fgaClient.readChanges({ type, startTime }, { pageSize, continuationToken });
 
         expect(scope.isDone()).toBe(true);
         expect(response).toMatchObject({ changes: expect.arrayContaining([]) });
@@ -262,8 +266,9 @@ describe("{{appTitleCaseName}} Client", () => {
       it("should properly call the ReadChanges API with no type", async () => {
         const pageSize = 25;
         const continuationToken = "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==";
+        const startTime = "2022-01-01T00:00:00Z";
 
-        const scope = nocks.readChanges(baseConfig.storeId!, "", pageSize, continuationToken);
+        const scope = nocks.readChanges(baseConfig.storeId!, "", pageSize, continuationToken,"");
 
         expect(scope.isDone()).toBe(false);
         const response = await fgaClient.readChanges(undefined, { pageSize, continuationToken });
@@ -280,10 +285,10 @@ describe("{{appTitleCaseName}} Client", () => {
           relation: "admin",
           object: "workspace:1",
         };
-        const scope = nocks.read(baseConfig.storeId!, tuple);
+        const scope = nocks.read(baseConfig.storeId!, tuple, undefined, ConsistencyPreference.HigherConsistency);
 
         expect(scope.isDone()).toBe(false);
-        const data = await fgaClient.read(tuple);
+        const data = await fgaClient.read(tuple, { consistency: ConsistencyPreference.HigherConsistency});
 
         expect(scope.isDone()).toBe(true);
         expect(data).toMatchObject({});
@@ -487,17 +492,17 @@ describe("{{appTitleCaseName}} Client", () => {
           relation: "admin",
           object: "workspace:1",
         };
-        const scope = nocks.check(baseConfig.storeId!, tuple);
+        const scope = nocks.check(baseConfig.storeId!, tuple, undefined, undefined, undefined, ConsistencyPreference.HigherConsistency);
 
         expect(scope.isDone()).toBe(false);
-        const data = await fgaClient.check(tuple);
+        const data = await fgaClient.check(tuple, { consistency: ConsistencyPreference.HigherConsistency });
 
         expect(scope.isDone()).toBe(true);
         expect(data).toMatchObject({ allowed: expect.any(Boolean) });
       });
     });
 
-    describe("BatchCheck", () => {
+    describe("ClientBatchCheck", () => {
       it("should properly call the Check API", async () => {
         const tuples = [{
           user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
@@ -512,36 +517,231 @@ describe("{{appTitleCaseName}} Client", () => {
           relation: "reader",
           object: "workspace:3",
         }];
-        const scope0 = nocks.check(defaultConfiguration.storeId!, tuples[0], defaultConfiguration.getBasePath(), { allowed: true }, 200).matchHeader("{{clientMethodHeader}}", "BatchCheck");
-        const scope1 = nocks.check(defaultConfiguration.storeId!, tuples[1], defaultConfiguration.getBasePath(), { allowed: false }, 200).matchHeader("{{clientMethodHeader}}", "BatchCheck");
+        const scope0 = nocks.check(defaultConfiguration.storeId!, tuples[0], defaultConfiguration.getBasePath(), { allowed: true }, 200, ConsistencyPreference.HigherConsistency).matchHeader("X-OpenFGA-Client-Method", "ClientBatchCheck");
+        const scope1 = nocks.check(defaultConfiguration.storeId!, tuples[1], defaultConfiguration.getBasePath(), { allowed: false }, 200, ConsistencyPreference.HigherConsistency).matchHeader("X-OpenFGA-Client-Method", "ClientBatchCheck");
         const scope2 = nocks.check(defaultConfiguration.storeId!, tuples[2], defaultConfiguration.getBasePath(), {
           "code": "validation_error",
           "message": "relation &#39;workspace#reader&#39; not found"
-        }, 400).matchHeader("{{clientMethodHeader}}", "BatchCheck");
+        }, 400, ConsistencyPreference.HigherConsistency).matchHeader("X-OpenFGA-Client-Method", "ClientBatchCheck");
         const scope3 = nock(defaultConfiguration.getBasePath())
           .get(`/stores/${defaultConfiguration.storeId!}/authorization-models`)
           .query({ page_size: 1 })
           .reply(200, {
             authorization_models: [],
           });
-
         expect(scope0.isDone()).toBe(false);
         expect(scope1.isDone()).toBe(false);
         expect(scope2.isDone()).toBe(false);
-        const response = await fgaClient.batchCheck([tuples[0], tuples[1], tuples[2]]);
+        const response = await fgaClient.clientBatchCheck([tuples[0], tuples[1], tuples[2]], { consistency: ConsistencyPreference.HigherConsistency });
 
         expect(scope0.isDone()).toBe(true);
         expect(scope1.isDone()).toBe(true);
         expect(scope2.isDone()).toBe(true);
         expect(scope3.isDone()).toBe(false);
-        expect(response.responses.length).toBe(3);
-        expect(response.responses.sort((a, b) => String(a._request.object).localeCompare(b._request.object)))
+        expect(response.result.length).toBe(3);
+        expect(response.result.sort((a, b) => String(a._request.object).localeCompare(b._request.object)))
           .toMatchObject(expect.arrayContaining([
             { _request: tuples[0], allowed: true, },
             { _request: tuples[1], allowed: false },
             { _request: tuples[2], error: expect.any(Error) },
           ]));
       });
+    });
+
+    describe("BatchCheck", () => {
+      it(" should throw error when correlationIds are duplicated", async () => {
+        expect(
+          fgaClient.batchCheck({
+            checks: [
+              {
+                user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                object: "workspace:1",
+                relation: "viewer",
+                correlationId: "cor-id",
+              },
+              {
+                user: "user:91284243-9356-4421-8fbf-a4f8d36aa31b",
+                object: "workspace:2",
+                relation: "viewer",
+                correlationId: "cor-id",
+              },
+            ]
+          }
+          )
+        ).rejects.toThrow(new FgaValidationError("correlationId", "When calling batchCheck, correlation IDs must be unique"));
+      });
+      it("should return empty results when empty checks are specified", async () => {
+        const response = await fgaClient.batchCheck({
+          checks: [],
+        });
+        expect(response.result.length).toBe(0);
+      });
+      it("should handle single batch successfully", async () => {
+        const mockedResponse = {
+          result: {
+            "cor-1": {
+              allowed: true,
+              error: undefined,
+            },
+            "cor-2": {
+              allowed: false,
+              error: undefined,
+            },
+          },
+        };
+
+        const scope = nocks.singleBatchCheck(baseConfig.storeId!, mockedResponse, undefined, ConsistencyPreference.HigherConsistency, "01GAHCE4YVKPQEKZQHT2R89MQV").matchHeader("X-OpenFGA-Client-Bulk-Request-Id", /.*/);
+
+        expect(scope.isDone()).toBe(false);
+        const response = await fgaClient.batchCheck({
+          checks: [{
+            user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+            relation: "can_read",
+            object: "document",
+            contextualTuples: {
+              tuple_keys: [{
+                user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                relation: "editor",
+                object: "folder:product"
+              }, {
+                user: "folder:product",
+                relation: "parent",
+                object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
+              }
+              ]
+            },
+            correlationId: "cor-1",
+          },
+          {
+            user: "folder:product",
+            relation: "parent",
+            object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+            correlationId: "cor-2",
+          }],
+        }, {
+          authorizationModelId: "01GAHCE4YVKPQEKZQHT2R89MQV",
+          consistency: ConsistencyPreference.HigherConsistency,
+        });
+
+        expect(scope.isDone()).toBe(true);
+        expect(response.result).toHaveLength(2);
+        expect(response.result[0].allowed).toBe(true);
+        expect(response.result[1].allowed).toBe(false);
+      });
+      it("should split batches successfully", async () => {
+        const mockedResponse0 = {
+          result: {
+            "cor-1": {
+              allowed: true,
+              error: undefined,
+            },
+            "cor-2": {
+              allowed: false,
+              error: undefined,
+            },
+          },
+        };
+        const mockedResponse1 = {
+          result: {
+            "cor-3": {
+              allowed: false,
+              error: {
+                input_error: ErrorCode.RelationNotFound,
+                message: "relation not found",
+              }
+            }
+          },
+        };
+
+        const scope0 = nocks.singleBatchCheck(baseConfig.storeId!, mockedResponse0, undefined, ConsistencyPreference.HigherConsistency, "01GAHCE4YVKPQEKZQHT2R89MQV").matchHeader("X-OpenFGA-Client-Bulk-Request-Id", /.*/);
+        const scope1 = nocks.singleBatchCheck(baseConfig.storeId!, mockedResponse1, undefined, ConsistencyPreference.HigherConsistency, "01GAHCE4YVKPQEKZQHT2R89MQV").matchHeader("X-OpenFGA-Client-Bulk-Request-Id", /.*/);
+
+        expect(scope0.isDone()).toBe(false);
+        expect(scope1.isDone()).toBe(false);
+
+        const response = await fgaClient.batchCheck({
+          checks: [{
+            user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+            relation: "can_read",
+            object: "document",
+            contextualTuples: {
+              tuple_keys: [{
+                user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                relation: "editor",
+                object: "folder:product"
+              }, {
+                user: "folder:product",
+                relation: "parent",
+                object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
+              }
+              ]
+            },
+            correlationId: "cor-1",
+          },
+          {
+            user: "folder:product",
+            relation: "parent",
+            object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+            correlationId: "cor-2",
+          },
+          {
+            user: "folder:product",
+            relation: "can_view",
+            object: "document:9992ab2a-d83f-756d-9397-c5ed9f3cj8a4",
+            correlationId: "cor-3",
+          }],
+        }, {
+          authorizationModelId: "01GAHCE4YVKPQEKZQHT2R89MQV",
+          consistency: ConsistencyPreference.HigherConsistency,
+          maxBatchSize: 2,
+        });
+
+        expect(scope0.isDone()).toBe(true);
+        expect(scope1.isDone()).toBe(true);
+        expect(response.result).toHaveLength(3);
+
+        const resp0 = response.result.find(r => r.correlationId === "cor-1");
+        const resp1 = response.result.find(r => r.correlationId === "cor-2");
+        const resp2 = response.result.find(r => r.correlationId === "cor-3");
+
+        expect(resp0?.allowed).toBe(true);
+        expect(resp0?.request.user).toBe("user:81684243-9356-4421-8fbf-a4f8d36aa31b");
+        expect(resp0?.request.relation).toBe("can_read");
+        expect(resp0?.request.object).toBe("document");
+
+        expect(resp1?.allowed).toBe(false);
+        expect(resp1?.request.user).toBe("folder:product");
+        expect(resp1?.request.relation).toBe("parent");
+        expect(resp1?.request.object).toBe("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a");
+
+        expect(resp2?.allowed).toBe(false);
+        expect(resp2?.request.user).toBe("folder:product");
+        expect(resp2?.request.relation).toBe("can_view");
+        expect(resp2?.request.object).toBe("document:9992ab2a-d83f-756d-9397-c5ed9f3cj8a4");
+
+        expect(resp2?.error?.input_error).toBe(ErrorCode.RelationNotFound);
+        expect(resp2?.error?.message).toBe("relation not found");
+      });
+      it("should throw an error if auth fails", async () => {
+
+        const scope = nock(defaultConfiguration.getBasePath())
+          .post(`/stores/${baseConfig.storeId!}/batch-check`)
+          .reply(401, {});
+
+        try {
+          await fgaClient.batchCheck({
+            checks: [{
+              user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+              relation: "can_read",
+              object: "document",
+            }],
+          });
+        } catch (err) {
+          expect(err).toBeInstanceOf(FgaApiAuthenticationError);
+        } finally {
+          expect(scope.isDone()).toBe(true);
+        }
+      }); 
     });
 
     describe("Expand", () => {
@@ -551,10 +751,10 @@ describe("{{appTitleCaseName}} Client", () => {
           relation: "admin",
           object: "workspace:1",
         };
-        const scope = nocks.expand(baseConfig.storeId!, tuple);
+        const scope = nocks.expand(baseConfig.storeId!, tuple, undefined, ConsistencyPreference.HigherConsistency);
 
         expect(scope.isDone()).toBe(false);
-        const data = await fgaClient.expand(tuple, { authorizationModelId: "01GXSA8YR785C4FYS3C0RTG7B1" });
+        const data = await fgaClient.expand(tuple, { authorizationModelId: "01GXSA8YR785C4FYS3C0RTG7B1", consistency: ConsistencyPreference.HigherConsistency });
 
         expect(scope.isDone()).toBe(true);
         expect(data).toMatchObject({});
@@ -563,8 +763,8 @@ describe("{{appTitleCaseName}} Client", () => {
 
     describe("ListObjects", () => {
       it("should call the api and return the response", async () => {
-        const mockedResponse = { objects: ["document:roadmap"] };
-        const scope = nocks.listObjects(baseConfig.storeId!, mockedResponse);
+        const mockedResponse = { objects: ["document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"] };
+        const scope = nocks.listObjects(baseConfig.storeId!, mockedResponse, undefined, ConsistencyPreference.HigherConsistency);
 
         expect(scope.isDone()).toBe(false);
         const response = await fgaClient.listObjects({
@@ -579,10 +779,11 @@ describe("{{appTitleCaseName}} Client", () => {
             }, {
               user: "folder:product",
               relation: "parent",
-              object: "document:roadmap"
+              object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
             }]
         }, {
           authorizationModelId: "01GAHCE4YVKPQEKZQHT2R89MQV",
+          consistency: ConsistencyPreference.HigherConsistency,
         });
 
         expect(scope.isDone()).toBe(true);
@@ -614,11 +815,11 @@ describe("{{appTitleCaseName}} Client", () => {
           relation: "can_read",
           object: "workspace:1",
         }];
-        const scope0 = nocks.check(defaultConfiguration.storeId!, tuples[0], defaultConfiguration.getBasePath(), { allowed: true }).matchHeader("{{clientMethodHeader}}", "ListRelations");
-        const scope1 = nocks.check(defaultConfiguration.storeId!, tuples[1], defaultConfiguration.getBasePath(), { allowed: false }).matchHeader("{{clientMethodHeader}}", "ListRelations");
-        const scope2 = nocks.check(defaultConfiguration.storeId!, tuples[2], defaultConfiguration.getBasePath(), { allowed: true }).matchHeader("{{clientMethodHeader}}", "ListRelations");
-        const scope3 = nocks.check(defaultConfiguration.storeId!, tuples[3], defaultConfiguration.getBasePath(), { allowed: false }).matchHeader("{{clientMethodHeader}}", "ListRelations");
-        const scope4 = nocks.check(defaultConfiguration.storeId!, tuples[4], defaultConfiguration.getBasePath(), { allowed: false }).matchHeader("{{clientMethodHeader}}", "ListRelations");
+        const scope0 = nocks.check(defaultConfiguration.storeId!, tuples[0], defaultConfiguration.getBasePath(), { allowed: true }, undefined, ConsistencyPreference.HigherConsistency).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
+        const scope1 = nocks.check(defaultConfiguration.storeId!, tuples[1], defaultConfiguration.getBasePath(), { allowed: false }, undefined, ConsistencyPreference.HigherConsistency).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
+        const scope2 = nocks.check(defaultConfiguration.storeId!, tuples[2], defaultConfiguration.getBasePath(), { allowed: true }, undefined, ConsistencyPreference.HigherConsistency).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
+        const scope3 = nocks.check(defaultConfiguration.storeId!, tuples[3], defaultConfiguration.getBasePath(), { allowed: false }, undefined, ConsistencyPreference.HigherConsistency).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
+        const scope4 = nocks.check(defaultConfiguration.storeId!, tuples[4], defaultConfiguration.getBasePath(), { allowed: false }, undefined, ConsistencyPreference.HigherConsistency).matchHeader("X-OpenFGA-Client-Method", "ListRelations");
         const scope5 = nock(defaultConfiguration.getBasePath())
           .get(`/stores/${defaultConfiguration.storeId!}/authorization-models`)
           .query({ page_size: 1 })
@@ -636,7 +837,7 @@ describe("{{appTitleCaseName}} Client", () => {
           user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
           object: "workspace:1",
           relations: ["admin", "guest", "reader", "viewer"],
-        });
+        }, { consistency: ConsistencyPreference.HigherConsistency });
 
         expect(scope0.isDone()).toBe(true);
         expect(scope1.isDone()).toBe(true);
@@ -771,7 +972,7 @@ describe("{{appTitleCaseName}} Client", () => {
             }
           }]
         };
-        const scope = nocks.listUsers(baseConfig.storeId!, mockedResponse);
+        const scope = nocks.listUsers(baseConfig.storeId!, mockedResponse, undefined, ConsistencyPreference.HigherConsistency);
 
         expect(scope.isDone()).toBe(false);
         const response = await fgaClient.listUsers({
@@ -795,10 +996,11 @@ describe("{{appTitleCaseName}} Client", () => {
             }, {
               user: "folder:product",
               relation: "parent",
-              object: "document:roadmap"
+              object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
             }]
         }, {
           authorizationModelId: "01GAHCE4YVKPQEKZQHT2R89MQV",
+          consistency: ConsistencyPreference.HigherConsistency
         });
 
         expect(scope.isDone()).toBe(true);
@@ -851,7 +1053,7 @@ describe("{{appTitleCaseName}} Client", () => {
         await fgaClient.writeAssertions([{
           user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
           relation: "viewer",
-          object: "document:roadmap",
+          object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
           expectation: true,
         }], { authorizationModelId: modelId });
 

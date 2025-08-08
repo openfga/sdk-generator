@@ -1,6 +1,5 @@
 {{>partial_header}}
 
-
 from {{packageName}}.api_client import ApiClient
 from {{packageName}}.exceptions import ApiValueError, FgaValidationException
 from {{packageName}}.oauth2 import OAuth2Client
@@ -25,7 +24,9 @@ class {{classname}}:
         if api_client.configuration is not None:
             credentials = api_client.configuration.credentials
             if credentials is not None and credentials.method == "client_credentials":
-                self._oauth2_client = OAuth2Client(credentials)
+                self._oauth2_client = OAuth2Client(
+                    credentials, api_client.configuration
+                )
 
         self._telemetry = Telemetry()
 
@@ -178,15 +179,15 @@ class {{classname}}:
                 '_request_auth',
                 '_content_type',
                 '_headers',
-                '_retry_parms'
+                '_retry_params',
+                '_streaming',
             ]
         )
 
         for key, val in local_var_params['kwargs'].items():
             if key not in all_params{{#servers.0}} and key != "_host_index"{{/servers.0}}:
                 raise FgaValidationException(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method {{operationId}}" % key
+                    f"Got an unexpected keyword argument '{key}' to method {{operationId}}"
                 )
             local_var_params[key] = val
         del local_var_params['kwargs']
@@ -204,47 +205,6 @@ class {{classname}}:
 {{/allParams}}
 
 {{#allParams}}
-{{#hasValidation}}
-    {{#maxLength}}
-        if self.api_client.client_side_validation and ('{{paramName}}' in local_var_params and
-                                                        len(local_var_params['{{paramName}}']) > {{maxLength}}):
-            raise ApiValueError(
-                "Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, length must be less than or equal to `{{maxLength}}`")
-    {{/maxLength}}
-    {{#minLength}}
-        if self.api_client.client_side_validation and ('{{paramName}}' in local_var_params and
-                                                        len(local_var_params['{{paramName}}']) < {{minLength}}):
-            raise ApiValueError(
-                "Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, length must be greater than or equal to `{{minLength}}`")
-    {{/minLength}}
-    {{#maximum}}
-        if self.api_client.client_side_validation and '{{paramName}}' in local_var_params and local_var_params['{{paramName}}'] >{{#exclusiveMaximum}}={{/exclusiveMaximum}} {{maximum}}:
-            raise ApiValueError(
-                "Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, must be a value less than {{^exclusiveMaximum}}or equal to {{/exclusiveMaximum}}`{{maximum}}`")
-    {{/maximum}}
-    {{#minimum}}
-        if self.api_client.client_side_validation and '{{paramName}}' in local_var_params and local_var_params['{{paramName}}'] <{{#exclusiveMinimum}}={{/exclusiveMinimum}} {{minimum}}:
-            raise ApiValueError(
-                "Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, must be a value greater than {{^exclusiveMinimum}}or equal to {{/exclusiveMinimum}}`{{minimum}}`")
-    {{/minimum}}
-    {{#pattern}}
-        if self.api_client.client_side_validation and '{{paramName}}' in local_var_params and not re.search(r'{{{vendorExtensions.x-regex}}}', local_var_params['{{paramName}}']{{#vendorExtensions.x-modifiers}}{{#-first}}, flags={{/-first}}re.{{.}}{{^-last}} | {{/-last}}{{/vendorExtensions.x-modifiers}}):
-            raise ApiValueError(
-                "Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, must conform to the pattern `{{{pattern}}}`")
-    {{/pattern}}
-    {{#maxItems}}
-        if self.api_client.client_side_validation and ('{{paramName}}' in local_var_params and
-                                                        len(local_var_params['{{paramName}}']) > {{maxItems}}):
-            raise ApiValueError(
-                "Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, number of items must be less than or equal to `{{maxItems}}`")
-    {{/maxItems}}
-    {{#minItems}}
-        if self.api_client.client_side_validation and ('{{paramName}}' in local_var_params and
-                                                        len(local_var_params['{{paramName}}']) < {{minItems}}):
-            raise ApiValueError(
-                "Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, number of items must be greater than or equal to `{{minItems}}`")
-    {{/minItems}}
-{{/hasValidation}}
 {{#-last}}
 {{/-last}}
 {{/allParams}}
@@ -329,35 +289,18 @@ class {{classname}}:
         response_types_map = {}
         {{/returnType}}
 
-        telemetry_attributes: dict[TelemetryAttribute, str] = {
-            TelemetryAttributes.request_method: "{{operationId}}"
+        telemetry_attributes: dict[TelemetryAttribute, str | bool | int | float] = {
+            TelemetryAttributes.fga_client_request_method: "{{operationId}}",
+            TelemetryAttributes.fga_client_request_store_id: self.api_client.get_store_id(),
+            TelemetryAttributes.fga_client_request_model_id: local_var_params.get(
+                "authorization_model_id", ""
+            ),
         }
 
-        try:
-            if store_id:
-                telemetry_attributes[TelemetryAttributes.request_store_id] = store_id
-        except:
-            pass
-
-        try:
-            if body_params.tuple_key:
-                telemetry_attributes[TelemetryAttributes.client_user] = (
-                    body_params.tuple_key.user
-                )
-        except:
-            pass
-
-        try:
-            if "authorization_model_id" in local_var_params:
-                telemetry_attributes[TelemetryAttributes.request_model_id] = local_var_params[
-                    "authorization_model_id"
-                ]
-            elif body_params.authorization_model_id:
-                telemetry_attributes[TelemetryAttributes.request_model_id] = (
-                    body_params.authorization_model_id
-                )
-        except:
-            pass
+        telemetry_attributes = TelemetryAttributes.fromBody(
+            body=body_params,
+            attributes=telemetry_attributes,
+        )
 
         return {{#asyncio}}await ({{/asyncio}}self.api_client.call_api(
             '{{{path}}}'.replace('{store_id}', store_id), '{{httpMethod}}',
@@ -380,7 +323,8 @@ class {{classname}}:
             collection_formats=collection_formats,
             _request_auth=local_var_params.get('_request_auth'),
             _oauth2_client=self._oauth2_client,
-            _telemetry_attributes=telemetry_attributes{{#asyncio}}){{/asyncio}}
+            _telemetry_attributes=telemetry_attributes,
+            _streaming=local_var_params.get('_streaming', False){{#asyncio}}){{/asyncio}}
         )
 {{/operation}}
 {{/operations}}

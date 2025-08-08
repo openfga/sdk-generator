@@ -2,22 +2,21 @@
 package {{packageName}}
 
 import (
-    "net/http"
+	"net/http"
 
-    "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
+	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
+	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/internal/utils/retryutils"
+	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/telemetry"
 )
 
 const (
-    SdkVersion = "{{packageVersion}}"
+	SdkVersion = "{{packageVersion}}"
 
-    defaultUserAgent = "{{{userAgent}}}"
+	defaultUserAgent = "{{{userAgent}}}"
 )
 
-// RetryParams configures configuration for retry in case of HTTP too many request
-type RetryParams struct {
-    MaxRetry    int `json:"maxRetry,omitempty"`
-    MinWaitInMs int `json:"minWaitInMs,omitempty"`
-}
+// RetryParams provides configuration for retries in case of server errors
+type RetryParams = retryutils.RetryParams
 
 // Configuration stores the configuration of the API client
 type Configuration struct {
@@ -31,26 +30,19 @@ type Configuration struct {
 	Credentials    *credentials.Credentials `json:"credentials,omitempty"`
 	DefaultHeaders map[string]string        `json:"default_headers,omitempty"`
 	UserAgent      string                   `json:"user_agent,omitempty"`
-    Debug          bool                     `json:"debug,omitempty"`
-    HTTPClient     *http.Client
-    RetryParams    *RetryParams
-}
-
-// DefaultRetryParams returns the default retry parameters
-func DefaultRetryParams() *RetryParams {
-	return &RetryParams{
-		MaxRetry: {{{defaultMaxRetry}}},
-		MinWaitInMs: {{{defaultMinWaitInMs}}},
-	}
+	Debug          bool                     `json:"debug,omitempty"`
+	HTTPClient     *http.Client
+	RetryParams    *RetryParams
+	Telemetry      *telemetry.Configuration `json:"telemetry,omitempty"`
 }
 
 func GetSdkUserAgent() string {
-    return defaultUserAgent
+	return defaultUserAgent
 }
 
 // NewConfiguration returns a new Configuration object
 func NewConfiguration(config Configuration) (*Configuration, error) {
-    apiUrl := config.ApiUrl
+	apiUrl := config.ApiUrl
 
 	apiScheme := config.ApiScheme
 	if apiScheme == "" {
@@ -62,57 +54,71 @@ func NewConfiguration(config Configuration) (*Configuration, error) {
 		apiUrl = apiScheme + "://" + config.ApiHost
 	}
 
-    cfg := &Configuration{
-        ApiUrl:         apiUrl,
-        Credentials:    config.Credentials,
-        DefaultHeaders: config.DefaultHeaders,
-        UserAgent:      config.UserAgent,
-        Debug:          config.Debug,
-		HTTPClient:	    config.HTTPClient,
-        RetryParams:    config.RetryParams,
-    }
+	cfg := &Configuration{
+		ApiUrl:         apiUrl,
+		Credentials:    config.Credentials,
+		DefaultHeaders: config.DefaultHeaders,
+		UserAgent:      config.UserAgent,
+		Debug:          config.Debug,
+		HTTPClient:     config.HTTPClient,
+		RetryParams:    config.RetryParams,
+		Telemetry:      config.Telemetry,
+	}
 
-    if cfg.UserAgent == "" {
-        cfg.UserAgent = GetSdkUserAgent()
-    }
+	if cfg.UserAgent == "" {
+		cfg.UserAgent = GetSdkUserAgent()
+	}
 
-    if cfg.DefaultHeaders == nil {
-        cfg.DefaultHeaders = make(map[string]string)
-    }
+	if cfg.DefaultHeaders == nil {
+		cfg.DefaultHeaders = make(map[string]string)
+	}
 
-    err := cfg.ValidateConfig()
+	if cfg.Telemetry == nil {
+		cfg.Telemetry = telemetry.DefaultTelemetryConfiguration()
+	}
 
-    if err != nil {
-        return nil, err
-    }
+	retryParams, err := retryutils.NewRetryParams(cfg.RetryParams)
+	if err != nil {
+		return nil, err
+	}
+	cfg.RetryParams = retryParams
 
-    return cfg, nil
+	if err := cfg.ValidateConfig(); err != nil {
+		return nil, err
+	}
+
+	return cfg, nil
+}
+
+// GetRetryParams
+func (c *Configuration) GetRetryParams() RetryParams {
+	return retryutils.GetRetryParamsOrDefault(c.RetryParams)
 }
 
 // AddDefaultHeader adds a new HTTP header to the default header in the request
 func (c *Configuration) AddDefaultHeader(key string, value string) {
-    c.DefaultHeaders[key] = value
+	c.DefaultHeaders[key] = value
 }
 
 // ValidateConfig ensures that the given configuration is valid
 func (c *Configuration) ValidateConfig() error {
-    if c.ApiUrl == "" {
+	if c.ApiUrl == "" {
 		return reportError("Configuration.ApiUrl is required")
-    }
+	}
 
-    if !IsWellFormedUri(c.ApiUrl) {
+	if !IsWellFormedUri(c.ApiUrl) {
 		return reportError("Configuration.ApiUrl (%s) does not form a valid uri", c.ApiUrl)
-    }
+	}
 
-    if c.Credentials != nil {
-        if err := c.Credentials.ValidateCredentialsConfig(); err != nil {
-            return reportError("Credentials are invalid: %v", err)
-        }
-    }
+	if c.Credentials != nil {
+		if err := c.Credentials.ValidateCredentialsConfig(); err != nil {
+			return reportError("Credentials are invalid: %v", err)
+		}
+	}
 
-    if c.RetryParams != nil && c.RetryParams.MaxRetry > {{retryMaxAllowedNumber}} {
-        return reportError("Configuration.RetryParams.MaxRetry exceeds maximum allowed limit of {{retryMaxAllowedNumber}}")
-    }
+	if err := c.RetryParams.Validate(); err != nil {
+		return err
+	}
 
-    return nil
+	return nil
 }

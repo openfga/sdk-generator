@@ -12,8 +12,8 @@ import {
   FgaApiNotFoundError,
   FgaApiRateLimitExceededError,
   FgaApiValidationError,
-  FgaValidationError,
   {{appShortName}}Api,
+  TelemetryAttribute,
 } from "../index";
 import { CallResult } from "../common";
 import { GetDefaultRetryParams } from "../configuration";
@@ -22,6 +22,7 @@ import {
   baseConfig,
   defaultConfiguration,
   {{appUpperCaseName}}_API_TOKEN_ISSUER,
+  {{appUpperCaseName}}_CLIENT_ASSERTION_SIGNING_KEY,
 } from "./helpers/default-config";
 import { getNocks } from "./helpers/nocks";
 
@@ -105,7 +106,7 @@ describe("{{appTitleCaseName}} SDK", function () {
               method: CredentialsMethod.ClientCredentials,
             } as AuthCredentialsConfig,
           })
-      ).toThrowError();
+      ).toThrow("config.clientId");
 
       expect(
         () =>
@@ -119,7 +120,7 @@ describe("{{appTitleCaseName}} SDK", function () {
               }
             } as Configuration["credentials"]
           })
-      ).toThrowError();
+      ).toThrow("config.clientId");
 
       expect(
         () =>
@@ -128,12 +129,28 @@ describe("{{appTitleCaseName}} SDK", function () {
             credentials: {
               method: CredentialsMethod.ClientCredentials,
               config: {
-                ...(baseConfig.credentials as any)!.clientCredentials,
+                ...(baseConfig.credentials as any)!.config,
                 clientSecret: undefined!
               }
             } as Configuration["credentials"]
           })
-      ).toThrowError();
+      ).toThrow("config.clientSecret or config.clientAssertionSigningKey");
+
+      expect(
+        () =>
+          new {{appShortName}}Api({
+            ...baseConfig,
+            credentials: {
+              method: CredentialsMethod.ClientCredentials,
+              config: {
+                ...(baseConfig.credentials as any)!.config,
+                clientSecret: undefined!,
+                clientAssertionSigningKey: undefined!
+              }
+            } as Configuration["credentials"]
+          })
+      ).toThrow("config.clientSecret or config.clientAssertionSigningKey");
+
 
       expect(
         () =>
@@ -147,7 +164,7 @@ describe("{{appTitleCaseName}} SDK", function () {
               }
             } as Configuration["credentials"]
           })
-      ).toThrowError();
+      ).toThrow("config.apiAudience");
 
       expect(
         () =>
@@ -161,7 +178,7 @@ describe("{{appTitleCaseName}} SDK", function () {
               }
             } as Configuration["credentials"]
           })
-      ).toThrowError();
+      ).toThrow("config.apiTokenIssuer");
     });
 
     it("should issue a network call to get the token at the first request if client id is provided", async () => {
@@ -234,9 +251,54 @@ describe("{{appTitleCaseName}} SDK", function () {
       nock.cleanAll();
     });
 
+    it("should issue a network call to get the token at the first request if client assertion is provided", async () => {
+      const scope = nocks.tokenExchange(OPENFGA_API_TOKEN_ISSUER);
+      nocks.readAuthorizationModels(baseConfig.storeId!);
+
+      const fgaApi = new OpenFgaApi({
+        ...baseConfig,
+        credentials: {
+          method: CredentialsMethod.ClientCredentials,
+          config: {
+            ...(baseConfig.credentials as any).config,
+            clientAssertionSigningKey: OPENFGA_CLIENT_ASSERTION_SIGNING_KEY
+          }
+        }
+      });
+      expect(scope.isDone()).toBe(false);
+
+      await fgaApi.readAuthorizationModels(baseConfig.storeId!);
+
+      expect(scope.isDone()).toBe(true);
+
+      nock.cleanAll();
+    });
+
     it("should allow passing in a configuration instance", async () => {
       const configuration = new Configuration(baseConfig);
       expect(() => new {{appShortName}}Api(configuration)).not.toThrowError();
+    });
+
+     it("should only accept valid telemetry attributes", async () => {
+      expect(
+        () =>
+          new OpenFgaApi({
+            ...baseConfig,
+            telemetry: {
+              metrics: {
+                counterCredentialsRequest: {
+                  attributes: ["JUNK"] as any
+                },
+                histogramQueryDuration: {
+                  attributes: new Set<TelemetryAttribute>
+                },
+                histogramRequestDuration: {
+                  attributes: new Set<TelemetryAttribute>
+                }
+              }
+            }
+          })
+      ).toThrow();
     });
   });
 
@@ -778,11 +840,12 @@ describe("{{appTitleCaseName}} SDK", function () {
         const type = "repo";
         const pageSize = 25;
         const continuationToken = "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==";
+        const startTime = "2022-01-01T00:00:00Z";
 
-        const scope = nocks.readChanges(baseConfig.storeId!, type, pageSize, continuationToken);
+        const scope = nocks.readChanges(baseConfig.storeId!, type, pageSize, continuationToken, startTime);
 
         expect(scope.isDone()).toBe(false);
-        const response = await fgaApi.readChanges(baseConfig.storeId!, type, pageSize, continuationToken);
+        const response = await fgaApi.readChanges(baseConfig.storeId!, type, pageSize, continuationToken, startTime);
 
         expect(scope.isDone()).toBe(true);
         expect(response).toMatchObject({ changes: expect.arrayContaining([]) });
@@ -791,7 +854,7 @@ describe("{{appTitleCaseName}} SDK", function () {
 
     describe("listObjects", () => {
       it("should call the api and return the response", async () => {
-        const mockedResponse = { objects: ["document:roadmap"] };
+        const mockedResponse = { objects: ["document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"] };
         const scope = nocks.listObjects(baseConfig.storeId!, mockedResponse);
 
         expect(scope.isDone()).toBe(false);
@@ -811,7 +874,7 @@ describe("{{appTitleCaseName}} SDK", function () {
                 }, {
                   user: "folder:product",
                   relation: "parent",
-                  object: "document:roadmap"
+                  object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
                 }]
              }
           });

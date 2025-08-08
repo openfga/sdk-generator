@@ -11,6 +11,7 @@ import org.openapitools.jackson.nullable.JsonNullableModule;
 {{/openApiNullable}}
 
 import {{utilPackage}}.Pair;
+import {{utilPackage}}.StringUtil;
 import {{configPackage}}.Configuration;
 import {{errorsPackage}}.FgaInvalidParameterException;
 import java.io.InputStream;
@@ -21,8 +22,6 @@ import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -67,6 +66,24 @@ public class ApiClient {
   }
 
   /**
+     * Create an instance of ApiClient.
+     * <p>
+     * In other contexts, note that any settings in a {@link Configuration}
+     * will take precedence over equivalent settings in the
+     * {@link HttpClient.Builder} here.
+     *
+     * @param builder Http client builder.
+     */
+    public ApiClient(HttpClient.Builder builder) {
+        this.builder = builder;
+        this.mapper = createDefaultObjectMapper();
+        this.client = this.builder.build();
+        interceptor = null;
+        responseInterceptor = null;
+        asyncResponseInterceptor = null;
+    }
+
+  /**
    * Create an instance of ApiClient.
    * <p>
    * In other contexts, note that any settings in a {@link Configuration}
@@ -83,16 +100,6 @@ public class ApiClient {
     interceptor = null;
     responseInterceptor = null;
     asyncResponseInterceptor = null;
-  }
-
-  private static String valueToString(Object value) {
-    if (value == null) {
-      return "";
-    }
-    if (value instanceof OffsetDateTime) {
-      return ((OffsetDateTime) value).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-    }
-    return value.toString();
   }
 
   public static HttpRequest.Builder requestBuilder(String method, String path, Configuration configuration)
@@ -146,11 +153,13 @@ public class ApiClient {
   }
 
   /**
-   * URL encode a string in the UTF-8 encoding.
-   *
-   * @param s String to encode.
-   * @return URL-encoded representation of the input string.
-   */
+    * URL encode a string in the UTF-8 encoding.
+    *
+    * @param s String to encode.
+    * @return URL-encoded representation of the input string.
+    * @deprecated in favor of {@link StringUtil#urlEncode(String)}
+    */
+  @Deprecated(forRemoval = true, since = "0.8.2")
   public static String urlEncode(String s) {
     return URLEncoder.encode(s, UTF_8).replaceAll("\\+", "%20");
   }
@@ -176,7 +185,7 @@ public class ApiClient {
   }
 
   protected HttpClient.Builder createDefaultHttpClientBuilder() {
-    return HttpClient.newBuilder();
+    return HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1);
   }
 
   /**

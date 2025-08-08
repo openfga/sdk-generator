@@ -1,4 +1,5 @@
 import { CredentialsMethod, FgaApiValidationError, OpenFgaClient, TypeName } from "@openfga/sdk";
+import { randomUUID } from "crypto";
 
 async function main () {
   let credentials;
@@ -129,7 +130,7 @@ async function main () {
       {
         user: "user:anne",
         relation: "writer",
-        object: "document:roadmap",
+        object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
         condition: {
           name: "ViewCountLessThan200",
           context: {
@@ -137,6 +138,11 @@ async function main () {
             Type: "document"
           }
         }
+      },
+      {
+        user: "user:bob",
+        relation: "writer",
+        object: "document:7772ab2a-d83f-756d-9397-c5ed9f3cb69a"
       }
     ]
   }, { authorizationModelId });
@@ -158,7 +164,7 @@ async function main () {
     const { allowed } = await fgaClient.check({
       user: "user:anne",
       relation: "viewer",
-      object: "document:roadmap"
+      object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
     });
     console.log(`Allowed: ${allowed}`);
   } catch (error) {
@@ -173,13 +179,42 @@ async function main () {
   const { allowed } = await fgaClient.check({
     user: "user:anne",
     relation: "viewer",
-    object: "document:roadmap",
+    object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
     context: {
       ViewCount: 100
     }
   });
   console.log(`Allowed: ${allowed}`);
  
+  // execute a batch check
+  const anneCorrelationId = randomUUID();
+  const { result } = await fgaClient.batchCheck({
+    checks: [
+      {
+        // should have access
+        user: "user:anne",
+        relation: "viewer",
+        object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+        context: {
+          ViewCount: 100
+        },
+        correlationId: anneCorrelationId,
+      },
+      {
+        // should NOT have access
+        user: "user:anne",
+        relation: "viewer",
+        object: "document:7772ab2a-d83f-756d-9397-c5ed9f3cb69a",
+      }
+    ]
+  });
+  
+  const anneAllowed = result.filter(r => r.correlationId === anneCorrelationId);
+  console.log(`Anne is allowed access to ${anneAllowed.length} documents`);
+  anneAllowed.forEach(item => {
+    console.log(`Anne is allowed access to ${item.request.object}`);
+  });
+
   console.log("Writing Assertions");
   await fgaClient.writeAssertions([
     {
@@ -191,7 +226,7 @@ async function main () {
     {
       user: "user:carl",
       relation: "writer",
-      object: "document:roadmap",
+      object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
       expectation: false
     }
   ]);

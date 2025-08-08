@@ -60,7 +60,7 @@ class OAuth2Client:
         """
         configuration = self._credentials.configuration
 
-        token_url = f'https://{configuration.api_issuer}/oauth/token'
+        token_url = self._credentials._parse_issuer(configuration.api_issuer)
 
         post_params = {
             'client_id': configuration.client_id,
@@ -90,8 +90,15 @@ class OAuth2Client:
         )
 
         for attempt in range(max_retry + 1):
-            raw_response = await client.POST(
-                token_url, headers=headers, post_params=post_params
+            raw_response = await client.request(
+                method="POST",
+                url=token_url,
+                headers=headers,
+                query_params=None,
+                body=None,
+                _preload_content=True,
+                _request_timeout=None,
+                post_params=post_params
             )
 
             if 500 <= raw_response.status <= 599 or raw_response.status == 429:
@@ -102,7 +109,7 @@ class OAuth2Client:
             if 200 <= raw_response.status <= 299:
                 try:
                     api_response = json.loads(raw_response.data)
-                except:
+                except Exception:
                     raise AuthenticationError(http_resp=raw_response)
 
                 if api_response.get("expires_in") and api_response.get("access_token"):
@@ -110,11 +117,11 @@ class OAuth2Client:
                         seconds=int(api_response.get("expires_in"))
                     )
                     self._access_token = api_response.get("access_token")
-                    self._telemetry.metrics().credentialsRequest(
-                        1,
-                        {
-                            TelemetryAttributes.request_client_id: configuration.client_id
+                    self._telemetry.metrics.credentialsRequest(
+                       attributes={
+                            TelemetryAttributes.fga_client_request_client_id: configuration.client_id
                         },
+                        configuration=self.configuration.telemetry,
                     )
                     break
 

@@ -7,9 +7,12 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/jarcoal/httpmock"
+
 	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/credentials"
+	"{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/internal/utils/retryutils"
 )
 
 type TestDefinition struct {
@@ -48,6 +51,126 @@ func Test{{appShortName}}ApiConfiguration(t *testing.T) {
 			t.Fatalf("Expected an error when ApiHost is invalid (scheme is part of the host)")
 		}
 	})
+
+    t.Run("RetryParams should be valid", func(t *testing.T) {
+        tests := []struct {
+            retryParams   *RetryParams
+            expectedError bool
+        }{
+            {
+                retryParams: &RetryParams{
+                    MaxRetry:    1,
+                    MinWaitInMs: 0,
+                },
+                expectedError: true,
+            },
+            {
+                retryParams: &RetryParams{
+                    MaxRetry:    100,
+                    MinWaitInMs: 1,
+                },
+                expectedError: true,
+            },
+            {
+                retryParams: &RetryParams{
+                    MaxRetry:    -1,
+                    MinWaitInMs: 1,
+                },
+                expectedError: true,
+            },
+            {
+                retryParams: &RetryParams{
+                    MaxRetry:    1,
+                    MinWaitInMs: -1,
+                },
+                expectedError: true,
+            },
+            {
+                retryParams: &RetryParams{
+                    MaxRetry:    1,
+                    MinWaitInMs: -1,
+                },
+                expectedError: true,
+            },
+            {
+                retryParams: &RetryParams{
+                    MaxRetry:    1,
+                    MinWaitInMs: 1,
+                },
+                expectedError: false,
+            },
+            {
+                retryParams: &RetryParams{
+                    MaxRetry:    0,
+                    MinWaitInMs: 1,
+                },
+                expectedError: false,
+            },
+        }
+
+        for _, test := range tests {
+            t.Run(fmt.Sprintf("RetryParams: %v", *test.retryParams), func(t *testing.T) {
+                config, err := NewConfiguration(Configuration{
+                    ApiUrl:      "https://api.fga.example",
+                    RetryParams: test.retryParams,
+                })
+
+                if test.expectedError && err == nil {
+                    t.Fatalf("Expected an error when RetryParams are invalid, got none")
+                }
+
+                if !test.expectedError && err != nil {
+                    t.Fatalf("Unexpected error: %v", err)
+                }
+
+                if !test.expectedError {
+                    if config.RetryParams == nil {
+                        t.Fatalf("Expected RetryParams on the config to be non-nil")
+                    }
+
+                    appliedRetryParams := *config.RetryParams
+                    if appliedRetryParams.MaxRetry != test.retryParams.MaxRetry {
+                        t.Fatalf("Expected MaxRetry to be %v, got %v", test.retryParams.MaxRetry, appliedRetryParams.MaxRetry)
+                    }
+
+                    if appliedRetryParams.MinWaitInMs != test.retryParams.MinWaitInMs {
+                        t.Fatalf("Expected MinWaitInMs to be %v, got %v", test.retryParams.MinWaitInMs, appliedRetryParams.MinWaitInMs)
+                    }
+
+                    appliedRetryParams = config.GetRetryParams()
+                    if appliedRetryParams.MaxRetry != test.retryParams.MaxRetry {
+                        t.Fatalf("Expected MaxRetry to be %v, got %v", test.retryParams.MaxRetry, appliedRetryParams.MaxRetry)
+                    }
+
+                    if appliedRetryParams.MinWaitInMs != test.retryParams.MinWaitInMs {
+                        t.Fatalf("Expected MinWaitInMs to be %v, got %v", test.retryParams.MinWaitInMs, appliedRetryParams.MinWaitInMs)
+                    }
+                }
+            })
+        }
+    })
+
+    t.Run("RetryParams is default if not set", func(t *testing.T) {
+        config, err := NewConfiguration(Configuration{
+            ApiUrl: "https://api.fga.example",
+        })
+        if err != nil {
+            t.Fatalf("Unexpected error: %v", err)
+        }
+        if config.RetryParams == nil {
+            t.Fatalf("Expected RetryParams on the config to be non-nil")
+        }
+
+        appliedRetryParams := config.GetRetryParams()
+        defaultParams := retryutils.GetRetryParamsOrDefault(nil)
+        if appliedRetryParams.MaxRetry != defaultParams.MaxRetry {
+            t.Fatalf("Expected MaxRetry to be %v, got %v", defaultParams.MaxRetry, appliedRetryParams.MaxRetry)
+        }
+
+        if appliedRetryParams.MinWaitInMs != defaultParams.MinWaitInMs {
+            t.Fatalf("Expected MinWaitInMs to be %v, got %v", defaultParams.MinWaitInMs, appliedRetryParams.MinWaitInMs)
+        }
+    })
 
 	t.Run("In ApiToken credential method, apiToken is required in the Credentials Config", func(t *testing.T) {
 		_, err := NewConfiguration(Configuration{
@@ -264,14 +387,14 @@ func Test{{appShortName}}ApiConfiguration(t *testing.T) {
     }
 
 	tokenIssuers := map[string]string{
-		"issuer.fga.example":                            "https://issuer.fga.example/oauth/token",
-		"https://issuer.fga.example":                    "https://issuer.fga.example/oauth/token",
-		"https://issuer.fga.example/":                   "https://issuer.fga.example/oauth/token",
-		"https://issuer.fga.example:8080":               "https://issuer.fga.example:8080/oauth/token",
-		"https://issuer.fga.example:8080/":              "https://issuer.fga.example:8080/oauth/token",
-		"issuer.fga.example/some_endpoint":              "https://issuer.fga.example/some_endpoint",
-		"https://issuer.fga.example/some_endpoint":      "https://issuer.fga.example/some_endpoint",
-		"https://issuer.fga.example:8080/some_endpoint": "https://issuer.fga.example:8080/some_endpoint",
+		"issuer.{{sampleApiDomain}}":                            "https://issuer.{{sampleApiDomain}}/oauth/token",
+		"https://issuer.{{sampleApiDomain}}":                    "https://issuer.{{sampleApiDomain}}/oauth/token",
+		"https://issuer.{{sampleApiDomain}}/":                   "https://issuer.{{sampleApiDomain}}/oauth/token",
+		"https://issuer.{{sampleApiDomain}}:8080":               "https://issuer.{{sampleApiDomain}}:8080/oauth/token",
+		"https://issuer.{{sampleApiDomain}}:8080/":              "https://issuer.{{sampleApiDomain}}:8080/oauth/token",
+		"issuer.{{sampleApiDomain}}/some_endpoint":              "https://issuer.{{sampleApiDomain}}/some_endpoint",
+		"https://issuer.{{sampleApiDomain}}/some_endpoint":      "https://issuer.{{sampleApiDomain}}/some_endpoint",
+		"https://issuer.{{sampleApiDomain}}:8080/some_endpoint": "https://issuer.{{sampleApiDomain}}:8080/some_endpoint",
 	}
 
 	for tokenIssuer, expectedTokenURL := range tokenIssuers {
@@ -529,7 +652,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 			TupleKey: CheckRequestTupleKey{
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			},
 			AuthorizationModelId: PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
 		}
@@ -583,7 +706,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 				TupleKeys: []TupleKey{{
 					User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 					Relation: "viewer",
-					Object:   "document:roadmap",
+					Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 				}},
 			},
 			AuthorizationModelId: PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
@@ -631,7 +754,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 				TupleKeys: []TupleKeyWithoutCondition{{
 					User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 					Relation: "viewer",
-					Object:   "document:roadmap",
+					Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 				}},
 			},
 			AuthorizationModelId: PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
@@ -667,7 +790,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 	t.Run("Expand", func(t *testing.T) {
 		test := TestDefinition{
 			Name:           "Expand",
-			JsonResponse:   `{"tree":{"root":{"name":"document:roadmap#viewer","union":{"nodes":[{"name": "document:roadmap#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b"]}}}]}}}}`,
+			JsonResponse:   `{"tree":{"root":{"name":"document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a#viewer","union":{"nodes":[{"name": "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a#viewer","leaf":{"users":{"users":["user:81684243-9356-4421-8fbf-a4f8d36aa31b"]}}}]}}}}`,
 			ResponseStatus: 200,
 			Method:         "POST",
 			RequestPath:    "expand",
@@ -676,7 +799,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 		requestBody := ExpandRequest{
 			TupleKey: ExpandRequestTupleKey{
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			},
 			AuthorizationModelId: PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
 		}
@@ -715,7 +838,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 	t.Run("Read", func(t *testing.T) {
 		test := TestDefinition{
 			Name:           "Read",
-			JsonResponse:   `{"tuples":[{"key":{"user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b","relation":"viewer","object":"document:roadmap"},"timestamp": "2000-01-01T00:00:00Z"}]}`,
+			JsonResponse:   `{"tuples":[{"key":{"user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b","relation":"viewer","object":"document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"},"timestamp": "2000-01-01T00:00:00Z"}]}`,
 			ResponseStatus: 200,
 			Method:         "POST",
 			RequestPath:    "read",
@@ -725,7 +848,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 			TupleKey: &ReadRequestTupleKey{
 				User:     PtrString("user:81684243-9356-4421-8fbf-a4f8d36aa31b"),
 				Relation: PtrString("viewer"),
-				Object:   PtrString("document:roadmap"),
+				Object:   PtrString("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"),
 			},
 		}
 
@@ -767,7 +890,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 	t.Run("ReadChanges", func(t *testing.T) {
 		test := TestDefinition{
 			Name:           "ReadChanges",
-			JsonResponse:   `{"changes":[{"tuple_key":{"user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b","relation":"viewer","object":"document:roadmap"},"operation":"TUPLE_OPERATION_WRITE","timestamp": "2000-01-01T00:00:00Z"}],"continuation_token":"eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="}`,
+			JsonResponse:   `{"changes":[{"tuple_key":{"user":"user:81684243-9356-4421-8fbf-a4f8d36aa31b","relation":"viewer","object":"document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"},"operation":"TUPLE_OPERATION_WRITE","timestamp": "2000-01-01T00:00:00Z"}],"continuation_token":"eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="}`,
 			ResponseStatus: 200,
 			Method:         "GET",
 			RequestPath:    "changes",
@@ -789,9 +912,11 @@ func Test{{appShortName}}Api(t *testing.T) {
 				return resp, nil
 			},
 		)
+		startTime, _ := time.Parse(time.RFC3339, "2022-01-01T00:00:00Z")
 		got, response, err := apiClient.{{appShortName}}Api.ReadChanges(context.Background(), "01GXSB9YR785C4FYS3C0RTG7B2").
 			Type_("repo").
 			PageSize(25).
+			StartTime(startTime).
 			ContinuationToken("eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==").
 			Execute()
 		if err != nil {
@@ -815,7 +940,7 @@ func Test{{appShortName}}Api(t *testing.T) {
     t.Run("ListObjects", func(t *testing.T) {
         test := TestDefinition{
             Name:           "ListObjects",
-            JsonResponse:   `{"objects":["document:roadmap"]}`,
+            JsonResponse:   `{"objects":["document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"]}`,
             ResponseStatus: 200,
             Method:         "POST",
             RequestPath:    "list-objects",
@@ -835,7 +960,7 @@ func Test{{appShortName}}Api(t *testing.T) {
                 }, {
                     User:     "folder:product",
                     Relation: "parent",
-                    Object:   "document:roadmap",
+                    Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
                 }},
 <%={{ }}=%>
             },
@@ -910,7 +1035,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 			}, {
 				User:     "folder:product",
 				Relation: "parent",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			}},
 <%={{ }}=%>
 			Context: &map[string]interface{}{"ViewCount": 100},
@@ -977,7 +1102,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 			TupleKey: CheckRequestTupleKey{
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			},
 		}
 
@@ -1024,8 +1149,8 @@ func Test{{appShortName}}Api(t *testing.T) {
 			t.Fatalf("Expected status code to be 400 but actual %d", validationError.ResponseStatusCode())
 		}
 
-		if validationError.ResponseCode() != VALIDATION_ERROR {
-			t.Fatalf("Expected response code to be VALIDATION_ERROR but actual %s", validationError.ResponseCode())
+		if validationError.ResponseCode() != ERRORCODE_VALIDATION_ERROR {
+			t.Fatalf("Expected response code to be ERRORCODE_VALIDATION_ERROR but actual %s", validationError.ResponseCode())
 		}
 	})
 
@@ -1041,7 +1166,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 			TupleKey: CheckRequestTupleKey{
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			},
 		}
 
@@ -1098,7 +1223,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 			TupleKey: CheckRequestTupleKey{
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			},
 		}
 
@@ -1145,8 +1270,8 @@ func Test{{appShortName}}Api(t *testing.T) {
 			t.Fatalf("Expected status code to be 404 but actual %d", notFoundError.ResponseStatusCode())
 		}
 
-		if notFoundError.ResponseCode() != UNDEFINED_ENDPOINT {
-			t.Fatalf("Expected response code to be UNDEFINED_ENDPOINT but actual %s", notFoundError.ResponseCode())
+		if notFoundError.ResponseCode() != NOTFOUNDERRORCODE_UNDEFINED_ENDPOINT {
+			t.Fatalf("Expected response code to be NOTFOUNDERRORCODE_UNDEFINED_ENDPOINT but actual %s", notFoundError.ResponseCode())
 		}
 	})
 
@@ -1162,7 +1287,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 			TupleKey: CheckRequestTupleKey{
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			},
 		}
 
@@ -1233,7 +1358,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 			TupleKey: CheckRequestTupleKey{
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			},
 		}
 
@@ -1252,7 +1377,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 		updatedConfiguration, err := NewConfiguration(Configuration{
             ApiHost:         "api.{{sampleApiDomain}}",
 			RetryParams: &RetryParams{
-				MaxRetry:    2,
+				MaxRetry:    3,
 				MinWaitInMs: 5,
 			},
 		})
@@ -1263,6 +1388,55 @@ func Test{{appShortName}}Api(t *testing.T) {
 		updatedApiClient := NewAPIClient(updatedConfiguration)
 
 		got, response, err := updatedApiClient.{{appShortName}}Api.Check(context.Background(), "01GXSB9YR785C4FYS3C0RTG7B2").Body(requestBody).Execute()
+
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		if response.StatusCode != test.ResponseStatus {
+			t.Fatalf("{{appShortName}}%v().Execute() = %v, want %v", test.Name, response.StatusCode, test.ResponseStatus)
+		}
+
+		responseJson, err := got.MarshalJSON()
+		if err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		if *got.Allowed != *expectedResponse.Allowed {
+			t.Fatalf("{{appShortName}}%v().Execute() = %v, want %v", test.Name, string(responseJson), test.JsonResponse)
+		}
+	})
+
+	t.Run("Check with initial 429 but eventually resolved with default config", func(t *testing.T) {
+		test := TestDefinition{
+			Name:           "Check",
+			JsonResponse:   `{"allowed":true, "resolution":""}`,
+			ResponseStatus: 200,
+			Method:         "POST",
+			RequestPath:    "check",
+		}
+		requestBody := CheckRequest{
+			TupleKey: CheckRequestTupleKey{
+				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+				Relation: "viewer",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+			},
+		}
+
+		var expectedResponse CheckResponse
+		if err := json.Unmarshal([]byte(test.JsonResponse), &expectedResponse); err != nil {
+			t.Fatalf("%v", err)
+		}
+
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		firstMock := httpmock.NewStringResponder(429, "")
+		secondMock, _ := httpmock.NewJsonResponder(200, expectedResponse)
+		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", configuration.ApiUrl, "01GXSB9YR785C4FYS3C0RTG7B2", test.RequestPath),
+			firstMock.Then(secondMock),
+		)
+
+		got, response, err := apiClient.{{appShortName}}Api.Check(context.Background(), "01GXSB9YR785C4FYS3C0RTG7B2").Body(requestBody).Execute()
 
 		if err != nil {
 			t.Fatalf("%v", err)
@@ -1294,7 +1468,7 @@ func Test{{appShortName}}Api(t *testing.T) {
 			TupleKey: CheckRequestTupleKey{
 				User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
 				Relation: "viewer",
-				Object:   "document:roadmap",
+				Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
 			},
 		}
 
@@ -1341,8 +1515,8 @@ func Test{{appShortName}}Api(t *testing.T) {
 			t.Fatalf("Expected status code to be 500 but actual %d", internalError.ResponseStatusCode())
 		}
 
-		if internalError.ResponseCode() != INTERNAL_ERROR {
-			t.Fatalf("Expected response code to be INTERNAL_ERROR but actual %s", internalError.ResponseCode())
+		if internalError.ResponseCode() != INTERNALERRORCODE_INTERNAL_ERROR {
+			t.Fatalf("Expected response code to be INTERNALERRORCODE_INTERNAL_ERROR but actual %s", internalError.ResponseCode())
 		}
 	})
 }

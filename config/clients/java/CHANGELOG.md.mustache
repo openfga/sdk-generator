@@ -1,8 +1,82 @@
 # Changelog
 
+## [Unreleased](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v{{packageVersion}}...HEAD)
+
+## v0.8.3
+
+### [0.8.3](https://github.com/openfga/java-sdk/compare/v0.8.2...v0.8.3) (2025-07-15)
+
+Fixed:
+- client: fix connectTimeout config (#182)
+- client: fix batchCheck error handling (#183)
+
+## v0.8.2
+
+### [0.8.2](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.8.1...v0.8.2) (2025-07-02)
+
+Added:
+- client: allow accessing the internal api client via `getApi` (#178)
+
+Fixed:
+- client: fix BatchCheck ignoring passed in model ID override  (#177)
+
+## v0.8.1
+
+### [0.8.1](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.8.0...v0.8.1) (2025-02-18)
+
+- fix: use HTTP 1.1 by default (#148)
+- fix: ensure default telemetry attributes are sent (#145)
+- feat: add batch check telemetry attribute (#143)
+ 
+## v0.8.0
+
+### [0.8.0](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.7.2...v0.8.0) (2025-02-07)
+
+- feat!: add support for server-side [`batchCheck`](https://openfga.dev/docs/interacting/relationship-queries#batch-check) method (#141) - thanks @piotrooo!!
+  This is a more efficient way to check on multiple tuples than calling the existing client-side `batchCheck`. Using this method requires an OpenFGA [v1.8.0+](https://github.com/openfga/openfga/releases/tag/v1.8.0) server.
+    The existing `batchCheck` method has been renamed to `clientBatchCheck`.
+    The existing `BatchCheckResponse` has been renamed to `ClientBatchCheckResponse`.
+- feat: add support for `start_time` parameter in `ReadChanges` endpoint (#137)
+
+BREAKING CHANGES:
+- Usage of the existing `batchCheck` method should now use the `clientBatchCheck` method.
+
+## v0.7.2
+
+### [0.7.2](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.7.1...v0.7.2) (2024-12-18)
+
+- fix: Ensure executor is shutdown (#133)
+
+## v0.7.1
+
+### [0.7.1](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.7.0...v0.7.1) (2024-09-23)
+
+- refactor(OpenTelemetry): remove SDK version from meter name
+- fix(OpenTelemetry): `http.request.method` should be enabled by default (#114)
+- chore(deps): update dependencies  (#110, #111, #112)
+- docs(OpenTelemetry): update Metrics and Attributes tables (#115)
+
+## v0.7.0
+
+### [0.7.0](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.6.1...v0.7.0) (2024-08-28)
+
+- feat: support consistency parameter [\#107](https://github.com/openfga/java-sdk/pull/107)
+Note: To use this feature, you need to be running OpenFGA v1.5.7+ with the experimental flag `enable-consistency-params` enabled. 
+See the [v1.5.7 release notes](https://github.com/openfga/openfga/releases/tag/v1.5.7) for details.
+
+## v0.6.1
+
+- fix: Maven build issue
+
+## v0.6.0
+
+- feat: support [OpenTelemetry metrics reporting](https://github.com/openfga/java-sdk/blob/main/docs/OpenTelemetry.md) [\#94](https://github.com/openfga/java-sdk/pull/94) [\#95](https://github.com/openfga/java-sdk/pull/95)
+- chore: update dependencies [\#100](https://github.com/openfga/java-sdk/pull/100) [\#101](https://github.com/openfga/java-sdk/pull/100) [\#102](https://github.com/openfga/java-sdk/pull/102) [\#103](https://github.com/openfga/java-sdk/pull/103)
+
 ## v0.5.0
 
 ### [0.5.0](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.4.0...v0.5.0) (2024-06-14)
+
 - chore!: remove excluded users from ListUsers response
 
 BREAKING CHANGE:
@@ -92,7 +166,7 @@ No changes, this patch release is just to test release automation.
   will automatically be retried. (With the exception of the HTTP 501 "Not Implemented" status code.)
 - feat(client): new response error classes have been introduced to classify FGA error responses
 - feat(client): response types have been enriched with HTTP status/header/body response data
-- feat(client): response errors have been enriched with data from both the HTTP request and its repsonse 
+- feat(client): response errors have been enriched with data from both the HTTP request and its repsonse
 - [BREAKING] refactor(client): in the lower level OpenFgaApi class, api calls and api calls "...WithHttpInfo"
   are collapsed into a single api call that always includes HTTP information.
 

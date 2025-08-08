@@ -1,49 +1,25 @@
 {{>partial_header}}
 
-from {{packageName}}.client.models.check_request import ClientCheckRequest
-from {{packageName}}.models.check_response import CheckResponse
+from {{packageName}}.client.models.batch_check_single_response import ClientBatchCheckSingleResponse
 
-class BatchCheckResponse:
-    """
-    BatchCheckResponse encapsulates the response for a single batch check
-    """
 
-    def __init__(self, allowed: bool, request: ClientCheckRequest, response: CheckResponse, error: Exception=None):
-        self._allowed = allowed
-        self._request = request
-        self._response = response
-        self._error = error
+class ClientBatchCheckResponse:
+    def __init__(
+        self,
+        result: list[ClientBatchCheckSingleResponse],
+    ) -> None:
+        self._result = result
 
     @property
-    def allowed(self):
+    def result(self) -> list[ClientBatchCheckSingleResponse]:
         """
-        Return whether request is allowed
+        Return result
         """
-        return self._allowed
+        return self._result
 
-    @property
-    def request(self):
+    @result.setter
+    def result(self, result: list[ClientBatchCheckSingleResponse]) -> None:
         """
-        Return original request
+        Set result
         """
-        return self._request
-
-    @property
-    def response(self):
-        """
-        Return original request
-        """
-        return self._response
-
-    @property
-    def error(self):
-        """
-        Return error associated with batch request (if any)
-        """
-        return self._error
-
-    def __str__(self):
-        """
-        Return the class string
-        """
-        return f"allowed {self._allowed} request {self._request} error {self._error}"
+        self._result = result
