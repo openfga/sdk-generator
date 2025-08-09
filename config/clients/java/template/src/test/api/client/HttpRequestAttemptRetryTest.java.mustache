@@ -801,4 +801,114 @@ class HttpRequestAttemptRetryTest {
         // Verify initial request + 1 retry = 2 total requests
         wireMockServer.verify(2, getRequestedFor(urlEqualTo("/test")));
     }
+
+    @Test
+    void shouldIncrementTelemetryAttributeForHttpErrorRetries() throws Exception {
+        // Given
+        wireMockServer.stubFor(get(urlEqualTo("/test"))
+                .inScenario("telemetry-retry-scenario")
+                .whenScenarioStateIs("Started")
+                .willReturn(aResponse()
+                        .withStatus(500)
+                        .withHeader("Retry-After", "0.01") // Fast retry for test performance
+                        .withBody("{\"error\":\"server error\"}"))
+                .willSetStateTo("First Retry"));
+
+        wireMockServer.stubFor(get(urlEqualTo("/test"))
+                .inScenario("telemetry-retry-scenario")
+                .whenScenarioStateIs("First Retry")
+                .willReturn(aResponse()
+                        .withStatus(500)
+                        .withHeader("Retry-After", "0.01")
+                        .withBody("{\"error\":\"server error\"}"))
+                .willSetStateTo("Second Retry"));
+
+        wireMockServer.stubFor(get(urlEqualTo("/test"))
+                .inScenario("telemetry-retry-scenario")
+                .whenScenarioStateIs("Second Retry")
+                .willReturn(aResponse().withStatus(200).withBody("")));
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(java.net.URI.create("http://localhost:" + wireMockServer.port() + "/test"))
+                .GET()
+                .build();
+
+        // Create a custom ApiClient that can capture telemetry attributes
+        TestableApiClient testableApiClient = new TestableApiClient();
+        
+        HttpRequestAttempt<Void> attempt =
+                new HttpRequestAttempt<>(request, "test", Void.class, testableApiClient, configuration);
+
+        // When
+        ApiResponse<Void> response = attempt.attemptHttpRequest().get();
+
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(200);
+
+        // Verify 3 requests were made (initial + 2 retries)
+        wireMockServer.verify(3, getRequestedFor(urlEqualTo("/test")));
+
+        // Verify telemetry attributes were set for both retries
+        // First retry should have HTTP_REQUEST_RESEND_COUNT = "1"
+        // Second retry should have HTTP_REQUEST_RESEND_COUNT = "2"
+        assertThat(testableApiClient.getCapturedTelemetryAttributes())
+                .containsKey("http.request.resend_count")
+                .containsValue("2"); // Final retry count should be 2
+    }
+
+    @Test
+    void shouldIncrementTelemetryAttributeForNetworkErrorRetries() throws Exception {
+        // Given - Capture port before stopping server to force network errors
+        int serverPort = wireMockServer.port();
+        wireMockServer.stop();
+
+        // Create configuration with fast retries for testing
+        ClientConfiguration networkConfig = new ClientConfiguration()
+                .apiUrl("http://localhost:" + serverPort)
+                .maxRetries(2)
+                .minimumRetryDelay(Duration.ofMillis(10)); // Fast retry for test performance
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(java.net.URI.create("http://localhost:" + serverPort + "/test"))
+                .GET()
+                .timeout(Duration.ofMillis(50)) // Short timeout to force connection error
+                .build();
+
+        // Create a custom ApiClient that can capture telemetry attributes
+        TestableApiClient testableApiClient = new TestableApiClient();
+        
+        HttpRequestAttempt<Void> attempt =
+                new HttpRequestAttempt<>(request, "test", Void.class, testableApiClient, networkConfig);
+
+        // When
+        ExecutionException exception = assertThrows(
+                ExecutionException.class, () -> attempt.attemptHttpRequest().get());
+
+        // Then
+        assertThat(exception.getCause()).isInstanceOf(ApiException.class);
+
+        // Verify telemetry attributes were set for both network error retries
+        // First retry should have HTTP_REQUEST_RESEND_COUNT = "1"
+        // Second retry should have HTTP_REQUEST_RESEND_COUNT = "2"
+        assertThat(testableApiClient.getCapturedTelemetryAttributes())
+                .containsKey("http.request.resend_count")
+                .containsValue("2"); // Final retry count should be 2 (maxRetries=2)
+    }
+
+    /**
+     * Test helper class that extends ApiClient to capture telemetry attributes
+     */
+    private static class TestableApiClient extends ApiClient {
+        private final java.util.Map<String, String> capturedTelemetryAttributes = new java.util.HashMap<>();
+
+        @Override
+        public void addTelemetryAttribute(String key, String value) {
+            capturedTelemetryAttributes.put(key, value);
+            super.addTelemetryAttribute(key, value);
+        }
+
+        public java.util.Map<String, String> getCapturedTelemetryAttributes() {
+            return capturedTelemetryAttributes;
+        }
+    }
 }
