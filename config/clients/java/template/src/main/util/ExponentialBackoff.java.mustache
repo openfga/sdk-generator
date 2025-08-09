@@ -13,6 +13,7 @@
 package {{utilPackage}};
 
 import java.time.Duration;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -59,6 +60,12 @@ public class ExponentialBackoff {
         // Use provided base delay (caller must provide a valid value)
         if (baseDelay == null) {
             throw new IllegalArgumentException("baseDelay cannot be null");
+        }
+        if (baseDelay.isNegative()) {
+            throw new IllegalArgumentException("baseDelay cannot be negative");
+        }
+        if (baseDelay.isZero()) {
+            throw new IllegalArgumentException("baseDelay cannot be zero");
         }
         long baseDelayMs = baseDelay.toMillis();
 
