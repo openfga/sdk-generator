@@ -257,6 +257,7 @@ public class OpenFgaApiTest {
                         .get());
 
         // Then
+        // Simplified logic: POST requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
         mockHttpClient.verify().post("https://api.fga.example/stores").called(1 + DEFAULT_MAX_RETRIES);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
@@ -438,6 +439,7 @@ public class OpenFgaApiTest {
                         .get());
 
         // Then
+        // Simplified logic: DELETE requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
         mockHttpClient.verify().delete(deleteUrl).called(1 + DEFAULT_MAX_RETRIES);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
@@ -660,6 +662,7 @@ public class OpenFgaApiTest {
                 .get());
 
         // Then
+        // Simplified logic: POST requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
         mockHttpClient.verify().post(postUrl).called(1 + DEFAULT_MAX_RETRIES);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
@@ -797,7 +800,7 @@ public class OpenFgaApiTest {
         String type = null; // Input is optional
         Integer pageSize = null; // Input is optional
         String continuationToken = null; // Input is optional
-        OffsetDateTime startTime = null; //Input is optional
+        OffsetDateTime startTime = null; // Input is optional
 
         // When
         var response = fga.readChanges(DEFAULT_STORE_ID, type, pageSize, continuationToken, startTime)
@@ -818,8 +821,9 @@ public class OpenFgaApiTest {
     @Test
     public void readChanges_storeIdRequired() throws Exception {
         // When
-        var exception = assertThrows(FgaInvalidParameterException.class, () -> fga.readChanges(null, null, null, null, null)
-                .get());
+        var exception =
+                assertThrows(FgaInvalidParameterException.class, () -> fga.readChanges(null, null, null, null, null)
+                        .get());
 
         // Then
         assertEquals("Required parameter storeId was invalid when calling readChanges.", exception.getMessage());
@@ -838,9 +842,9 @@ public class OpenFgaApiTest {
         OffsetDateTime startTime = null; // Input is optional
 
         // When
-        ExecutionException execException = assertThrows(
-                ExecutionException.class, () -> fga.readChanges(DEFAULT_STORE_ID, type, pageSize, continuationToken, startTime)
-                        .get());
+        ExecutionException execException = assertThrows(ExecutionException.class, () -> fga.readChanges(
+                        DEFAULT_STORE_ID, type, pageSize, continuationToken, startTime)
+                .get());
 
         // Then
         mockHttpClient.verify().get(getUrl).called(1);
@@ -864,9 +868,9 @@ public class OpenFgaApiTest {
         OffsetDateTime startTime = null; // Input is optional
 
         // When
-        ExecutionException execException = assertThrows(
-                ExecutionException.class, () -> fga.readChanges(DEFAULT_STORE_ID, type, pageSize, continuationToken, startTime)
-                        .get());
+        ExecutionException execException = assertThrows(ExecutionException.class, () -> fga.readChanges(
+                        DEFAULT_STORE_ID, type, pageSize, continuationToken, startTime)
+                .get());
 
         // Then
         mockHttpClient.verify().get(getUrl).called(1);
@@ -889,9 +893,9 @@ public class OpenFgaApiTest {
         OffsetDateTime startTime = null; // Input is optional
 
         // When
-        ExecutionException execException = assertThrows(
-                ExecutionException.class, () -> fga.readChanges(DEFAULT_STORE_ID, type, pageSize, continuationToken, startTime)
-                        .get());
+        ExecutionException execException = assertThrows(ExecutionException.class, () -> fga.readChanges(
+                        DEFAULT_STORE_ID, type, pageSize, continuationToken, startTime)
+                .get());
 
         // Then
         mockHttpClient.verify().get(getUrl).called(1 + DEFAULT_MAX_RETRIES);
@@ -1068,6 +1072,7 @@ public class OpenFgaApiTest {
                         .get());
 
         // Then
+        // Simplified logic: POST requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
         mockHttpClient.verify().post(postUrl).called(1 + DEFAULT_MAX_RETRIES);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
@@ -1297,6 +1302,7 @@ public class OpenFgaApiTest {
                         .get());
 
         // Then
+        // Simplified logic: POST requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
         mockHttpClient.verify().post(postUrl).called(1 + DEFAULT_MAX_RETRIES);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
@@ -1411,6 +1417,7 @@ public class OpenFgaApiTest {
                         .get());
 
         // Then
+        // Simplified logic: POST requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
         mockHttpClient.verify().post(postUrl).called(1 + DEFAULT_MAX_RETRIES);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
@@ -1537,6 +1544,7 @@ public class OpenFgaApiTest {
                         .get());
 
         // Then
+        // Simplified logic: POST requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
         mockHttpClient.verify().post(postUrl).called(1 + DEFAULT_MAX_RETRIES);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
@@ -1651,6 +1659,7 @@ public class OpenFgaApiTest {
                         .get());
 
         // Then
+        // Simplified logic: POST requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
         mockHttpClient.verify().post(postUrl).called(1 + DEFAULT_MAX_RETRIES);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
@@ -1902,6 +1911,7 @@ public class OpenFgaApiTest {
                 .get());
 
         // Then
+        // Simplified logic: PUT requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
         mockHttpClient.verify().put(putUrl).called(1 + DEFAULT_MAX_RETRIES);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());

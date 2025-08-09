@@ -89,9 +89,15 @@ public class OpenFgaApi {
     }
 
     Duration connectTimeout = configuration.getConnectTimeout();
+<<<<<<< Updated upstream
     if (connectTimeout != null) {
       apiClient.setHttpClientBuilder(apiClient.getHttpClientBuilder().connectTimeout(connectTimeout));
     }
+=======
+        if (connectTimeout != null) {
+            apiClient.setHttpClientBuilder(apiClient.getHttpClientBuilder().connectTimeout(connectTimeout));
+        }
+>>>>>>> Stashed changes
   }
 
   {{#operation}}
