@@ -2087,25 +2087,16 @@ public class OpenFgaClientTest {
                 ExecutionException.class, () -> fga.batchCheck(request).get());
 
         // Then
-<<<<<<< Updated upstream
-=======
         // 429 errors should still retry regardless of HTTP method (not affected by breaking changes)
->>>>>>> Stashed changes
         mockHttpClient.verify().post(postUrl).called(1 + DEFAULT_MAX_RETRIES);
         var exception = assertInstanceOf(FgaApiRateLimitExceededError.class, execException.getCause());
         assertEquals(429, exception.getStatusCode());
         assertEquals("{\"code\":\"rate_limited\",\"message\":\"Too Many Requests\"}", exception.getResponseData());
     }
 
-<<<<<<< Updated upstream
-     /**
-      * Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason
-      * about and debug a certain relationship.
-=======
     /**
      * Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason
      * about and debug a certain relationship.
->>>>>>> Stashed changes
      */
     @Test
     public void expandTest() throws Exception {
