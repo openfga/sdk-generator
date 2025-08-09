@@ -181,6 +181,14 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientWriteResponse.java",
       "templateType": "SupportingFiles"
     },
+    "src/main/api/client/model/ClientWriteSingleResponse.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientWriteSingleResponse.java",
+      "templateType": "SupportingFiles"
+    },
+    "src/main/api/client/model/ClientWriteStatus.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientWriteStatus.java",
+      "templateType": "SupportingFiles"
+    },
     "src/main/api/client/ClientAssertion.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientAssertion.java",
       "templateType": "SupportingFiles"
@@ -427,6 +435,14 @@
     },
     "src/test/api/client/OpenFgaClientTest.java.mustache": {
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/client/OpenFgaClientTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "src/test/api/client/model/ClientWriteStatusTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/client/model/ClientWriteStatusTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "src/test/api/client/model/ClientWriteSingleResponseTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/client/model/ClientWriteSingleResponseTest.java",
       "templateType": "SupportingFiles"
     },
     "src/test/api/configuration/ClientCredentialsTest.java.mustache": {
