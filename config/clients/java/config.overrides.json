@@ -533,6 +533,10 @@
       "destinationFilename": "gradle/wrapper/gradle-wrapper.properties",
       "templateType": "SupportingFiles"
     },
+    "settings.gradle.mustache": {
+      "destinationFilename": "settings.gradle",
+      "templateType": "SupportingFiles"
+    },
     "docs/OpenTelemetry.md.mustache": {
       "destinationFilename": "docs/OpenTelemetry.md",
       "templateType": "SupportingFiles"
