@@ -74,6 +74,23 @@ describe("{{appTitleCaseName}} Client", () => {
         fgaClient.authorizationModelId = defaultConfiguration.authorizationModelId;
         expect(fgaClient.authorizationModelId).toBe(defaultConfiguration.authorizationModelId);
       });
+
+      it("should allow setting custom default headers", async () => {
+        const customClient = new {{appShortName}}Client({
+          apiUrl: defaultConfiguration.apiUrl,
+          credentials: { method: CredentialsMethod.None },
+        });
+        customClient.setDefaultHeader("Custom-Header", "custom value");
+
+        const scope = nock(defaultConfiguration.getBasePath(), {
+          reqheaders: { "Custom-Header": "custom value" }
+        })
+          .get("/stores")
+          .reply(200, { continuation_token: "", stores: [] });
+
+        await customClient.listStores();
+        expect(scope.isDone()).toBe(true);
+      });
     });
 
 
