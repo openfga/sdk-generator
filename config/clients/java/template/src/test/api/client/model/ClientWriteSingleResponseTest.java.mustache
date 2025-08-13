@@ -1,0 +1,38 @@
+{{>licenseInfo}}
+package {{clientPackage}}.model;
+
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import {{modelPackage}}.TupleKey;
+
+public class ClientWriteSingleResponseTest {
+
+    @Test
+    public void testSuccessfulResponse() {
+        TupleKey tupleKey = new TupleKey()
+                .user("user:alice")
+                .relation("viewer")
+                ._object("document:test");
+        
+        ClientWriteSingleResponse response = new ClientWriteSingleResponse(tupleKey, ClientWriteStatus.SUCCESS);
+        
+        assertEquals(tupleKey, response.getTupleKey());
+        assertEquals(ClientWriteStatus.SUCCESS, response.getStatus());
+        assertNull(response.getError());
+    }
+
+    @Test
+    public void testFailedResponse() {
+        TupleKey tupleKey = new TupleKey()
+                .user("user:bob")
+                .relation("editor")
+                ._object("document:test");
+        Exception error = new RuntimeException("Test error");
+        
+        ClientWriteSingleResponse response = new ClientWriteSingleResponse(tupleKey, ClientWriteStatus.FAILURE, error);
+        
+        assertEquals(tupleKey, response.getTupleKey());
+        assertEquals(ClientWriteStatus.FAILURE, response.getStatus());
+        assertEquals(error, response.getError());
+    }
+}
