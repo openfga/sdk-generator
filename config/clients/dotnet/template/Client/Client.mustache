@@ -74,7 +74,7 @@ public class {{appShortName}}Client : IDisposable {
    */
     public async Task<ListStoresResponse> ListStores(IClientListStoresRequest? body, IClientListStoresOptions? options = default,
         CancellationToken cancellationToken = default) =>
-        await api.ListStores(options?.PageSize, options?.ContinuationToken, body?.Name, cancellationToken);
+        await api.ListStores(options?.PageSize, options?.ContinuationToken, body?.Name, options?.Headers, cancellationToken);
 
     /**
    * CreateStore - Initialize a store
@@ -82,19 +82,19 @@ public class {{appShortName}}Client : IDisposable {
     public async Task<CreateStoreResponse> CreateStore(ClientCreateStoreRequest body,
         ClientRequestOptions? options = default,
         CancellationToken cancellationToken = default) =>
-        await api.CreateStore(body, cancellationToken);
+        await api.CreateStore(body, options?.Headers, cancellationToken);
 
     /**
    * GetStore - Get information about the current store
    */
     public async Task<GetStoreResponse> GetStore(IClientRequestOptionsWithStoreId? options = default, CancellationToken cancellationToken = default) =>
-        await api.GetStore(GetStoreId(options), cancellationToken);
+        await api.GetStore(GetStoreId(options), options?.Headers, cancellationToken);
 
     /**
    * DeleteStore - Delete a store
    */
     public async Task DeleteStore(IClientRequestOptionsWithStoreId? options = default, CancellationToken cancellationToken = default) =>
-        await api.DeleteStore(GetStoreId(options), cancellationToken);
+        await api.DeleteStore(GetStoreId(options), options?.Headers, cancellationToken);
 
     /************************
      * Authorization Models *
@@ -106,7 +106,7 @@ public class {{appShortName}}Client : IDisposable {
     public async Task<ReadAuthorizationModelsResponse> ReadAuthorizationModels(
         IClientReadAuthorizationModelsOptions? options = default,
         CancellationToken cancellationToken = default) =>
-        await api.ReadAuthorizationModels(GetStoreId(options), options?.PageSize, options?.ContinuationToken, cancellationToken);
+        await api.ReadAuthorizationModels(GetStoreId(options), options?.PageSize, options?.ContinuationToken, options?.Headers, cancellationToken);
 
     /**
      * WriteAuthorizationModel - Create a new version of the authorization model
@@ -114,7 +114,7 @@ public class {{appShortName}}Client : IDisposable {
     public async Task<WriteAuthorizationModelResponse> WriteAuthorizationModel(ClientWriteAuthorizationModelRequest body,
         IClientRequestOptionsWithStoreId? options = default,
         CancellationToken cancellationToken = default) =>
-        await api.WriteAuthorizationModel(GetStoreId(options), body, cancellationToken);
+        await api.WriteAuthorizationModel(GetStoreId(options), body, options?.Headers, cancellationToken);
 
     /**
      * ReadAuthorizationModel - Read the current authorization model
@@ -127,7 +127,7 @@ public class {{appShortName}}Client : IDisposable {
             throw new FgaRequiredParamError("ClientConfiguration", "AuthorizationModelId");
         }
 
-        return await api.ReadAuthorizationModel(GetStoreId(options), authorizationModelId, cancellationToken);
+        return await api.ReadAuthorizationModel(GetStoreId(options), authorizationModelId, options?.Headers, cancellationToken);
     }
 
     /**
@@ -156,7 +156,7 @@ public class {{appShortName}}Client : IDisposable {
     public async Task<ReadChangesResponse> ReadChanges(ClientReadChangesRequest? body = default,
         ClientReadChangesOptions? options = default,
         CancellationToken cancellationToken = default) =>
-        await api.ReadChanges(GetStoreId(options), body?.Type, options?.PageSize, options?.ContinuationToken, body?.StartTime, cancellationToken);
+        await api.ReadChanges(GetStoreId(options), body?.Type, options?.PageSize, options?.ContinuationToken, body?.StartTime, options?.Headers, cancellationToken);
 
     /**
      * Read - Read tuples previously written to the store (does not evaluate)
@@ -197,7 +197,7 @@ public class {{appShortName}}Client : IDisposable {
                 requestBody.Deletes = new WriteRequestDeletes(body.Deletes.ConvertAll(key => key.ToTupleKeyWithoutCondition()));
             }
 
-            await api.Write(GetStoreId(options), requestBody, cancellationToken);
+            await api.Write(GetStoreId(options), requestBody, options?.Headers, cancellationToken);
             return new ClientWriteResponse {
                 Writes =
                     body.Writes?.ConvertAll(tupleKey =>
@@ -298,7 +298,7 @@ public class {{appShortName}}Client : IDisposable {
                 Context = body.Context,
                 AuthorizationModelId = GetAuthorizationModelId(options),
                 Consistency = options?.Consistency,
-            }, cancellationToken);
+            }, options?.Headers, cancellationToken);
 
     /**
    * BatchCheck - Run a set of checks (evaluates)
@@ -341,7 +341,7 @@ public class {{appShortName}}Client : IDisposable {
                     },
                 AuthorizationModelId = GetAuthorizationModelId(options),
                 Consistency = options?.Consistency
-            }, cancellationToken);
+            }, options?.Headers, cancellationToken);
 
     /**
      * ListObjects - List the objects of a particular type that the user has a certain relation to (evaluates)
@@ -361,7 +361,7 @@ public class {{appShortName}}Client : IDisposable {
             Context = body.Context,
             AuthorizationModelId = GetAuthorizationModelId(options),
             Consistency = options?.Consistency,
-        }, cancellationToken);
+        }, options?.Headers, cancellationToken);
 
 
     /**
@@ -418,7 +418,7 @@ public class {{appShortName}}Client : IDisposable {
             Context = body.Context,
             AuthorizationModelId = GetAuthorizationModelId(options),
             Consistency = options?.Consistency
-        });
+        }, options?.Headers, cancellationToken);
 
     /**************
      * Assertions *
@@ -434,7 +434,7 @@ public class {{appShortName}}Client : IDisposable {
             throw new FgaRequiredParamError("ClientConfiguration", "AuthorizationModelId");
         }
 
-        return await api.ReadAssertions(GetStoreId(options), authorizationModelId, cancellationToken);
+        return await api.ReadAssertions(GetStoreId(options), authorizationModelId, options?.Headers, cancellationToken);
     }
 
     /**
@@ -463,6 +463,6 @@ public class {{appShortName}}Client : IDisposable {
         }
 
         await api.WriteAssertions(GetStoreId(options), authorizationModelId,
-            new WriteAssertionsRequest {Assertions = assertions}, cancellationToken);
+            new WriteAssertionsRequest {Assertions = assertions}, options?.Headers, cancellationToken);
     }
 }

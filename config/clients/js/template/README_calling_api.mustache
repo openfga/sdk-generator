@@ -12,7 +12,7 @@ Get a paginated list of stores.
 [API Documentation]({{apiDocsUrl}}#/Stores/ListStores)
 
 ```javascript
-const options = { pageSize: 10, continuationToken: "..." };
+const options = { pageSize: 10, continuationToken: "...", headers: { "X-Custom": "value" } };
 
 const { stores } = await fgaClient.listStores(options);
 

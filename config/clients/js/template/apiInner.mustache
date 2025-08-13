@@ -41,11 +41,12 @@ export const {{classname}}AxiosParamCreator = function (configuration: Configura
          {{#allParams}}
          * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
          {{/allParams}}
-         * @param {*} [options] Override http request option.{{#isDeprecated}}
+         * @param {RequestOptions} [options] Override http request option.{{#isDeprecated}}
+         * @param {Record<string, string>} [options.headers] Custom headers to send with the request.
          * @deprecated{{/isDeprecated}}
          * @throws { FgaError }
          */
-        {{nickname}}: ({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options: any = {}): RequestArgs => {
+        {{nickname}}: ({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options: RequestOptions = {}): RequestArgs => {
     {{#allParams}}
     {{#required}}
             // verify required parameter '{{paramName}}' is not null or undefined
@@ -61,7 +62,7 @@ export const {{classname}}AxiosParamCreator = function (configuration: Configura
                 baseOptions = configuration.baseOptions;
             }
 
-            const localVarRequestOptions = { method: '{{httpMethod}}', ...baseOptions, ...options};
+            const localVarRequestOptions: AxiosRequestConfig = { method: '{{httpMethod}}', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;{{#vendorExtensions}}{{#hasFormParams}}
             const localVarFormParams = new {{^multipartFormData}}URLSearchParams(){{/multipartFormData}}{{#multipartFormData}}((configuration && configuration.formDataCtor) || FormData)(){{/multipartFormData}};{{/hasFormParams}}{{/vendorExtensions}}
@@ -209,7 +210,7 @@ export const {{classname}}Fp = function(configuration: Configuration, credential
          * @deprecated{{/isDeprecated}}
          * @throws { FgaError }
          */
-        async {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
+        async {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: RequestOptions): Promise<(axios?: AxiosInstance) => PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
             const localVarAxiosArgs = localVarAxiosParamCreator.{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}}options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
                 [TelemetryAttribute.FgaClientRequestMethod]: "{{operationIdCamelCase}}",
@@ -246,7 +247,7 @@ export const {{classname}}Factory = function (configuration: Configuration, cred
          * @deprecated{{/isDeprecated}}
          * @throws { FgaError }
          */
-        {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}> {
+        {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: RequestOptions): PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}> {
             return localVarFp.{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}}options).then((request) => request(axios));
         },
     {{/operation}}
@@ -275,7 +276,7 @@ export interface {{classname}}Interface {
      * @throws { FgaError }
      * @memberof {{classname}}Interface
      */
-    {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>;
+    {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: RequestOptions): PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>;
 
 {{/operation}}
 }
@@ -341,12 +342,12 @@ export class {{classname}} extends BaseAPI {
      * @memberof {{classname}}
      */
     {{#useSingleRequestParameter}}
-    public {{nickname}}({{#allParams.0}}requestParameters: {{classname}}{{operationIdCamelCase}}Request{{^hasRequiredParams}} = {}{{/hasRequiredParams}}, {{/allParams.0}}options?: any): Promise<CallResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
+    public {{nickname}}({{#allParams.0}}requestParameters: {{classname}}{{operationIdCamelCase}}Request{{^hasRequiredParams}} = {}{{/hasRequiredParams}}, {{/allParams.0}}options?: RequestOptions): Promise<CallResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
         return {{classname}}Fp(this.configuration, this.credentials).{{nickname}}({{#allParams.0}}{{#allParams}}requestParameters.{{paramName}}, {{/allParams}}{{/allParams.0}}options).then((request) => request(this.axios));
     }
     {{/useSingleRequestParameter}}
     {{^useSingleRequestParameter}}
-    public {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): Promise<CallResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
+    public {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: RequestOptions): Promise<CallResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
         return {{classname}}Fp(this.configuration, this.credentials).{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}}options).then((request) => request(this.axios));
     }
     {{/useSingleRequestParameter}}

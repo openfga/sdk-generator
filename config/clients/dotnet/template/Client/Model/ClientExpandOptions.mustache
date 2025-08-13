@@ -9,6 +9,8 @@ public interface IClientExpandOptions : IClientRequestOptionsWithAuthZModelIdAnd
 
 public class ClientExpandOptions : IClientExpandOptions {
     /// <inheritdoc />
+    public IDictionary<string, string>? Headers { get; set; }
+    /// <inheritdoc />
     public string? StoreId { get; set; }
 
     /// <inheritdoc />

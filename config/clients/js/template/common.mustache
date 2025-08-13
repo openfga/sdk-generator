@@ -31,7 +31,12 @@ export const DUMMY_BASE_URL = "https://example.com";
  */
 export interface RequestArgs {
     url: string;
-    options: any;
+    options: AxiosRequestConfig;
+}
+
+export interface RequestOptions {
+    headers?: Record<string, string>;
+    [key: string]: any;
 }
 
 

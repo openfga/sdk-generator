@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 using Moq;
 using Moq.Protected;
@@ -173,6 +174,43 @@ public class {{appShortName}}ClientTests {
         Assert.IsType<ListStoresResponse>(response);
         Assert.Single(response.Stores);
         Assert.Equal(response, expectedResponse);
+    }
+
+    /// <summary>
+    /// Test per-request custom headers
+    /// </summary>
+    [Fact]
+    public async Task ListStoresCustomHeadersTest() {
+        var mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+        mockHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req =>
+                    req.Headers.Contains("X-Custom-Header") &&
+                    req.Headers.GetValues("X-Custom-Header").Single() == "value"),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage() {
+                StatusCode = HttpStatusCode.OK,
+                Content = Utils.CreateJsonStringContent(new ListStoresResponse() { Stores = new List<Store>() { } }),
+            });
+
+        var httpClient = new HttpClient(mockHandler.Object);
+        var fgaClient = new {{appShortName}}Client(_config, httpClient);
+
+        await fgaClient.ListStores(
+            new ClientListStoresRequest(),
+            new ClientListStoresOptions { Headers = new Dictionary<string, string> { { "X-Custom-Header", "value" } } }
+        );
+
+        mockHandler.Protected().Verify(
+            "SendAsync",
+            Times.Exactly(1),
+            ItExpr.Is<HttpRequestMessage>(req =>
+                req.Headers.Contains("X-Custom-Header") &&
+                req.Headers.GetValues("X-Custom-Header").Single() == "value"),
+            ItExpr.IsAny<CancellationToken>()
+        );
     }
 
     /// <summary>

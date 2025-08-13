@@ -53,20 +53,26 @@ type {{classname}}Service service
 {{#operation}}
 
 type {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request struct {
-	ctx context.Context{{#generateInterfaces}}
-	ApiService {{classname}}
+        ctx context.Context{{#generateInterfaces}}
+        ApiService {{classname}}
 {{/generateInterfaces}}{{^generateInterfaces}}
-	ApiService *{{classname}}Service
+        ApiService *{{classname}}Service
 {{/generateInterfaces}}
 {{#allParams}}
     {{paramName}} {{^isPathParam}}*{{/isPathParam}}{{{dataType}}}
 {{/allParams}}
+    Headers map[string]string
 }
 {{#allParams}}{{^isPathParam}}
 func (r {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request) {{vendorExtensions.x-export-param-name}}({{paramName}} {{{dataType}}}) {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request {
-	r.{{paramName}} = &{{paramName}}
-	return r
+        r.{{paramName}} = &{{paramName}}
+        return r
 }{{/isPathParam}}{{/allParams}}
+
+func (r {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request) Headers(headers map[string]string) {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request {
+        r.Headers = headers
+        return r
+}
 
 func (r {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request) Execute() ({{#returnType}}{{{.}}}, {{/returnType}}*http.Response, error) {
 	return r.ApiService.{{nickname}}Execute(r)
@@ -236,6 +242,10 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	}
 	{{/required}}
 {{/headerParams}}
+
+        for k, v := range r.Headers {
+                localVarHeaderParams[k] = v
+        }
 {{#formParams}}
 {{#isFile}}
 	localVarFormFileName = "{{baseName}}"

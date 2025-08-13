@@ -1870,7 +1870,6 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
         configuration = self.configuration
         configuration.store_id = store_id
         with ApiClient(configuration) as api_client:
-            api_client.set_default_header("Custom Header", "custom value")
             api_instance = open_fga_api.OpenFgaApi(api_client)
             body = CheckRequest(
                 tuple_key=TupleKey(
@@ -1881,6 +1880,7 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
             )
             api_response = api_instance.check(
                 body=body,
+                headers={"Custom Header": "custom value"},
             )
             self.assertIsInstance(api_response, CheckResponse)
             self.assertTrue(api_response.allowed)

@@ -6,4 +6,5 @@ namespace {{packageName}}.Client.Model;
 ///     Base Client Request Options
 /// </summary>
 public interface ClientRequestOptions {
+    IDictionary<string, string>? Headers { get; set; }
 }

@@ -23,6 +23,8 @@ public interface ITransactionOpts {
 }
 
 public class TransactionOptions : ITransactionOpts {
+    /// <inheritdoc />
+    public IDictionary<string, string>? Headers { get; set; }
     /// <summary>
     ///     Disables full transaction mode (note: if MaxPerChunk > 1, each chunk will be a transaction)
     /// </summary>
