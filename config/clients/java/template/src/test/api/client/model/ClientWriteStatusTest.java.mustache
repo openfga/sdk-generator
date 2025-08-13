@@ -1,0 +1,20 @@
+{{>licenseInfo}}
+package {{clientPackage}}.model;
+
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+public class ClientWriteStatusTest {
+
+    @Test
+    public void testSuccessValue() {
+        assertEquals("success", ClientWriteStatus.SUCCESS.getValue());
+        assertEquals("success", ClientWriteStatus.SUCCESS.toString());
+    }
+
+    @Test
+    public void testFailureValue() {
+        assertEquals("failure", ClientWriteStatus.FAILURE.getValue());
+        assertEquals("failure", ClientWriteStatus.FAILURE.toString());
+    }
+}
