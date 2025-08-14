@@ -47,6 +47,9 @@ public interface IClientWriteOptions : IClientRequestOptionsWithAuthZModelId {
 
 public class ClientWriteOptions : IClientWriteOptions {
     /// <inheritdoc />
+    public IDictionary<string, string>? Headers { get; set; }
+
+    /// <inheritdoc />
     public string? StoreId { get; set; }
 
     /// <summary>
