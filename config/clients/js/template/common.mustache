@@ -2,7 +2,7 @@
 
 import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 
-import { Configuration } from "./configuration";
+import { Configuration, RetryParams } from "./configuration";
 import type { Credentials } from "./credentials";
 import {
   FgaApiError,
@@ -31,11 +31,12 @@ export const DUMMY_BASE_URL = "https://example.com";
  */
 export interface RequestArgs {
     url: string;
-    options: AxiosRequestConfig;
+    options: RequestOptions;
 }
 
 export interface RequestOptions {
     headers?: Record<string, string>;
+    retryParams?: RetryParams;
     [key: string]: any;
 }
 
