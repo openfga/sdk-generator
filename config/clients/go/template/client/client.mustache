@@ -1155,21 +1155,19 @@ func (request *SdkClientReadLatestAuthorizationModelRequest) GetOptions() *Clien
 }
 
 func (client *{{appShortName}}Client) ReadLatestAuthorizationModelExecute(request SdkClientReadLatestAuthorizationModelRequestInterface) (*ClientReadAuthorizationModelResponse, error) {
-	opts := ClientReadAuthorizationModelsOptions{
-		PageSize: fgaSdk.PtrInt32(1),
-	}
-	if request.GetOptions() != nil {
-		opts.StoreId = request.GetOptions().StoreId
-	}
-	req := client.ReadAuthorizationModels(request.GetContext()).Options(opts)
-        if request.GetOptions() != nil && request.GetOptions().Headers != nil {
-                req = req.Headers(request.GetOptions().Headers)
+        opts := ClientReadAuthorizationModelsOptions{
+                PageSize: fgaSdk.PtrInt32(1),
         }
+        if request.GetOptions() != nil {
+                opts.StoreId = request.GetOptions().StoreId
+                opts.Headers = request.GetOptions().Headers
+        }
+        req := client.ReadAuthorizationModels(request.GetContext()).Options(opts)
 
-	response, err := req.Execute()
-	if err != nil {
-		return nil, err
-	}
+        response, err := req.Execute()
+        if err != nil {
+                return nil, err
+        }
 
 	var authorizationModel *fgaSdk.AuthorizationModel
 
@@ -2278,11 +2276,11 @@ func (client *OpenFgaClient) singleBatchCheck(ctx _context.Context, body fgaSdk.
 		return nil, err
 	}
 	
-	req := client.OpenFgaApi.BatchCheck(ctx, *storeId)
-        if request.GetOptions() != nil && request.GetOptions().Headers != nil {
-                req = req.Headers(request.GetOptions().Headers)
+        req := client.OpenFgaApi.BatchCheck(ctx, *storeId)
+        if options != nil && options.Headers != nil {
+                req = req.Headers(options.Headers)
         }
-	req = req.Body(body)
+        req = req.Body(body)
 
 	response, _, err := req.Execute()
 	if err != nil {
