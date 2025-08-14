@@ -172,7 +172,11 @@ export const {{classname}}AxiosParamCreator = function (configuration: Configura
 
     {{/bodyParam}}
             setSearchParams(localVarUrlObj, localVarQueryParameter, options.query);
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...options.headers};
+            localVarRequestOptions.headers = {
+                ...(baseOptions && baseOptions.headers ? baseOptions.headers : {}),
+                ...localVarHeaderParameter,
+                ...options.headers,
+            };
     {{#hasFormParams}}
             localVarRequestOptions.data = localVarFormParams{{#vendorExtensions}}{{^multipartFormData}}.toString(){{/multipartFormData}}{{/vendorExtensions}};
     {{/hasFormParams}}
