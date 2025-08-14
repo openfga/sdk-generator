@@ -2362,6 +2362,7 @@ type SdkClientExpandRequestInterface interface {
 type ClientExpandRequest struct {
 	Relation string `json:"relation,omitempty"`
 	Object   string `json:"object,omitempty"`
+	ContextualTuples ClientContextualTupleKey `json:"contextual_tuples,omitempty"`
 }
 
 type ClientExpandOptions struct {
@@ -2429,12 +2430,20 @@ func (client *{{appShortName}}Client) ExpandExecute(request SdkClientExpandReque
 		return nil, err
 	}
 
+	var contextualTuples []ClientContextualTupleKey
+        	if request.GetBody().ContextualTuples != nil {
+        		for index := 0; index < len(request.GetBody().ContextualTuples); index++ {
+        			contextualTuples = append(contextualTuples, (request.GetBody().ContextualTuples)[index])
+        	}
+    }
+
 	body := fgaSdk.ExpandRequest{
 		TupleKey: fgaSdk.ExpandRequestTupleKey{
 			Relation: request.GetBody().Relation,
 			Object:   request.GetBody().Object,
 		},
 		AuthorizationModelId: authorizationModelId,
+		ContextualTuples: fgaSdk.NewContextualTupleKeys(contextualTuples),
 	}
 
 	if request.GetOptions() != nil {
