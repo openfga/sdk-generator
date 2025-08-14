@@ -62,7 +62,7 @@ export const {{classname}}AxiosParamCreator = function (configuration: Configura
                 baseOptions = configuration.baseOptions;
             }
 
-            const localVarRequestOptions: AxiosRequestConfig = { method: '{{httpMethod}}', ...baseOptions, ...options};
+            const localVarRequestOptions = { method: '{{httpMethod}}', ...baseOptions, ...options } as AxiosRequestConfig & RequestOptions;
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;{{#vendorExtensions}}{{#hasFormParams}}
             const localVarFormParams = new {{^multipartFormData}}URLSearchParams(){{/multipartFormData}}{{#multipartFormData}}((configuration && configuration.formDataCtor) || FormData)(){{/multipartFormData}};{{/hasFormParams}}{{/vendorExtensions}}
@@ -180,9 +180,16 @@ export const {{classname}}AxiosParamCreator = function (configuration: Configura
             localVarRequestOptions.data = serializeDataIfNeeded({{paramName}}, localVarRequestOptions)
     {{/bodyParam}}
 
+            const localVarRequestOptionsWithHeaders: RequestOptions = {
+                ...localVarRequestOptions,
+                headers: localVarRequestOptions.headers
+                    ? Object.fromEntries(Object.entries(localVarRequestOptions.headers as any))
+                    : undefined,
+            };
+
             return {
                 url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
+                options: localVarRequestOptionsWithHeaders,
             };
         },
     {{/operation}}
