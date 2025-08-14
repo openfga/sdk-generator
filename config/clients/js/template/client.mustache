@@ -40,7 +40,7 @@ import {
   WriteRequest,
 } from "./apiModel";
 import { BaseAPI } from "./base";
-import { CallResult, PromiseResult } from "./common";
+import { CallResult, PromiseResult, RequestOptions } from "./common";
 import { Configuration, RetryParams, UserConfigurationParams } from "./configuration";
 import { FgaApiAuthenticationError, FgaRequiredParamError, FgaValidationError } from "./errors";
 import {
@@ -95,9 +95,8 @@ const DEFAULT_MAX_BATCH_SIZE = 50;
 const CLIENT_METHOD_HEADER = "{{clientMethodHeader}}";
 const CLIENT_BULK_REQUEST_ID_HEADER = "{{clientBulkRequestIdHeader}}";
 
-export interface ClientRequestOpts {
+export interface ClientRequestOpts extends RequestOptions {
   retryParams?: RetryParams;
-  headers?: Record<string, string>;
 }
 
 export interface StoreIdOpts {

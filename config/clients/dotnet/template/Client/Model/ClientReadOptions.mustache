@@ -13,6 +13,8 @@ public interface IClientReadOptions : IClientRequestOptionsWithStoreId, ClientPa
 /// <inheritdoc />
 public class ClientReadOptions : IClientReadOptions {
     /// <inheritdoc />
+    public IDictionary<string, string>? Headers { get; set; }
+    /// <inheritdoc />
     public string? StoreId { get; set; }
 
     /// <inheritdoc />
