@@ -61,7 +61,7 @@ type {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request s
 {{#allParams}}
     {{paramName}} {{^isPathParam}}*{{/isPathParam}}{{{dataType}}}
 {{/allParams}}
-    Headers map[string]string
+    headers map[string]string
 }
 {{#allParams}}{{^isPathParam}}
 func (r {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request) {{vendorExtensions.x-export-param-name}}({{paramName}} {{{dataType}}}) {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request {
@@ -70,7 +70,7 @@ func (r {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Reques
 }{{/isPathParam}}{{/allParams}}
 
 func (r {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request) Headers(headers map[string]string) {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request {
-        r.Headers = headers
+        r.headers = headers
         return r
 }
 
@@ -243,7 +243,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	{{/required}}
 {{/headerParams}}
 
-        for k, v := range r.Headers {
+        for k, v := range r.headers {
                 localVarHeaderParams[k] = v
         }
 {{#formParams}}
