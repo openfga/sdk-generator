@@ -148,6 +148,7 @@ echo " - Done"
 
 printf "Task 2.5: Run checkout command: git checkout origin/%s -- %s\n" "$TEMPLATE_SOURCE_BRANCH" "$TEMPLATE_SOURCE_PATH"
 git checkout "origin/$TEMPLATE_SOURCE_BRANCH" -- "$TEMPLATE_SOURCE_PATH" > /dev/null && echo " - Done"
+
 printf "Task 2: Done\n\n"
 
 if ! COMMIT_HASH="$(git rev-parse --verify "refs/remotes/origin/$TEMPLATE_SOURCE_BRANCH^{commit}" 2>/dev/null)"; then

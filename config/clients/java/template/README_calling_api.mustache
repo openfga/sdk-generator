@@ -469,7 +469,7 @@ response.getResult() = [{
 
 If you are using an OpenFGA version less than 1.8.0, you can use `clientBatchCheck`, 
 which calls `check` in parallel. It will return `allowed: false` if it encounters an error, and will return the error in the body.
-If 429s or 5xxs are encountered, the underlying check will retry up to 3 times before giving up.
+If 429s are encountered, the underlying check will retry up to 3 times. For 5xx errors, all requests will retry with delay calculation using `Retry-After` headers when provided or exponential backoff as fallback.
 
 ```
 var request = List.of(
