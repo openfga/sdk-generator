@@ -62,13 +62,13 @@ def _chuck_array(array, max_size):
     return [array[i * max_size:(i + 1) * max_size] for i in range((len(array) + max_size - 1) // max_size )]
 
 
-def set_heading_if_not_set(
+def set_header_if_not_set(
     options: dict[str, int | str | dict[str, int | str]] | None,
     name: str,
     value: str,
 ) -> dict[str, int | str | dict[str, int | str]]:
     """
-    Set heading to the value if it is not set
+    Set header to the value if it is not set
     """
     _options: dict[str, int | str | dict[str, int | str]] = (
         options if options is not None else {}
@@ -88,7 +88,7 @@ def options_to_kwargs(
     options: dict[str, int | str | dict[str, int | str]] | None = None,
 ) -> dict[str, int | str | dict[str, int | str]]:
     """
-    Return kwargs with continuation_token and page_size
+    Return kwargs with continuation_token, page_size, headers and retry parameters
     """
     kwargs = {}
     if options is not None:
@@ -212,7 +212,7 @@ class OpenFgaClient:
         :param name(options) - The name parameter instructs the API to only include results that match that name. Multiple results may be returned. Only exact matches will be returned; substring matches and regexes will not be evaluated.
         :param page_size(options) - Number of items returned per request
         :param continuation_token(options) - No continuation_token by default
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
@@ -227,7 +227,7 @@ class OpenFgaClient:
     def create_store(self, body: CreateStoreRequest, options: dict[str, int | str | dict[str, int | str]] | None = None):
         """
         Create the stores in the system
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
@@ -242,7 +242,7 @@ class OpenFgaClient:
     def get_store(self, options: dict[str, int | str | dict[str, int | str]] | None = None):
         """
         Get the store info in the system. Store id is from the configuration.
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
@@ -256,7 +256,7 @@ class OpenFgaClient:
     def delete_store(self, options: dict[str, int | str | dict[str, int | str]] | None = None):
         """
         Delete the store from the system. Store id is from the configuration.
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
@@ -274,7 +274,7 @@ class OpenFgaClient:
     def read_authorization_models(self, options: dict[str, int | str | dict[str, int | str]] | None = None):
         """
         Return all the authorization models for a particular store.
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
@@ -289,7 +289,7 @@ class OpenFgaClient:
         """
         Write authorization model.
         :param body - WriteAuthorizationModelRequest
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
@@ -304,7 +304,7 @@ class OpenFgaClient:
     def read_authorization_model(self, options: dict[str, int | str | dict[str, int | str]] | None = None):
         """
         Read an authorization model.
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
@@ -320,12 +320,12 @@ class OpenFgaClient:
     def read_latest_authorization_model(self, options: dict[str, int | str | dict[str, int | str]] | None = None):
         """
         Convenient method of reading the latest authorization model
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
         """
-        options = set_heading_if_not_set(options, CLIENT_METHOD_HEADER, "ReadLatestAuthorizationModel")
+        options = set_header_if_not_set(options, CLIENT_METHOD_HEADER, "ReadLatestAuthorizationModel")
         options["page_size"] = 1
         api_response = self.read_authorization_models(options)
         model = api_response.authorization_models[0] if len(api_response.authorization_models) > 0 else None
@@ -341,7 +341,7 @@ class OpenFgaClient:
         :param body - the type we want to look for change
         :param page_size(options) - Number of items returned per request
         :param continuation_token(options) - No continuation_token by default
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
@@ -365,7 +365,7 @@ class OpenFgaClient:
         :param body - the tuples we want to read
         :param page_size(options) - Number of items returned per request
         :param continuation_token(options) - No continuation_token by default
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
@@ -461,18 +461,18 @@ class OpenFgaClient:
         """
         Write or deletes tuples
         :param body - the write request
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
         """
-        options = set_heading_if_not_set(options, CLIENT_METHOD_HEADER, "Writes")
+        options = set_header_if_not_set(options, CLIENT_METHOD_HEADER, "Writes")
         transaction = options_to_transaction_info(options)
         if not transaction.disabled:
             results = self._write_with_transaction(body, options)
             return results
 
-        options = set_heading_if_not_set(options, CLIENT_BULK_REQUEST_ID_HEADER, str(uuid.uuid4()))
+        options = set_header_if_not_set(options, CLIENT_BULK_REQUEST_ID_HEADER, str(uuid.uuid4()))
 
         # otherwise, it is not a transaction and it is a batch write requests
         writes_response = None
@@ -487,12 +487,12 @@ class OpenFgaClient:
         """
         Convenient method for writing tuples
         :param body - the list of tuples we want to write
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
         """
-        options = set_heading_if_not_set(options, CLIENT_METHOD_HEADER, "WriteTuples")
+        options = set_header_if_not_set(options, CLIENT_METHOD_HEADER, "WriteTuples")
         result = self.write(ClientWriteRequest(body, None), options)
         return result
 
@@ -500,12 +500,12 @@ class OpenFgaClient:
         """
         Convenient method for deleteing tuples
         :param body - the list of tuples we want to delete
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
         """
-        options = set_heading_if_not_set(options, CLIENT_METHOD_HEADER, "DeleteTuples")
+        options = set_header_if_not_set(options, CLIENT_METHOD_HEADER, "DeleteTuples")
         result = self.write(ClientWriteRequest(None, body), options)
         return result
 
@@ -517,7 +517,7 @@ class OpenFgaClient:
         Check whether a user is authorized to access an object
         :param body - ClientCheckRequest defining check request
         :param authorization_model_id(options) - Overrides the authorization model id in the configuration
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
@@ -573,14 +573,14 @@ class OpenFgaClient:
         :param body - list of ClientCheckRequest defining check request
         :param authorization_model_id(options) - Overrides the authorization model id in the configuration
         :param max_parallel_requests(options) - Max number of requests to issue in parallel. Defaults to {{ clientMaxMethodParallelRequests }}
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
         :param consistency(options) - The type of consistency preferred for the request
         """
-        options = set_heading_if_not_set(options, CLIENT_METHOD_HEADER, "BatchCheck")
-        options = set_heading_if_not_set(options, CLIENT_BULK_REQUEST_ID_HEADER, str(uuid.uuid4()))
+        options = set_header_if_not_set(options, CLIENT_METHOD_HEADER, "BatchCheck")
+        options = set_header_if_not_set(options, CLIENT_BULK_REQUEST_ID_HEADER, str(uuid.uuid4()))
 
         max_parallel_requests = {{ clientMaxMethodParallelRequests }}
         if options is not None and "max_parallel_requests" in options:
@@ -632,12 +632,12 @@ class OpenFgaClient:
         :param authorization_model_id(options) - Overrides the authorization model id in the configuration
         :param max_parallel_requests(options) - Max number of requests to issue in parallel. Defaults to 10
         :param max_batch_size(options) - Max number of checks to include in a request. Defaults to 50
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
         """
-        options = set_heading_if_not_set(
+        options = set_header_if_not_set(
             options, CLIENT_BULK_REQUEST_ID_HEADER, str(uuid.uuid4())
         )
 
@@ -720,7 +720,7 @@ class OpenFgaClient:
         Run expand request
         :param body - list of ClientExpandRequest defining expand request
         :param authorization_model_id(options) - Overrides the authorization model id in the configuration
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
@@ -751,7 +751,7 @@ class OpenFgaClient:
         Run list object request
         :param body - list object parameters
         :param authorization_model_id(options) - Overrides the authorization model id in the configuration
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
@@ -785,7 +785,7 @@ class OpenFgaClient:
 
         :param body - list object parameters
         :param authorization_model_id(options) - Overrides the authorization model id in the configuration
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
@@ -819,14 +819,14 @@ class OpenFgaClient:
         Return all the relations for which user has a relationship with the object
         :param body - list relation request
         :param authorization_model_id(options) - Overrides the authorization model id in the configuration
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
         :param consistency(options) - The type of consistency preferred for the request
         """
-        options = set_heading_if_not_set(options, CLIENT_METHOD_HEADER, "ListRelations")
-        options = set_heading_if_not_set(options, CLIENT_BULK_REQUEST_ID_HEADER, str(uuid.uuid4()))
+        options = set_header_if_not_set(options, CLIENT_METHOD_HEADER, "ListRelations")
+        options = set_header_if_not_set(options, CLIENT_BULK_REQUEST_ID_HEADER, str(uuid.uuid4()))
 
         request_body = [construct_check_request(user=body.user, relation=i, object=body.object, contextual_tuples=body.contextual_tuples, context=body.context) for i in body.relations]
         result = self.client_batch_check(request_body, options)
@@ -848,7 +848,7 @@ class OpenFgaClient:
         Run list users request
         :param body - list user parameters
         :param authorization_model_id(options) - Overrides the authorization model id in the configuration
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
@@ -881,7 +881,7 @@ class OpenFgaClient:
         """
         Return the assertions
         :param authorization_model_id(options) - Overrides the authorization model id in the configuration
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
@@ -897,7 +897,7 @@ class OpenFgaClient:
         Upsert the assertions
         :param body - Write assertion request
         :param authorization_model_id(options) - Overrides the authorization model id in the configuration
-        :param header(options) - Custom headers to send alongside the request
+        :param headers(options) - Custom headers to send alongside the request
         :param retryParams(options) - Override the retry parameters for this request
         :param retryParams.maxRetry(options) - Override the max number of retries on each API request
         :param retryParams.minWaitInMs(options) - Override the minimum wait before a retry is initiated
