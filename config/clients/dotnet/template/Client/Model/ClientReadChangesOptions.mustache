@@ -1,6 +1,16 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 namespace {{packageName}}.Client.Model;
+#else
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+
+namespace {{packageName}}.Client.Model
+{
+#endif
 
 /// <summary>
 ///     ClientReadChangesOptions - Client Options for ReadChanges
@@ -19,3 +29,7 @@ public class ClientReadChangesOptions : IClientReadChangesOptions {
     /// <inheritdoc />
     public string? ContinuationToken { get; set; }
 }
+
+#if NETSTANDARD2_0
+}
+#endif

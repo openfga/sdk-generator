@@ -1,0 +1,72 @@
+{{>partial_header}}
+
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using Xunit;
+using {{packageName}}.Client;
+using {{packageName}}.Configuration;
+
+namespace {{packageName}}.Framework.Tests
+{
+    /// <summary>
+    /// Framework compatibility tests
+    /// </summary>
+    public class FrameworkTests
+    {
+        [Fact]
+        public void TestHttpClientFunctionality()
+        {
+            using (var client = new System.Net.Http.HttpClient())
+            using (var request = new System.Net.Http.HttpRequestMessage(
+                System.Net.Http.HttpMethod.Get,
+                "https://example.com"))
+            {
+                Assert.NotNull(client);
+                Assert.NotNull(request);
+                Assert.Equal(HttpMethod.Get, request.Method);
+                Assert.Equal("https://example.com", request.RequestUri.ToString());
+            }
+        }
+
+        [Fact]
+        public async Task TestAsyncHttpClientFunctionality()
+        {
+            using (var client = new System.Net.Http.HttpClient())
+            using (var request = new System.Net.Http.HttpRequestMessage(
+                System.Net.Http.HttpMethod.Get,
+                "https://example.com"))
+            {
+                Assert.NotNull(client);
+                Assert.NotNull(request);
+            }
+        }
+
+        [Fact]
+        public void TestHttpClientFactoryPattern()
+        {
+            var testFactory = new TestHttpClientFactory();
+            
+            using (var factoryClient = testFactory.CreateClient())
+            {
+                Assert.NotNull(factoryClient);
+                
+                using (var request = new HttpRequestMessage(HttpMethod.Get, "https://example.com"))
+                {
+                    Assert.NotNull(request);
+                }
+            }
+        }
+        
+        // Test factory implementation
+        private class TestHttpClientFactory
+        {
+            public HttpClient CreateClient()
+            {
+                return new HttpClient();
+            }
+        }
+    }
+}
