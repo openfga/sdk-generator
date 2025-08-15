@@ -385,7 +385,11 @@ body := ClientCheckRequest{
 options := ClientCheckOptions{
     AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
     // You can rely on the store id set in the configuration or override it for this specific request
-    StoreId: {{packageName}}.PtrString("01FQH7V8BEG3GPQW93KTRFR8JB"), 
+    StoreId: {{packageName}}.PtrString("01FQH7V8BEG3GPQW93KTRFR8JB"),
+    Headers: map[string]string{
+        "X-Correlation-ID": "123",
+        "Trace-ID":         "abc",
+    },
 }
 data, err := fgaClient.Check(context.Background()).Body(body).Options(options).Execute()
 

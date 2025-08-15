@@ -2040,9 +2040,13 @@ func Test{{appShortName}}Client(t *testing.T) {
 			} },
 		}
 
-		options := ClientCheckOptions{
-			AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
-		}
+                options := ClientCheckOptions{
+                        AuthorizationModelId: {{packageName}}.PtrString("01GAHCE4YVKPQEKZQHT2R89MQV"),
+                        Headers: map[string]string{
+                                "X-Correlation-ID": "123",
+                                "Trace-ID":         "abc",
+                        },
+                }
 
 		var expectedResponse {{packageName}}.CheckResponse
 		if err := json.Unmarshal([]byte(test.JsonResponse), &expectedResponse); err != nil {
@@ -2051,15 +2055,21 @@ func Test{{appShortName}}Client(t *testing.T) {
 
 		httpmock.Activate()
 		defer httpmock.DeactivateAndReset()
-		httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
-			func(req *http.Request) (*http.Response, error) {
-				resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
-				if err != nil {
-					return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
-				}
-				return resp, nil
-			},
-		)
+                httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", fgaClient.GetConfig().ApiUrl, getStoreId(t, fgaClient), test.RequestPath),
+                        func(req *http.Request) (*http.Response, error) {
+                                if req.Header.Get("X-Correlation-ID") != "123" {
+                                        t.Fatalf("missing X-Correlation-ID header")
+                                }
+                                if req.Header.Get("Trace-ID") != "abc" {
+                                        t.Fatalf("missing Trace-ID header")
+                                }
+                                resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+                                if err != nil {
+                                        return httpmock.NewStringResponse(http.StatusInternalServerError, ""), nil
+                                }
+                                return resp, nil
+                        },
+                )
 		got, err := fgaClient.Check(context.Background()).Body(requestBody).Options(options).Execute()
 		if err != nil {
 			t.Fatalf("%v", err)
