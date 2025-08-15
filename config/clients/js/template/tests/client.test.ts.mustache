@@ -99,6 +99,17 @@ describe("{{appTitleCaseName}} Client", () => {
         expect(response.stores).toHaveLength(1);
         expect(response.stores?.[0]).toMatchObject(store);
       });
+
+      it("should include custom headers when provided", async () => {
+        const scope = nock(defaultConfiguration.getBasePath())
+          .get("/stores")
+          .matchHeader("X-Correlation-ID", "abc123")
+          .reply(200, { continuation_token: "", stores: [] });
+
+        await fgaClient.listStores({ headers: { "X-Correlation-ID": "abc123" } });
+
+        expect(scope.isDone()).toBe(true);
+      });
     });
 
     describe("CreateStore", () => {
