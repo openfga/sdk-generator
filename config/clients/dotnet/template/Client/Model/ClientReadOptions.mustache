@@ -1,5 +1,6 @@
 {{>partial_header}}
 
+using System.Collections.Generic;
 using OpenFga.Sdk.Model;
 
 namespace {{packageName}}.Client.Model;
@@ -22,5 +23,8 @@ public class ClientReadOptions : IClientReadOptions {
     public string? ContinuationToken { get; set; }
 
     /// <inheritdoc />
-    public ConsistencyPreference? Consistency { get; set; }    
+    public ConsistencyPreference? Consistency { get; set; }
+
+    /// <inheritdoc />
+    public Dictionary<string, string>? AdditionalHeaders { get; set; }
 }
