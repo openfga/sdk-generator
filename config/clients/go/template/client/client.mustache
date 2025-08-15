@@ -108,6 +108,7 @@ func NewSdkClient(cfg *ClientConfiguration) (*{{appShortName}}Client, error) {
 }
 
 type ClientRequestOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	MaxRetry    *int `json:"max_retry,omitempty"`
 	MinWaitInMs *int `json:"min_wait_in_ms,omitempty"`
 }
@@ -146,6 +147,7 @@ type ClientBatchCheckRequest struct {
 
 // BatchCheckOptions represents options for server-side batch check operations
 type BatchCheckOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	AuthorizationModelId *string                       `json:"authorization_model_id,omitempty"`
 	StoreId              *string                       `json:"store_id,omitempty"`
 	MaxParallelRequests  *int32                        `json:"max_parallel_requests,omitempty"`
@@ -570,6 +572,7 @@ type SdkClientListStoresRequestInterface interface {
 }
 
 type ClientListStoresOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	PageSize          *int32  `json:"page_size,omitempty"`
 	ContinuationToken *string `json:"continuation_token,omitempty"`
 }
@@ -594,20 +597,23 @@ func (request *SdkClientListStoresRequest) GetOptions() *ClientListStoresOptions
 }
 
 func (client *{{appShortName}}Client) ListStoresExecute(request SdkClientListStoresRequestInterface) (*ClientListStoresResponse, error) {
-	req := client.{{appShortName}}Api.ListStores(request.GetContext())
-	pageSize := getPageSizeFromRequest((*ClientPaginationOptions)(request.GetOptions()))
-	if pageSize != nil {
-		req = req.PageSize(*pageSize)
-	}
-	continuationToken := getContinuationTokenFromRequest((*ClientPaginationOptions)(request.GetOptions()))
-	if continuationToken != nil {
-		req = req.ContinuationToken(*continuationToken)
-	}
-	data, _, err := req.Execute()
-	if err != nil {
-		return nil, err
-	}
-	return &data, nil
+       req := client.{{appShortName}}Api.ListStores(request.GetContext())
+       if request.GetOptions() != nil {
+               req = req.Options(*request.GetOptions())
+       }
+       pageSize := getPageSizeFromRequest((*ClientPaginationOptions)(request.GetOptions()))
+       if pageSize != nil {
+               req = req.PageSize(*pageSize)
+       }
+       continuationToken := getContinuationTokenFromRequest((*ClientPaginationOptions)(request.GetOptions()))
+       if continuationToken != nil {
+               req = req.ContinuationToken(*continuationToken)
+       }
+       data, _, err := req.Execute()
+       if err != nil {
+               return nil, err
+       }
+       return &data, nil
 }
 
 func (client *{{appShortName}}Client) ListStores(ctx _context.Context) SdkClientListStoresRequestInterface {
@@ -641,6 +647,7 @@ type ClientCreateStoreRequest struct {
 }
 
 type ClientCreateStoreOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 }
 
 type ClientCreateStoreResponse = fgaSdk.CreateStoreResponse
@@ -668,17 +675,21 @@ func (request *SdkClientCreateStoreRequest) GetOptions() *ClientCreateStoreOptio
 }
 
 func (request *SdkClientCreateStoreRequest) GetBody() *ClientCreateStoreRequest{
-	return request.body
+        return request.body
 }
 
 func (client *{{appShortName}}Client) CreateStoreExecute(request SdkClientCreateStoreRequestInterface) (*ClientCreateStoreResponse, error) {
-	data, _, err := client.{{appShortName}}Api.CreateStore(request.GetContext()).Body(fgaSdk.CreateStoreRequest{
-		Name: request.GetBody().Name,
-	}).Execute()
-	if err != nil {
-		return nil, err
-	}
-	return &data, nil
+       req := client.{{appShortName}}Api.CreateStore(request.GetContext()).Body(fgaSdk.CreateStoreRequest{
+               Name: request.GetBody().Name,
+       })
+       if request.GetOptions() != nil {
+               req = req.Options(*request.GetOptions())
+       }
+       data, _, err := req.Execute()
+       if err != nil {
+               return nil, err
+       }
+       return &data, nil
 }
 
 func (client *{{appShortName}}Client) CreateStore(ctx _context.Context) SdkClientCreateStoreRequestInterface {
@@ -706,6 +717,7 @@ type SdkClientGetStoreRequestInterface interface{
 }
 
 type ClientGetStoreOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	StoreId  *string `json:"store_id,omitempty"`
 }
 
@@ -732,19 +744,23 @@ func (request *SdkClientGetStoreRequest) GetContext() _context.Context{
 }
 
 func (request *SdkClientGetStoreRequest) GetOptions() *ClientGetStoreOptions{
-	return request.options
+        return request.options
 }
 
 func (client *{{appShortName}}Client) GetStoreExecute(request SdkClientGetStoreRequestInterface) (*ClientGetStoreResponse, error) {
-	storeId, err := client.getStoreId(request.GetStoreIdOverride())
-	if err != nil {
-		return nil, err
-	}
-	data, _, err := client.{{appShortName}}Api.GetStore(request.GetContext(), *storeId).Execute()
-	if err != nil {
-		return nil, err
-	}
-	return &data, nil
+        storeId, err := client.getStoreId(request.GetStoreIdOverride())
+        if err != nil {
+                return nil, err
+        }
+       req := client.{{appShortName}}Api.GetStore(request.GetContext(), *storeId)
+       if request.GetOptions() != nil {
+               req = req.Options(*request.GetOptions())
+       }
+       data, _, err := req.Execute()
+       if err != nil {
+               return nil, err
+       }
+       return &data, nil
 }
 
 func (client *{{appShortName}}Client) GetStore(ctx _context.Context) SdkClientGetStoreRequestInterface {
@@ -772,6 +788,7 @@ type SdkClientDeleteStoreRequestInterface interface{
 }
 
 type ClientDeleteStoreOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	StoreId *string `json:"store_id,omitempty"`
 }
 
@@ -803,15 +820,19 @@ func (request *SdkClientDeleteStoreRequest) GetOptions() *ClientDeleteStoreOptio
 
 
 func (client *{{appShortName}}Client) DeleteStoreExecute(request SdkClientDeleteStoreRequestInterface) (*ClientDeleteStoreResponse, error) {
-	storeId, err := client.getStoreId(request.GetStoreIdOverride())
-	if err != nil {
-		return nil, err
-	}
-	_, err = client.{{appShortName}}Api.DeleteStore(request.GetContext(), *storeId).Execute()
-	if err != nil {
-		return nil, err
-	}
-	return &ClientDeleteStoreResponse{}, nil
+        storeId, err := client.getStoreId(request.GetStoreIdOverride())
+        if err != nil {
+                return nil, err
+        }
+       req := client.{{appShortName}}Api.DeleteStore(request.GetContext(), *storeId)
+       if request.GetOptions() != nil {
+               req = req.Options(*request.GetOptions())
+       }
+       _, err = req.Execute()
+        if err != nil {
+                return nil, err
+        }
+        return &ClientDeleteStoreResponse{}, nil
 }
 
 func (client *{{appShortName}}Client) DeleteStore(ctx _context.Context) SdkClientDeleteStoreRequestInterface {
@@ -841,6 +862,7 @@ type SdkClientReadAuthorizationModelsRequestInterface interface{
 }
 
 type ClientReadAuthorizationModelsOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	PageSize          *int32  `json:"page_size,omitempty"`
 	ContinuationToken *string `json:"continuation_token,omitempty"`
 	StoreId           *string `json:"store_id,omitempty"`
@@ -873,26 +895,29 @@ func (request *SdkClientReadAuthorizationModelsRequest) GetOptions() *ClientRead
 }
 
 func (client *{{appShortName}}Client) ReadAuthorizationModelsExecute(request SdkClientReadAuthorizationModelsRequestInterface) (*ClientReadAuthorizationModelsResponse, error) {
-	pagingOpts := ClientPaginationOptions{}
-	if request.GetOptions() != nil {
-		pagingOpts.PageSize = request.GetOptions().PageSize
-		pagingOpts.ContinuationToken = request.GetOptions().ContinuationToken
-	}
+        pagingOpts := ClientPaginationOptions{}
+        if request.GetOptions() != nil {
+                pagingOpts.PageSize = request.GetOptions().PageSize
+                pagingOpts.ContinuationToken = request.GetOptions().ContinuationToken
+        }
 
-	storeId, err := client.getStoreId(request.GetStoreIdOverride())
-	if err != nil {
-		return nil, err
-	}
+        storeId, err := client.getStoreId(request.GetStoreIdOverride())
+        if err != nil {
+                return nil, err
+        }
 
-	req := client.{{appShortName}}Api.ReadAuthorizationModels(request.GetContext(), *storeId)
-	pageSize := getPageSizeFromRequest(&pagingOpts)
-	if pageSize != nil {
-		req = req.PageSize(*pageSize)
-	}
-	continuationToken := getContinuationTokenFromRequest(&pagingOpts)
-	if continuationToken != nil {
-		req = req.ContinuationToken(*continuationToken)
-	}
+       req := client.{{appShortName}}Api.ReadAuthorizationModels(request.GetContext(), *storeId)
+       if request.GetOptions() != nil {
+               req = req.Options(*request.GetOptions())
+       }
+        pageSize := getPageSizeFromRequest(&pagingOpts)
+        if pageSize != nil {
+                req = req.PageSize(*pageSize)
+        }
+        continuationToken := getContinuationTokenFromRequest(&pagingOpts)
+        if continuationToken != nil {
+                req = req.ContinuationToken(*continuationToken)
+        }
 	data, _, err := req.Execute()
 	if err != nil {
 		return nil, err
@@ -930,6 +955,7 @@ type SdkClientWriteAuthorizationModelRequestInterface interface {
 type ClientWriteAuthorizationModelRequest = fgaSdk.WriteAuthorizationModelRequest;
 
 type ClientWriteAuthorizationModelOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	StoreId              *string `json:"store_id,omitempty"`
 }
 
@@ -969,15 +995,19 @@ func (request *SdkClientWriteAuthorizationModelRequest) GetContext() _context.Co
 }
 
 func (client *{{appShortName}}Client) WriteAuthorizationModelExecute(request SdkClientWriteAuthorizationModelRequestInterface) (*ClientWriteAuthorizationModelResponse, error) {
-	storeId, err := client.getStoreId(request.GetStoreIdOverride())
-	if err != nil {
-		return nil, err
-	}
-	data, _, err := client.{{appShortName}}Api.WriteAuthorizationModel(request.GetContext(), *storeId).Body(*request.GetBody()).Execute()
-	if err != nil {
-		return nil, err
-	}
-	return &data, nil
+        storeId, err := client.getStoreId(request.GetStoreIdOverride())
+        if err != nil {
+                return nil, err
+        }
+       req := client.{{appShortName}}Api.WriteAuthorizationModel(request.GetContext(), *storeId).Body(*request.GetBody())
+       if request.GetOptions() != nil {
+               req = req.Options(*request.GetOptions())
+       }
+       data, _, err := req.Execute()
+       if err != nil {
+               return nil, err
+       }
+       return &data, nil
 }
 
 func (client *{{appShortName}}Client) WriteAuthorizationModel(ctx _context.Context) SdkClientWriteAuthorizationModelRequestInterface {
@@ -1012,6 +1042,7 @@ type ClientReadAuthorizationModelRequest struct {
 }
 
 type ClientReadAuthorizationModelOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	AuthorizationModelId *string `json:"authorization_model_id,omitempty"`
 	StoreId              *string `json:"store_id,omitempty"`
 }
@@ -1059,23 +1090,27 @@ func (request *SdkClientReadAuthorizationModelRequest) GetContext() _context.Con
 }
 
 func (client *{{appShortName}}Client) ReadAuthorizationModelExecute(request SdkClientReadAuthorizationModelRequestInterface) (*ClientReadAuthorizationModelResponse, error) {
-	authorizationModelId, err := client.getAuthorizationModelId(request.GetAuthorizationModelIdOverride())
-	if err != nil {
-		return nil, err
-	}
-	if authorizationModelId == nil || *authorizationModelId == "" {
-		return nil, FgaRequiredParamError{param: "AuthorizationModelId"}
-	}
-	storeId, err := client.getStoreId(request.GetStoreIdOverride())
-	if err != nil {
-		return nil, err
-	}
-	data, _, err := client.{{appShortName}}Api.ReadAuthorizationModel(request.GetContext(), *storeId, *authorizationModelId).Execute()
+        authorizationModelId, err := client.getAuthorizationModelId(request.GetAuthorizationModelIdOverride())
+        if err != nil {
+                return nil, err
+        }
+        if authorizationModelId == nil || *authorizationModelId == "" {
+                return nil, FgaRequiredParamError{param: "AuthorizationModelId"}
+        }
+        storeId, err := client.getStoreId(request.GetStoreIdOverride())
+        if err != nil {
+                return nil, err
+        }
+       req := client.{{appShortName}}Api.ReadAuthorizationModel(request.GetContext(), *storeId, *authorizationModelId)
+       if request.GetOptions() != nil {
+               req = req.Options(*request.GetOptions())
+       }
+       data, _, err := req.Execute()
 
-	if err != nil {
-		return nil, err
-	}
-	return &data, nil
+       if err != nil {
+               return nil, err
+       }
+       return &data, nil
 }
 
 func (client *{{appShortName}}Client) ReadAuthorizationModel(ctx _context.Context) SdkClientReadAuthorizationModelRequestInterface {
@@ -1103,6 +1138,7 @@ type SdkClientReadLatestAuthorizationModelRequestInterface interface {
 }
 
 type ClientReadLatestAuthorizationModelOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	StoreId              *string `json:"store_id,omitempty"`
 }
 
@@ -1138,13 +1174,14 @@ func (request *SdkClientReadLatestAuthorizationModelRequest) GetOptions() *Clien
 }
 
 func (client *{{appShortName}}Client) ReadLatestAuthorizationModelExecute(request SdkClientReadLatestAuthorizationModelRequestInterface) (*ClientReadAuthorizationModelResponse, error) {
-	opts := ClientReadAuthorizationModelsOptions{
-		PageSize: fgaSdk.PtrInt32(1),
-	}
-	if request.GetOptions() != nil {
-		opts.StoreId = request.GetOptions().StoreId
-	}
-	req := client.ReadAuthorizationModels(request.GetContext()).Options(opts)
+       opts := ClientReadAuthorizationModelsOptions{
+               PageSize: fgaSdk.PtrInt32(1),
+       }
+       if request.GetOptions() != nil {
+               opts.Headers = request.GetOptions().Headers
+               opts.StoreId = request.GetOptions().StoreId
+       }
+       req := client.ReadAuthorizationModels(request.GetContext()).Options(opts)
 
 	response, err := req.Execute()
 	if err != nil {
@@ -1191,6 +1228,7 @@ type ClientReadChangesRequest struct {
 }
 
 type ClientReadChangesOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	PageSize          *int32  `json:"page_size,omitempty"`
 	ContinuationToken *string `json:"continuation_token,omitempty"`
 	StoreId           *string `json:"store_id"`
@@ -1239,23 +1277,26 @@ func (request *SdkClientReadChangesRequest) GetOptions() *ClientReadChangesOptio
 }
 
 func (client *{{appShortName}}Client) ReadChangesExecute(request SdkClientReadChangesRequestInterface) (*ClientReadChangesResponse, error) {
-	pagingOpts := ClientPaginationOptions{}
-	if request.GetOptions() != nil {
-    	pagingOpts.PageSize = request.GetOptions().PageSize
-    	pagingOpts.ContinuationToken = request.GetOptions().ContinuationToken
-	}
+        pagingOpts := ClientPaginationOptions{}
+        if request.GetOptions() != nil {
+        pagingOpts.PageSize = request.GetOptions().PageSize
+        pagingOpts.ContinuationToken = request.GetOptions().ContinuationToken
+        }
 
 	storeId, err := client.getStoreId(request.GetStoreIdOverride())
 	if err != nil {
 		return nil, err
 	}
 
-	req := client.{{appShortName}}Api.ReadChanges(request.GetContext(), *storeId)
-	pageSize := getPageSizeFromRequest(&pagingOpts)
-	if pageSize != nil {
-		req = req.PageSize(*pageSize)
-	}
-	continuationToken := getContinuationTokenFromRequest(&pagingOpts)
+       req := client.{{appShortName}}Api.ReadChanges(request.GetContext(), *storeId)
+       if request.GetOptions() != nil {
+               req = req.Options(*request.GetOptions())
+       }
+        pageSize := getPageSizeFromRequest(&pagingOpts)
+        if pageSize != nil {
+                req = req.PageSize(*pageSize)
+        }
+        continuationToken := getContinuationTokenFromRequest(&pagingOpts)
 	if continuationToken != nil {
 		req = req.ContinuationToken(*continuationToken)
 	}
@@ -1301,6 +1342,7 @@ type ClientReadRequest struct {
 }
 
 type ClientReadOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	PageSize          *int32  `json:"page_size,omitempty"`
 	ContinuationToken *string `json:"continuation_token,omitempty"`
 	StoreId           *string `json:"store_id,omitempty"`
@@ -1370,15 +1412,19 @@ func (client *{{appShortName}}Client) ReadExecute(request SdkClientReadRequestIn
 			Object:   request.GetBody().Object,
 		}
 	}
-	storeId, err := client.getStoreId(request.GetStoreIdOverride())
-	if err != nil {
-		return nil, err
-	}
-	data, _, err := client.{{appShortName}}Api.Read(request.GetContext(), *storeId).Body(body).Execute()
-	if err != nil {
-		return nil, err
-	}
-	return &data, nil
+        storeId, err := client.getStoreId(request.GetStoreIdOverride())
+        if err != nil {
+                return nil, err
+        }
+       req := client.{{appShortName}}Api.Read(request.GetContext(), *storeId).Body(body)
+       if request.GetOptions() != nil {
+               req = req.Options(*request.GetOptions())
+       }
+       data, _, err := req.Execute()
+       if err != nil {
+               return nil, err
+       }
+       return &data, nil
 }
 
 // / Write
@@ -1418,6 +1464,7 @@ type TransactionOptions struct {
 }
 
 type ClientWriteOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	AuthorizationModelId *string             `json:"authorization_model_id,omitempty"`
 	StoreId              *string             `json:"store_id,omitempty"`
 	Transaction          *TransactionOptions `json:"transaction_options,omitempty"`
@@ -1559,14 +1606,18 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 			}
 			writeRequest.Writes = &writes
 		}
-		if len(request.GetBody().Deletes) > 0 {
-			deletes := fgaSdk.WriteRequestDeletes{}
-			for index := 0; index < len(request.GetBody().Deletes); index++ {
-				deletes.TupleKeys = append(deletes.TupleKeys, (request.GetBody().Deletes)[index])
-			}
-			writeRequest.Deletes = &deletes
-		}
-		_, httpResponse, err := client.{{appShortName}}Api.Write(request.GetContext(), *storeId).Body(writeRequest).Execute()
+                if len(request.GetBody().Deletes) > 0 {
+                        deletes := fgaSdk.WriteRequestDeletes{}
+                        for index := 0; index < len(request.GetBody().Deletes); index++ {
+                                deletes.TupleKeys = append(deletes.TupleKeys, (request.GetBody().Deletes)[index])
+                        }
+                        writeRequest.Deletes = &deletes
+                }
+               req := client.{{appShortName}}Api.Write(request.GetContext(), *storeId).Body(writeRequest)
+               if request.GetOptions() != nil {
+                       req = req.Options(*request.GetOptions())
+               }
+               _, httpResponse, err := req.Execute()
 
 		clientWriteStatus := SUCCESS
 		if err != nil {
@@ -1627,21 +1678,25 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 	writeGroup, ctx := errgroup.WithContext(request.GetContext())
 
 	writeGroup.SetLimit(int(maxParallelReqs))
-	writeResponses := make([]ClientWriteResponse, len(writeChunks))
-	for index, writeBody := range writeChunks {
-		index, writeBody := index, writeBody
-		writeGroup.Go(func() error {
-			singleResponse, err := client.WriteExecute(&SdkClientWriteRequest{
-				ctx:    ctx,
-				Client: client,
-				body: &ClientWriteRequest{
-					Writes: writeBody,
-				},
-				options: &ClientWriteOptions{
-					AuthorizationModelId: authorizationModelId,
-					StoreId:              request.GetStoreIdOverride(),
-				},
-			})
+        writeResponses := make([]ClientWriteResponse, len(writeChunks))
+        for index, writeBody := range writeChunks {
+                index, writeBody := index, writeBody
+                writeGroup.Go(func() error {
+                       chunkOptions := ClientWriteOptions{
+                               AuthorizationModelId: authorizationModelId,
+                               StoreId:              request.GetStoreIdOverride(),
+                       }
+                       if request.GetOptions() != nil {
+                               chunkOptions.Headers = request.GetOptions().Headers
+                       }
+                       singleResponse, err := client.WriteExecute(&SdkClientWriteRequest{
+                               ctx:    ctx,
+                               Client: client,
+                               body: &ClientWriteRequest{
+                                       Writes: writeBody,
+                               },
+                               options: &chunkOptions,
+                       })
 
 			if _, ok := err.(fgaSdk.FgaApiAuthenticationError); ok {
 				return err
@@ -1671,21 +1726,25 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 
 	deleteGroup, ctx := errgroup.WithContext(request.GetContext())
 	deleteGroup.SetLimit(int(maxParallelReqs))
-	deleteResponses := make([]ClientWriteResponse, len(deleteChunks))
-	for index, deleteBody := range deleteChunks {
-		index, deleteBody := index, deleteBody
-		deleteGroup.Go(func() error {
-			singleResponse, err := client.WriteExecute(&SdkClientWriteRequest{
-				ctx:    ctx,
-				Client: client,
-				body: &ClientWriteRequest{
-					Deletes: deleteBody,
-				},
-				options: &ClientWriteOptions{
-					AuthorizationModelId: authorizationModelId,
-					StoreId:              request.GetStoreIdOverride(),
-				},
-			})
+        deleteResponses := make([]ClientWriteResponse, len(deleteChunks))
+        for index, deleteBody := range deleteChunks {
+                index, deleteBody := index, deleteBody
+                deleteGroup.Go(func() error {
+                       chunkOptions := ClientWriteOptions{
+                               AuthorizationModelId: authorizationModelId,
+                               StoreId:              request.GetStoreIdOverride(),
+                       }
+                       if request.GetOptions() != nil {
+                               chunkOptions.Headers = request.GetOptions().Headers
+                       }
+                       singleResponse, err := client.WriteExecute(&SdkClientWriteRequest{
+                               ctx:    ctx,
+                               Client: client,
+                               body: &ClientWriteRequest{
+                                       Deletes: deleteBody,
+                               },
+                               options: &chunkOptions,
+                       })
 
 			if _, ok := err.(fgaSdk.FgaApiAuthenticationError); ok {
 				return err
@@ -1875,6 +1934,7 @@ type ClientCheckRequest struct {
 }
 
 type ClientCheckOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	AuthorizationModelId *string `json:"authorization_model_id,omitempty"`
 	StoreId              *string `json:"store_id,omitempty"`
 	Consistency       *fgaSdk.ConsistencyPreference `json:"consistency,omitempty"`
@@ -1958,12 +2018,16 @@ func (client *{{appShortName}}Client) CheckExecute(request SdkClientCheckRequest
 		AuthorizationModelId: authorizationModelId,
 	}
 	
-	if request.GetOptions() != nil {
-		requestBody.Consistency = request.GetOptions().Consistency
-	}
+       if request.GetOptions() != nil {
+               requestBody.Consistency = request.GetOptions().Consistency
+       }
 
-	data, httpResponse, err := client.{{appShortName}}Api.Check(request.GetContext(), *storeId).Body(requestBody).Execute()
-	return &ClientCheckResponse{CheckResponse: data, HttpResponse: httpResponse}, err
+       req := client.{{appShortName}}Api.Check(request.GetContext(), *storeId).Body(requestBody)
+       if request.GetOptions() != nil {
+               req = req.Options(*request.GetOptions())
+       }
+       data, httpResponse, err := req.Execute()
+       return &ClientCheckResponse{CheckResponse: data, HttpResponse: httpResponse}, err
 }
 
 /// ClientBatchCheck
@@ -1991,6 +2055,7 @@ type SdkClientBatchCheckClientRequestInterface interface {
 type ClientBatchCheckClientBody = []ClientCheckRequest
 
 type ClientBatchCheckClientOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	AuthorizationModelId *string `json:"authorization_model_id,omitempty"`
 	StoreId              *string `json:"store_id,omitempty"`
 	MaxParallelRequests  *int32  `json:"max_parallel_requests,omitempty"`
@@ -2073,14 +2138,16 @@ func (client *{{appShortName}}Client) ClientBatchCheckExecute(request SdkClientB
 		return nil, err
 	}
 
-	checkOptions := &ClientCheckOptions{
-		AuthorizationModelId: authorizationModelId,
-		StoreId:              storeId,
-	}
-
-	if request.GetOptions() != nil && request.GetOptions().Consistency != nil {
-		checkOptions.Consistency = request.GetOptions().Consistency
-	}
+       checkOptions := &ClientCheckOptions{
+               AuthorizationModelId: authorizationModelId,
+               StoreId:              storeId,
+       }
+       if request.GetOptions() != nil {
+               checkOptions.Headers = request.GetOptions().Headers
+               if request.GetOptions().Consistency != nil {
+                       checkOptions.Consistency = request.GetOptions().Consistency
+               }
+       }
 
 	for index, checkBody := range *request.GetBody() {
 		index, checkBody := index, checkBody
@@ -2244,20 +2311,23 @@ func (client *OpenFgaClient) BatchCheckExecute(request SdkClientBatchCheckReques
  * @return *fgaSdk.BatchCheckResponse
  */
 func (client *OpenFgaClient) singleBatchCheck(ctx _context.Context, body fgaSdk.BatchCheckRequest, options *BatchCheckOptions) (*fgaSdk.BatchCheckResponse, error) {
-	storeId, err := client.getStoreId(options.StoreId)
-	if err != nil {
-		return nil, err
-	}
-	
-	req := client.OpenFgaApi.BatchCheck(ctx, *storeId)
-	req = req.Body(body)
+        storeId, err := client.getStoreId(options.StoreId)
+        if err != nil {
+                return nil, err
+        }
 
-	response, _, err := req.Execute()
-	if err != nil {
-		return nil, err
-	}
+       req := client.OpenFgaApi.BatchCheck(ctx, *storeId)
+       if options != nil {
+               req = req.Options(*options)
+       }
+       req = req.Body(body)
 
-	return &response, nil
+       response, _, err := req.Execute()
+        if err != nil {
+                return nil, err
+        }
+
+        return &response, nil
 }
 
 /*
@@ -2365,6 +2435,7 @@ type ClientExpandRequest struct {
 }
 
 type ClientExpandOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	AuthorizationModelId *string `json:"authorization_model_id,omitempty"`
 	StoreId              *string `json:"store_id,omitempty"`
 	Consistency       *fgaSdk.ConsistencyPreference `json:"consistency,omitempty"`
@@ -2437,15 +2508,19 @@ func (client *{{appShortName}}Client) ExpandExecute(request SdkClientExpandReque
 		AuthorizationModelId: authorizationModelId,
 	}
 
-	if request.GetOptions() != nil {
-		body.Consistency = request.GetOptions().Consistency
-	}
+        if request.GetOptions() != nil {
+                body.Consistency = request.GetOptions().Consistency
+        }
 
-	data, _, err := client.OpenFgaApi.Expand(request.GetContext(), *storeId).Body(body).Execute()
-	if err != nil {
-		return nil, err
-	}
-	return &data, nil
+       req := client.OpenFgaApi.Expand(request.GetContext(), *storeId).Body(body)
+       if request.GetOptions() != nil {
+               req = req.Options(*request.GetOptions())
+       }
+       data, _, err := req.Execute()
+       if err != nil {
+               return nil, err
+       }
+       return &data, nil
 }
 
 // / ListObjects
@@ -2478,6 +2553,7 @@ type ClientListObjectsRequest struct {
 }
 
 type ClientListObjectsOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	AuthorizationModelId *string `json:"authorization_model_id,omitempty"`
 	StoreId              *string `json:"store_id,omitempty"`
 	Consistency       *fgaSdk.ConsistencyPreference `json:"consistency,omitempty"`
@@ -2555,14 +2631,18 @@ func (client *{{appShortName}}Client) ListObjectsExecute(request SdkClientListOb
 		Context:              request.GetBody().Context,
 		AuthorizationModelId: authorizationModelId,
 	}
-	if request.GetOptions() != nil {
-		body.Consistency = request.GetOptions().Consistency
-	}
-	data, _, err := client.OpenFgaApi.ListObjects(request.GetContext(), *storeId).Body(body).Execute()
-	if err != nil {
-		return nil, err
-	}
-	return &data, nil
+       if request.GetOptions() != nil {
+               body.Consistency = request.GetOptions().Consistency
+       }
+       req := client.OpenFgaApi.ListObjects(request.GetContext(), *storeId).Body(body)
+       if request.GetOptions() != nil {
+               req = req.Options(*request.GetOptions())
+       }
+       data, _, err := req.Execute()
+       if err != nil {
+                return nil, err
+       }
+       return &data, nil
 }
 
 /// ListRelations
@@ -2596,6 +2676,7 @@ type ClientListRelationsRequest struct {
 }
 
 type ClientListRelationsOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	AuthorizationModelId *string `json:"authorization_model_id,omitempty"`
 	MaxParallelRequests  *int32  `json:"max_parallel_requests,omitempty"`
 	StoreId              *string `json:"store_id,omitempty"`
@@ -2683,14 +2764,15 @@ func (client *{{appShortName}}Client) ListRelationsExecute(request SdkClientList
 		return nil, err
 	}
 	
-	options := &ClientBatchCheckClientOptions{
-		AuthorizationModelId: authorizationModelId,
-		StoreId:              storeId,
-	}
-	if request.GetOptions() != nil {
-		options.Consistency = request.GetOptions().Consistency
-		options.MaxParallelRequests = request.GetOptions().MaxParallelRequests
-	}
+       options := &ClientBatchCheckClientOptions{
+               AuthorizationModelId: authorizationModelId,
+               StoreId:              storeId,
+       }
+       if request.GetOptions() != nil {
+               options.Headers = request.GetOptions().Headers
+               options.Consistency = request.GetOptions().Consistency
+               options.MaxParallelRequests = request.GetOptions().MaxParallelRequests
+       }
 
 	batchResponse, err := client.ClientBatchCheckExecute(&SdkClientBatchCheckClientRequest{
 		ctx:     request.GetContext(),
@@ -2744,6 +2826,7 @@ type ClientListUsersRequest struct {
 }
 
 type ClientListUsersOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	AuthorizationModelId *string `json:"authorization_model_id,omitempty"`
 	StoreId              *string `json:"store_id,omitempty"`
 	Consistency       *fgaSdk.ConsistencyPreference `json:"consistency,omitempty"`
@@ -2822,15 +2905,19 @@ func (client *OpenFgaClient) ListUsersExecute(request SdkClientListUsersRequestI
 		AuthorizationModelId: authorizationModelId,
 	}
 
-	if request.GetOptions() != nil {
-		body.Consistency = request.GetOptions().Consistency
-	}
+        if request.GetOptions() != nil {
+                body.Consistency = request.GetOptions().Consistency
+        }
 
-	data, _, err := client.OpenFgaApi.ListUsers(request.GetContext(), *storeId).Body(body).Execute()
-	if err != nil {
-		return nil, err
-	}
-	return &data, nil
+       req := client.OpenFgaApi.ListUsers(request.GetContext(), *storeId).Body(body)
+       if request.GetOptions() != nil {
+               req = req.Options(*request.GetOptions())
+       }
+       data, _, err := req.Execute()
+       if err != nil {
+               return nil, err
+       }
+       return &data, nil
 }
 
 // / ReadAssertions
@@ -2852,6 +2939,7 @@ type SdkClientReadAssertionsRequestInterface interface {
 }
 
 type ClientReadAssertionsOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	AuthorizationModelId *string `json:"authorization_model_id,omitempty"`
 	StoreId              *string `json:"store_id,omitempty"`
 }
@@ -2905,14 +2993,18 @@ func (client *{{appShortName}}Client) ReadAssertionsExecute(request SdkClientRea
 		return nil, FgaRequiredParamError{param: "AuthorizationModelId"}
 	}
 	storeId, err := client.getStoreId(request.GetStoreIdOverride())
-	if err != nil {
-		return nil, err
-	}
-	data, _, err := client.{{appShortName}}Api.ReadAssertions(request.GetContext(), *storeId, *authorizationModelId).Execute()
-	if err != nil {
-		return nil, err
-	}
-	return &data, nil
+        if err != nil {
+                return nil, err
+        }
+       req := client.{{appShortName}}Api.ReadAssertions(request.GetContext(), *storeId, *authorizationModelId)
+       if request.GetOptions() != nil {
+               req = req.Options(*request.GetOptions())
+       }
+       data, _, err := req.Execute()
+       if err != nil {
+               return nil, err
+       }
+       return &data, nil
 }
 
 // / WriteAssertions
@@ -2967,6 +3059,7 @@ func (clientAssertion ClientAssertion) ToAssertion() fgaSdk.Assertion {
 }
 
 type ClientWriteAssertionsOptions struct {
+        Headers map[string]string `json:"headers,omitempty"`
 	AuthorizationModelId *string `json:"authorization_model_id,omitempty"`
 	StoreId              *string `json:"store_id,omitempty"`
 }
@@ -3034,14 +3127,18 @@ func (client *{{appShortName}}Client) WriteAssertionsExecute(request SdkClientWr
 	if err != nil {
 		return nil, err
 	}
-	for index := 0; index < len(*request.GetBody()); index++ {
-		clientAssertion := (*request.GetBody())[index]
-		writeAssertionsRequest.Assertions = append(writeAssertionsRequest.Assertions, clientAssertion.ToAssertion())
-	}
-	_, err = client.{{appShortName}}Api.WriteAssertions(request.GetContext(), *storeId, *authorizationModelId).Body(writeAssertionsRequest).Execute()
+        for index := 0; index < len(*request.GetBody()); index++ {
+                clientAssertion := (*request.GetBody())[index]
+                writeAssertionsRequest.Assertions = append(writeAssertionsRequest.Assertions, clientAssertion.ToAssertion())
+        }
+       req := client.{{appShortName}}Api.WriteAssertions(request.GetContext(), *storeId, *authorizationModelId).Body(writeAssertionsRequest)
+       if request.GetOptions() != nil {
+               req = req.Options(*request.GetOptions())
+       }
+       _, err = req.Execute()
 
-	if err != nil {
-		return nil, err
-	}
-	return &ClientWriteAssertionsResponse{}, nil
+       if err != nil {
+               return nil, err
+       }
+       return &ClientWriteAssertionsResponse{}, nil
 }
