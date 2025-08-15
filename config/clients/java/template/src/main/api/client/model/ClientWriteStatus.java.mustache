@@ -2,21 +2,6 @@
 package {{clientPackage}}.model;
 
 public enum ClientWriteStatus {
-    SUCCESS("success"),
-    FAILURE("failure");
-
-    private final String value;
-
-    ClientWriteStatus(String value) {
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return value;
-    }
+    SUCCESS,
+    FAILURE
 }

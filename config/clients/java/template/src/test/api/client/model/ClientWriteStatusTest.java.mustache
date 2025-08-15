@@ -8,13 +8,11 @@ public class ClientWriteStatusTest {
 
     @Test
     public void testSuccessValue() {
-        assertEquals("success", ClientWriteStatus.SUCCESS.getValue());
-        assertEquals("success", ClientWriteStatus.SUCCESS.toString());
+        assertEquals("SUCCESS", ClientWriteStatus.SUCCESS.toString());
     }
 
     @Test
     public void testFailureValue() {
-        assertEquals("failure", ClientWriteStatus.FAILURE.getValue());
-        assertEquals("failure", ClientWriteStatus.FAILURE.toString());
+        assertEquals("FAILURE", ClientWriteStatus.FAILURE.toString());
     }
 }
