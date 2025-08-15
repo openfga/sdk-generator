@@ -2,6 +2,7 @@
 
 package {{clientPackage}};
 
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,8 +39,6 @@ import org.mockito.MockedStatic;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 
 /**
  * API tests for OpenFgaClient.
@@ -398,7 +397,8 @@ public class OpenFgaClientTest {
                         .get());
 
         // Then
-        mockHttpClient.verify().post("https://api.fga.example/stores").called(1 + DEFAULT_MAX_RETRIES);
+        // Simplified logic: POST requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
+        mockHttpClient.verify().post("https://api.fga.example/stores").called(4);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
         assertEquals(
@@ -584,7 +584,8 @@ public class OpenFgaClientTest {
                 assertThrows(ExecutionException.class, () -> fga.deleteStore().get());
 
         // Then
-        mockHttpClient.verify().delete(deleteUrl).called(1 + DEFAULT_MAX_RETRIES);
+        // Simplified logic: DELETE requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
+        mockHttpClient.verify().delete(deleteUrl).called(4);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
         assertEquals(
@@ -732,7 +733,8 @@ public class OpenFgaClientTest {
         String continuationToken =
                 "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ";
 
-        ClientReadChangesRequest request = new ClientReadChangesRequest().type(changeType).startTime(startTime);
+        ClientReadChangesRequest request =
+                new ClientReadChangesRequest().type(changeType).startTime(startTime);
         String getUrl =
                 String.format("https://api.fga.example/stores/%s/changes?type=%s", DEFAULT_STORE_ID, changeType);
         String responseBody = String.format(
@@ -866,7 +868,8 @@ public class OpenFgaClientTest {
                         .get());
 
         // Then
-        mockHttpClient.verify().post(postUrl).called(1 + DEFAULT_MAX_RETRIES);
+        // Simplified logic: POST requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
+        mockHttpClient.verify().post(postUrl).called(4);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
         assertEquals(
@@ -1135,7 +1138,8 @@ public class OpenFgaClientTest {
                         .get());
 
         // Then
-        mockHttpClient.verify().post(postUrl).called(1 + DEFAULT_MAX_RETRIES);
+        // Simplified logic: POST requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
+        mockHttpClient.verify().post(postUrl).called(4);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
         assertEquals(
@@ -1165,6 +1169,13 @@ public class OpenFgaClientTest {
         // Then
         mockHttpClient.verify().post(postPath).withBody(is(expectedBody)).called(1);
         assertEquals(200, response.getStatusCode());
+        
+        // Verify new response structure for transaction-based writes
+        assertEquals(1, response.getWrites().size());
+        assertEquals(0, response.getDeletes().size());
+        assertEquals(ClientWriteStatus.SUCCESS, response.getWrites().get(0).getStatus());
+        assertEquals(DEFAULT_USER, response.getWrites().get(0).getTupleKey().getUser());
+        assertNull(response.getWrites().get(0).getError());
     }
 
     /**
@@ -1266,18 +1277,18 @@ public class OpenFgaClientTest {
     }
 
     @Test
-    public void writeTest_nonTransactionsWithFailure() {
+    public void writeTest_nonTransactionsWithFailure() throws Exception {
         // Given
         String postPath = "https://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/write";
         String firstUser = "user:first";
         String failedUser = "user:SECOND";
-        String skippedUser = "user:third";
+        String thirdUser = "user:third";
         Function<String, String> writeBody = user -> String.format(
                 "{\"writes\":{\"tuple_keys\":[{\"user\":\"%s\",\"relation\":\"%s\",\"object\":\"%s\",\"condition\":{\"name\":\"condition\",\"context\":{\"some\":\"context\"}}}]},\"deletes\":null,\"authorization_model_id\":\"%s\"}",
                 user, DEFAULT_RELATION, DEFAULT_OBJECT, DEFAULT_AUTH_MODEL_ID);
         mockHttpClient
                 .onPost(postPath)
-                .withBody(isOneOf(writeBody.apply(firstUser), writeBody.apply(skippedUser)))
+                .withBody(isOneOf(writeBody.apply(firstUser), writeBody.apply(thirdUser)))
                 .withHeader(CLIENT_METHOD_HEADER, "Write")
                 .withHeader(CLIENT_BULK_REQUEST_ID_HEADER, anyValidUUID())
                 .doReturn(200, EMPTY_RESPONSE_BODY);
@@ -1288,7 +1299,7 @@ public class OpenFgaClientTest {
                 .withHeader(CLIENT_BULK_REQUEST_ID_HEADER, anyValidUUID())
                 .doReturn(400, "{\"code\":\"validation_error\",\"message\":\"Generic validation error\"}");
         ClientWriteRequest request = new ClientWriteRequest()
-                .writes(Stream.of(firstUser, failedUser, skippedUser)
+                .writes(Stream.of(firstUser, failedUser, thirdUser)
                         .map(user -> new ClientTupleKey()
                                 ._object(DEFAULT_OBJECT)
                                 .relation(DEFAULT_RELATION)
@@ -1299,8 +1310,7 @@ public class OpenFgaClientTest {
                 new ClientWriteOptions().disableTransactions(true).transactionChunkSize(1);
 
         // When
-        var execException = assertThrows(
-                ExecutionException.class, () -> fga.write(request, options).get());
+        ClientWriteResponse response = fga.write(request, options).get();
 
         // Then
         mockHttpClient
@@ -1320,12 +1330,28 @@ public class OpenFgaClientTest {
         mockHttpClient
                 .verify()
                 .post(postPath)
-                .withBody(is(writeBody.apply(skippedUser)))
+                .withBody(is(writeBody.apply(thirdUser)))
                 .withHeader(CLIENT_METHOD_HEADER, "Write")
                 .withHeader(CLIENT_BULK_REQUEST_ID_HEADER, anyValidUUID())
-                .called(0);
-        var exception = assertInstanceOf(FgaApiValidationError.class, execException.getCause());
-        assertEquals(400, exception.getStatusCode());
+                .called(1);
+        
+        // Verify response structure
+        assertEquals(3, response.getWrites().size());
+        assertEquals(0, response.getDeletes().size());
+        
+        // Check individual tuple statuses
+        var writes = response.getWrites();
+        assertEquals(ClientWriteStatus.SUCCESS, writes.get(0).getStatus());
+        assertEquals(firstUser, writes.get(0).getTupleKey().getUser());
+        assertNull(writes.get(0).getError());
+        
+        assertEquals(ClientWriteStatus.FAILURE, writes.get(1).getStatus());
+        assertEquals(failedUser, writes.get(1).getTupleKey().getUser());
+        assertNotNull(writes.get(1).getError());
+        
+        assertEquals(ClientWriteStatus.SUCCESS, writes.get(2).getStatus());
+        assertEquals(thirdUser, writes.get(2).getTupleKey().getUser());
+        assertNull(writes.get(2).getError());
     }
 
     @Test
@@ -1562,7 +1588,8 @@ public class OpenFgaClientTest {
                 assertThrows(ExecutionException.class, () -> fga.write(request).get());
 
         // Then
-        mockHttpClient.verify().post(postUrl).called(1 + DEFAULT_MAX_RETRIES);
+        // Simplified logic: POST requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
+        mockHttpClient.verify().post(postUrl).called(4);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
         assertEquals(
@@ -1679,7 +1706,8 @@ public class OpenFgaClientTest {
                         .get());
 
         // Then
-        mockHttpClient.verify().post(postUrl).called(1 + DEFAULT_MAX_RETRIES);
+        // Simplified logic: POST requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
+        mockHttpClient.verify().post(postUrl).called(4);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
         assertEquals(
@@ -1779,7 +1807,8 @@ public class OpenFgaClientTest {
                         .relation(DEFAULT_RELATION)
                         .user(DEFAULT_USER))
                 .collect(Collectors.toList());
-        ClientBatchCheckClientOptions options = new ClientBatchCheckClientOptions().authorizationModelId(DEFAULT_AUTH_MODEL_ID);
+        ClientBatchCheckClientOptions options =
+                new ClientBatchCheckClientOptions().authorizationModelId(DEFAULT_AUTH_MODEL_ID);
 
         // When
         fga.clientBatchCheck(requests, options).get();
@@ -1874,7 +1903,8 @@ public class OpenFgaClientTest {
                 .join();
 
         // Then
-        mockHttpClient.verify().post(postUrl).called(1 + DEFAULT_MAX_RETRIES);
+        // Simplified logic: POST requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
+        mockHttpClient.verify().post(postUrl).called(4);
         assertNotNull(response);
         assertEquals(1, response.size());
         assertNull(response.get(0).getAllowed());
@@ -1901,7 +1931,8 @@ public class OpenFgaClientTest {
         ClientBatchCheckRequest request = new ClientBatchCheckRequest().checks(List.of(item1, item2));
 
         // When
-        FgaValidationError error = assertThrows(FgaValidationError.class, () -> fga.batchCheck(request).join());
+        FgaValidationError error = assertThrows(
+                FgaValidationError.class, () -> fga.batchCheck(request).join());
 
         // Then
         assertEquals("correlationId", error.getField());
@@ -1926,7 +1957,9 @@ public class OpenFgaClientTest {
         String postUrl = String.format("https://api.fga.example/stores/%s/batch-check", DEFAULT_STORE_ID);
         mockHttpClient
                 .onPost(postUrl)
-                .doReturn(200, "{\"result\": {\"cor-1\": {\"allowed\": true, \"error\": null}, \"cor-2\": {\"allowed\": false, \"error\": null}}}");
+                .doReturn(
+                        200,
+                        "{\"result\": {\"cor-1\": {\"allowed\": true, \"error\": null}, \"cor-2\": {\"allowed\": false, \"error\": null}}}");
 
         ClientBatchCheckItem item1 = new ClientBatchCheckItem()
                 .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
@@ -1940,8 +1973,7 @@ public class OpenFgaClientTest {
                         new ClientTupleKey()
                                 .user("folder:product")
                                 .relation("parent")
-                                ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a")
-                ))
+                                ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a")))
                 .correlationId("cor-1");
         ClientBatchCheckItem item2 = new ClientBatchCheckItem()
                 .user("folder:product")
@@ -1969,19 +2001,23 @@ public class OpenFgaClientTest {
         var fga = new OpenFgaClient(clientConfiguration.apiUrl(httpBaseUrl), new ApiClient());
         String postUrl = String.format("/stores/%s/batch-check", DEFAULT_STORE_ID);
 
-        WireMock.stubFor(WireMock.post(postUrl)
-                .withRequestBody(matchingJsonPath("$.checks[0].correlation_id", WireMock.equalTo("cor-1")))
-                .willReturn(WireMock.aResponse()
-                        .withStatus(200)
-                        .withBody("{\"result\": {\"cor-1\": {\"allowed\": true, \"error\": null}, \"cor-2\": {\"allowed\": false, \"error\": null}}}"))
-        );
+        WireMock.stubFor(
+                WireMock.post(postUrl)
+                        .withRequestBody(matchingJsonPath("$.checks[0].correlation_id", WireMock.equalTo("cor-1")))
+                        .willReturn(
+                                WireMock.aResponse()
+                                        .withStatus(200)
+                                        .withBody(
+                                                "{\"result\": {\"cor-1\": {\"allowed\": true, \"error\": null}, \"cor-2\": {\"allowed\": false, \"error\": null}}}")));
 
-        WireMock.stubFor(WireMock.post(postUrl)
-                .withRequestBody(matchingJsonPath("$.checks[0].correlation_id", WireMock.equalTo("cor-3")))
-                .willReturn(WireMock.aResponse()
-                        .withStatus(200)
-                        .withBody("{\"result\": {\"cor-3\": {\"allowed\": false, \"error\": {\"input_error\": \"relation_not_found\", \"message\": \"relation not found\"}}}}}"))
-        );
+        WireMock.stubFor(
+                WireMock.post(postUrl)
+                        .withRequestBody(matchingJsonPath("$.checks[0].correlation_id", WireMock.equalTo("cor-3")))
+                        .willReturn(
+                                WireMock.aResponse()
+                                        .withStatus(200)
+                                        .withBody(
+                                                "{\"result\": {\"cor-3\": {\"allowed\": false, \"error\": {\"input_error\": \"relation_not_found\", \"message\": \"relation not found\"}}}}")));
 
         ClientBatchCheckItem item1 = new ClientBatchCheckItem()
                 .user("user:81684243-9356-4421-8fbf-a4f8d36aa31b")
@@ -1995,8 +2031,7 @@ public class OpenFgaClientTest {
                         new ClientTupleKey()
                                 .user("folder:product")
                                 .relation("parent")
-                                ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a")
-                ))
+                                ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a")))
                 .correlationId("cor-1");
         ClientBatchCheckItem item2 = new ClientBatchCheckItem()
                 .user("folder:product")
@@ -2016,17 +2051,17 @@ public class OpenFgaClientTest {
         ClientBatchCheckResponse response = fga.batchCheck(request, options).join();
 
         // Then
-        ClientBatchCheckSingleResponse response1 = response.getResult()
-                .stream()
+        ClientBatchCheckSingleResponse response1 = response.getResult().stream()
                 .filter(r -> r.getCorrelationId().equals("cor-1"))
                 .findFirst()
                 .orElse(null);
         assertNotNull(response1);
         assertTrue(response1.isAllowed());
-        assertEquals("user:81684243-9356-4421-8fbf-a4f8d36aa31b", response1.getRequest().getUser());
+        assertEquals(
+                "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                response1.getRequest().getUser());
 
-        ClientBatchCheckSingleResponse response2 = response.getResult()
-                .stream()
+        ClientBatchCheckSingleResponse response2 = response.getResult().stream()
                 .filter(r -> r.getCorrelationId().equals("cor-2"))
                 .findFirst()
                 .orElse(null);
@@ -2034,8 +2069,7 @@ public class OpenFgaClientTest {
         assertFalse(response2.isAllowed());
         assertEquals("folder:product", response2.getRequest().getUser());
 
-        ClientBatchCheckSingleResponse response3 = response.getResult()
-                .stream()
+        ClientBatchCheckSingleResponse response3 = response.getResult().stream()
                 .filter(r -> r.getCorrelationId().equals("cor-3"))
                 .findFirst()
                 .orElse(null);
@@ -2096,22 +2130,24 @@ public class OpenFgaClientTest {
                 ExecutionException.class, () -> fga.batchCheck(request).get());
 
         // Then
+        // 429 errors should still retry regardless of HTTP method (not affected by breaking changes)
         mockHttpClient.verify().post(postUrl).called(1 + DEFAULT_MAX_RETRIES);
         var exception = assertInstanceOf(FgaApiRateLimitExceededError.class, execException.getCause());
         assertEquals(429, exception.getStatusCode());
         assertEquals("{\"code\":\"rate_limited\",\"message\":\"Too Many Requests\"}", exception.getResponseData());
     }
 
-     /**
-      * Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason
-      * about and debug a certain relationship.
+    /**
+     * Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason
+     * about and debug a certain relationship.
      */
     @Test
     public void expandTest() throws Exception {
         // Given
         String postPath = "https://api.fga.example/stores/01YCP46JKYM8FJCQ37NMBYHE5X/expand";
         String expectedBody = String.format(
-                "{\"tuple_key\":{\"relation\":\"%s\",\"object\":\"%s\"},\"authorization_model_id\":\"%s\",\"consistency\":\"%s\",\"contextual_tuples\":null}",                DEFAULT_RELATION, DEFAULT_OBJECT, DEFAULT_AUTH_MODEL_ID, ConsistencyPreference.HIGHER_CONSISTENCY);
+                "{\"tuple_key\":{\"relation\":\"%s\",\"object\":\"%s\"},\"authorization_model_id\":\"%s\",\"consistency\":\"%s\",\"contextual_tuples\":null}",
+                DEFAULT_RELATION, DEFAULT_OBJECT, DEFAULT_AUTH_MODEL_ID, ConsistencyPreference.HIGHER_CONSISTENCY);
         String responseBody = String.format(
                 "{\"tree\":{\"root\":{\"union\":{\"nodes\":[{\"leaf\":{\"users\":{\"users\":[\"%s\"]}}}]}}}}",
                 DEFAULT_USER);
@@ -2212,7 +2248,8 @@ public class OpenFgaClientTest {
                         .get());
 
         // Then
-        mockHttpClient.verify().post(postUrl).called(1 + DEFAULT_MAX_RETRIES);
+        // Simplified logic: POST requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
+        mockHttpClient.verify().post(postUrl).called(4);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
         assertEquals(
@@ -2318,7 +2355,8 @@ public class OpenFgaClientTest {
                         .get());
 
         // Then
-        mockHttpClient.verify().post(postUrl).called(1 + DEFAULT_MAX_RETRIES);
+        // Simplified logic: POST requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
+        mockHttpClient.verify().post(postUrl).called(4);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
         assertEquals(
@@ -2564,7 +2602,8 @@ public class OpenFgaClientTest {
                         .get());
 
         // Then
-        mockHttpClient.verify().post(postUrl).withBody(is(expectedBody)).called(1 + DEFAULT_MAX_RETRIES);
+        // Simplified logic: POST requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
+        mockHttpClient.verify().post(postUrl).withBody(is(expectedBody)).called(4);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
         assertEquals(
@@ -2902,7 +2941,8 @@ public class OpenFgaClientTest {
                 ExecutionException.class, () -> fga.writeAssertions(List.of()).get());
 
         // Then
-        mockHttpClient.verify().put(putUrl).called(1 + DEFAULT_MAX_RETRIES);
+        // Simplified logic: PUT requests now retry on 5xx errors (1 initial + 3 retries = 4 total)
+        mockHttpClient.verify().put(putUrl).called(4);
         var exception = assertInstanceOf(FgaApiInternalError.class, execException.getCause());
         assertEquals(500, exception.getStatusCode());
         assertEquals(

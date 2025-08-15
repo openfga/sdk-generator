@@ -181,6 +181,14 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientWriteResponse.java",
       "templateType": "SupportingFiles"
     },
+    "src/main/api/client/model/ClientWriteSingleResponse.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientWriteSingleResponse.java",
+      "templateType": "SupportingFiles"
+    },
+    "src/main/api/client/model/ClientWriteStatus.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/model/ClientWriteStatus.java",
+      "templateType": "SupportingFiles"
+    },
     "src/main/api/client/ClientAssertion.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/client/ClientAssertion.java",
       "templateType": "SupportingFiles"
@@ -409,6 +417,18 @@
       "destinationFilename": "src/main/java/dev/openfga/sdk/util/Validation.java",
       "templateType": "SupportingFiles"
     },
+    "src/main/util/ExponentialBackoff.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/util/ExponentialBackoff.java",
+      "templateType": "SupportingFiles"
+    },
+    "src/main/util/RetryAfterHeaderParser.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/util/RetryAfterHeaderParser.java",
+      "templateType": "SupportingFiles"
+    },
+    "src/main/util/RetryStrategy.java.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/util/RetryStrategy.java",
+      "templateType": "SupportingFiles"
+    },
     "src/test/api/auth/AccessTokenTest.java.mustache": {
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/auth/AccessTokenTest.java",
       "templateType": "SupportingFiles"
@@ -427,6 +447,18 @@
     },
     "src/test/api/client/OpenFgaClientTest.java.mustache": {
       "destinationFilename": "src/test/java/dev/openfga/sdk/api/client/OpenFgaClientTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "src/test/api/client/HttpRequestAttemptRetryTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/client/HttpRequestAttemptRetryTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "src/test/api/client/model/ClientWriteStatusTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/client/model/ClientWriteStatusTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "src/test/api/client/model/ClientWriteSingleResponseTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/api/client/model/ClientWriteSingleResponseTest.java",
       "templateType": "SupportingFiles"
     },
     "src/test/api/configuration/ClientCredentialsTest.java.mustache": {
@@ -487,6 +519,18 @@
     },
     "src/test/util/ValidationTest.java.mustache": {
       "destinationFilename": "src/test/java/dev/openfga/sdk/util/ValidationTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "src/test/util/ExponentialBackoffTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/util/ExponentialBackoffTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "src/test/util/RetryAfterHeaderParserTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/util/RetryAfterHeaderParserTest.java",
+      "templateType": "SupportingFiles"
+    },
+    "src/test/util/RetryStrategyTest.java.mustache": {
+      "destinationFilename": "src/test/java/dev/openfga/sdk/util/RetryStrategyTest.java",
       "templateType": "SupportingFiles"
     },
     "src/test-integration/api/OpenFgaApiIntegrationTest.java.mustache": {
