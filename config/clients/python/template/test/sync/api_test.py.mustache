@@ -1857,6 +1857,60 @@ class TestOpenFgaApiSync(IsolatedAsyncioTestCase):
             )
 
     @patch.object(rest.RESTClientObject, "request")
+    def test_check_override_default_header(self, mock_request):
+        """Test case for overriding default header
+
+        Ensure per-request headers override default headers
+        """
+
+        response_body = '{"allowed": true}'
+        mock_request.return_value = mock_response(response_body, 200)
+
+        configuration = self.configuration
+        configuration.store_id = store_id
+        with ApiClient(configuration) as api_client:
+            api_client.set_default_header("Custom Header", "default value")
+            api_instance = open_fga_api.OpenFgaApi(api_client)
+            body = CheckRequest(
+                tuple_key=TupleKey(
+                    object="document:2021-budget",
+                    relation="reader",
+                    user="user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                ),
+            )
+            options = {"headers": {"Custom Header": "override value"}}
+            api_response = api_instance.check(
+                body=body,
+                options=options,
+            )
+            self.assertIsInstance(api_response, CheckResponse)
+            self.assertTrue(api_response.allowed)
+            expected_headers = urllib3.response.HTTPHeaderDict(
+                {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "User-Agent": "openfga-sdk python/{{packageVersion}}",
+                    "Custom Header": "override value",
+                }
+            )
+            mock_request.assert_called_once_with(
+                "POST",
+                "http://api.fga.example/stores/01H0H015178Y2V4CX10C2KGHF4/check",
+                headers=expected_headers,
+                query_params=[],
+                post_params=[],
+                body={
+                    "tuple_key": {
+                        "object": "document:2021-budget",
+                        "relation": "reader",
+                        "user": "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                    }
+                },
+                _preload_content=ANY,
+                _request_timeout=None,
+            )
+
+    @patch.object(rest.RESTClientObject, "request")
     def test_check_custom_header(self, mock_request):
         """Test case for custom header
 
