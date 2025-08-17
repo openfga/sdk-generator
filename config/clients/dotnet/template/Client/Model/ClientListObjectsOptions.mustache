@@ -9,6 +9,8 @@ public interface IClientListObjectsOptions : IClientRequestOptionsWithAuthZModel
 
 public class ClientListObjectsOptions : IClientListObjectsOptions {
     /// <inheritdoc />
+    public IDictionary<string, string>? Headers { get; set; }
+    /// <inheritdoc />
     public string? StoreId { get; set; }
 
     /// <inheritdoc />

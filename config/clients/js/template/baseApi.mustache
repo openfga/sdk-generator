@@ -50,4 +50,24 @@ export class BaseAPI {
       });
     }
   }
+
+  public setDefaultHeader(headerName: string, headerValue: string) {
+    if (!this.configuration.baseOptions) {
+      this.configuration.baseOptions = { headers: {} };
+    }
+    if (!this.configuration.baseOptions.headers) {
+      this.configuration.baseOptions.headers = {};
+    }
+    this.configuration.baseOptions.headers[headerName] = headerValue;
+
+    if (this.axios) {
+      if (!this.axios.defaults.headers) {
+        this.axios.defaults.headers = {} as any;
+      }
+      if (!this.axios.defaults.headers.common) {
+        this.axios.defaults.headers.common = {} as any;
+      }
+      this.axios.defaults.headers.common[headerName] = headerValue;
+    }
+  }
 }

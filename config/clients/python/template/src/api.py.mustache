@@ -87,6 +87,8 @@ class {{classname}}:
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
                                  (connection, read) timeouts.
+        :param headers: additional headers to include in the request
+        :type headers: Dict[str, str], optional
         :return: Returns the result object.
                  If the method is called asynchronously,
                  returns the request thread.
@@ -136,7 +138,9 @@ class {{classname}}:
                               request; this effectively ignores the authentication
                               in the spec for a single request.
         :param _retry_param: if specified, override the retry parameters specified in configuration
+        :param headers: additional headers to include in the request
         :type _request_auth: dict, optional
+        :type headers: Dict[str, str], optional
         :type _content_type: string, optional: force content-type for the request
         :return: Returns the result object.
                  If the method is called asynchronously,
@@ -178,6 +182,7 @@ class {{classname}}:
                 '_request_timeout',
                 '_request_auth',
                 '_content_type',
+                'headers',
                 '_headers',
                 '_retry_params',
                 '_streaming',
@@ -236,7 +241,8 @@ class {{classname}}:
             collection_formats['{{baseName}}'] = '{{collectionFormat}}'{{/isArray}}
 {{/queryParams}}
 
-        header_params = dict(local_var_params.get('_headers', {}))
+        header_params = dict(local_var_params.get("headers", {}))
+        header_params.update(local_var_params.get('_headers', {}))
 {{#headerParams}}
         if '{{paramName}}' in local_var_params:
             header_params['{{baseName}}'] = local_var_params['{{paramName}}']{{#isArray}}

@@ -687,10 +687,51 @@ func Test{{appShortName}}Api(t *testing.T) {
 			t.Fatalf("%v", err)
 		}
 
-		if *got.Allowed != *expectedResponse.Allowed {
-			t.Fatalf("{{appShortName}}%v().Execute() = %v, want %v", test.Name, string(responseJson), test.JsonResponse)
-		}
-	})
+        if *got.Allowed != *expectedResponse.Allowed {
+                t.Fatalf("{{appShortName}}%v().Execute() = %v, want %v", test.Name, string(responseJson), test.JsonResponse)
+        }
+        })
+
+        t.Run("CheckWithCustomHeader", func(t *testing.T) {
+                test := TestDefinition{
+                        Name:           "Check",
+                        JsonResponse:   `{"allowed":true, "resolution":""}`,
+                        ResponseStatus: 200,
+                        Method:         "POST",
+                        RequestPath:    "check",
+                }
+                requestBody := CheckRequest{
+                        TupleKey: CheckRequestTupleKey{
+                                User:     "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+                                Relation: "viewer",
+                                Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+                        },
+                }
+
+                var expectedResponse CheckResponse
+                if err := json.Unmarshal([]byte(test.JsonResponse), &expectedResponse); err != nil {
+                        t.Fatalf("%v", err)
+                }
+
+                httpmock.Activate()
+                defer httpmock.DeactivateAndReset()
+                httpmock.RegisterResponder(test.Method, fmt.Sprintf("%s/stores/%s/%s", configuration.ApiUrl, "01GXSB9YR785C4FYS3C0RTG7B2", test.RequestPath),
+                        func(req *http.Request) (*http.Response, error) {
+                                if req.Header.Get("X-Custom-Header") != "value" {
+                                        t.Fatalf("expected custom header to be set")
+                                }
+                                resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
+                                if err != nil {
+                                        return httpmock.NewStringResponse(500, ""), nil
+                                }
+                                return resp, nil
+                        },
+                )
+                _, _, err := apiClient.{{appShortName}}Api.Check(context.Background(), "01GXSB9YR785C4FYS3C0RTG7B2").Body(requestBody).Headers(map[string]string{"X-Custom-Header":"value"}).Execute()
+                if err != nil {
+                        t.Fatalf("%v", err)
+                }
+        })
 
 	t.Run("Write (Write Tuple)", func(t *testing.T) {
 		test := TestDefinition{

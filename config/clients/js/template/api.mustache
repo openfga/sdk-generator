@@ -1,7 +1,7 @@
 {{>partial_header}}
 
 {{^withSeparateModelsAndApi}}
-import globalAxios, { AxiosInstance } from 'axios';
+import globalAxios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
 import { BaseAPI } from './base';
 import {
@@ -11,6 +11,7 @@ import {
     toPathString,
     createRequestFunction,
     RequestArgs,
+    RequestOptions,
     CallResult,
     PromiseResult
 } from './common';

@@ -10,6 +10,8 @@ public interface IClientWriteAssertionsOptions : IClientRequestOptionsWithStoreI
 
 /// <inheritdoc />
 public class ClientWriteAssertionsOptions : IClientWriteAssertionsOptions {
+    /// <inheritdoc />
+    public IDictionary<string, string>? Headers { get; set; }
 
     /// <inheritdoc />
     public string? StoreId { get; set; }
