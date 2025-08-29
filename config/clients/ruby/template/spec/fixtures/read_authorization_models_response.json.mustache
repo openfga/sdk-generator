@@ -1,0 +1,147 @@
+{
+  "authorization_models": [
+    {
+      "id": "01G5JAVJ41T49E9TT3SKVS7X1J",
+      "schema_version": "string",
+      "type_definitions": [
+        {
+          "type": "user"
+        },
+        {
+          "type": "document",
+          "relations": {
+            "reader": {
+              "union": {
+                "child": [
+                  {
+                    "this": {}
+                  },
+                  {
+                    "computedUserset": {
+                      "object": "",
+                      "relation": "writer"
+                    }
+                  }
+                ]
+              }
+            },
+            "writer": {
+              "this": {}
+            }
+          },
+          "metadata": {
+            "relations": {
+              "reader": {
+                "directly_related_user_types": [
+                  {
+                    "type": "user"
+                  }
+                ]
+              },
+              "writer": {
+                "directly_related_user_types": [
+                  {
+                    "type": "user"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "conditions": {
+        "additionalProp1": {
+          "name": "string",
+          "expression": "string",
+          "parameters": {
+            "additionalProp1": {
+              "type_name": "TYPE_NAME_UNSPECIFIED",
+              "generic_types": [
+                {}
+              ]
+            },
+            "additionalProp2": {
+              "type_name": "TYPE_NAME_UNSPECIFIED",
+              "generic_types": [
+                {}
+              ]
+            },
+            "additionalProp3": {
+              "type_name": "TYPE_NAME_UNSPECIFIED",
+              "generic_types": [
+                {}
+              ]
+            }
+          },
+          "metadata": {
+            "module": "string",
+            "source_info": {
+              "file": "string"
+            }
+          }
+        },
+        "additionalProp2": {
+          "name": "string",
+          "expression": "string",
+          "parameters": {
+            "additionalProp1": {
+              "type_name": "TYPE_NAME_UNSPECIFIED",
+              "generic_types": [
+                {}
+              ]
+            },
+            "additionalProp2": {
+              "type_name": "TYPE_NAME_UNSPECIFIED",
+              "generic_types": [
+                {}
+              ]
+            },
+            "additionalProp3": {
+              "type_name": "TYPE_NAME_UNSPECIFIED",
+              "generic_types": [
+                {}
+              ]
+            }
+          },
+          "metadata": {
+            "module": "string",
+            "source_info": {
+              "file": "string"
+            }
+          }
+        },
+        "additionalProp3": {
+          "name": "string",
+          "expression": "string",
+          "parameters": {
+            "additionalProp1": {
+              "type_name": "TYPE_NAME_UNSPECIFIED",
+              "generic_types": [
+                {}
+              ]
+            },
+            "additionalProp2": {
+              "type_name": "TYPE_NAME_UNSPECIFIED",
+              "generic_types": [
+                {}
+              ]
+            },
+            "additionalProp3": {
+              "type_name": "TYPE_NAME_UNSPECIFIED",
+              "generic_types": [
+                {}
+              ]
+            }
+          },
+          "metadata": {
+            "module": "string",
+            "source_info": {
+              "file": "string"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "continuation_token": "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
+}
