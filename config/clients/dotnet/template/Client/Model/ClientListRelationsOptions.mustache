@@ -1,10 +1,25 @@
 {{>partial_header}}
 
+#if NET6_0_OR_GREATER
 using OpenFga.Sdk.Model;
 
 namespace {{packageName}}.Client.Model;
+#else
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using {{packageName}}.Model;
+using OpenFga.Sdk.Model;
 
-public class ClientListRelationsOptions : IClientBatchCheckOptions {
+namespace {{packageName}}.Client.Model
+{
+#endif
+
+public interface IClientListRelationsOptions : IClientBatchCheckOptions {
+}
+
+public class ClientListRelationsOptions : IClientListRelationsOptions {
     /// <inheritdoc />
     public string? StoreId { get; set; }
 
@@ -19,3 +34,7 @@ public class ClientListRelationsOptions : IClientBatchCheckOptions {
     /// <inheritdoc />
     public ConsistencyPreference? Consistency { get; set; }    
 }
+
+#if NETSTANDARD2_0
+}
+#endif
