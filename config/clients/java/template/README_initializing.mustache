@@ -1,6 +1,6 @@
 We strongly recommend you initialize the `{{appShortName}}Client` only once and then re-use it throughout your app, otherwise you will incur the cost of having to re-initialize multiple times or at every request, the cost of reduced connection pooling and re-use, and would be particularly costly in the client credentials flow, as that flow will be preformed on every request.
 
-> The `{{packageName}}Client` will by default retry API requests up to {{defaultMaxRetry}} times on 429 and 5xx errors.
+> The `{{packageName}}Client` will by default retry API requests up to 3 times. Rate limiting (429) errors are always retried. Server errors (5xx) are retried for all operations, with delay calculation using `Retry-After` headers when provided or exponential backoff as fallback.
 
 #### No Credentials
 
@@ -49,7 +49,7 @@ public class Example {
 }
 ```
 
-#### Auth0 Client Credentials
+#### Client Credentials
 
 ```java
 import com.fasterxml.jackson.databind.ObjectMapper;

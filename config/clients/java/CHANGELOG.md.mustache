@@ -1,10 +1,51 @@
 # Changelog
 
-## [Unreleased](https://github.com/openfga/java-sdk/compare/v{{packageVersion}}...HEAD)
+## [Unreleased](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v{{packageVersion}}...HEAD)
+
+## v0.9.0
+
+### [0.9.0](https://github.com/openfga/java-sdk/compare/v0.8.3...v0.9.0) (2025-08-15)
+
+### Added
+- RFC 9110 compliant `Retry-After` header support with exponential backoff and jitter
+- `Retry-After` header value exposed in error objects for better observability
+- `FgaError` now exposes `Retry-After` header value via `getRetryAfterHeader()` method
+
+### Changed
+- Enhanced retry strategy with delay calculation
+- **BREAKING**: Maximum allowable retry count is now enforced at 15 (default remains 3)
+- **BREAKING**: Configuration.minimumRetryDelay() now requires non-null values and validates input, throwing IllegalArgumentException for null or negative values
+
+**Migration Guide**: 
+- Update error handling code if using FgaError properties - new getRetryAfterHeader() method available
+- Note: Maximum allowable retries is now enforced at 15 (validation added to prevent exceeding this limit)
+- **IMPORTANT**: Configuration.minimumRetryDelay() now requires non-null values and validates input - ensure you're not passing null or negative Duration values, as this will now throw IllegalArgumentException. Previously null values were silently accepted and would fall back to default behavior at runtime.
+
+### Fixed
+- Fixed issue where telemetry metrics are not being exported correctly [#590](https://github.com/openfga/sdk-generator/pull/590)
+- Fixed issue with non-transactional write error handling [https://github.com/openfga/sdk-generator/pull/573](https://github.com/openfga/sdk-generator/pull/573) 
+
+## v0.8.3
+
+### [0.8.3](https://github.com/openfga/java-sdk/compare/v0.8.2...v0.8.3) (2025-07-15)
+
+Fixed:
+- client: fix connectTimeout config (#182)
+- client: fix batchCheck error handling (#183)
+
+## v0.8.2
+
+### [0.8.2](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.8.1...v0.8.2) (2025-07-02)
+
+Added:
+- client: allow accessing the internal api client via `getApi` (#178)
+
+Fixed:
+- client: fix BatchCheck ignoring passed in model ID override  (#177)
 
 ## v0.8.1
 
-### [0.8.1](https://github.com/openfga/java-sdk/compare/v0.8.0...v0.8.1) (2025-02-18)
+### [0.8.1](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.8.0...v0.8.1) (2025-02-18)
 
 - fix: use HTTP 1.1 by default (#148)
 - fix: ensure default telemetry attributes are sent (#145)
@@ -12,7 +53,7 @@
  
 ## v0.8.0
 
-### [0.8.0](https://github.com/openfga/java-sdk/compare/v0.7.2...v0.8.0) (2025-02-07)
+### [0.8.0](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.7.2...v0.8.0) (2025-02-07)
 
 - feat!: add support for server-side [`batchCheck`](https://openfga.dev/docs/interacting/relationship-queries#batch-check) method (#141) - thanks @piotrooo!!
   This is a more efficient way to check on multiple tuples than calling the existing client-side `batchCheck`. Using this method requires an OpenFGA [v1.8.0+](https://github.com/openfga/openfga/releases/tag/v1.8.0) server.
@@ -25,13 +66,13 @@ BREAKING CHANGES:
 
 ## v0.7.2
 
-### [0.7.2](https://github.com/openfga/java-sdk/compare/v0.7.1...v0.7.2) (2024-12-18)
+### [0.7.2](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.7.1...v0.7.2) (2024-12-18)
 
 - fix: Ensure executor is shutdown (#133)
 
 ## v0.7.1
 
-### [0.7.1](https://github.com/openfga/java-sdk/compare/v0.7.0...v0.7.1) (2024-09-23)
+### [0.7.1](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v0.7.0...v0.7.1) (2024-09-23)
 
 - refactor(OpenTelemetry): remove SDK version from meter name
 - fix(OpenTelemetry): `http.request.method` should be enabled by default (#114)

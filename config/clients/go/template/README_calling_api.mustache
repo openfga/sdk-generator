@@ -10,6 +10,7 @@ Get a paginated list of stores.
 options := ClientListStoresOptions{
   PageSize:          {{packageName}}.PtrInt32(10),
   ContinuationToken: {{packageName}}.PtrString("..."),
+  Name:              openfga.PtrString("FGA Demo Store"), // Optional: filter stores by name
 }
 stores, err := fgaClient.ListStores(context.Background()).Options(options).Execute()
 
@@ -400,6 +401,8 @@ fmt.Printf("%t", data.GetAllowed()) // True
 Similar to [Check](#Check), but instead of checking a single user-object relationship, accepts a list of relationships to check. Requires OpenFGA version 1.8.0 or greater.
 
 [API Documentation](https://openfga.dev/api/service#/Relationship%20Queries/BatchCheck)
+
+> **Note**: The order of `BatchCheck` results is not guaranteed to match the order of the checks provided. Use `correlationId` to pair responses with requests.
 
 If you are using an OpenFGA version less than 1.8.0, you can use the `ClientBatchCheck` function, 
 which calls `check` in parallel. It will return `allowed: false` if it encounters an error, and will return the error in the body.

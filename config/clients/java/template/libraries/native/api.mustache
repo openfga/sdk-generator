@@ -87,6 +87,11 @@ public class OpenFgaApi {
     if (defaultHeaders != null) {
       apiClient.addRequestInterceptor(httpRequest -> defaultHeaders.forEach(httpRequest::setHeader));
     }
+
+    Duration connectTimeout = configuration.getConnectTimeout();
+    if (connectTimeout != null) {
+      apiClient.setHttpClientBuilder(apiClient.getHttpClientBuilder().connectTimeout(connectTimeout));
+    }
   }
 
   {{#operation}}
@@ -264,6 +269,12 @@ public class OpenFgaApi {
 
             if (body instanceof BatchCheckRequest) {
                 BatchCheckRequest batchCheckRequest = (BatchCheckRequest) body;
+
+                if (!isNullOrWhitespace(batchCheckRequest.getAuthorizationModelId())) {
+                    telemetryAttributes.put(
+                            Attributes.FGA_CLIENT_REQUEST_MODEL_ID,
+                            batchCheckRequest.getAuthorizationModelId());
+                }
 
                 if (batchCheckRequest.getChecks() != null) {
                     telemetryAttributes.put(

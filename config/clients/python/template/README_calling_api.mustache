@@ -491,6 +491,8 @@ Similar to [check](#check), but instead of checking a single user-object relatio
 
 [API Documentation](https://openfga.dev/api/service#/Relationship%20Queries/BatchCheck)
 
+> **Note**: The order of `batch_check` results is not guaranteed to match the order of the checks provided. Use `correlation_id` to pair responses with requests.
+
 ```python
 # from openfga_sdk import OpenFgaClient
 # from openfga_sdk.client.models import (
@@ -593,7 +595,7 @@ response = await fga_client.batch_check(ClientBatchCheckRequest(checks=checks), 
 # ]
 ```
 
-If you are using an OpenFGA version less than 1.8.0, you can use `client_batch_check`, 
+If you are using an OpenFGA version less than 1.8.0, you can use `client_batch_check`,
 which calls `check` in parallel. It will return `allowed: false` if it encounters an error, and will return the error in the body.
 If 429s or 5xxs are encountered, the underlying check will retry up to 3 times before giving up.
 
@@ -825,7 +827,8 @@ List the users who have a certain relation to a particular type.
 ```python
 from {{packageName}} import OpenFgaClient
 from {{packageName}}.models.fga_object import FgaObject
-from {{packageName}}.client.models import ClientListUsersRequest, ClientTuple
+from {{packageName}}.client.models import ClientTuple
+from {{packageName}}.client.models.list_users_request import ClientListUsersRequest
 
 configuration = ClientConfiguration(
     api_url=FGA_API_URL,
