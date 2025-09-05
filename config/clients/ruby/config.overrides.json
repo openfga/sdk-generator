@@ -23,8 +23,9 @@
   "moduleName": "OpenFga",
   "sortModelPropertiesByRequiredFlag": true,
   "sortParamsByRequiredFlag": false,
+  "targetRubyVersion": "3.2",
   "files": {
-    ".tool-verions.mustache": {
+    ".tool-versions.mustache": {
       "destinationFilename": ".tool-versions",
       "templateType": "SupportingFiles"
     },
@@ -37,11 +38,11 @@
       "templateType": "SupportingFiles"
     },
     "lib/openfga/client/openfga_client.rb.mustache": {
-      "destinationFilename": "openfga/client/openfg_client.rb",
+      "destinationFilename": "lib/openfga/client/openfga_client.rb",
       "templateType": "SupportingFiles"
     },
     "lib/openfga/client/client_errors.rb.mustache": {
-      "destinationFilename": "openfga/client/client_errors.rb",
+      "destinationFilename": "lib/openfga/client/client_errors.rb",
       "templateType": "SupportingFiles"
     },
     "spec/client/openfga_client_spec.rb.mustache": {

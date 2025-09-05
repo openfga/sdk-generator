@@ -8,6 +8,10 @@ require '{{gemName}}/api_error'
 require '{{gemName}}/version'
 require '{{gemName}}/configuration'
 
+# Client
+require '{{gemName}}/client/client_errors'
+require '{{gemName}}/client/openfga_client'
+
 # Models
 {{^useAutoload}}
 {{#models}}
