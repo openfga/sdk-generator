@@ -72,10 +72,6 @@
       "destinationFilename": ".github/ISSUE_TEMPLATE/feature_request.yaml",
       "templateType": "SupportingFiles"
     },
-    "NOTICE.mustache": {
-      "destinationFilename": "NOTICE.txt",
-      "templateType": "SupportingFiles"
-    },
     ".codecov.yml.mustache": {
       "destinationFilename": ".codecov.yml",
       "templateType": "SupportingFiles"
