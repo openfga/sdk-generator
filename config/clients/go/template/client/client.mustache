@@ -2366,10 +2366,11 @@ type SdkClientExpandRequestInterface interface {
 }
 
 type ClientExpandRequest struct {
-	Relation string `json:"relation,omitempty"`
-	Object   string `json:"object,omitempty"`
-	ContextualTuples ClientContextualTupleKey `json:"contextual_tuples,omitempty"`
-}
+ type ClientExpandRequest struct {
+   Relation string `json:"relation,omitempty"`
+   Object   string `json:"object,omitempty"`
+   ContextualTuples []ClientContextualTupleKey `json:"contextual_tuples,omitempty"`
+ }
 
 type ClientExpandOptions struct {
 	AuthorizationModelId *string `json:"authorization_model_id,omitempty"`
