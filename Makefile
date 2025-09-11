@@ -82,7 +82,10 @@ test-client-go: build-client-go
 .PHONY: build-client-go
 build-client-go:
 	make build-client sdk_language=go tmpdir=${TMP_DIR}
-	make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'gofmt -w . && go mod tidy && cd example/example1 && gofmt -w . && go mod tidy'"
+	make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'gofmt -w . && go mod tidy'"
+	find ${CLIENTS_OUTPUT_DIR}/fga-go-sdk/example -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | while read example_dir; do \
+		make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'cd example/$$example_dir && gofmt -w . && go mod tidy'"; \
+	done
 
 ### .NET
 .PHONY: tag-client-dotnet
@@ -200,36 +203,6 @@ get-openapi-doc:
 	mkdir -p "${DOCS_CACHE_DIR}"
 	curl "${OPEN_API_URL}" \
 	     -o "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.json"
-
-# Note you need to make sure fossaComplianceNoticeId has been set in the config overrides before running this
-.PHONY: update-fossa-reports
-update-fossa-reports:
-	make update-fossa-report-js
-	make update-fossa-report-go
-	make update-fossa-report-python
-	make update-fossa-report-dotnet
-
-.PHONY: update-fossa-report-js
-update-fossa-report-js:
-	make utils-update-fossa-report sdk_language=js
-
-.PHONY: update-fossa-report-go
-update-fossa-report-go:
-	make utils-update-fossa-report sdk_language=go
-
-.PHONY: update-fossa-report-dotnet
-update-fossa-report-dotnet:
-	make utils-update-fossa-report sdk_language=dotnet
-
-.PHONY: update-fossa-report-python
-update-fossa-report-python:
-	make utils-update-fossa-report sdk_language=python
-
-.PHONY: utils-update-fossa-report
-utils-update-fossa-report:
-	cd config/clients/${sdk_language} && \
-		echo https://app.fossa.com/attribution/`cat config.overrides.json | jq -r ".fossaComplianceNoticeId"` | \
-		xargs curl -Lo "template/NOTICE_details.mustache"
 
 .PHONY: utils-tag-client
 utils-tag-client:
