@@ -257,22 +257,20 @@ func mainInner() error {
 	// BatchCheck
 	fmt.Println("Batch checking for access")
 	batchCheckResponse, err := fgaClient.BatchCheck(ctx).Body(client.ClientBatchCheckRequest{
-		Items: []client.ClientBatchCheckItem{
+		Checks: []client.ClientBatchCheckItem{
 			{
-				TupleKey: client.ClientTupleKey{
-					User:     "user:anne",
-					Relation: "viewer",
-					Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
-				},
-				Context: &map[string]interface{}{"ViewCount": 100},
+				CorrelationId: "f278708f-298c-4f43-a893-11a02bbf251c",
+				User:          "user:anne",
+				Relation:      "viewer",
+				Object:        "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+				Context:       &map[string]interface{}{"ViewCount": 100},
 			},
 			{
-				TupleKey: client.ClientTupleKey{
-					User:     "user:bob",
-					Relation: "viewer",
-					Object:   "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
-				},
-				Context: &map[string]interface{}{"ViewCount": 100},
+				CorrelationId: "9f7563d6-2573-4292-9ba2-62d59b97c4d",
+				User:          "user:bob",
+				Relation:      "viewer",
+				Object:        "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+				Context:       &map[string]interface{}{"ViewCount": 100},
 			},
 		},
 	}).Execute()
@@ -280,8 +278,8 @@ func mainInner() error {
 		return err
 	}
 	fmt.Println("BatchCheck results:")
-	for i, response := range batchCheckResponse.Responses {
-		fmt.Printf("Item %d - Allowed: %v\n", i, response.Allowed)
+	for correlationID, result := range batchCheckResponse.GetResult() {
+		fmt.Printf("Correlation %s - Allowed: %v\n", correlationID, result.GetAllowed())
 	}
 
 	// ListObjects

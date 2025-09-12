@@ -57,7 +57,6 @@
       "destinationFilename": ".fossa.yml",
       "templateType": "SupportingFiles"
     },
-    ".github/dependabot.yaml": {},
     ".github/CODEOWNERS.mustache": {
       "destinationFilename": ".github/CODEOWNERS",
       "templateType": "SupportingFiles"
@@ -71,10 +70,6 @@
     },
     ".github/ISSUE_TEMPLATE/feature_request.yaml.mustache": {
       "destinationFilename": ".github/ISSUE_TEMPLATE/feature_request.yaml",
-      "templateType": "SupportingFiles"
-    },
-    "NOTICE.mustache": {
-      "destinationFilename": "NOTICE.txt",
       "templateType": "SupportingFiles"
     },
     ".codecov.yml.mustache": {
