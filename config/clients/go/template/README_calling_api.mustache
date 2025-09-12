@@ -361,15 +361,15 @@ data, err := fgaClient.Write(context.Background()).Body(body).Options(options).E
 // }]
 ```
 
-#### Idempotency Options for Write Operations
+#### Conflict Options for Write Operations
 
-The SDK supports idempotency options for write operations, allowing you to control how the API handles duplicate writes and missing deletes.
+The SDK supports conflict options for write operations, allowing you to control how the API handles duplicate writes and missing deletes.
 
 > Note: This requires OpenFGA [v1.10.0](https://github.com/openfga/openfga/releases/tag/v1.10.0) or later.
 
 ```go
 options := ClientWriteOptions{
-    Idempotency: IdempotencyOptions{
+    Conflict: ClientWriteConflictOptions{
         // Control what happens when writing a tuple that already exists
         WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_IGNORE, // or CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_ERROR (the current default behavior)
 

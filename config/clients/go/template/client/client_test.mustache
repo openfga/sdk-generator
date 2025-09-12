@@ -3628,7 +3628,7 @@ func Test{{appShortName}}Client(t *testing.T) {
 	})
 }
 
-func Test{{appShortName}}ClientWriteConflictOptions(t *testing.T) {
+func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
     fgaClient, err := NewSdkClient(&ClientConfiguration{
         ApiUrl:  "https://api.fga.example",
         StoreId: "01GXSB9YR785C4FYS3C0RTG7B2",
@@ -3681,7 +3681,7 @@ func Test{{appShortName}}ClientWriteConflictOptions(t *testing.T) {
         )
 
         options := ClientWriteOptions{
-            Idempotency: IdempotencyOptions{
+            Conflict: ClientWriteConflictOptions{
                 WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_IGNORE,
             },
         }
@@ -3735,7 +3735,7 @@ func Test{{appShortName}}ClientWriteConflictOptions(t *testing.T) {
         )
 
         options := ClientWriteOptions{
-            Idempotency: IdempotencyOptions{
+            Conflict: ClientWriteConflictOptions{
                 WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_ERROR,
             },
         }
@@ -3789,7 +3789,7 @@ func Test{{appShortName}}ClientWriteConflictOptions(t *testing.T) {
         )
 
         options := ClientWriteOptions{
-            Idempotency: IdempotencyOptions{
+            Conflict: ClientWriteConflictOptions{
                 DeleteOnMissing: CLIENT_WRITE_REQUEST_DELETES_ON_MISSING_IGNORE,
             },
         }
@@ -3843,7 +3843,7 @@ func Test{{appShortName}}ClientWriteConflictOptions(t *testing.T) {
         )
 
         options := ClientWriteOptions{
-            Idempotency: IdempotencyOptions{
+            Conflict: ClientWriteConflictOptions{
                 DeleteOnMissing: CLIENT_WRITE_REQUEST_DELETES_ON_MISSING_ERROR,
             },
         }
@@ -3905,7 +3905,7 @@ func Test{{appShortName}}ClientWriteConflictOptions(t *testing.T) {
         )
 
         options := ClientWriteOptions{
-            Idempotency: IdempotencyOptions{
+            Conflict: ClientWriteConflictOptions{
                 WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_IGNORE,
                 DeleteOnMissing:   CLIENT_WRITE_REQUEST_DELETES_ON_MISSING_IGNORE,
             },
@@ -3967,7 +3967,7 @@ func Test{{appShortName}}ClientWriteConflictOptions(t *testing.T) {
         )
 
         options := ClientWriteOptions{
-            Idempotency: IdempotencyOptions{
+            Conflict: ClientWriteConflictOptions{
                 WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_IGNORE,
             },
             Transaction: &TransactionOptions{
@@ -4031,7 +4031,7 @@ func Test{{appShortName}}ClientWriteConflictOptions(t *testing.T) {
         )
 
         options := ClientWriteOptions{
-            Idempotency: IdempotencyOptions{
+            Conflict: ClientWriteConflictOptions{
                 WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_IGNORE,
             },
             AuthorizationModelId: &modelId,
@@ -4088,7 +4088,7 @@ func Test{{appShortName}}ClientWriteConflictOptions(t *testing.T) {
         )
 
         options := ClientWriteOptions{
-            Idempotency: IdempotencyOptions{
+            Conflict: ClientWriteConflictOptions{
                 WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_IGNORE,
             },
             StoreId: &overrideStoreId,
@@ -4162,7 +4162,7 @@ func Test{{appShortName}}ClientWriteConflictOptions(t *testing.T) {
         )
 
         options := ClientWriteOptions{
-            Idempotency: IdempotencyOptions{
+            Conflict: ClientWriteConflictOptions{
                 WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_IGNORE,
                 DeleteOnMissing:   CLIENT_WRITE_REQUEST_DELETES_ON_MISSING_IGNORE,
             },
@@ -4257,7 +4257,7 @@ func Test{{appShortName}}ClientWriteConflictOptions(t *testing.T) {
         )
 
         options := ClientWriteOptions{
-            Idempotency: IdempotencyOptions{
+            Conflict: ClientWriteConflictOptions{
                 WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_IGNORE,
                 DeleteOnMissing:   CLIENT_WRITE_REQUEST_DELETES_ON_MISSING_IGNORE,
             },

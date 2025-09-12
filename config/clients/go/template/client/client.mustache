@@ -1463,7 +1463,7 @@ const (
 	CLIENT_WRITE_REQUEST_DELETES_ON_MISSING_IGNORE ClientWriteRequestDeletesOnMissing = "ignore"
 )
 
-type IdempotencyOptions struct {
+type ClientWriteConflictOptions struct {
 	// WritesOnDuplicate defines what to do when a write conflicts with an existing tuple
 	// Options are: "error" (default) or "ignore"
 	WritesOnDuplicate ClientWriteRequestWritesOnDuplicate `json:"writes_on_duplicate,omitempty"`
@@ -1473,10 +1473,10 @@ type IdempotencyOptions struct {
 }
 
 type ClientWriteOptions struct {
-	AuthorizationModelId *string             `json:"authorization_model_id,omitempty"`
-	StoreId              *string             `json:"store_id,omitempty"`
-	Transaction          *TransactionOptions `json:"transaction_options,omitempty"`
-	Idempotency          IdempotencyOptions  `json:"idempotency_key,omitempty"`
+	AuthorizationModelId *string                     `json:"authorization_model_id,omitempty"`
+	StoreId              *string                     `json:"store_id,omitempty"`
+	Transaction          *TransactionOptions         `json:"transaction_options,omitempty"`
+	Conflict             ClientWriteConflictOptions  `json:"conflict,omitempty"`
 }
 
 type ClientWriteStatus string
@@ -1611,7 +1611,7 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 		if len(request.GetBody().Writes) > 0 {
 			writes := fgaSdk.WriteRequestWrites{}
             if options != nil {
-				writes.OnDuplicate = options.Idempotency.WritesOnDuplicate.ToString()
+				writes.OnDuplicate = options.Conflict.WritesOnDuplicate.ToString()
 			}
 			for index := 0; index < len(request.GetBody().Writes); index++ {
 				writes.TupleKeys = append(writes.TupleKeys, (request.GetBody().Writes)[index])
@@ -1621,7 +1621,7 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 		if len(request.GetBody().Deletes) > 0 {
 			deletes := fgaSdk.WriteRequestDeletes{}
 			if options != nil {
-				deletes.OnMissing = options.Idempotency.DeleteOnMissing.ToString()
+				deletes.OnMissing = options.Conflict.DeleteOnMissing.ToString()
 			}
 			for index := 0; index < len(request.GetBody().Deletes); index++ {
 				deletes.TupleKeys = append(deletes.TupleKeys, (request.GetBody().Deletes)[index])
@@ -1702,7 +1702,7 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 				options: &ClientWriteOptions{
 					AuthorizationModelId: authorizationModelId,
 					StoreId:              request.GetStoreIdOverride(),
-                    Idempotency:          options.Idempotency,
+                    Conflict:             options.Conflict,
 				},
 			})
 
@@ -1747,7 +1747,7 @@ func (client *{{appShortName}}Client) WriteExecute(request SdkClientWriteRequest
 				options: &ClientWriteOptions{
 					AuthorizationModelId: authorizationModelId,
 					StoreId:              request.GetStoreIdOverride(),
-                    Idempotency:          options.Idempotency,
+                    Conflict:             options.Conflict,
 				},
 			})
 
