@@ -10,6 +10,8 @@ GOLINT_DOCKER_TAG = latest-alpine
 BUSYBOX_DOCKER_TAG = 1
 GRADLE_DOCKER_TAG = 8.12-jdk17
 PYTHON_DOCKER_TAG = 3.10
+RUBY_DOCKER_TAG = 3.4
+
 # Other config
 CONFIG_DIR = ${PWD}/config
 CLIENTS_OUTPUT_DIR = ${PWD}/clients
@@ -164,11 +166,10 @@ tag-client-ruby: test-client-ruby
 .PHONY: build-client-ruby
 build-client-ruby:
 	make build-client sdk_language=ruby tmpdir=${TMP_DIR}
-	# ... any other custom build steps ...
 
 .PHONY: test-client-ruby
 test-client-ruby: build-client-ruby
-	# ... any custom test code ...
+	make run-in-docker sdk_language=ruby image=ruby:${RUBY_DOCKER_TAG} command="/bin/sh -c 'bundle install && bundle exec rspec'"
 
 
 .PHONY: run-in-docker
