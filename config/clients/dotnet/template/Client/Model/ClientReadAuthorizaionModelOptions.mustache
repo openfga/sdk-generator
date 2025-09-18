@@ -1,5 +1,7 @@
 {{>partial_header}}
 
+using System.Collections.Generic;
+
 namespace {{packageName}}.Client.Model;
 
 /// <summary>
@@ -15,4 +17,7 @@ public class ClientReadAuthorizationModelOptions : IClientReadAuthorizationModel
 
     /// <inheritdoc />
     public string? AuthorizationModelId { get; set; }
+
+    /// <inheritdoc />
+    public Dictionary<string, string>? AdditionalHeaders { get; set; }
 }

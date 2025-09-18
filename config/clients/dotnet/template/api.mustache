@@ -3,6 +3,7 @@
 using {{packageName}}.ApiClient;
 using {{packageName}}.Exceptions;
 using {{packageName}}.{{modelPackage}};
+using System.Collections.Generic;
 
 namespace {{packageName}}.{{apiPackage}};
 
@@ -33,12 +34,13 @@ public class {{classname}} : IDisposable {
     {{#allParams}}
     /// <param name="{{paramName}}">{{description}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}</param>
     {{/allParams}}
+    /// <param name="additionalHeaders">Additional headers to include in the request.</param>
     /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
     /// <returns>Task of {{returnType}}{{^returnType}}void{{/returnType}}</returns>
     {{#isDeprecated}}
     [Obsolete]
     {{/isDeprecated}}
-    {{#returnType}}public async Task<{{{.}}}>{{/returnType}}{{^returnType}}public async Task{{/returnType}} {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^required}}{{#optionalMethodArgument}} = default({{{dataType}}}){{/optionalMethodArgument}}{{/required}}{{^-last}}, {{/-last}}{{/allParams}}{{#allParams.0}}, {{/allParams.0}}CancellationToken cancellationToken = default) {
+    {{#returnType}}public async Task<{{{.}}}>{{/returnType}}{{^returnType}}public async Task{{/returnType}} {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^required}}{{#optionalMethodArgument}} = default({{{dataType}}}){{/optionalMethodArgument}}{{/required}}{{^-last}}, {{/-last}}{{/allParams}}{{#allParams.0}}, {{/allParams.0}}IDictionary<string, string>? additionalHeaders = null, CancellationToken cancellationToken = default) {
         var pathParams = new Dictionary<string, string> {};
         {{#pathParams.0}}
         if (string.IsNullOrWhiteSpace(storeId)) {
@@ -82,7 +84,7 @@ public class {{classname}} : IDisposable {
         };
 
         {{#returnType}}return {{/returnType}}await _apiClient.SendRequestAsync{{#returnType}}<{{#bodyParam}}{{{dataType}}}{{/bodyParam}}{{^bodyParam}}Any{{/bodyParam}}, {{{.}}}>{{/returnType}}(requestBuilder,
-            "{{operationId}}", cancellationToken);
+            additionalHeaders, "{{operationId}}", cancellationToken);
     }
 
     {{/operation}}
