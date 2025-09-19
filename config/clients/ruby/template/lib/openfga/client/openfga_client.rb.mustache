@@ -1,0 +1,490 @@
+# frozen_string_literal: true
+
+require 'concurrent'
+require 'set'
+
+module OpenFga
+  class SdkClient
+    PAGE_SIZE = 50
+
+    def initialize(config = {})
+      raise ConfigurationNilError.new(:api_url) unless config[:api_url]
+
+      @config = config
+      
+      api_client_config = Configuration.new do |c|
+        c.server_index = nil
+        c.host = @config[:api_url]
+      end
+
+      @api_client = OpenFga::OpenFgaApi.new(ApiClient.new api_client_config)
+    end
+
+    # Create a store
+    # Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.
+    # @param name [String]
+    # @param [Hash] opts the optional parameters
+    # @return [CreateStoreResponse]
+    def create_store(name:, opts: {})
+      body = OpenFga::CreateStoreRequest.new(name:)
+      @api_client.create_store(body, opts)
+    end
+
+    # Delete a store
+    # Delete an OpenFGA store. This does not delete the data associated with the store, like tuples or authorization models.
+    # @param [Hash] opts the optional parameters
+    # @return [nil]
+    def delete_store(opts = {})
+      @api_client.delete_store(store_id, opts)
+    end
+
+    # Get a store
+    # Returns an OpenFGA store by its identifier
+    # @param [Hash] opts the optional parameters
+    # @return [GetStoreResponse]
+    def get_store(opts = {})
+      @api_client.get_store(store_id(opts), opts)
+    end
+
+    # List all stores
+    # Returns a paginated list of OpenFGA stores and a continuation token to get additional stores. The continuation token will be empty if there are no more stores.
+    # @param [Hash] opts the optional parameters
+    # @option opts [Integer] :page_size
+    # @option opts [String] :continuation_token
+    # @return [ListStoresResponse]
+    def list_stores(opts = {})
+      @api_client.list_stores(opts)
+    end
+
+    # Writes an authorization model
+    # Creates or updates an authorization model for a specific store.
+    # @param type_definitions [Array<TypeDefinition>] The type definitions for the authorization model.
+    # @param schema_version [String] The schema version for the authorization model.
+    # @param conditions [Hash] The conditions for the authorization model.
+    # @param opts [Hash] Optional parameters for the request.
+    def write_authorization_model(type_definitions:, schema_version:, conditions: nil, opts: {})
+      fail ArgumentError, "Missing the required parameter 'type_definitions'" if type_definitions.nil?
+      fail ArgumentError, "Missing the required parameter 'schema_version'" if schema_version.nil?
+
+      body = WriteAuthorizationModelRequest.new(
+        type_definitions:,
+        schema_version:,
+        conditions:
+      )
+
+      @api_client.write_authorization_model(store_id(opts), body, opts)
+    end
+
+    # Reads an authorization model
+    # Retrieves a specific authorization model by its ID from a given store.
+    # @param id [String] The ID of the authorization model to read.
+    # @param opts [Hash] Optional parameters for the request.
+    # @raise [ArgumentError] If the `store_id` or `id` is not provided.
+    # @return [ReadAuthorizationModelResponse] The response containing the authorization model details.
+    def read_authorization_model(id:, opts: {})
+      @api_client.read_authorization_model(store_id(opts), id, opts)
+    end
+
+    # Reads all authorization models
+    # Retrieves all authorization models for a specific store.
+    # @param opts [Hash] Optional parameters for the request.
+    # @raise [ArgumentError] If the `store_id` is not provided.
+    # @return [ReadAuthorizationModelsResponse] The response containing the list of authorization models.
+    def read_authorization_models(opts = {})
+      @api_client.read_authorization_models(store_id(opts), opts)
+    end
+
+
+
+    # Checks whether a specific relationship exists in the store.
+    #
+    # @param user [String] The user involved in the relationship.
+    # @param relation [String, Symbol] The relation to check (e.g., "reader", "owner").
+    # @param object [String] The object involved in the relationship.
+    # @param opts [Hash] Optional parameters for the check.
+    #   @option opts [Hash] :contextual_tuples Additional contextual tuples to include in the check.
+    #   @option opts [String] :authorization_model_id The ID of the authorization model to use for the check.
+    #   @option opts [Hash] :context Additional context for the check.
+    #
+    # @raise [ArgumentError] If any of the required parameters (`user`, `relation`, or `object`) are missing.
+    #
+    # @return [CheckResponse] The result of the check operation.
+    def check(user:, relation:, object:, contextual_tuples: nil, context: nil, opts: {})
+      fail ArgumentError, "Missing the required parameter 'user'" if user.nil?
+      fail ArgumentError, "Missing the required parameter 'relation'" if relation.nil?
+      fail ArgumentError, "Missing the required parameter 'object'" if object.nil?
+
+      tuple_key = CheckRequestTupleKey.new({
+        user:, relation: relation.to_s, object: })
+
+      request_body = CheckRequest.new({ tuple_key: })
+
+      unless contextual_tuples.nil?
+        tuple_keys = contextual_tuples[:tuple_keys].map { |tuple_key| TupleKey.new(tuple_key) }
+        request_body.contextual_tuples = ContextualTupleKeys.new(tuple_keys:)
+      end
+
+      request_body.context = context unless context.nil?
+
+      if opts.include?(:authorization_model_id)
+        request_body.authorization_model_id = opts[:authorization_model_id]
+      end
+
+      @api_client.check(store_id(opts), request_body, opts)
+    end
+
+    # Performs multiple relationship checks in a single batch request.
+    #
+    # @param checks [Array<Hash>] An array of check items, each containing:
+    #   @option checks [Hash] :tuple_key The tuple key for the relationship to check, which must include:
+    #     - :user [String]: The user involved in the relationship.
+    #     - :relation [String, Symbol]: The relation to check (e.g. "reader" or :owner).
+    #     - :object [String]: The object involved in the relationship.
+    #   @option checks [String] :correlation_id A unique identifier for correlating the request with the response (max 36 chars, alphanumeric + hyphens).
+    #   @option checks [Hash] :contextual_tuples (optional) Additional contextual tuples to include in the check.
+    #   @option checks [Hash] :context (optional) Additional context for the check.
+    # @param opts [Hash] Optional parameters for the batch check.
+    #   @option opts [String] :authorization_model_id The ID of the authorization model
+    #   @option opts [String] :consistency The consistency level for the checks
+    #   @option opts [Integer] :max_parallel_requests Maximum concurrent requests (default: 10)
+    #   @option opts [Integer] :max_batch_size Maximum checks per batch (default: 50)
+    #
+    # @raise [ArgumentError] If the checks array is empty, or if any check item is missing required parameters.
+    #
+    # @return [BatchCheckResponse] The result of the batch check operation with results keyed by correlation_id.
+    def batch_check(checks:, opts: {})
+      fail ArgumentError, "Missing the required parameter 'checks'" if checks.nil? || checks.empty?
+
+      # Configuration with defaults matching Python SDK
+      max_parallel_requests = opts[:max_parallel_requests] || 10
+      max_batch_size = opts[:max_batch_size] || 50
+
+      # Validate all checks first and check for duplicates
+      correlation_ids = Set.new
+      checks.each_with_index do |check, index|
+        fail ArgumentError, "Missing 'tuple_key' in check item at index #{index}" if check[:tuple_key].nil?
+        fail ArgumentError, "Missing 'correlation_id' in check item at index #{index}" if check[:correlation_id].nil?
+
+        # Validate correlation_id format
+        correlation_id = check[:correlation_id].to_s
+        unless correlation_id.match?(/^[\w\d-]{1,36}$/)
+          fail ArgumentError, "correlation_id must be alphanumeric with hyphens only, max 36 characters: #{correlation_id}"
+        end
+
+        # Check for duplicates
+        if correlation_ids.include?(correlation_id)
+          fail ArgumentError, "Duplicate correlation_id found: #{correlation_id}"
+        end
+        correlation_ids.add(correlation_id)
+      end
+
+      # If we have fewer checks than the batch limit, use simple approach
+      if checks.length <= max_batch_size
+        return execute_single_batch_check(checks, opts)
+      end
+
+      # Split checks into batches and process concurrently
+      check_batches = checks.each_slice(max_batch_size).to_a
+      all_results = process_batches_concurrently(check_batches, max_parallel_requests, opts)
+
+      # Merge all batch results
+      merged_results = {}
+      all_results.each do |batch_response|
+        if batch_response&.result
+          merged_results.merge!(batch_response.result)
+        end
+      end
+
+      # Return a BatchCheckResponse with merged results
+      BatchCheckResponse.new(result: merged_results)
+    end
+
+    # Read changes
+    # Reads the list of historical relationship tuple writes and deletes.
+    # @param type [String] :type Get the list of tuple changes that affect only this type
+    # @param start_time [String] :start_time The start time of the range to read changes from. This is a timestamp in ISO 8601 format.
+    # @param [Hash] opts the optional parameters
+    # @option opts [Integer] :page_size The number of pages to return in the request
+    # @option opts [String] :continuation_token The continuation token to use to get the next page of results. This will be empty if there are no more results.
+    # @option opts [String] :store_id The store ID to read changes from
+    def read_changes(type:, start_time:, opts: {})
+      fail ArgumentError, "Missing the required parameter 'type'" if type.nil?
+      fail ArgumentError, "Missing the required parameter 'start_time'" if start_time.nil?
+
+      @api_client.read_changes(store_id(opts), opts.merge(type:, start_time:))
+    end
+
+    # GET /stores/{store_id}/assertions/{authorization_model_id}
+    # Retrieve assertions for a specific store and authorization model
+    # @param [Hash] opts The optional parameters
+    # @return [GetAssertionsResponse]
+    def read_assertions(opts = {})
+      @api_client.read_assertions(store_id(opts), authorization_model_id(opts), opts)
+    end
+
+    # PUT /stores/{store_id}/assertions/{authorization_model_id}
+    # Update assertions for a specific store and authorization model
+    # @param assertions [Hash] The request body containing the assertions
+    # @param [Hash] opts The optional parameters
+    # @return [nil]
+    def write_assertions(assertions:, opts: {})
+      fail ArgumentError, "Missing the required parameter 'assertions'" if assertions.nil? || assertions.empty?
+
+      request_body = WriteAssertionsRequest.new(assertions:)
+
+      @api_client.write_assertions(store_id(opts), authorization_model_id(opts), request_body, opts)
+    end
+
+    # Reads tuples from the store.
+    # @param user [String, nil] The user to read tuples for.
+    # @param relation [String, Symbol, nil] The relation to read tuples for.
+    # @param object [String, nil] The object to read tuples for.
+    # @param opts [Hash] Optional parameters for the request.
+    # @option opts [Integer] :page_size The number of tuples to return per page.
+    # @option opts [String] :continuation_token The continuation token for pagination.
+    # @option opts [String] :store_id The store ID to read tuples from.
+    def read(user: nil, relation: nil, object: nil, opts: {})
+      request_body = ReadRequest.new(
+        continuation_token: opts[:continuation_token],
+        page_size: opts[:page_size] || PAGE_SIZE,
+        consistency: opts[:consistency])
+
+      if user || relation || object
+        tuple_key = {}
+        tuple_key[:user] = user if user
+        tuple_key[:relation] = relation.to_s if relation
+        tuple_key[:object] = object if object
+        request_body.tuple_key = ReadRequestTupleKey.new(tuple_key)
+      end
+
+      @api_client.read(store_id(opts), request_body, opts)
+    end
+
+    # POST /stores/{store_id}/write
+    # Transactionally update the tuples for a given store.
+    # @param writes [Array<Hash>] The tuples to write to the store.
+    # @param deletes [Array<Hash>] The tuples to remove from the store.
+    # @param opts [Hash] The optional parameters.
+    # @option opts [String] :store_id The store ID to write to.
+    # @option opts [String] :authorization_model_id The ID of the authorization model to use for writing.
+    def write(writes: nil, deletes: nil, opts: {})
+      fail ArgumentError, "Missing the required parameter 'writes' or 'deletes'" if writes.nil? && deletes.nil?
+
+      request_body = WriteRequest.new(writes:, deletes:)
+
+      if opts.include?(:authorization_model_id)
+        request_body.authorization_model_id = opts[:authorization_model_id]
+      end
+
+      @api_client.write(store_id(opts), request_body, opts)
+    end
+
+    # Expands a relationship tuple to retrieve all users and groups that have the specified relation with the object.
+    # @param relation [String||Symbol] The relation to expand (e.g., "reader", :writer).
+    # @param object [String] The object involved in the relationship.
+    # @param opts [Hash] Optional parameters for the request.
+    #   @option opts [String] :store_id The ID of the store where the expansion will be performed.
+    #   @option opts [String] :authorization_model_id The ID of the authorization model to use for the expansion.
+    #   @option opts [Hash] :contextual_tuples Additional contextual tuples to include in the expansion.
+    #   @option opts [String] :consistency The consistency level for the expansion (e.g., "FULL", "EVENTUAL").
+    #
+    # @raise [ArgumentError] If the `relation` or `object` is missing.
+    #
+    # @return [ExpandResponse] The response containing the expanded relationship tuples.
+    def expand(relation:, object:, opts: {})
+      fail ArgumentError, "Missing the required parameter 'relation'" if relation.nil?
+      fail ArgumentError, "Missing the required parameter 'object'" if object.nil?
+
+      request_body = ExpandRequest.new(
+        tuple_key: ExpandRequestTupleKey.new(relation:, object:),
+        authorization_model_id: opts[:authorization_model_id],
+        consistency: opts[:consistency] || 'UNSPECIFIED'
+      )
+
+      # Build the request body
+      if opts.include?(:contextual_tuples)
+        contextual_tuples = opts[:contextual_tuples]
+        tuple_keys = contextual_tuples[:tuple_keys].map { |tuple_key| TupleKey.new(tuple_key) }
+        request_body.contextual_tuples = ContextualTupleKeys.new(tuple_keys:)
+      end
+
+      # Call the API client to perform the expansion
+      @api_client.expand(store_id(opts), request_body, opts)
+    end
+
+    # Lists objects for a given user and relation.
+    # @param user [String] The user for whom to list objects.
+    # @param relation [String||Symbol] The relation to list objects for (e.g., "reader", :writer).
+    # @param type [String] The type of objects to list.
+    # @param opts [Hash] Optional parameters for the request.
+    #   @option opts [String] :store_id The ID of the store where the objects will be listed.
+    #   @option opts [String] :authorization_model_id The ID of the authorization model to use for listing objects.
+    #   @option opts [Hash]   :contextual_tuples Additional contextual tuples to include in the listing.
+    #   @option opts [String] :consistency The consistency level for the listing (e.g., "UNSPECIFIED", "EVENTUAL").
+    #
+    # @raise [ArgumentError] If any of the required parameters (`user`, `relation`, or `type`) are missing.
+    #
+    # @return [ListObjectsResponse] The response containing the list of objects for the specified user and relation.
+    def list_objects(user:, relation:, type:, contextual_tuples: nil, context: nil, opts: {})
+      fail ArgumentError, "Missing the required parameter 'user'" if user.nil?
+      fail ArgumentError, "Missing the required parameter 'relation'" if relation.nil?
+      fail ArgumentError, "Missing the required parameter 'type'" if type.nil?
+
+      request_body = ListObjectsRequest.new(
+        type:,
+        relation:,
+        user:,
+        authorization_model_id: opts[:authorization_model_id],
+        consistency: opts[:consistency] || 'UNSPECIFIED'
+      )
+
+      # Build the request body
+      unless contextual_tuples.nil?
+        tuple_keys = contextual_tuples[:tuple_keys].map { |tuple_key| TupleKey.new(tuple_key) }
+        request_body.contextual_tuples = ContextualTupleKeys.new(tuple_keys:)
+      end
+
+      request_body.context = context unless context.nil?
+
+      # Call the API client to perform the list objects request
+      @api_client.list_objects(store_id(opts), request_body, opts)
+    end
+    
+    # List users that have a specific relation with an object
+    # Returns a list of all users that have the specified relation with the given object.
+    # @param relation [String, Symbol] :relation The relation to check for (e.g., "reader", "writer")
+    # @param object [String] :object The object to check relations against
+    # @param user_filters [Array<Hash>] :user_filters Filter criteria for the users to return
+    # @param contextual_tuples [Array<Hash>] :contextual_tuples Additional contextual tuples to include in the query
+    # @param [Hash] opts The optional parameters
+    # @option opts [String] :authorization_model_id The ID of the authorization model to use for the query
+    # @option opts [String] :consistency The consistency level for the query (defaults to 'UNSPECIFIED')
+    # @option opts [Hash] :context Additional context for the query
+    # @option opts [String] :store_id The store ID to query users from
+    # @raise [ArgumentError] If the required parameter 'relation' is missing
+    # @raise [ArgumentError] If the required parameter 'object' is missing
+    # @raise [ArgumentError] If the required parameter 'user_filters' is missing
+    # @return [ListUsersResponse] The response containing the list of users
+    def list_users(relation:, object:, user_filters: [], contextual_tuples: nil, context: nil, opts: {})
+      fail ArgumentError, "Missing the required parameter 'relation'" if relation.nil?
+      fail ArgumentError, "Missing the required parameter 'object'" if object.nil?
+
+      request_body = ListUsersRequest.new(
+        relation: relation.to_s,
+        object:,
+        context:,
+        user_filters: (user_filters || []).map { |filter| UserTypeFilter.new(filter) },
+        authorization_model_id: opts[:authorization_model_id],
+      )
+
+      # Build the request body
+      if contextual_tuples
+        tuples = contextual_tuples.map { |tuple| TupleKey.new(tuple) }
+        request_body.contextual_tuples = tuples
+      end
+
+      @api_client.list_users(store_id(opts), request_body, opts)
+    end
+
+private
+
+  # Executes a single batch check (used when no splitting is needed)
+  def execute_single_batch_check(checks, opts)
+    check_items = build_check_items(checks)
+    request_body = build_batch_request(check_items, opts)
+    @api_client.batch_check(store_id(opts), request_body, opts)
+  end
+
+  # Processes multiple batches concurrently using concurrent-ruby thread pool and futures
+  def process_batches_concurrently(batches, max_concurrent, opts)
+    # Use concurrent-ruby's thread pool for better performance and resource management
+    pool = Concurrent::FixedThreadPool.new(max_concurrent)
+
+    begin
+      # Create futures for each batch
+      futures = batches.map do |batch|
+        Concurrent::Future.execute(executor: pool) do
+          execute_single_batch_check(batch, opts)
+        rescue => e
+          # Log error but don't fail entire operation
+          warn "Batch check failed: #{e.message}"
+          # Return empty result for this batch
+          BatchCheckResponse.new(result: {})
+        end
+      end
+
+      # Wait for all futures to complete and collect results
+      futures.map(&:value!)
+    ensure
+      # Shutdown the thread pool
+      pool.shutdown
+      pool.wait_for_termination
+    end
+  end
+
+  # Builds check items from the check array
+  def build_check_items(checks)
+    checks.map do |check|
+      tuple_key = CheckRequestTupleKey.new({
+        user: check[:tuple_key][:user],
+        relation: check[:tuple_key][:relation].to_s,
+        object: check[:tuple_key][:object]
+      })
+
+      batch_check_item = BatchCheckItem.new({
+        tuple_key:,
+        correlation_id: check[:correlation_id].to_s
+      })
+
+      # Add contextual tuples if provided
+      if check.include?(:contextual_tuples)
+        contextual_tuples = check[:contextual_tuples]
+        tuple_keys = contextual_tuples[:tuple_keys].map { |tk| TupleKey.new(tk) }
+        batch_check_item.contextual_tuples = ContextualTupleKeys.new(tuple_keys:)
+      end
+
+      # Add context if provided
+      if check.include?(:context)
+        batch_check_item.context = check[:context]
+      end
+
+      batch_check_item
+    end
+  end
+
+  # Builds the batch check request with options
+  def build_batch_request(check_items, opts)
+    request_body = BatchCheckRequest.new({ checks: check_items })
+
+    if opts.include?(:authorization_model_id)
+      request_body.authorization_model_id = opts[:authorization_model_id]
+    end
+
+    if opts.include?(:consistency)
+      request_body.consistency = opts[:consistency]
+    end
+
+    request_body
+  end
+
+  # Returns the store ID from the options or configuration.
+  # Raises MissingStoreIdError if the store ID is not provided.
+  # @param opts [Hash, nil] Optional parameters that may include :store_id.
+  # @return [String] The store ID.
+  def store_id(opts = nil)
+    id = (opts || {})[:store_id] || @config[:store_id]
+    fail MissingStoreIdError unless id
+    id
+  end
+
+  # Returns the authorization model ID from the options or configuration.
+  # Raises MissingAuthorizationModelIdError if the authorization model ID is not provided.
+  # @param opts [Hash, nil] Optional parameters that may include :authorization_model_id.
+  # @return [String] The authorization model ID.
+  def authorization_model_id(opts = nil)
+    id = (opts || {})[:authorization_model_id] || @config[:authorization_model_id]
+    fail MissingAuthorizationModelIdError unless id
+    id
+  end
+  end
+end
