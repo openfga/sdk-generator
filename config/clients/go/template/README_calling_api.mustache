@@ -167,7 +167,7 @@ var body openfga.WriteAuthorizationModelRequest
 json.Unmarshal(jsonContent, &body)
 
 options := ClientWriteAuthorizationModelOptions{
-    StoreId: &storeID,
+    StoreId: {{packageName}}.PtrString("01FQH7V8BEG3GPQW93KTRFR8JB"), 
 }
 
 data, err := fgaClient.WriteAuthorizationModel(context.Background()).Options(options).Body(body).Execute()
@@ -192,7 +192,7 @@ var body openfga.WriteAuthorizationModelRequest
 json.Unmarshal([]byte(jsonModel), &body)
 
 options := ClientWriteAuthorizationModelOptions{
-    StoreId: &storeID,
+    StoreId: {{packageName}}.PtrString("01FQH7V8BEG3GPQW93KTRFR8JB"), 
 }
 
 data, err := fgaClient.WriteAuthorizationModel(context.Background()).Options(options).Body(body).Execute()
