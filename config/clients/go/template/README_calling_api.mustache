@@ -109,7 +109,7 @@ Create a new authorization model.
 
 ###### Instantiating the model inline
 
-You can instantiate the model inline, by instantiating the [TypeDefinition](model_type_definition.go) type directly:
+You can instantiate the model inline by constructing a WriteAuthorizationModelRequest with [TypeDefinition](model_type_definition.go) entries:
 
 ```golang
 body := ClientWriteAuthorizationModelRequest{
