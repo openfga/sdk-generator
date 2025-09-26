@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 
 using Moq;
 using Moq.Protected;
-
 using Xunit;
 
 using {{packageName}}.ApiClient;
@@ -23,19 +22,19 @@ using {{packageName}}.Model;
 
 namespace {{packageName}}.Test.Client;
 
-public class {{appShortName}}ClientTests {
+public class {{appShortName}}ClientTests : IDisposable {
     private readonly string _storeId;
     private readonly string _apiUrl = "https://api.{{sampleApiDomain}}";
     private readonly ClientConfiguration _config;
 
     public {{appShortName}}ClientTests() {
         _storeId = "01H0H015178Y2V4CX10C2KGHF4";
-        _config = new ClientConfiguration() {StoreId = _storeId, ApiUrl = _apiUrl};
+        _config = new ClientConfiguration() { StoreId = _storeId, ApiUrl = _apiUrl };
     }
 
     private HttpResponseMessage GetCheckResponse(CheckResponse content, bool shouldRetry = false) {
         var response = new HttpResponseMessage() {
-            StatusCode = shouldRetry ? HttpStatusCode.TooManyRequests : HttpStatusCode.OK,
+            StatusCode = shouldRetry ? (HttpStatusCode)429 : HttpStatusCode.OK,
             Content = Utils.CreateJsonStringContent(content),
             Headers = { }
         };
@@ -59,7 +58,8 @@ public class {{appShortName}}ClientTests {
     [Fact]
     public async Task ConfigurationInValidStoreIdTest() {
         var config = new ClientConfiguration() {
-            ApiUrl = _apiUrl, StoreId = "invalid-format"
+            ApiUrl = _apiUrl,
+            StoreId = "invalid-format"
         };
         void ActionInvalidId() => config.EnsureValid();
         var exception = Assert.Throws<FgaValidationError>(ActionInvalidId);
@@ -106,7 +106,7 @@ public class {{appShortName}}ClientTests {
     public void UpdateStoreIdTest() {
         var config = new ClientConfiguration() { ApiUrl = _apiUrl };
         var fgaClient = new {{appShortName}}Client(config);
-        Assert.Equal(null, fgaClient.StoreId);
+        Assert.Null(fgaClient.StoreId);
         var storeId = "some-id";
         fgaClient.StoreId = storeId;
         Assert.Equal(storeId, fgaClient.StoreId);
@@ -119,7 +119,7 @@ public class {{appShortName}}ClientTests {
     public void UpdateAuthorizationModelIdTest() {
         var config = new ClientConfiguration() { ApiUrl = _apiUrl };
         var fgaClient = new {{appShortName}}Client(config);
-        Assert.Equal(null, fgaClient.AuthorizationModelId);
+        Assert.Null(fgaClient.AuthorizationModelId);
         var modelId = "some-id";
         fgaClient.AuthorizationModelId = modelId;
         Assert.Equal(modelId, fgaClient.AuthorizationModelId);
@@ -149,7 +149,8 @@ public class {{appShortName}}ClientTests {
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage() {
-                StatusCode = HttpStatusCode.OK, Content = Utils.CreateJsonStringContent(expectedResponse),
+                StatusCode = HttpStatusCode.OK,
+                Content = Utils.CreateJsonStringContent(expectedResponse),
             });
 
         var httpClient = new HttpClient(mockHandler.Object);
@@ -159,7 +160,7 @@ public class {{appShortName}}ClientTests {
             new ClientListStoresRequest() {
                 Name = "TestStore"
             },
-            new ClientListStoresOptions() {}
+            new ClientListStoresOptions() { }
         );
 
         mockHandler.Protected().Verify(
@@ -193,7 +194,8 @@ public class {{appShortName}}ClientTests {
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage() {
-                StatusCode = HttpStatusCode.OK, Content = new StringContent(content, Encoding.UTF8, "application/json")
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(content, Encoding.UTF8, "application/json")
             });
 
         var httpClient = new HttpClient(mockHandler.Object);
@@ -221,7 +223,7 @@ public class {{appShortName}}ClientTests {
     [Fact]
     public async Task ListStoresEmptyTest() {
         var mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-        var expectedResponse = new ListStoresResponse() {Stores = new List<Store>() { }};
+        var expectedResponse = new ListStoresResponse() { Stores = new List<Store>() { } };
         mockHandler.Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
@@ -232,7 +234,8 @@ public class {{appShortName}}ClientTests {
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage() {
-                StatusCode = HttpStatusCode.OK, Content = Utils.CreateJsonStringContent(expectedResponse),
+                StatusCode = HttpStatusCode.OK,
+                Content = Utils.CreateJsonStringContent(expectedResponse),
             });
 
         var httpClient = new HttpClient(mockHandler.Object);
@@ -258,7 +261,7 @@ public class {{appShortName}}ClientTests {
     [Fact]
     public async Task CreateStoreTest() {
         var mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-        var expectedResponse = new CreateStoreResponse() {Id = "45678", Name = "TestStore", CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now};
+        var expectedResponse = new CreateStoreResponse() { Id = "45678", Name = "TestStore", CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now };
         mockHandler.Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
@@ -269,12 +272,13 @@ public class {{appShortName}}ClientTests {
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage() {
-                StatusCode = HttpStatusCode.OK, Content = Utils.CreateJsonStringContent(expectedResponse),
+                StatusCode = HttpStatusCode.OK,
+                Content = Utils.CreateJsonStringContent(expectedResponse),
             });
 
         var httpClient = new HttpClient(mockHandler.Object);
         var fgaClient = new {{appShortName}}Client(_config, httpClient);
-        
+
         var response = await fgaClient.CreateStore(new ClientCreateStoreRequest() { Name = "FGA Test Store" });
         mockHandler.Protected().Verify(
             "SendAsync",
@@ -287,14 +291,14 @@ public class {{appShortName}}ClientTests {
         Assert.IsType<CreateStoreResponse>(response);
         Assert.Equal(response, expectedResponse);
     }
-    
+
     /// <summary>
     /// Test GetStore
     /// </summary>
     [Fact]
     public async Task GetStoreTest() {
         var mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-        var expectedResponse = new GetStoreResponse() {Id = "45678", Name = "TestStore", CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now};
+        var expectedResponse = new GetStoreResponse() { Id = "45678", Name = "TestStore", CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now };
         mockHandler.Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
@@ -305,12 +309,13 @@ public class {{appShortName}}ClientTests {
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage() {
-                StatusCode = HttpStatusCode.OK, Content = Utils.CreateJsonStringContent(expectedResponse),
+                StatusCode = HttpStatusCode.OK,
+                Content = Utils.CreateJsonStringContent(expectedResponse),
             });
 
         var httpClient = new HttpClient(mockHandler.Object);
         var fgaClient = new {{appShortName}}Client(_config, httpClient);
-        
+
         var response = await fgaClient.GetStore();
         mockHandler.Protected().Verify(
             "SendAsync",
@@ -323,7 +328,7 @@ public class {{appShortName}}ClientTests {
         Assert.IsType<GetStoreResponse>(response);
         Assert.Equal(response, expectedResponse);
     }
-    
+
     /// <summary>
     /// Test DeleteStore
     /// </summary>
@@ -356,7 +361,7 @@ public class {{appShortName}}ClientTests {
             ItExpr.IsAny<CancellationToken>()
         );
     }
-    
+
     /************************
      * Authorization Models *
      ************************/
@@ -434,7 +439,7 @@ public class {{appShortName}}ClientTests {
             .ReturnsAsync(new HttpResponseMessage() {
                 StatusCode = HttpStatusCode.OK,
                 Content = Utils.CreateJsonStringContent(
-                    new WriteAuthorizationModelResponse() {AuthorizationModelId = authorizationModelId}),
+                    new WriteAuthorizationModelResponse() { AuthorizationModelId = authorizationModelId }),
             });
 
         var httpClient = new HttpClient(mockHandler.Object);
@@ -483,7 +488,7 @@ public class {{appShortName}}ClientTests {
         var httpClient = new HttpClient(mockHandler.Object);
         var fgaClient = new {{appShortName}}Client(_config, httpClient);
 
-        var response = await fgaClient.ReadAuthorizationModel( new ClientReadAuthorizationModelOptions {
+        var response = await fgaClient.ReadAuthorizationModel(new ClientReadAuthorizationModelOptions {
             AuthorizationModelId = authorizationModelId,
         });
 
@@ -611,7 +616,7 @@ public class {{appShortName}}ClientTests {
                         Relation = "viewer",
                         Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
                     },
-                    TupleOperation.WRITE, DateTime.Now),
+                    TupleOperation.TUPLEOPERATIONWRITE, DateTime.Now),
             },
             ContinuationToken =
                 "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
@@ -626,7 +631,8 @@ public class {{appShortName}}ClientTests {
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage() {
-                StatusCode = HttpStatusCode.OK, Content = Utils.CreateJsonStringContent(expectedResponse),
+                StatusCode = HttpStatusCode.OK,
+                Content = Utils.CreateJsonStringContent(expectedResponse),
             });
 
         var httpClient = new HttpClient(mockHandler.Object);
@@ -683,7 +689,8 @@ public class {{appShortName}}ClientTests {
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage() {
-                StatusCode = HttpStatusCode.OK, Content = Utils.CreateJsonStringContent(expectedResponse),
+                StatusCode = HttpStatusCode.OK,
+                Content = Utils.CreateJsonStringContent(expectedResponse),
             });
 
         var httpClient = new HttpClient(mockHandler.Object);
@@ -738,7 +745,8 @@ public class {{appShortName}}ClientTests {
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage() {
-                StatusCode = HttpStatusCode.OK, Content = Utils.CreateJsonStringContent(expectedResponse),
+                StatusCode = HttpStatusCode.OK,
+                Content = Utils.CreateJsonStringContent(expectedResponse),
             });
 
         var httpClient = new HttpClient(mockHandler.Object);
@@ -778,7 +786,8 @@ public class {{appShortName}}ClientTests {
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage() {
-                StatusCode = HttpStatusCode.OK, Content = Utils.CreateJsonStringContent(new Object()),
+                StatusCode = HttpStatusCode.OK,
+                Content = Utils.CreateJsonStringContent(new Object()),
             });
 
         var httpClient = new HttpClient(mockHandler.Object);
@@ -823,7 +832,8 @@ public class {{appShortName}}ClientTests {
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage() {
-                StatusCode = HttpStatusCode.OK, Content = Utils.CreateJsonStringContent(new Object()),
+                StatusCode = HttpStatusCode.OK,
+                Content = Utils.CreateJsonStringContent(new Object()),
             });
 
         var httpClient = new HttpClient(mockHandler.Object);
@@ -867,7 +877,8 @@ public class {{appShortName}}ClientTests {
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage() {
-                StatusCode = HttpStatusCode.OK, Content = Utils.CreateJsonStringContent(new Object()),
+                StatusCode = HttpStatusCode.OK,
+                Content = Utils.CreateJsonStringContent(new Object()),
             });
 
         var httpClient = new HttpClient(mockHandler.Object);
@@ -994,7 +1005,7 @@ public class {{appShortName}}ClientTests {
             )
             .ReturnsAsync(new HttpResponseMessage() {
                 StatusCode = HttpStatusCode.OK,
-                Content = Utils.CreateJsonStringContent(new CheckResponse {Allowed = true}),
+                Content = Utils.CreateJsonStringContent(new CheckResponse { Allowed = true }),
             });
 
         var httpClient = new HttpClient(mockHandler.Object);
@@ -1017,7 +1028,7 @@ public class {{appShortName}}ClientTests {
             },
             Context = new { ViewCount = 100 }
         };
-        var options = new ClientCheckOptions {};
+        var options = new ClientCheckOptions { };
         var response = await fgaClient.Check(body, options);
 
         mockHandler.Protected().Verify(
@@ -1110,27 +1121,28 @@ public class {{appShortName}}ClientTests {
                 await Task.Delay(500);
                 return new HttpResponseMessage() {
                     StatusCode = HttpStatusCode.OK,
-                    Content = Utils.CreateJsonStringContent(new CheckResponse {Allowed = true}),
+                    Content = Utils.CreateJsonStringContent(new CheckResponse { Allowed = true }),
                 };
             }))
             .Returns(Task.Run(async () => {
                 await Task.Delay(500);
                 return new HttpResponseMessage() {
                     StatusCode = HttpStatusCode.OK,
-                    Content = Utils.CreateJsonStringContent(new CheckResponse {Allowed = false}),
+                    Content = Utils.CreateJsonStringContent(new CheckResponse { Allowed = false }),
                 };
             }))
             .Returns(Task.Run(async () => {
                 await Task.Delay(500);
                 return new HttpResponseMessage() {
                     StatusCode = HttpStatusCode.OK,
-                    Content = Utils.CreateJsonStringContent(new CheckResponse {Allowed = true}),
+                    Content = Utils.CreateJsonStringContent(new CheckResponse { Allowed = true }),
                 };
             }))
             .Returns(Task.Run(async () => {
                 await Task.Delay(500);
                 return new HttpResponseMessage() {
-                    StatusCode = HttpStatusCode.NotFound, Content = Utils.CreateJsonStringContent(new Object { }),
+                    StatusCode = HttpStatusCode.NotFound,
+                    Content = Utils.CreateJsonStringContent(new Object { }),
                 };
             }));
 
@@ -1266,24 +1278,24 @@ public class {{appShortName}}ClientTests {
             tree: new UsersetTree(
                 root: new Node(name: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a1#owner",
                     union: new Nodes(
-                        nodes: new List<Node>() {
+                        varNodes: new List<Node>() {
                             new Node(name: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a2#owner",
-                                leaf: new Leaf(users: new Users(users: new List<string>() {"team:product#member"}))),
+                                leaf: new Leaf(users: new Users(varUsers: new List<string>() {"team:product#member"}))),
                             new Node(name: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a3#owner",
                                 leaf: new Leaf(tupleToUserset: new UsersetTreeTupleToUserset(
                                     tupleset: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a#owner",
                                     computed: new List<Computed>() {new Computed(userset: "org:contoso#admin")}))),
                         }),
                     difference: new UsersetTreeDifference(
-                        _base: new Node(name: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a3#owner",
-                            leaf: new Leaf(users: new Users(users: new List<string>() {"team:product#member"}))),
+                        varBase: new Node(name: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a3#owner",
+                            leaf: new Leaf(users: new Users(varUsers: new List<string>() { "team:product#member" }))),
                         subtract: new Node(name: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a4#owner",
-                            leaf: new Leaf(users: new Users(users: new List<string>() {"team:product#member"})))
+                            leaf: new Leaf(users: new Users(varUsers: new List<string>() { "team:product#member" })))
                     ),
                     intersection: new Nodes(
-                        nodes: new List<Node>() {
+                        varNodes: new List<Node>() {
                             new Node(name: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a5#owner",
-                                leaf: new Leaf(users: new Users(users: new List<string>() {"team:product#commentor"}))),
+                                leaf: new Leaf(users: new Users(varUsers: new List<string>() {"team:product#commentor"}))),
                             new Node(name: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a6#owner",
                                 leaf: new Leaf(tupleToUserset: new UsersetTreeTupleToUserset(
                                     tupleset: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a#viewer",
@@ -1300,7 +1312,8 @@ public class {{appShortName}}ClientTests {
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage() {
-                StatusCode = HttpStatusCode.OK, Content = Utils.CreateJsonStringContent(mockResponse),
+                StatusCode = HttpStatusCode.OK,
+                Content = Utils.CreateJsonStringContent(mockResponse),
             });
 
         var httpClient = new HttpClient(mockHandler.Object);
@@ -1333,7 +1346,7 @@ public class {{appShortName}}ClientTests {
     [Fact]
     public async Task ListObjectsTest() {
         var mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-        var expectedResponse = new ListObjectsResponse {Objects = new List<string> {"document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"}};
+        var expectedResponse = new ListObjectsResponse { Objects = new List<string> { "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a" } };
         mockHandler.Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
@@ -1344,7 +1357,8 @@ public class {{appShortName}}ClientTests {
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage() {
-                StatusCode = HttpStatusCode.OK, Content = Utils.CreateJsonStringContent(expectedResponse),
+                StatusCode = HttpStatusCode.OK,
+                Content = Utils.CreateJsonStringContent(expectedResponse),
             });
 
         var httpClient = new HttpClient(mockHandler.Object);
@@ -1426,7 +1440,7 @@ public class {{appShortName}}ClientTests {
             new ClientListRelationsRequest() {
                 User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
-                Relations = new List<string> {"can_view", "can_edit", "can_delete", "can_rename"},
+                Relations = new List<string> { "can_view", "can_edit", "can_delete", "can_rename" },
                 ContextualTuples = new List<ClientTupleKey>() {
                     new() {
                         User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
@@ -1543,7 +1557,7 @@ public class {{appShortName}}ClientTests {
             new ClientListRelationsRequest() {
                 User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
                 Object = "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
-                Relations = new List<string> {},
+                Relations = new List<string> { },
             };
 
         Task<ListRelationsResponse> ApiError() => fgaClient.ListRelations(body);
@@ -1622,7 +1636,7 @@ public class {{appShortName}}ClientTests {
                     Relation = "member"
                 }
             },
-            ContextualTuples =  new List<ClientTupleKey> {
+            ContextualTuples = new List<ClientTupleKey> {
                 new() {
                     User = "folder:product",
                     Relation = "editor",
@@ -1720,11 +1734,11 @@ public class {{appShortName}}ClientTests {
                     req.Method == HttpMethod.Put),
                 ItExpr.IsAny<CancellationToken>()
             )
-            .ReturnsAsync(new HttpResponseMessage() {StatusCode = HttpStatusCode.NoContent,});
+            .ReturnsAsync(new HttpResponseMessage() { StatusCode = HttpStatusCode.NoContent, });
 
         var httpClient = new HttpClient(mockHandler.Object);
         var fgaClient = new {{appShortName}}Client(_config, httpClient);
-        
+
         var body = new List<ClientAssertion>() {new ClientAssertion() {
             User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
             Relation = "viewer",
