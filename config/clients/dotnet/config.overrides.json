@@ -10,6 +10,7 @@
   "packageGuid": "b8d9e3e9-0156-4948-9de7-5e0d3f9c4d9e",
   "testPackageGuid": "d119dfae-509a-4eba-a973-645b739356fc",
   "packageName": "OpenFga.Sdk",
+  "testPackageName": "OpenFga.Sdk.Test",
   "packageVersion": "0.6.0",
   "licenseUrl": "https://github.com/openfga/dotnet-sdk/blob/main/LICENSE",
   "fossaComplianceNoticeId": "f8ac2ec4-84fc-44f4-a617-5800cd3d180e",
@@ -28,7 +29,9 @@
   "releaseNote": "",
   "sortParamsByRequiredFlag": true,
   "sourceFolder": "src",
-  "targetFramework": "net6.0",
+  "targetFramework": "netstandard2.0;net48;net8.0;net9.0",
+  "multiTarget": true,
+  "testTargetFramework": "netcoreapp3.1;net48;net8.0;net9.0",
   "validatable": true,
   "enablePostProcessFile": true,
   "hashCodeBasePrimeNumber": 9661,
@@ -65,6 +68,10 @@
     },
     "Client/ClientConfiguration.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/ClientConfiguration.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Client/Extensions/LinqExtensions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/Extensions/LinqExtensions.cs",
       "templateType": "SupportingFiles"
     },
     "Client/Model/AuthorizationModelIdOptions.mustache": {

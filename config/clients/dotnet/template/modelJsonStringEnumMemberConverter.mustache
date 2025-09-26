@@ -1,9 +1,12 @@
 {{>partial_header}}
 
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.ComponentModel.DataAnnotations;
 
 /// This class is based on suggestions from https://github.com/dotnet/runtime/issues/31081
 
@@ -22,7 +25,7 @@ public class JsonStringEnumMemberConverter<EnumTemplate> : JsonConverter<EnumTem
     public JsonStringEnumMemberConverter()
     {
       var type = typeof(EnumTemplate);
-      var values = System.Enum.GetValues<EnumTemplate>();
+      var values = System.Enum.GetValues(type).Cast<EnumTemplate>();
 
       foreach (var value in values)
       {
