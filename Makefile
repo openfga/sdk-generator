@@ -111,11 +111,14 @@ build-client-dotnet: build-dotnet-multi-image
 	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet build --configuration Release'"
 	# Workaround for dotnet format issue: https://github.com/dotnet/format/issues/1634
 	# Format with single target (net8.0) to avoid merge conflicts, then restore multi-targeting
-	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'cp src/OpenFga.Sdk/OpenFga.Sdk.csproj src/OpenFga.Sdk/OpenFga.Sdk.csproj.bak'"
-	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'sed \"s/<TargetFrameworks>.*<\/TargetFrameworks>/<TargetFramework>net8.0<\/TargetFramework>/\" src/OpenFga.Sdk/OpenFga.Sdk.csproj.bak > src/OpenFga.Sdk/OpenFga.Sdk.csproj'"
-	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet restore ./OpenFga.Sdk.sln && dotnet format ./OpenFga.Sdk.sln'" || true
-	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet restore ./OpenFga.Sdk.sln && dotnet format ./OpenFga.Sdk.sln'" || true
-	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'mv src/OpenFga.Sdk/OpenFga.Sdk.csproj.bak src/OpenFga.Sdk/OpenFga.Sdk.csproj'"
+	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c '\
+		cp src/OpenFga.Sdk/OpenFga.Sdk.csproj src/OpenFga.Sdk/OpenFga.Sdk.csproj.bak && \
+		cp src/OpenFga.Sdk.Test/OpenFga.Sdk.Test.csproj src/OpenFga.Sdk.Test/OpenFga.Sdk.Test.csproj.bak && \
+		sed \"s/<TargetFrameworks>.*<\/TargetFrameworks>/<TargetFramework>net8.0<\/TargetFramework>/\" src/OpenFga.Sdk/OpenFga.Sdk.csproj.bak > src/OpenFga.Sdk/OpenFga.Sdk.csproj && \
+		sed \"s/<TargetFrameworks>.*<\/TargetFrameworks>/<TargetFramework>net8.0<\/TargetFramework>/\" src/OpenFga.Sdk.Test/OpenFga.Sdk.Test.csproj.bak > src/OpenFga.Sdk.Test/OpenFga.Sdk.Test.csproj && \
+		(dotnet restore ./OpenFga.Sdk.sln && dotnet format ./OpenFga.Sdk.sln) || true && \
+		mv src/OpenFga.Sdk/OpenFga.Sdk.csproj.bak src/OpenFga.Sdk/OpenFga.Sdk.csproj && \
+		mv src/OpenFga.Sdk.Test/OpenFga.Sdk.Test.csproj.bak src/OpenFga.Sdk.Test/OpenFga.Sdk.Test.csproj'"
 
 ### Python
 .PHONY: tag-client-python
