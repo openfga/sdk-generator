@@ -1,8 +1,15 @@
 {{>partial_header}}
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+{{#validatable}}
+using System.ComponentModel.DataAnnotations;
+{{/validatable}}
 using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 {{#models}}
 {{#model}}
 {{#discriminator}}
@@ -10,9 +17,6 @@ using JsonSubTypes;
 {{/discriminator}}
 {{/model}}
 {{/models}}
-{{#validatable}}
-using System.ComponentModel.DataAnnotations;
-{{/validatable}}
 {{#models}}
 {{#model}}
 {{#oneOf}}
