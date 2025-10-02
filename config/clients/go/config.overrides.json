@@ -98,6 +98,10 @@
       "destinationFilename": "internal/utils/ulid_test.go",
       "templateType": "SupportingFiles"
     },
+    "models_test.mustache": {
+      "destinationFilename": "models_test.go",
+      "templateType": "SupportingFiles"
+    },
     "example/Makefile": {},
     "example/README.md": {},
     "example/example1/example1.go": {},
