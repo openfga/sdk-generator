@@ -5,6 +5,7 @@ using {{packageName}}.Configuration;
 using {{packageName}}.Exceptions;
 using {{packageName}}.Telemetry;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace {{packageName}}.ApiClient;
 
@@ -61,9 +62,9 @@ public class ApiClient : IDisposable {
     /// <typeparam name="T">Response Type</typeparam>
     /// <returns></returns>
     /// <exception cref="FgaApiAuthenticationError"></exception>
-    public async Task<TRes> SendRequestAsync<TReq, TRes>(RequestBuilder<TReq> requestBuilder, string apiName,
+    public async Task<TRes> SendRequestAsync<TReq, TRes>(RequestBuilder<TReq> requestBuilder, IDictionary<string, string>? headers, string apiName,
         CancellationToken cancellationToken = default) {
-        IDictionary<string, string> additionalHeaders = new Dictionary<string, string>();
+        IDictionary<string, string> additionalHeaders = headers != null ? new Dictionary<string, string>(headers) : new Dictionary<string, string>();
 
         var sw = Stopwatch.StartNew();
         if (_oauth2Client != null) {
@@ -98,9 +99,9 @@ public class ApiClient : IDisposable {
     /// <param name="apiName"></param>
     /// <param name="cancellationToken"></param>
     /// <exception cref="FgaApiAuthenticationError"></exception>
-    public async Task SendRequestAsync<TReq>(RequestBuilder<TReq> requestBuilder, string apiName,
+    public async Task SendRequestAsync<TReq>(RequestBuilder<TReq> requestBuilder, IDictionary<string, string>? headers, string apiName,
         CancellationToken cancellationToken = default) {
-        IDictionary<string, string> additionalHeaders = new Dictionary<string, string>();
+        IDictionary<string, string> additionalHeaders = headers != null ? new Dictionary<string, string>(headers) : new Dictionary<string, string>();
 
         var sw = Stopwatch.StartNew();
         if (_oauth2Client != null) {

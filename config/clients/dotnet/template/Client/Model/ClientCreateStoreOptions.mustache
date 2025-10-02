@@ -1,7 +1,12 @@
 {{>partial_header}}
 
+using System.Collections.Generic;
+
 namespace {{packageName}}.Client.Model;
 
 public interface IClientCreateStoreOptions : ClientRequestOptions {}
 
-public class ClientCreateStoreOptions: IClientCreateStoreOptions {}
+public class ClientCreateStoreOptions: IClientCreateStoreOptions {
+    /// <inheritdoc />
+    public Dictionary<string, string>? AdditionalHeaders { get; set; }
+}
