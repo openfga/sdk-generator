@@ -111,7 +111,7 @@ public class {{appShortName}}Client : IDisposable {
     /**
      * WriteAuthorizationModel - Create a new version of the authorization model
      */
-    public async Task<WriteAuthorizationModelResponse> WriteAuthorizationModel(ClientWriteAuthorizationModelRequest body,
+    public async Task<WriteAuthorizationModelResponse> WriteAuthorizationModel(WriteAuthorizationModelRequest body,
         IClientRequestOptionsWithStoreId? options = default,
         CancellationToken cancellationToken = default) =>
         await api.WriteAuthorizationModel(GetStoreId(options), body, cancellationToken);
