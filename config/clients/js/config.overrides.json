@@ -26,6 +26,10 @@
       "destinationFilename": "tests/validation.test.ts",
       "templateType": "SupportingFiles"
     },
+    "tests/headers.test.ts.mustache": {
+      "destinationFilename": "tests/headers.test.ts",
+      "templateType": "SupportingFiles"
+    },
     "tests/helpers/index.ts.mustache": {
       "destinationFilename": "tests/helpers/index.ts",
       "templateType": "SupportingFiles"
