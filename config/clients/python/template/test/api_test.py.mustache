@@ -1770,7 +1770,7 @@ class TestOpenFgaApi(IsolatedAsyncioTestCase):
                 {
                     "Accept": "application/json",
                     "Content-Type": "application/json",
-                    "User-Agent": "{{packageName}} python/{{packageVersion}}",
+                    "User-Agent": "openfga-sdk python/{{packageVersion}}",
                     "Authorization": "Bearer TOKEN1",
                 }
             )
@@ -1824,7 +1824,7 @@ class TestOpenFgaApi(IsolatedAsyncioTestCase):
                 {
                     "Accept": "application/json",
                     "Content-Type": "application/json",
-                    "User-Agent": "{{packageName}} python/{{packageVersion}}",
+                    "User-Agent": "openfga-sdk python/{{packageVersion}}",
                     "Custom Header": "custom value",
                 }
             )
@@ -2072,7 +2072,7 @@ class TestOpenFgaApi(IsolatedAsyncioTestCase):
                 {
                     "Accept": "application/json",
                     "Content-Type": "application/json",
-                    "User-Agent": "{{packageName}} python/{{packageVersion}}",
+                    "User-Agent": "openfga-sdk python/{{packageVersion}}",
                     "X-Custom-Header": "per-request-value",  # Should be the per-request value
                 }
             )
@@ -2131,7 +2131,7 @@ class TestOpenFgaApi(IsolatedAsyncioTestCase):
                 {
                     "Accept": "application/json",
                     "Content-Type": "application/json",
-                    "User-Agent": "{{packageName}} python/{{packageVersion}}",
+                    "User-Agent": "openfga-sdk python/{{packageVersion}}",
                     "X-Default-Header": "default-value",  # Default header preserved
                     "X-Per-Request-Header": "per-request-value",  # Per-request header added
                 }
