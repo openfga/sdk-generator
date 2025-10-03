@@ -1770,7 +1770,7 @@ class TestOpenFgaApi(IsolatedAsyncioTestCase):
                 {
                     "Accept": "application/json",
                     "Content-Type": "application/json",
-                    "User-Agent": "openfga-sdk python/{{packageVersion}}",
+                    "User-Agent": "{{packageName}} python/{{packageVersion}}",
                     "Authorization": "Bearer TOKEN1",
                 }
             )
@@ -1824,7 +1824,7 @@ class TestOpenFgaApi(IsolatedAsyncioTestCase):
                 {
                     "Accept": "application/json",
                     "Content-Type": "application/json",
-                    "User-Agent": "openfga-sdk python/{{packageVersion}}",
+                    "User-Agent": "{{packageName}} python/{{packageVersion}}",
                     "Custom Header": "custom value",
                 }
             )
@@ -2049,7 +2049,7 @@ class TestOpenFgaApi(IsolatedAsyncioTestCase):
 
         configuration = self.configuration
         configuration.store_id = store_id
-        async with openfga_sdk.ApiClient(configuration) as api_client:
+        async with {{packageName}}.ApiClient(configuration) as api_client:
             # Set a default header
             api_client.set_default_header("X-Custom-Header", "default-value")
             api_instance = open_fga_api.OpenFgaApi(api_client)
@@ -2072,7 +2072,7 @@ class TestOpenFgaApi(IsolatedAsyncioTestCase):
                 {
                     "Accept": "application/json",
                     "Content-Type": "application/json",
-                    "User-Agent": "openfga-sdk python/0.9.6",
+                    "User-Agent": "{{packageName}} python/{{packageVersion}}",
                     "X-Custom-Header": "per-request-value",  # Should be the per-request value
                 }
             )
@@ -2108,7 +2108,7 @@ class TestOpenFgaApi(IsolatedAsyncioTestCase):
 
         configuration = self.configuration
         configuration.store_id = store_id
-        async with openfga_sdk.ApiClient(configuration) as api_client:
+        async with {{packageName}}.ApiClient(configuration) as api_client:
             # Set a default header
             api_client.set_default_header("X-Default-Header", "default-value")
             api_instance = open_fga_api.OpenFgaApi(api_client)
@@ -2131,7 +2131,7 @@ class TestOpenFgaApi(IsolatedAsyncioTestCase):
                 {
                     "Accept": "application/json",
                     "Content-Type": "application/json",
-                    "User-Agent": "openfga-sdk python/0.9.6",
+                    "User-Agent": "{{packageName}} python/{{packageVersion}}",
                     "X-Default-Header": "default-value",  # Default header preserved
                     "X-Per-Request-Header": "per-request-value",  # Per-request header added
                 }
