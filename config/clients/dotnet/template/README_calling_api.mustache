@@ -135,7 +135,8 @@ var response = await fgaClient.WriteAuthorizationModel(body);
 ```
 
 If you already have an authorization model represented as JSON (for example, stored on disk), you can deserialize it using the
-`WriteAuthorizationModelRequest.FromJson` helper and pass it directly to `WriteAuthorizationModel`:
+`WriteAuthorizationModelRequest.FromJson` helper and pass it directly to the overload of `WriteAuthorizationModel` that accepts
+`WriteAuthorizationModelRequest`:
 
 ```csharp
 var modelJson = await File.ReadAllTextAsync("model.json");
