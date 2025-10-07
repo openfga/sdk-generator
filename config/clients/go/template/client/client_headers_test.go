@@ -482,7 +482,7 @@ func TestListUsersMethodHeaderHandling(t *testing.T) {
 }
 
 func TestBatchCheckMethodHeaderHandling(t *testing.T) {
-	const batchCheckResponse = `[{"allowed": true}]`
+	const batchCheckResponse = `{"result":{"corr-id-123":{"allowed": true}}}`
 
 	t.Run("BatchCheckWithCustomHeaders", func(t *testing.T) {
 		var capturedHeaders map[string]string
@@ -493,17 +493,18 @@ func TestBatchCheckMethodHeaderHandling(t *testing.T) {
 			defaultHeaderName: defaultHeaderValue,
 		})
 
-		checks := []fgaSdkClient.ClientCheckRequest{
-			{
+		checks := fgaSdkClient.ClientBatchCheckRequest{
+			Checks: []fgaSdkClient.ClientBatchCheckItem{{
+                CorrelationId: "corr-id-123",
 				User:     testUser,
 				Relation: testRelation,
 				Object:   testObject,
-			},
+			}},
 		}
 
-		_, err := client.ClientBatchCheck(context.Background()).
+		_, err := client.BatchCheck(context.Background()).
 			Body(checks).
-			Options(fgaSdkClient.ClientBatchCheckClientOptions{
+			Options(fgaSdkClient.BatchCheckOptions{
 				RequestOptions: fgaSdkClient.RequestOptions{
 					Headers: map[string]string{
 						customHeaderName:  customHeaderValue,
