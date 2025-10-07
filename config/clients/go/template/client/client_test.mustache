@@ -3689,7 +3689,7 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
         t.Fatalf("%v", err)
     }
 
-    t.Run("Client Write with WritesOnDuplicate ignore option", func(t *testing.T) {
+    t.Run("Client Write with OnDuplicateWrites ignore option", func(t *testing.T) {
         test := TestDefinition{
             Name:           "Write",
             JsonResponse:   `{}`,
@@ -3734,7 +3734,7 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
 
         options := ClientWriteOptions{
             Conflict: ClientWriteConflictOptions{
-                WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_IGNORE,
+                OnDuplicateWrites: CLIENT_WRITE_REQUEST_ON_DUPLICATE_WRITES_IGNORE,
             },
         }
         _, err := fgaClient.Write(context.Background()).Body(body).Options(options).Execute()
@@ -3743,7 +3743,7 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
         }
     })
 
-    t.Run("Client Write with WritesOnDuplicate error option", func(t *testing.T) {
+    t.Run("Client Write with OnDuplicateWrites error option", func(t *testing.T) {
         test := TestDefinition{
             Name:           "Write",
             JsonResponse:   `{}`,
@@ -3788,7 +3788,7 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
 
         options := ClientWriteOptions{
             Conflict: ClientWriteConflictOptions{
-                WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_ERROR,
+                OnDuplicateWrites: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_ERROR,
             },
         }
         _, err := fgaClient.Write(context.Background()).Body(body).Options(options).Execute()
@@ -3797,7 +3797,7 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
         }
     })
 
-    t.Run("Client Write with DeleteOnMissing ignore option", func(t *testing.T) {
+    t.Run("Client Write with OnMissingDeletes ignore option", func(t *testing.T) {
         test := TestDefinition{
             Name:           "Write",
             JsonResponse:   `{}`,
@@ -3842,7 +3842,7 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
 
         options := ClientWriteOptions{
             Conflict: ClientWriteConflictOptions{
-                DeleteOnMissing: CLIENT_WRITE_REQUEST_DELETES_ON_MISSING_IGNORE,
+                OnMissingDeletes: CLIENT_WRITE_REQUEST_ON_MISSING_DELETES_IGNORE,
             },
         }
         _, err := fgaClient.Write(context.Background()).Body(body).Options(options).Execute()
@@ -3851,7 +3851,7 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
         }
     })
 
-    t.Run("Client Write with DeleteOnMissing error option", func(t *testing.T) {
+    t.Run("Client Write with OnMissingDeletes error option", func(t *testing.T) {
         test := TestDefinition{
             Name:           "Write",
             JsonResponse:   `{}`,
@@ -3896,7 +3896,7 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
 
         options := ClientWriteOptions{
             Conflict: ClientWriteConflictOptions{
-                DeleteOnMissing: CLIENT_WRITE_REQUEST_DELETES_ON_MISSING_ERROR,
+                OnMissingDeletes: CLIENT_WRITE_REQUEST_DELETES_ON_MISSING_ERROR,
             },
         }
         _, err := fgaClient.Write(context.Background()).Body(body).Options(options).Execute()
@@ -3905,7 +3905,7 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
         }
     })
 
-    t.Run("Client Write with both WritesOnDuplicate and DeleteOnMissing options", func(t *testing.T) {
+    t.Run("Client Write with both OnDuplicateWrites and OnMissingDeletes options", func(t *testing.T) {
         test := TestDefinition{
             Name:           "Write",
             JsonResponse:   `{}`,
@@ -3958,8 +3958,8 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
 
         options := ClientWriteOptions{
             Conflict: ClientWriteConflictOptions{
-                WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_IGNORE,
-                DeleteOnMissing:   CLIENT_WRITE_REQUEST_DELETES_ON_MISSING_IGNORE,
+                OnDuplicateWrites: CLIENT_WRITE_REQUEST_ON_DUPLICATE_WRITES_IGNORE,
+                OnMissingDeletes:   CLIENT_WRITE_REQUEST_ON_MISSING_DELETES_IGNORE,
             },
         }
         _, err := fgaClient.Write(context.Background()).Body(body).Options(options).Execute()
@@ -4020,7 +4020,7 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
 
         options := ClientWriteOptions{
             Conflict: ClientWriteConflictOptions{
-                WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_IGNORE,
+                OnDuplicateWrites: CLIENT_WRITE_REQUEST_ON_DUPLICATE_WRITES_IGNORE,
             },
             Transaction: &TransactionOptions{
                 Disable:             true,
@@ -4084,7 +4084,7 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
 
         options := ClientWriteOptions{
             Conflict: ClientWriteConflictOptions{
-                WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_IGNORE,
+                OnDuplicateWrites: CLIENT_WRITE_REQUEST_ON_DUPLICATE_WRITES_IGNORE,
             },
             AuthorizationModelId: &modelId,
         }
@@ -4141,7 +4141,7 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
 
         options := ClientWriteOptions{
             Conflict: ClientWriteConflictOptions{
-                WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_IGNORE,
+                OnDuplicateWrites: CLIENT_WRITE_REQUEST_ON_DUPLICATE_WRITES_IGNORE,
             },
             StoreId: &overrideStoreId,
         }
@@ -4198,11 +4198,11 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
                 }
 
                 if requestBody.Writes == nil || requestBody.Writes.OnDuplicate == nil || *requestBody.Writes.OnDuplicate != "ignore" {
-                    t.Errorf("Expected client WritesOnDuplicate option to override defaults, got %v", requestBody.Writes.OnDuplicate)
+                    t.Errorf("Expected client OnDuplicateWrites option to override defaults, got %v", requestBody.Writes.OnDuplicate)
                 }
 
                 if requestBody.Deletes == nil || requestBody.Deletes.OnMissing == nil || *requestBody.Deletes.OnMissing != "ignore" {
-                    t.Errorf("Expected client DeleteOnMissing option to override defaults, got %v", requestBody.Deletes.OnMissing)
+                    t.Errorf("Expected client OnMissingDeletes option to override defaults, got %v", requestBody.Deletes.OnMissing)
                 }
 
                 resp, err := httpmock.NewJsonResponse(test.ResponseStatus, expectedResponse)
@@ -4215,8 +4215,8 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
 
         options := ClientWriteOptions{
             Conflict: ClientWriteConflictOptions{
-                WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_IGNORE,
-                DeleteOnMissing:   CLIENT_WRITE_REQUEST_DELETES_ON_MISSING_IGNORE,
+                OnDuplicateWrites: CLIENT_WRITE_REQUEST_ON_DUPLICATE_WRITES_IGNORE,
+                OnMissingDeletes:   CLIENT_WRITE_REQUEST_ON_MISSING_DELETES_IGNORE,
             },
         }
 
@@ -4310,8 +4310,8 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
 
         options := ClientWriteOptions{
             Conflict: ClientWriteConflictOptions{
-                WritesOnDuplicate: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_IGNORE,
-                DeleteOnMissing:   CLIENT_WRITE_REQUEST_DELETES_ON_MISSING_IGNORE,
+                OnDuplicateWrites: CLIENT_WRITE_REQUEST_ON_DUPLICATE_WRITES_IGNORE,
+                OnMissingDeletes:   CLIENT_WRITE_REQUEST_ON_MISSING_DELETES_IGNORE,
             },
             Transaction: &TransactionOptions{
                 Disable:             true,
