@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 using Moq;
 using Moq.Protected;
@@ -593,6 +594,66 @@ public class {{appShortName}}ClientTests {
         Assert.Equal(authorizationModelId, response.AuthorizationModel.Id);
     }
 
+    /// <summary>
+    /// Test ReadLatestAuthorizationModel forwards AdditionalHeaders
+    /// </summary>
+    [Fact]
+    public async Task ReadLatestAuthorizationModelHeadersTest() {
+        const string authorizationModelId = "01FMJA27YCE3QAT8RDS9VZFN0T";
+
+        var mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+        mockHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req =>
+                    req.RequestUri ==
+                    new Uri(
+                        $"{_config.BasePath}/stores/{_config.StoreId}/authorization-models?page_size=1&") &&
+                    req.Method == HttpMethod.Get &&
+                    req.Headers.Contains("X-Correlation-ID") &&
+                    req.Headers.GetValues("X-Correlation-ID").First() == "123" &&
+                    req.Headers.Contains("Trace-ID") &&
+                    req.Headers.GetValues("Trace-ID").First() == "abc"),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage() {
+                StatusCode = HttpStatusCode.OK,
+                Content = Utils.CreateJsonStringContent(new ReadAuthorizationModelsResponse() {
+                    AuthorizationModels = new List<AuthorizationModel>() {new(id: authorizationModelId,
+                        typeDefinitions: new List<TypeDefinition>(), schemaVersion: "1.1")}
+                }),
+            });
+
+        var httpClient = new HttpClient(mockHandler.Object);
+        var fgaClient = new {{appShortName}}Client(_config, httpClient);
+
+        var options = new ClientCheckOptions {
+            AdditionalHeaders = new Dictionary<string, string> {
+                ["X-Correlation-ID"] = "123",
+                ["Trace-ID"] = "abc"
+            }
+        };
+
+        var response = await fgaClient.ReadLatestAuthorizationModel(options);
+
+        mockHandler.Protected().Verify(
+            "SendAsync",
+            Times.Exactly(1),
+            ItExpr.Is<HttpRequestMessage>(req =>
+                req.RequestUri ==
+                new Uri($"{_config.BasePath}/stores/{_config.StoreId}/authorization-models?page_size=1&") &&
+                req.Method == HttpMethod.Get &&
+                req.Headers.Contains("X-Correlation-ID") &&
+                req.Headers.GetValues("X-Correlation-ID").First() == "123" &&
+                req.Headers.Contains("Trace-ID") &&
+                req.Headers.GetValues("Trace-ID").First() == "abc"),
+            ItExpr.IsAny<CancellationToken>()
+        );
+
+        Assert.IsType<ReadAuthorizationModelResponse>(response);
+        Assert.Equal(authorizationModelId, response.AuthorizationModel.Id);
+    }
+
     /***********************
      * Relationship Tuples *
      ***********************/
@@ -914,7 +975,11 @@ public class {{appShortName}}ClientTests {
                 "SendAsync",
                 ItExpr.Is<HttpRequestMessage>(req =>
                     req.RequestUri == new Uri($"{_config.BasePath}/stores/{_config.StoreId}/write") &&
-                    req.Method == HttpMethod.Post),
+                    req.Method == HttpMethod.Post &&
+                    req.Headers.Contains("X-Correlation-ID") &&
+                    req.Headers.GetValues("X-Correlation-ID").First() == "123" &&
+                    req.Headers.Contains("Trace-ID") &&
+                    req.Headers.GetValues("Trace-ID").First() == "abc"),
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage() {
@@ -960,6 +1025,10 @@ public class {{appShortName}}ClientTests {
                 Disable = true,
                 MaxParallelRequests = 1,
                 MaxPerChunk = 1,
+            },
+            AdditionalHeaders = new Dictionary<string, string> {
+                ["X-Correlation-ID"] = "123",
+                ["Trace-ID"] = "abc"
             }
         };
         var response = await fgaClient.Write(body, options);
@@ -969,7 +1038,11 @@ public class {{appShortName}}ClientTests {
             Times.Exactly(3),
             ItExpr.Is<HttpRequestMessage>(req =>
                 req.RequestUri == new Uri($"{_config.BasePath}/stores/{_config.StoreId}/write") &&
-                req.Method == HttpMethod.Post),
+                req.Method == HttpMethod.Post &&
+                req.Headers.Contains("X-Correlation-ID") &&
+                req.Headers.GetValues("X-Correlation-ID").First() == "123" &&
+                req.Headers.Contains("Trace-ID") &&
+                req.Headers.GetValues("Trace-ID").First() == "abc"),
             ItExpr.IsAny<CancellationToken>()
         );
         Assert.IsType<ClientWriteResponse>(response);
@@ -1017,7 +1090,12 @@ public class {{appShortName}}ClientTests {
             },
             Context = new { ViewCount = 100 }
         };
-        var options = new ClientCheckOptions {};
+        var options = new ClientCheckOptions {
+            AdditionalHeaders = new Dictionary<string, string> {
+                ["X-Correlation-ID"] = "123",
+                ["Trace-ID"] = "abc"
+            }
+        };
         var response = await fgaClient.Check(body, options);
 
         mockHandler.Protected().Verify(
@@ -1025,7 +1103,11 @@ public class {{appShortName}}ClientTests {
             Times.Exactly(1),
             ItExpr.Is<HttpRequestMessage>(req =>
                 req.RequestUri == new Uri($"{_config.BasePath}/stores/{_config.StoreId}/check") &&
-                req.Method == HttpMethod.Post),
+                req.Method == HttpMethod.Post &&
+                req.Headers.Contains("X-Correlation-ID") &&
+                req.Headers.GetValues("X-Correlation-ID").First() == "123" &&
+                req.Headers.Contains("Trace-ID") &&
+                req.Headers.GetValues("Trace-ID").First() == "abc"),
             ItExpr.IsAny<CancellationToken>()
         );
 

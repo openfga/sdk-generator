@@ -1,5 +1,6 @@
 {{>partial_header}}
 
+using System.Collections.Generic;
 using OpenFga.Sdk.Model;
 
 namespace {{packageName}}.Client.Model;
@@ -16,4 +17,7 @@ public class ClientListUsersOptions : IClientListUsersOptions {
 
     /// <inheritdoc />
     public ConsistencyPreference? Consistency { get; set; }
+
+    /// <inheritdoc />
+    public Dictionary<string, string>? AdditionalHeaders { get; set; }
 }

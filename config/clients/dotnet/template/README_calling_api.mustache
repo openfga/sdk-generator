@@ -330,6 +330,10 @@ Check if a user has a particular relation with an object.
 var options = new ClientCheckOptions {
     // You can rely on the model id set in the configuration or override it for this specific request
     AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
+    AdditionalHeaders = new Dictionary<string, string> {
+        ["X-Correlation-ID"] = "123",
+        ["Trace-ID"] = "abc"
+    }
 };
 var body = new ClientCheckRequest {
     User = "user:81684243-9356-4421-8fbf-a4f8d36aa31b",

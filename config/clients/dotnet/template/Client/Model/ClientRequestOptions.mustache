@@ -1,9 +1,15 @@
 {{>partial_header}}
 
+using System.Collections.Generic;
+
 namespace {{packageName}}.Client.Model;
 
 /// <summary>
 ///     Base Client Request Options
 /// </summary>
 public interface ClientRequestOptions {
+    /// <summary>
+    ///     Additional headers to send with the request.
+    /// </summary>
+    Dictionary<string, string>? AdditionalHeaders { get; set; }
 }
