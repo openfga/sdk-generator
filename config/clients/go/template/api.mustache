@@ -24,6 +24,10 @@ var (
 )
 {{#generateInterfaces}}
 
+type RequestOptions struct {
+	Headers     map[string]string `json:"headers,omitempty"`
+}
+
 type {{classname}} interface {
 	{{#operation}}
 
@@ -61,12 +65,19 @@ type {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request s
 {{#allParams}}
     {{paramName}} {{^isPathParam}}*{{/isPathParam}}{{{dataType}}}
 {{/allParams}}
+  options    RequestOptions
 }
+
 {{#allParams}}{{^isPathParam}}
 func (r {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request) {{vendorExtensions.x-export-param-name}}({{paramName}} {{{dataType}}}) {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request {
 	r.{{paramName}} = &{{paramName}}
 	return r
 }{{/isPathParam}}{{/allParams}}
+
+func (r {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request) Options(options RequestOptions) {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request {
+	r.options = options
+	return r
+}
 
 func (r {{#structPrefix}}{{&classname}}{{/structPrefix}}Api{{operationId}}Request) Execute() ({{#returnType}}{{{.}}}, {{/returnType}}*http.Response, error) {
 	return r.ApiService.{{nickname}}Execute(r)
@@ -281,6 +292,7 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 	// body params
 	requestBody = r.{{paramName}}
 {{/bodyParams}}
+
 {{#authMethods}}
 {{#isApiKey}}
 {{^isKeyInCookie}}
@@ -317,6 +329,11 @@ func (a *{{{classname}}}Service) {{nickname}}Execute(r {{#structPrefix}}{{&class
 {{/isKeyInCookie}}
 {{/isApiKey}}
 {{/authMethods}}
+
+	// if any override headers were in the options, set them now
+	for header, val := range r.options.Headers {
+		localVarHeaderParams[header] = val
+  }
 
     retryParams := a.client.cfg.RetryParams
 	for i := 0; i < retryParams.MaxRetry+1; i++ {
