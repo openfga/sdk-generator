@@ -565,52 +565,48 @@
       "destinationFilename": "docs/OpenTelemetry.md",
       "templateType": "SupportingFiles"
     },
-    "example/Makefile": {
-      "destinationFilename": "example/Makefile",
-      "templateType": "SupportingFiles"
-    },
     "example/README.md": {
-      "destinationFilename": "example/README.md",
+      "destinationFilename": "examples/README.md",
       "templateType": "SupportingFiles"
     },
     "example/example1/README.md": {
-      "destinationFilename": "example/example1/README.md",
+      "destinationFilename": "examples/basic-examples/README.md",
       "templateType": "SupportingFiles"
     },
     "example/example1/gradle/wrapper/gradle-wrapper.jar": {
-      "destinationFilename": "example/example1/gradle/wrapper/gradle-wrapper.jar",
+      "destinationFilename": "examples/basic-examples/gradle/wrapper/gradle-wrapper.jar",
       "templateType": "SupportingFiles"
     },
     "example/example1/gradle/wrapper/gradle-wrapper.properties": {
-      "destinationFilename": "example/example1/gradle/wrapper/gradle-wrapper.properties",
+      "destinationFilename": "examples/basic-examples/gradle/wrapper/gradle-wrapper.properties",
       "templateType": "SupportingFiles"
     },
     "example/example1/gradlew": {
-      "destinationFilename": "example/example1/gradlew",
+      "destinationFilename": "examples/basic-examples/gradlew",
       "templateType": "SupportingFiles"
     },
     "example/example1/build.gradle.mustache": {
-      "destinationFilename": "example/example1/build.gradle",
+      "destinationFilename": "examples/basic-examples/build.gradle",
       "templateType": "SupportingFiles"
     },
     "example/example1/gradle.properties": {
-      "destinationFilename": "example/example1/gradle.properties",
+      "destinationFilename": "examples/basic-examples/gradle.properties",
       "templateType": "SupportingFiles"
     },
     "example/example1/settings.gradle": {
-      "destinationFilename": "example/example1/settings.gradle",
+      "destinationFilename": "examples/basic-examples/settings.gradle",
       "templateType": "SupportingFiles"
     },
     "example/example1/src/main/resources/example1-auth-model.json": {
-      "destinationFilename": "example/example1/src/main/resources/example1-auth-model.json",
+      "destinationFilename": "examples/basic-examples/src/main/resources/example1-auth-model.json",
       "templateType": "SupportingFiles"
     },
     "example/example1/src/main/java/dev/openfga/sdk/example/Example1.java": {
-      "destinationFilename": "example/example1/src/main/java/dev/openfga/sdk/example/Example1.java",
+      "destinationFilename": "examples/basic-examples/src/main/java/dev/openfga/sdk/example/Example1.java",
       "templateType": "SupportingFiles"
     },
     "example/example1/src/main/kotlin/dev/openfga/sdk/example/KotlinExample1.kt": {
-      "destinationFilename": "example/example1/src/main/kotlin/dev/openfga/sdk/example/KotlinExample1.kt",
+      "destinationFilename": "examples/basic-examples/src/main/kotlin/dev/openfga/sdk/example/KotlinExample1.kt",
       "templateType": "SupportingFiles"
     },
     "ExampleTest.java.mustache": {

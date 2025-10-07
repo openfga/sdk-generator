@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 [![Join our community](https://img.shields.io/badge/slack-cncf_%23openfga-40abb8.svg?logo=slack)](https://openfga.dev/community)
-[![Twitter](https://img.shields.io/twitter/follow/openfga?color=%23179CF0&logo=twitter&style=flat-square "@openfga on Twitter")](https://twitter.com/openfga)
+[![X](https://img.shields.io/twitter/follow/openfga?color=%23179CF0&logo=x&style=flat-square "@openfga on X")](https://x.com/openfga)
 
 This is the main generator responsible for generating the OpenFGA SDKs from the [OpenFGA OpenAPIv2 Document](https://github.com/openfga/api/blob/main/docs/openapiv2/apidocs.swagger.json).
 
@@ -36,7 +36,7 @@ OpenFGA is designed to make it easy for application builders to model their perm
 
 - [OpenFGA Documentation](https://openfga.dev/docs)
 - [OpenFGA API Documentation](https://openfga.dev/api/service)
-- [Twitter](https://twitter.com/openfga)
+- [X](https://x.com/openfga)
 - [OpenFGA Community](https://openfga.dev/community)
 - [Zanzibar Academy](https://zanzibar.academy)
 - [Google's Zanzibar Paper (2019)](https://research.google/pubs/pub48190/)
