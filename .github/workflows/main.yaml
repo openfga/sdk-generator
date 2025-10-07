@@ -135,7 +135,7 @@ jobs:
       - name: Run All Tests
         run: make test-client-python
         env:
-          OPEN_API_REF: f9709139a3693f6624efda12a001e242c5d506b6
+          OPEN_API_REF: c0b62b28b14d0d164d37a1f6bf19dc9d39e5769b
 
       - name: Check for SDK changes
         run: |
