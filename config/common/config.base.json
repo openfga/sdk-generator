@@ -37,10 +37,6 @@
       "destinationFilename": ".gitignore",
       "templateType": "SupportingFiles"
     },
-    "CHANGELOG.md.mustache": {
-      "destinationFilename": "CHANGELOG.md",
-      "templateType": "SupportingFiles"
-    },
     "LICENSE.mustache": {
       "destinationFilename": "LICENSE",
       "templateType": "SupportingFiles"
@@ -51,10 +47,6 @@
     },
     "VERSION.mustache": {
       "destinationFilename": "VERSION.txt",
-      "templateType": "SupportingFiles"
-    },
-    ".fossa.yml.mustache": {
-      "destinationFilename": ".fossa.yml",
       "templateType": "SupportingFiles"
     },
     ".github/CODEOWNERS.mustache": {
@@ -89,5 +81,8 @@
   "tokenExpiryJitterInSec": 300,
   "clientMethodHeader": "X-OpenFGA-Client-Method",
   "clientBulkRequestIdHeader": "X-OpenFGA-Client-Bulk-Request-Id",
+  "retryAfterHeaderName": "Retry-After",
+  "rateLimitResetHeaderName": "X-RateLimit-Reset",
+  "rateLimitResetAltHeaderName": "X-Rate-Limit-Reset",
   "openFGADockerTag": "v1.10.2"
 }
