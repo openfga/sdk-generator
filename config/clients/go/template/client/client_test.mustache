@@ -3788,7 +3788,7 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
 
         options := ClientWriteOptions{
             Conflict: ClientWriteConflictOptions{
-                OnDuplicateWrites: CLIENT_WRITE_REQUEST_WRITES_ON_DUPLICATE_ERROR,
+                OnDuplicateWrites: CLIENT_WRITE_REQUEST_ON_DUPLICATE_WRITES_ERROR,
             },
         }
         _, err := fgaClient.Write(context.Background()).Body(body).Options(options).Execute()
@@ -3896,7 +3896,7 @@ func Test{{appShortName}}ClientWriteClientWriteConflictOptions(t *testing.T) {
 
         options := ClientWriteOptions{
             Conflict: ClientWriteConflictOptions{
-                OnMissingDeletes: CLIENT_WRITE_REQUEST_DELETES_ON_MISSING_ERROR,
+                OnMissingDeletes: CLIENT_WRITE_REQUEST_ON_MISSING_DELETES_ERROR,
             },
         }
         _, err := fgaClient.Write(context.Background()).Body(body).Options(options).Execute()
