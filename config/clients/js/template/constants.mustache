@@ -1,0 +1,76 @@
+{{>partial_header}}
+
+// SdkVersion is the version of this service
+export const SdkVersion = "{{packageVersion}}"
+
+// UserAgent is the user agent used in HTTP requests
+export const UserAgent = "{{userAgent}}"
+
+// SampleBaseDomain is the sample API Domain
+export const SampleBaseDomain = "{{sampleApiDomain}}"
+
+// RetryMaxAllowedNumber is the maximum allowed number of retries for HTTP requests
+export const RetryMaxAllowedNumber = {{retryMaxAllowedNumber}}
+
+// DefaultMaxRetry is the default maximum number of retries for HTTP requests
+export const DefaultMaxRetry = {{defaultMaxRetry}}
+
+// DefaultMinWaitInMs is the default minimum wait time between retries in milliseconds
+export const DefaultMinWaitInMs = {{defaultMinWaitInMs}}
+
+// MaxBackoffTimeInSec is the maximum backoff time in seconds
+export const MaxBackoffTimeInSec = {{maxBackoffTimeInSec}}
+
+// RetryHeaderMaxAllowableDurationInSec is the maximum allowable duration for retry headers in seconds
+export const RetryHeaderMaxAllowableDurationInSec = {{retryHeaderMaxAllowableDurationInSec}}
+
+// ClientMaxMethodParallelRequests is the maximum number of parallel requests for a single method
+export const ClientMaxMethodParallelRequests = {{clientMaxMethodParallelRequests}}
+
+// ClientMaxBatchSize is the maximum batch size for batch requests
+export const ClientMaxBatchSize = {{clientMaxBatchSize}}
+
+// DefaultConnectionTimeoutInMs is the default connection timeout in milliseconds
+export const DefaultConnectionTimeoutInMs = {{defaultConnectionTimeoutInMs}}
+
+// TokenExpiryThresholdBufferInSec is the buffer time in seconds before token expiry to consider it expired
+export const TokenExpiryThresholdBufferInSec = {{tokenExpiryThresholdBufferInSec}}
+
+// TokenExpiryJitterInSec is the jitter time in seconds to add randomness to token expiry checks
+export const TokenExpiryJitterInSec = {{tokenExpiryJitterInSec}}
+
+// ClientMethodHeader is the header used to identify the client method
+export const ClientMethodHeader = "{{clientMethodHeader}}"
+
+// ClientBulkRequestIdHeader is the header used to identify bulk request IDs
+export const ClientBulkRequestIdHeader = "{{clientBulkRequestIdHeader}}"
+
+// RetryAfterHeaderName is the standard HTTP header for retry after
+export const RetryAfterHeaderName        = "{{retryAfterHeaderName}}"
+
+// RateLimitResetHeaderName is a common header for rate limit reset time
+export const RateLimitResetHeaderName    = "{{rateLimitResetHeaderName}}"
+
+// RateLimitResetAltHeaderName is an alternative header for rate limit reset time
+export const RateLimitResetAltHeaderName = "{{rateLimitResetAltHeaderName}}"
+
+export const SdkConstants = Object.freeze({
+  SdkVersion,
+  UserAgent,
+  SampleBaseDomain,
+  RetryMaxAllowedNumber,
+  DefaultMaxRetry,
+  DefaultMinWaitInMs,
+  MaxBackoffTimeInSec,
+  RetryHeaderMaxAllowableDurationInSec,
+  ClientMaxMethodParallelRequests,
+  ClientMaxBatchSize,
+  DefaultConnectionTimeoutInMs,
+  TokenExpiryThresholdBufferInSec,
+  TokenExpiryJitterInSec,
+  ClientMethodHeader,
+  ClientBulkRequestIdHeader,
+  RetryAfterHeaderName,
+  RateLimitResetHeaderName,
+  RateLimitResetAltHeaderName,
+});
