@@ -5,13 +5,13 @@ import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import { Configuration } from "./configuration";
 import type { Credentials } from "./credentials";
 import {
-  FgaApiError,
-  FgaApiInternalError,
-  FgaApiAuthenticationError,
-  FgaApiNotFoundError,
-  FgaApiRateLimitExceededError,
-  FgaApiValidationError,
-  FgaError
+FgaApiError,
+FgaApiInternalError,
+FgaApiAuthenticationError,
+FgaApiNotFoundError,
+FgaApiRateLimitExceededError,
+FgaApiValidationError,
+FgaError
 } from "./errors";
 import { setNotEnumerableProperty } from "./utils";
 import { TelemetryAttribute, TelemetryAttributes } from "./telemetry/attributes";
@@ -19,52 +19,52 @@ import { MetricRecorder } from "./telemetry/metrics";
 import { TelemetryHistograms } from "./telemetry/histograms";
 
 /**
- *
- * @export
- */
+*
+* @export
+*/
 export const DUMMY_BASE_URL = "https://example.com";
 
 /**
- *
- * @export
- * @interface RequestArgs
- */
+*
+* @export
+* @interface RequestArgs
+*/
 export interface RequestArgs {
-    url: string;
-    options: any;
+url: string;
+options: any;
 }
 
 
 /**
- *
- * @export
- */
+*
+* @export
+*/
 export const setBearerAuthToObject = async function (object: any, credentials: Credentials) {
-  const accessTokenHeader = await credentials.getAccessTokenHeader();
-  if (accessTokenHeader && !object[accessTokenHeader.name]) {
-    object[accessTokenHeader.name] = accessTokenHeader.value;
-  }
+const accessTokenHeader = await credentials.getAccessTokenHeader();
+if (accessTokenHeader && !object[accessTokenHeader.name]) {
+object[accessTokenHeader.name] = accessTokenHeader.value;
+}
 };
 
 /**
- *
- * @export
- */
+*
+* @export
+*/
 export const setSearchParams = function (url: URL, ...objects: any[]) {
-  const searchParams = new URLSearchParams(url.search);
-  for (const object of objects) {
-    for (const key in object) {
-      if (Array.isArray(object[key])) {
-        searchParams.delete(key);
-        for (const item of object[key]) {
-          searchParams.append(key, item);
-        }
-      } else {
-        searchParams.set(key, object[key]);
-      }
-    }
-  }
-  url.search = searchParams.toString();
+const searchParams = new URLSearchParams(url.search);
+for (const object of objects) {
+for (const key in object) {
+if (Array.isArray(object[key])) {
+searchParams.delete(key);
+for (const item of object[key]) {
+searchParams.append(key, item);
+}
+} else {
+searchParams.set(key, object[key]);
+}
+}
+}
+url.search = searchParams.toString();
 };
 
 /**
@@ -78,239 +78,252 @@ export const setSearchParams = function (url: URL, ...objects: any[]) {
 * @return True if the given MIME is JSON, false otherwise.
 */
 const isJsonMime = (mime: string): boolean => {
-  // eslint-disable-next-line no-control-regex
-  const jsonMime = new RegExp("^(application/json|[^;/ \t]+/[^;/ \t]+[+]json)[ \t]*(;.*)?$", "i");
-  return mime !== null && (jsonMime.test(mime) || mime.toLowerCase() === "application/json-patch+json");
+// eslint-disable-next-line no-control-regex
+const jsonMime = new RegExp("^(application/json|[^;/ \t]+/[^;/ \t]+[+]json)[ \t]*(;.*)?$", "i");
+return mime !== null && (jsonMime.test(mime) || mime.toLowerCase() === "application/json-patch+json");
 };
 
 /**
- *
- * @export
- */
+*
+* @export
+*/
 export const serializeDataIfNeeded = function (value: any, requestOptions: any) {
-  const nonString = typeof value !== "string";
-  const needsSerialization = nonString
-    ? isJsonMime(requestOptions.headers["Content-Type"])
-    : nonString;
-  return needsSerialization
-    ? JSON.stringify(value !== undefined ? value : {})
-    : (value || "");
+const nonString = typeof value !== "string";
+const needsSerialization = nonString
+? isJsonMime(requestOptions.headers["Content-Type"])
+: nonString;
+return needsSerialization
+? JSON.stringify(value !== undefined ? value : {})
+: (value || "");
 };
 
 /**
- *
- * @export
- */
+*
+* @export
+*/
 export const toPathString = function (url: URL) {
-  return url.pathname + url.search + url.hash;
+return url.pathname + url.search + url.hash;
 };
 
 type ObjectOrVoid = object | void;
 
 interface StringIndexable {
-  [key: string]: any;
+[key: string]: any;
 }
 
 export type CallResult<T extends ObjectOrVoid> = T & {
     $response: AxiosResponse<T>
-};
+        };
 
-export type PromiseResult<T extends ObjectOrVoid> = Promise<CallResult<T>>;
+        export type PromiseResult<T extends ObjectOrVoid> = Promise<CallResult<T>>;
 
-/**
- * Returns true if this error is returned from axios
- * source: https://github.com/axios/axios/blob/21a5ad34c4a5956d81d338059ac0dd34a19ed094/lib/helpers/isAxiosError.js#L12
- * @param err
- */
-function isAxiosError(err: any): boolean {
-  return err && typeof err === "object" && err.isAxiosError === true;
-}
-function randomTime(loopCount: number, minWaitInMs: number): number {
-  const min = Math.ceil(2 ** loopCount * minWaitInMs);
-  const max = Math.ceil(2 ** (loopCount + 1) * minWaitInMs);
-  const calculatedTime = Math.floor(Math.random() * (max - min) + min);
-  return Math.min(calculatedTime, 120000);
-}
-function parseRetryAfterHeader(headers: Record<string, string | string[] | undefined>): number | undefined {
-  const retryAfter = headers["retry-after"] || headers["Retry-After"];
-  
-  if (!retryAfter) {
-    return undefined;
-  }
-
-  const retryAfterValue = Array.isArray(retryAfter) ? retryAfter[0] : retryAfter;
-  
-  if (!retryAfterValue) {
-    return undefined;
-  }
-
-  // Try to parse as integer (seconds)
-  const secondsValue = parseInt(retryAfterValue, 10);
-  if (!isNaN(secondsValue)) {
-    const msValue = secondsValue * 1000;
-    if (msValue >= 1000 && msValue <= 1800000) {
-      return msValue;
-    }
-    return undefined;
-  }
-  
-  try {
-    const dateValue = new Date(retryAfterValue);
-    const now = new Date();
-    const delayMs = dateValue.getTime() - now.getTime();
-    
-    if (delayMs >= 1000 && delayMs <= 1800000) {
-      return delayMs;
-    }
-  } catch (e) {
-    // Invalid date format
-  }
-  
-  return undefined;
-}
-
-
-interface WrappedAxiosResponse<R> {
-  response?: AxiosResponse<R>;
-  retries: number;
-}
-
-export async function attemptHttpRequest<B, R>(
-  request: AxiosRequestConfig<B>,
-  config: {
-        maxRetry: number;
-        minWaitInMs: number;
-    },
-  axiosInstance: AxiosInstance,
-): Promise<WrappedAxiosResponse<R> | undefined> {
-  let iterationCount = 0;
-  do {
-    iterationCount++;
-    try {
-      const response = await axiosInstance(request);
-      return {
-        response: response,
-        retries: iterationCount - 1,
-      };
-    } catch (err: any) {
-      if (!isAxiosError(err)) {
-        throw new FgaError(err);
-      }
-      const status = (err as any)?.response?.status;
-      if (status === 400 || status === 422) {
-        throw new FgaApiValidationError(err);
-      } else if (status === 401 || status === 403) {
-        throw new FgaApiAuthenticationError(err);
-      } else if (status === 404) {
-        throw new FgaApiNotFoundError(err);
-      } else if (status === 429 || (status >= 500 && status !== 501)) {
-      if (iterationCount >= config.maxRetry) {
-        // We have reached the max retry limit
-        // Thus, we have no choice but to throw
-        if (status === 429) {
-          throw new FgaApiRateLimitExceededError(err);
-        } else {
-          throw new FgaApiInternalError(err);
+        /**
+        * Returns true if this error is returned from axios
+        * source: https://github.com/axios/axios/blob/21a5ad34c4a5956d81d338059ac0dd34a19ed094/lib/helpers/isAxiosError.js#L12
+        * @param err
+        */
+        function isAxiosError(err: any): boolean {
+        return err && typeof err === "object" && err.isAxiosError === true;
         }
-      }
-      
-      let retryDelayMs: number | undefined;
-      
-      // Check for Retry-After header
-      if (err.response?.headers) {
-        retryDelayMs = parseRetryAfterHeader(err.response.headers);
-      }
-      
-      // If Retry-After header isn't valid or not present, use exponential backoff
-      if (retryDelayMs === undefined) {
-        // For 429s, we always retry with exponential backoff
-        if (status === 429) {
-          retryDelayMs = randomTime(iterationCount, config.minWaitInMs);
-        } else if (status >= 500 && status !== 501) {
-          // For 5xx (except 501), we only retry if Retry-After was present
-          // Since we already checked and it wasn't, we throw
-          throw new FgaApiInternalError(err);
+        function randomTime(loopCount: number, minWaitInMs: number): number {
+        const min = Math.ceil(2 ** loopCount * minWaitInMs);
+        const max = Math.ceil(2 ** (loopCount + 1) * minWaitInMs);
+        const calculatedTime = Math.floor(Math.random() * (max - min) + min);
+        return Math.min(calculatedTime, {{maxBackoffTimeInSec}} * 1000);
         }
-      }
-      
-      if (retryDelayMs !== undefined) {
-        await new Promise(r => setTimeout(r, retryDelayMs));
-      }
-    } else {
-        throw new FgaApiError(err);
-      }
-    }
-  } while(iterationCount < config.maxRetry + 1);
-}
+        function isValidRetryDelay(delayMs: number): boolean {
+        return delayMs > 0 && delayMs <= {{retryHeaderMaxAllowableDurationInSec}} * 1000;
+        }
 
-/**
- * creates an axios request function
- */
-export const createRequestFunction = function (axiosArgs: RequestArgs, axiosInstance: AxiosInstance, configuration: Configuration, credentials: Credentials, methodAttributes: Record<string, string | number> = {}) {
-  configuration.isValid();
+        function parseRetryAfterHeader(headers: Record<string, string | string[] | undefined>): number | undefined {
+        const retryAfter = headers["retry-after"] || headers["Retry-After"];
 
-  const retryParams = axiosArgs.options?.retryParams ? axiosArgs.options?.retryParams : configuration.retryParams;
-  const maxRetry:number = retryParams ? retryParams.maxRetry : 0;
-  const minWaitInMs:number = retryParams ? retryParams.minWaitInMs : 0;
+        if (!retryAfter) {
+        return undefined;
+        }
 
-  const start = performance.now();
+        const retryAfterValue = Array.isArray(retryAfter) ? retryAfter[0] : retryAfter;
 
-  return async (axios: AxiosInstance = axiosInstance) : PromiseResult<any> => {
-    await setBearerAuthToObject(axiosArgs.options.headers, credentials!);
+        if (!retryAfterValue) {
+        return undefined;
+        }
 
-    const url = configuration.getBasePath() + axiosArgs.url;
+        // Try to parse as integer (seconds)
+        const secondsValue = parseInt(retryAfterValue, 10);
+        if (!isNaN(secondsValue)) {
+        const msValue = secondsValue * 1000;
+        if (isValidRetryDelay(msValue)) {
+        return msValue;
+        }
+        return undefined;
+        }
 
-    const axiosRequestArgs = {...axiosArgs.options, url: url};
-    const wrappedResponse = await attemptHttpRequest(axiosRequestArgs, {
-      maxRetry,
-      minWaitInMs,
-    }, axios);
-    const response = wrappedResponse?.response;
-    const data = typeof response?.data === "undefined" ? {} : response?.data;
-    const result: CallResult<any> = { ...data };
-    setNotEnumerableProperty(result, "$response", response);
+        try {
+        const dateValue = new Date(retryAfterValue);
+        const now = new Date();
+        const delayMs = dateValue.getTime() - now.getTime();
 
-    let attributes: StringIndexable = {};
+        if (isValidRetryDelay(delayMs)) {
+        return delayMs;
+        }
+        } catch (e) {
+        // Invalid date format
+        }
 
-    attributes = TelemetryAttributes.fromRequest({
-      userAgent: configuration.baseOptions?.headers["User-Agent"],
-      httpMethod: axiosArgs.options?.method,
-      url,
-      resendCount: wrappedResponse?.retries,
-      start: start,
-      credentials: credentials,
-      attributes: methodAttributes,
-    });
+        return undefined;
+        }
 
-    attributes = TelemetryAttributes.fromResponse({
-      response,
-      attributes,
-    });
 
-    // only if hisogramQueryDuration set AND if response header contains fga-query-duration-ms
-    const serverRequestDuration = attributes[TelemetryAttribute.HttpServerRequestDuration];
-    if (configuration.telemetry?.metrics?.histogramQueryDuration && typeof serverRequestDuration !== "undefined") {
-      configuration.telemetry.recorder.histogram(
-        TelemetryHistograms.queryDuration,
-        parseInt(attributes[TelemetryAttribute.HttpServerRequestDuration] as string, 10),
-        TelemetryAttributes.prepare(
-          attributes,
-          configuration.telemetry.metrics.histogramQueryDuration.attributes
-        )
-      );
-    }
+        interface WrappedAxiosResponse<R> {
+            response?: AxiosResponse<R>;
+                retries: number;
+                }
 
-    if (configuration.telemetry?.metrics?.histogramRequestDuration) {
-      configuration.telemetry.recorder.histogram(
-        TelemetryHistograms.requestDuration,
-        attributes[TelemetryAttribute.HttpClientRequestDuration],
-        TelemetryAttributes.prepare(
-          attributes,
-          configuration.telemetry.metrics.histogramRequestDuration.attributes
-        )
-      );
-    }
+                export async function attemptHttpRequest<B, R>(
+                request: AxiosRequestConfig<B>,
+                    config: {
+                    maxRetry: number;
+                    minWaitInMs: number;
+                    },
+                    axiosInstance: AxiosInstance,
+                    ): Promise<WrappedAxiosResponse<R> | undefined> {
+                        let iterationCount = 0;
+                        do {
+                        iterationCount++;
+                        try {
+                        const response = await axiosInstance(request);
+                        return {
+                        response: response,
+                        retries: iterationCount - 1,
+                        };
+                        } catch (err: any) {
+                        // Check if this is a network error (no HTTP response received)
+                        const isNetworkError = !isAxiosError(err) || !(err as any)?.response?.status;
 
-    return result;
-  };
-};
+                        if (isNetworkError) {
+                        // Network errors should be retried
+                        if (iterationCount >= config.maxRetry) {
+                        throw new FgaError(err);
+                        }
+
+                        // Use exponential backoff for network errors
+                        const retryDelayMs = randomTime(iterationCount, config.minWaitInMs);
+                        await new Promise(r => setTimeout(r, retryDelayMs));
+                        continue;
+                        }
+
+                        if (!isAxiosError(err)) {
+                        throw new FgaError(err);
+                        }
+
+                        const status = (err as any)?.response?.status;
+                        if (status === 400 || status === 422) {
+                        throw new FgaApiValidationError(err);
+                        } else if (status === 401 || status === 403) {
+                        throw new FgaApiAuthenticationError(err);
+                        } else if (status === 404) {
+                        throw new FgaApiNotFoundError(err);
+                        } else if (status === 429 || (status >= 500 && status !== 501)) {
+                        if (iterationCount >= config.maxRetry) {
+                        // We have reached the max retry limit
+                        // Thus, we have no choice but to throw
+                        if (status === 429) {
+                        throw new FgaApiRateLimitExceededError(err);
+                        } else {
+                        throw new FgaApiInternalError(err);
+                        }
+                        }
+
+                        let retryDelayMs: number | undefined;
+
+                        // Check for Retry-After header
+                        if (err.response?.headers) {
+                        retryDelayMs = parseRetryAfterHeader(err.response.headers);
+                        }
+
+                        // If Retry-After header isn't valid or not present, use exponential backoff
+                        if (retryDelayMs === undefined) {
+                        retryDelayMs = randomTime(iterationCount, config.minWaitInMs);
+                        }
+
+                        if (retryDelayMs !== undefined) {
+                        await new Promise(r => setTimeout(r, retryDelayMs));
+                        }
+                        } else {
+                        throw new FgaApiError(err);
+                        }
+                        }
+                        } while(iterationCount < config.maxRetry + 1);
+                        }
+
+                        /**
+                        * creates an axios request function
+                        */
+                        export const createRequestFunction = function (axiosArgs: RequestArgs, axiosInstance: AxiosInstance, configuration: Configuration, credentials: Credentials, methodAttributes: Record<string, string | number> = {}) {
+                        configuration.isValid();
+
+                        const retryParams = axiosArgs.options?.retryParams ? axiosArgs.options?.retryParams : configuration.retryParams;
+                        const maxRetry:number = retryParams ? retryParams.maxRetry : 0;
+                        const minWaitInMs:number = retryParams ? retryParams.minWaitInMs : 0;
+
+                        const start = performance.now();
+
+                        return async (axios: AxiosInstance = axiosInstance) : PromiseResult<any> => {
+                            await setBearerAuthToObject(axiosArgs.options.headers, credentials!);
+
+                            const url = configuration.getBasePath() + axiosArgs.url;
+
+                            const axiosRequestArgs = {...axiosArgs.options, url: url};
+                            const wrappedResponse = await attemptHttpRequest(axiosRequestArgs, {
+                            maxRetry,
+                            minWaitInMs,
+                            }, axios);
+                            const response = wrappedResponse?.response;
+                            const data = typeof response?.data === "undefined" ? {} : response?.data;
+                            const result: CallResult<any> = { ...data };
+                                setNotEnumerableProperty(result, "$response", response);
+
+                                let attributes: StringIndexable = {};
+
+                                attributes = TelemetryAttributes.fromRequest({
+                                userAgent: configuration.baseOptions?.headers["User-Agent"],
+                                httpMethod: axiosArgs.options?.method,
+                                url,
+                                resendCount: wrappedResponse?.retries,
+                                start: start,
+                                credentials: credentials,
+                                attributes: methodAttributes,
+                                });
+
+                                attributes = TelemetryAttributes.fromResponse({
+                                response,
+                                attributes,
+                                });
+
+                                // only if hisogramQueryDuration set AND if response header contains fga-query-duration-ms
+                                const serverRequestDuration = attributes[TelemetryAttribute.HttpServerRequestDuration];
+                                if (configuration.telemetry?.metrics?.histogramQueryDuration && typeof serverRequestDuration !== "undefined") {
+                                configuration.telemetry.recorder.histogram(
+                                TelemetryHistograms.queryDuration,
+                                parseInt(attributes[TelemetryAttribute.HttpServerRequestDuration] as string, 10),
+                                TelemetryAttributes.prepare(
+                                attributes,
+                                configuration.telemetry.metrics.histogramQueryDuration.attributes
+                                )
+                                );
+                                }
+
+                                if (configuration.telemetry?.metrics?.histogramRequestDuration) {
+                                configuration.telemetry.recorder.histogram(
+                                TelemetryHistograms.requestDuration,
+                                attributes[TelemetryAttribute.HttpClientRequestDuration],
+                                TelemetryAttributes.prepare(
+                                attributes,
+                                configuration.telemetry.metrics.histogramRequestDuration.attributes
+                                )
+                                );
+                                }
+
+                                return result;
+                                };
+                                };

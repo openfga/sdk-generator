@@ -3,26 +3,26 @@
 import * as nock from "nock";
 
 import {
-  CheckResponse,
-  Configuration,
-  CredentialsMethod,
-  ErrorCode,
-  FgaApiAuthenticationError,
-  FgaApiInternalError,
-  FgaApiNotFoundError,
-  FgaApiRateLimitExceededError,
-  FgaApiValidationError,
-  {{appShortName}}Api,
-  TelemetryAttribute,
+CheckResponse,
+Configuration,
+CredentialsMethod,
+ErrorCode,
+FgaApiAuthenticationError,
+FgaApiInternalError,
+FgaApiNotFoundError,
+FgaApiRateLimitExceededError,
+FgaApiValidationError,
+{{appShortName}}Api,
+TelemetryAttribute,
 } from "../index";
 import { CallResult } from "../common";
 import { GetDefaultRetryParams } from "../configuration";
 import { AuthCredentialsConfig } from "../credentials";
 import {
-  baseConfig,
-  defaultConfiguration,
-  {{appUpperCaseName}}_API_TOKEN_ISSUER,
-  {{appUpperCaseName}}_CLIENT_ASSERTION_SIGNING_KEY,
+baseConfig,
+defaultConfiguration,
+{{appUpperCaseName}}_API_TOKEN_ISSUER,
+{{appUpperCaseName}}_CLIENT_ASSERTION_SIGNING_KEY,
 } from "./helpers/default-config";
 import { getNocks } from "./helpers/nocks";
 
@@ -30,881 +30,898 @@ const nocks = getNocks(nock);
 nock.disableNetConnect();
 
 describe("{{appTitleCaseName}} SDK", function () {
-  describe("initializing the sdk", () => {
-    it("should not require storeId in configuration", () => {
-      expect(
-        () => new {{appShortName}}Api({ ...baseConfig, storeId: undefined } as any)
-      ).not.toThrowError();
+describe("initializing the sdk", () => {
+it("should not require storeId in configuration", () => {
+expect(
+() => new {{appShortName}}Api({ ...baseConfig, storeId: undefined } as any)
+).not.toThrowError();
+});
+
+it("should require host in configuration", () => {
+expect(
+() => new {{appShortName}}Api({ ...baseConfig, apiUrl: undefined! })
+).toThrowError();
+});
+
+it("should validate host in configuration (adding scheme as part of the host)", () => {
+expect(
+() => new {{appShortName}}Api({ ...baseConfig, apiUrl: "//api.{{sampleApiDomain}}" })
+).toThrowError();
+});
+
+it("should allow using apiHost if apiUrl is not provided", () => {
+expect(
+() => new OpenFgaApi({ ...baseConfig, apiHost: "api.fga.example" })
+).not.toThrowError();
+});
+
+it("should still validate apiHost", () => {
+expect(
+() => new OpenFgaApi({ ...baseConfig, apiHost: "//api.{{sampleApiDomain}}" })
+).not.toThrowError();
+});
+
+it("should validate apiTokenIssuer in configuration (should not allow scheme as part of the apiTokenIssuer)", () => {
+expect(
+() => new {{appShortName}}Api({
+...baseConfig,
+credentials: {
+method: CredentialsMethod.ClientCredentials,
+config: {
+...(baseConfig.credentials as any).config,
+apiTokenIssuer: "https://tokenissuer.{{sampleApiDomain}}"
+}
+} as Configuration["credentials"]
+})
+).toThrowError();
+});
+
+it("should not require credentials in configuration when not needed", () => {
+expect(
+() =>
+new {{appShortName}}Api({
+apiUrl: baseConfig.apiUrl,
+})
+).not.toThrowError();
+});
+
+it("should require apiToken credentials in configuration in api_token flow", () => {
+expect(
+() =>
+new {{appShortName}}Api({
+apiUrl: baseConfig.apiUrl,
+credentials: {
+method: CredentialsMethod.ApiToken as any
+}
+})
+).toThrowError();
+});
+
+it("should require clientId, clientSecret, apiTokenIssuer and apiAudience credentials in configuration in client_credentials flow", () => {
+expect(
+() =>
+new {{appShortName}}Api({
+...baseConfig,
+credentials: {
+method: CredentialsMethod.ClientCredentials,
+} as AuthCredentialsConfig,
+})
+).toThrow("config.clientId");
+
+expect(
+() =>
+new {{appShortName}}Api({
+...baseConfig,
+credentials: {
+method: CredentialsMethod.ClientCredentials,
+config: {
+...(baseConfig.credentials as any)!.config,
+clientId: undefined!
+}
+} as Configuration["credentials"]
+})
+).toThrow("config.clientId");
+
+expect(
+() =>
+new {{appShortName}}Api({
+...baseConfig,
+credentials: {
+method: CredentialsMethod.ClientCredentials,
+config: {
+...(baseConfig.credentials as any)!.config,
+clientSecret: undefined!
+}
+} as Configuration["credentials"]
+})
+).toThrow("config.clientSecret or config.clientAssertionSigningKey");
+
+expect(
+() =>
+new {{appShortName}}Api({
+...baseConfig,
+credentials: {
+method: CredentialsMethod.ClientCredentials,
+config: {
+...(baseConfig.credentials as any)!.config,
+clientSecret: undefined!,
+clientAssertionSigningKey: undefined!
+}
+} as Configuration["credentials"]
+})
+).toThrow("config.clientSecret or config.clientAssertionSigningKey");
+
+
+expect(
+() =>
+new {{appShortName}}Api({
+...baseConfig,
+credentials: {
+method: CredentialsMethod.ClientCredentials,
+config: {
+...(baseConfig.credentials as any)!.config,
+apiAudience: undefined!
+}
+} as Configuration["credentials"]
+})
+).toThrow("config.apiAudience");
+
+expect(
+() =>
+new {{appShortName}}Api({
+...baseConfig,
+credentials: {
+method: CredentialsMethod.ClientCredentials,
+config: {
+...(baseConfig.credentials as any)!.config,
+apiTokenIssuer: undefined!
+}
+} as Configuration["credentials"]
+})
+).toThrow("config.apiTokenIssuer");
+});
+
+it("should issue a network call to get the token at the first request if client id is provided", async () => {
+const scope = nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER);
+nocks.readAuthorizationModels(baseConfig.storeId!);
+
+const fgaApi = new {{appShortName}}Api(baseConfig);
+expect(scope.isDone()).toBe(false);
+
+await fgaApi.readAuthorizationModels(baseConfig.storeId!);
+
+expect(scope.isDone()).toBe(true);
+
+nock.cleanAll();
+});
+
+it("should cache the bearer token and not issue a network call to get the token at the second request", async () => {
+let scope = nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER);
+nocks.readAuthorizationModels(baseConfig.storeId!);
+
+const fgaApi = new {{appShortName}}Api(baseConfig);
+expect(scope.isDone()).toBe(false);
+
+await fgaApi.readAuthorizationModels(baseConfig.storeId!);
+
+expect(scope.isDone()).toBe(true);
+
+nock.cleanAll();
+scope = nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER);
+nocks.readAuthorizationModels(baseConfig.storeId!);
+expect(scope.isDone()).toBe(false);
+
+await fgaApi.readAuthorizationModels(baseConfig.storeId!);
+
+expect(scope.isDone()).toBe(false);
+
+nock.cleanAll();
+});
+
+it("should retry a failed attempt to request to exchange the credentials", async () => {
+const scope1 = nocks.tokenExchange(OPENFGA_API_TOKEN_ISSUER, "test-token", 300, 500, {
+'Retry-After': '1' // Add Retry-After header
+});
+const scope2 = nocks.tokenExchange(OPENFGA_API_TOKEN_ISSUER);
+nocks.readAuthorizationModels(baseConfig.storeId!);
+
+const fgaApi = new OpenFgaApi(baseConfig);
+expect(scope1.isDone()).toBe(false);
+expect(scope2.isDone()).toBe(false);
+
+await fgaApi.readAuthorizationModels(baseConfig.storeId!);
+
+expect(scope1.isDone()).toBe(true);
+expect(scope2.isDone()).toBe(true);
+
+nock.cleanAll();
+});
+
+it("should not issue a network call to get the token at the first request if the clientId is not provided", async () => {
+const scope = nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER);
+nocks.readAuthorizationModels(baseConfig.storeId!);
+
+const fgaApi = new {{appShortName}}Api({
+apiUrl: baseConfig.apiUrl,
+});
+expect(scope.isDone()).toBe(false);
+
+await fgaApi.readAuthorizationModels(baseConfig.storeId!);
+
+expect(scope.isDone()).toBe(false);
+
+nock.cleanAll();
+});
+
+it("should issue a network call to get the token at the first request if client assertion is provided", async () => {
+const scope = nocks.tokenExchange(OPENFGA_API_TOKEN_ISSUER);
+nocks.readAuthorizationModels(baseConfig.storeId!);
+
+const fgaApi = new OpenFgaApi({
+...baseConfig,
+credentials: {
+method: CredentialsMethod.ClientCredentials,
+config: {
+...(baseConfig.credentials as any).config,
+clientAssertionSigningKey: OPENFGA_CLIENT_ASSERTION_SIGNING_KEY
+}
+}
+});
+expect(scope.isDone()).toBe(false);
+
+await fgaApi.readAuthorizationModels(baseConfig.storeId!);
+
+expect(scope.isDone()).toBe(true);
+
+nock.cleanAll();
+});
+
+it("should allow passing in a configuration instance", async () => {
+const configuration = new Configuration(baseConfig);
+expect(() => new {{appShortName}}Api(configuration)).not.toThrowError();
+});
+
+it("should only accept valid telemetry attributes", async () => {
+expect(
+() =>
+new OpenFgaApi({
+...baseConfig,
+telemetry: {
+metrics: {
+counterCredentialsRequest: {
+attributes: ["JUNK"] as any
+},
+histogramQueryDuration: {
+attributes: new Set<TelemetryAttribute>
+    },
+    histogramRequestDuration: {
+    attributes: new Set<TelemetryAttribute>
+    }
+    }
+    }
+    })
+    ).toThrow();
+    });
     });
 
-    it("should require host in configuration", () => {
-      expect(
-        () => new {{appShortName}}Api({ ...baseConfig, apiUrl: undefined! })
-      ).toThrowError();
-    });
-
-    it("should validate host in configuration (adding scheme as part of the host)", () => {
-      expect(
-        () => new {{appShortName}}Api({ ...baseConfig, apiUrl: "//api.{{sampleApiDomain}}" })
-      ).toThrowError();
-    });
-
-        it("should allow using apiHost if apiUrl is not provided", () => {
-      expect(
-        () => new OpenFgaApi({ ...baseConfig, apiHost: "api.fga.example" })
-      ).not.toThrowError();
-    });
-
-    it("should still validate apiHost", () => {
-      expect(
-        () => new OpenFgaApi({ ...baseConfig, apiHost: "//api.{{sampleApiDomain}}" })
-      ).not.toThrowError();
-    });
-
-    it("should validate apiTokenIssuer in configuration (should not allow scheme as part of the apiTokenIssuer)", () => {
-      expect(
-        () => new {{appShortName}}Api({
-          ...baseConfig,
-          credentials: {
-            method: CredentialsMethod.ClientCredentials,
-            config: {
-              ...(baseConfig.credentials as any).config,
-              apiTokenIssuer: "https://tokenissuer.{{sampleApiDomain}}"
-            }
-          } as Configuration["credentials"]
-        })
-      ).toThrowError();
-    });
-
-    it("should not require credentials in configuration when not needed", () => {
-      expect(
-        () =>
-          new {{appShortName}}Api({
-            apiUrl: baseConfig.apiUrl,
-          })
-      ).not.toThrowError();
-    });
-
-    it("should require apiToken credentials in configuration in api_token flow", () => {
-      expect(
-        () =>
-          new {{appShortName}}Api({
-            apiUrl: baseConfig.apiUrl,
-            credentials: {
-              method: CredentialsMethod.ApiToken as any
-            }
-          })
-      ).toThrowError();
-    });
-
-    it("should require clientId, clientSecret, apiTokenIssuer and apiAudience credentials in configuration in client_credentials flow", () => {
-      expect(
-        () =>
-          new {{appShortName}}Api({
-            ...baseConfig,
-            credentials: {
-              method: CredentialsMethod.ClientCredentials,
-            } as AuthCredentialsConfig,
-          })
-      ).toThrow("config.clientId");
-
-      expect(
-        () =>
-          new {{appShortName}}Api({
-            ...baseConfig,
-            credentials: {
-              method: CredentialsMethod.ClientCredentials,
-              config: {
-                ...(baseConfig.credentials as any)!.config,
-                clientId: undefined!
-              }
-            } as Configuration["credentials"]
-          })
-      ).toThrow("config.clientId");
-
-      expect(
-        () =>
-          new {{appShortName}}Api({
-            ...baseConfig,
-            credentials: {
-              method: CredentialsMethod.ClientCredentials,
-              config: {
-                ...(baseConfig.credentials as any)!.config,
-                clientSecret: undefined!
-              }
-            } as Configuration["credentials"]
-          })
-      ).toThrow("config.clientSecret or config.clientAssertionSigningKey");
-
-      expect(
-        () =>
-          new {{appShortName}}Api({
-            ...baseConfig,
-            credentials: {
-              method: CredentialsMethod.ClientCredentials,
-              config: {
-                ...(baseConfig.credentials as any)!.config,
-                clientSecret: undefined!,
-                clientAssertionSigningKey: undefined!
-              }
-            } as Configuration["credentials"]
-          })
-      ).toThrow("config.clientSecret or config.clientAssertionSigningKey");
-
-
-      expect(
-        () =>
-          new {{appShortName}}Api({
-            ...baseConfig,
-            credentials: {
-              method: CredentialsMethod.ClientCredentials,
-              config: {
-                ...(baseConfig.credentials as any)!.config,
-                apiAudience: undefined!
-              }
-            } as Configuration["credentials"]
-          })
-      ).toThrow("config.apiAudience");
-
-      expect(
-        () =>
-          new {{appShortName}}Api({
-            ...baseConfig,
-            credentials: {
-              method: CredentialsMethod.ClientCredentials,
-              config: {
-                ...(baseConfig.credentials as any)!.config,
-                apiTokenIssuer: undefined!
-              }
-            } as Configuration["credentials"]
-          })
-      ).toThrow("config.apiTokenIssuer");
-    });
-
-    it("should issue a network call to get the token at the first request if client id is provided", async () => {
-      const scope = nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER);
-      nocks.readAuthorizationModels(baseConfig.storeId!);
-
-      const fgaApi = new {{appShortName}}Api(baseConfig);
-      expect(scope.isDone()).toBe(false);
-
-      await fgaApi.readAuthorizationModels(baseConfig.storeId!);
-
-      expect(scope.isDone()).toBe(true);
-
-      nock.cleanAll();
-    });
-
-    it("should cache the bearer token and not issue a network call to get the token at the second request", async () => {
-      let scope = nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER);
-      nocks.readAuthorizationModels(baseConfig.storeId!);
-
-      const fgaApi = new {{appShortName}}Api(baseConfig);
-      expect(scope.isDone()).toBe(false);
-
-      await fgaApi.readAuthorizationModels(baseConfig.storeId!);
-
-      expect(scope.isDone()).toBe(true);
-
-      nock.cleanAll();
-      scope = nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER);
-      nocks.readAuthorizationModels(baseConfig.storeId!);
-      expect(scope.isDone()).toBe(false);
-
-      await fgaApi.readAuthorizationModels(baseConfig.storeId!);
-
-      expect(scope.isDone()).toBe(false);
-
-      nock.cleanAll();
-    });
-
-    it("should retry a failed attempt to request to exchange the credentials", async () => {
-      const scope1 = nocks.tokenExchange(OPENFGA_API_TOKEN_ISSUER, "test-token", 300, 500, {
-        'Retry-After': '1' // Add Retry-After header
-      });
-      const scope2 = nocks.tokenExchange(OPENFGA_API_TOKEN_ISSUER);
-      nocks.readAuthorizationModels(baseConfig.storeId!);
-
-      const fgaApi = new OpenFgaApi(baseConfig);
-      expect(scope1.isDone()).toBe(false);
-      expect(scope2.isDone()).toBe(false);
-
-      await fgaApi.readAuthorizationModels(baseConfig.storeId!);
-
-      expect(scope1.isDone()).toBe(true);
-      expect(scope2.isDone()).toBe(true);
-
-      nock.cleanAll();
-    });
-
-    it("should not issue a network call to get the token at the first request if the clientId is not provided", async () => {
-      const scope = nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER);
-      nocks.readAuthorizationModels(baseConfig.storeId!);
-
-      const fgaApi = new {{appShortName}}Api({
-        apiUrl: baseConfig.apiUrl,
-      });
-      expect(scope.isDone()).toBe(false);
-
-      await fgaApi.readAuthorizationModels(baseConfig.storeId!);
-
-      expect(scope.isDone()).toBe(false);
-
-      nock.cleanAll();
-    });
-
-    it("should issue a network call to get the token at the first request if client assertion is provided", async () => {
-      const scope = nocks.tokenExchange(OPENFGA_API_TOKEN_ISSUER);
-      nocks.readAuthorizationModels(baseConfig.storeId!);
-
-      const fgaApi = new OpenFgaApi({
-        ...baseConfig,
-        credentials: {
-          method: CredentialsMethod.ClientCredentials,
-          config: {
-            ...(baseConfig.credentials as any).config,
-            clientAssertionSigningKey: OPENFGA_CLIENT_ASSERTION_SIGNING_KEY
-          }
-        }
-      });
-      expect(scope.isDone()).toBe(false);
-
-      await fgaApi.readAuthorizationModels(baseConfig.storeId!);
-
-      expect(scope.isDone()).toBe(true);
-
-      nock.cleanAll();
-    });
-
-    it("should allow passing in a configuration instance", async () => {
-      const configuration = new Configuration(baseConfig);
-      expect(() => new {{appShortName}}Api(configuration)).not.toThrowError();
-    });
-
-     it("should only accept valid telemetry attributes", async () => {
-      expect(
-        () =>
-          new OpenFgaApi({
-            ...baseConfig,
-            telemetry: {
-              metrics: {
-                counterCredentialsRequest: {
-                  attributes: ["JUNK"] as any
-                },
-                histogramQueryDuration: {
-                  attributes: new Set<TelemetryAttribute>
-                },
-                histogramRequestDuration: {
-                  attributes: new Set<TelemetryAttribute>
-                }
-              }
-            }
-          })
-      ).toThrow();
-    });
-  });
-
-  describe("error handling", () => {
+    describe("error handling", () => {
     let fgaApi: {{appShortName}}Api;
     const { storeId } = baseConfig;
     const basePath = defaultConfiguration.getBasePath();
     const requestId = "1F2A3B";
 
     beforeAll(() => {
-      fgaApi = new {{appShortName}}Api({ ...baseConfig });
+    fgaApi = new {{appShortName}}Api({ ...baseConfig });
     });
 
     describe("400 level error should result in FgaApiValidationError", () => {
-      const tupleKey = {
-        user: "user:xyz",
-        relation: "viewer",
-        object: "foobar:x",
-      };
+    const tupleKey = {
+    user: "user:xyz",
+    relation: "viewer",
+    object: "foobar:x",
+    };
 
-      beforeEach(async () => {
-        nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
+    beforeEach(async () => {
+    nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
 
-        nock(basePath)
-          .defaultReplyHeaders({
-            "Fga-Request-Id": requestId,
-            "Content-Type": "application/json",
-          })
-          .post(
-            `/stores/${storeId}/check`,
-            {
-              tuple_key: tupleKey,
-            },
-            expect.objectContaining({ Authorization: "Bearer test-token" })
-          )
-          .reply(400, {
-            code: "validation_error",
-            message: "nock error",
-          });
-      });
+    nock(basePath)
+    .defaultReplyHeaders({
+    "Fga-Request-Id": requestId,
+    "Content-Type": "application/json",
+    })
+    .post(
+    `/stores/${storeId}/check`,
+    {
+    tuple_key: tupleKey,
+    },
+    expect.objectContaining({ Authorization: "Bearer test-token" })
+    )
+    .reply(400, {
+    code: "validation_error",
+    message: "nock error",
+    });
+    });
 
-      afterEach(() => {
-        nock.cleanAll();
-      });
+    afterEach(() => {
+    nock.cleanAll();
+    });
 
-      it("should throw FgaApiValidationError", async () => {
-        await expect(
-          fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey })
-        ).rejects.toThrow(FgaApiValidationError);
-      });
+    it("should throw FgaApiValidationError", async () => {
+    await expect(
+    fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey })
+    ).rejects.toThrow(FgaApiValidationError);
+    });
 
-      it("FgaApiValidationError should have correct fields", async () => {
-        try {
-          await fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey });
-        } catch (err) {
-          expect(err).toBeInstanceOf(FgaApiValidationError);
-          if (err instanceof FgaApiValidationError) {
-            expect(err.apiErrorCode).toBe(ErrorCode.ValidationError);
-            expect(err.storeId).toBe(storeId);
-            expect(err.endpointCategory).toBe("check");
-            expect(err.requestId).toBe(requestId);
-          }
-        }
-      });
+    it("FgaApiValidationError should have correct fields", async () => {
+    try {
+    await fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey });
+    } catch (err) {
+    expect(err).toBeInstanceOf(FgaApiValidationError);
+    if (err instanceof FgaApiValidationError) {
+    expect(err.apiErrorCode).toBe(ErrorCode.ValidationError);
+    expect(err.storeId).toBe(storeId);
+    expect(err.endpointCategory).toBe("check");
+    expect(err.requestId).toBe(requestId);
+    }
+    }
+    });
     });
 
     describe("429 level error should result in FgaApiRateLimitExceededError", () => {
-      const tupleKey = {
-        user: "user:xyz",
-        relation: "viewer",
-        object: "foobar:x",
-      };
+    const tupleKey = {
+    user: "user:xyz",
+    relation: "viewer",
+    object: "foobar:x",
+    };
 
-      beforeEach(async () => {
-        const updateBaseConfig = {
-          ...baseConfig,
-          retryParams: GetDefaultRetryParams(2, 10),
-        };
-        fgaApi = new {{appShortName}}Api({ ...updateBaseConfig });
-        nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
+    beforeEach(async () => {
+    const updateBaseConfig = {
+    ...baseConfig,
+    retryParams: GetDefaultRetryParams(2, 10),
+    };
+    fgaApi = new {{appShortName}}Api({ ...updateBaseConfig });
+    nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
 
-        nock(basePath)
-          .post(
-            `/stores/${storeId}/check`,
-            {
-              tuple_key: tupleKey,
-            },
-            expect.objectContaining({ Authorization: "Bearer test-token" })
-          )
-          .times(3)
-          .reply(429, {
-            code: "rate_limit_exceeded",
-            message: "nock error",
-          });
-      });
+    nock(basePath)
+    .post(
+    `/stores/${storeId}/check`,
+    {
+    tuple_key: tupleKey,
+    },
+    expect.objectContaining({ Authorization: "Bearer test-token" })
+    )
+    .times(3)
+    .reply(429, {
+    code: "rate_limit_exceeded",
+    message: "nock error",
+    });
+    });
 
-      afterEach(() => {
-        nock.cleanAll();
-      });
+    afterEach(() => {
+    nock.cleanAll();
+    });
 
-      it("should throw FgaApiRateLimitExceededError", async () => {
-        await expect(
-          fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey }, {})
-        ).rejects.toThrow(FgaApiRateLimitExceededError);
-      });
+    it("should throw FgaApiRateLimitExceededError", async () => {
+    await expect(
+    fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey }, {})
+    ).rejects.toThrow(FgaApiRateLimitExceededError);
+    });
     });
 
     describe("429 with retry in config and retry is successful", () => {
-      const tupleKey = {
-        user: "user:xyz",
-        relation: "viewer",
-        object: "foobar:x",
-      };
+    const tupleKey = {
+    user: "user:xyz",
+    relation: "viewer",
+    object: "foobar:x",
+    };
 
-      beforeEach(async () => {
-        const updateBaseConfig = {
-          ...baseConfig,
-          retryParams: GetDefaultRetryParams(2, 10),
-        };
-        fgaApi = new {{appShortName}}Api({ ...updateBaseConfig });
+    beforeEach(async () => {
+    const updateBaseConfig = {
+    ...baseConfig,
+    retryParams: GetDefaultRetryParams(2, 10),
+    };
+    fgaApi = new {{appShortName}}Api({ ...updateBaseConfig });
 
-        nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
+    nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
 
-        nock(basePath)
-          .post(
-            `/stores/${storeId}/check`,
-            {
-              tuple_key: tupleKey,
-            },
-            expect.objectContaining({ Authorization: "Bearer test-token" })
-          )
-          .times(1)
-          .reply(429, {
-            code: "rate_limit_exceeded",
-            message: "nock error",
-          });
+    nock(basePath)
+    .post(
+    `/stores/${storeId}/check`,
+    {
+    tuple_key: tupleKey,
+    },
+    expect.objectContaining({ Authorization: "Bearer test-token" })
+    )
+    .times(1)
+    .reply(429, {
+    code: "rate_limit_exceeded",
+    message: "nock error",
+    });
 
-        nocks.check(baseConfig.storeId!, tupleKey);
-      });
+    nocks.check(baseConfig.storeId!, tupleKey);
+    });
 
-      afterEach(() => {
-        nock.cleanAll();
-      });
+    afterEach(() => {
+    nock.cleanAll();
+    });
 
-      it("should return allowed", async () => {
-        const result = await fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey, authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1"}, {});
+    it("should return allowed", async () => {
+    const result = await fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey, authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1"}, {});
 
-        expect(result.allowed).toBe(true);
-      });
+    expect(result.allowed).toBe(true);
+    });
     });
 
     describe("429 with retry in call and retry is successful", () => {
-      const tupleKey = {
-        user: "user:xyz",
-        relation: "viewer",
-        object: "foobar:x",
-      };
+    const tupleKey = {
+    user: "user:xyz",
+    relation: "viewer",
+    object: "foobar:x",
+    };
 
-      beforeEach(async () => {
-        nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
+    beforeEach(async () => {
+    nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
 
-        nock(basePath)
-          .post(
-            `/stores/${storeId}/check`,
-            {
-              tuple_key: tupleKey,
-            },
-            expect.objectContaining({ Authorization: "Bearer test-token" })
-          )
-          .times(1)
-          .reply(429, {
-            code: "rate_limit_exceeded",
-            message: "nock error",
-          });
+    nock(basePath)
+    .post(
+    `/stores/${storeId}/check`,
+    {
+    tuple_key: tupleKey,
+    },
+    expect.objectContaining({ Authorization: "Bearer test-token" })
+    )
+    .times(1)
+    .reply(429, {
+    code: "rate_limit_exceeded",
+    message: "nock error",
+    });
 
-        nocks.check(baseConfig.storeId!, tupleKey);
-      });
+    nocks.check(baseConfig.storeId!, tupleKey);
+    });
 
-      afterEach(() => {
-        nock.cleanAll();
-      });
+    afterEach(() => {
+    nock.cleanAll();
+    });
 
-      it("should return allowed", async () => {
-        const result = await fgaApi.check(
-          baseConfig.storeId!,
-          { tuple_key: tupleKey },
-          { retryParams: GetDefaultRetryParams(2, 10) }
-        );
+    it("should return allowed", async () => {
+    const result = await fgaApi.check(
+    baseConfig.storeId!,
+    { tuple_key: tupleKey },
+    { retryParams: GetDefaultRetryParams(2, 10) }
+    );
 
-        expect(result.allowed).toBe(true);
-      });
+    expect(result.allowed).toBe(true);
+    });
     });
 
     describe("500 level error should result in FgaApiInternalError", () => {
-      const tupleKey = {
-        user: "user:xyz",
-        relation: "viewer",
-        object: "foobar:x",
-      };
+    const tupleKey = {
+    user: "user:xyz",
+    relation: "viewer",
+    object: "foobar:x",
+    };
 
-      beforeEach(async () => {
-        nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
-      });
+    beforeEach(async () => {
+    nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
+    });
 
-      afterEach(() => {
-        nock.cleanAll();
-      });
+    afterEach(() => {
+    nock.cleanAll();
+    });
 
-      it("should throw FgaApiInternalError if retries disabled", async () => {
-        nock(basePath)
-          .post(
-            `/stores/${storeId}/check`,
-            {
-              tuple_key: tupleKey,
-            },
-            expect.objectContaining({ Authorization: "Bearer test-token" })
-          )
-          .reply(500, {
-            code: "internal_error",
-            message: "nock error",
-          });
+    it("should throw FgaApiInternalError if retries disabled", async () => {
+    nock(basePath)
+    .post(
+    `/stores/${storeId}/check`,
+    {
+    tuple_key: tupleKey,
+    },
+    expect.objectContaining({ Authorization: "Bearer test-token" })
+    )
+    .reply(500, {
+    code: "internal_error",
+    message: "nock error",
+    });
 
-        await expect(
-          fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey }, { retryParams: { maxRetry: 0 }})
-        ).rejects.toThrow(FgaApiInternalError);
-      });
-      it("should throw FgaApiInternalError for 500 error without Retry-After header", async () => {
-        nock(basePath)
-          .post(
-            `/stores/${storeId}/check`,
-            {
-              tuple_key: tupleKey,
-            },
-            expect.objectContaining({ Authorization: "Bearer test-token" })
-          )
-          .reply(500, {
-            code: "internal_error",
-            message: "nock error",
-          });
+    await expect(
+    fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey }, { retryParams: { maxRetry: 0 }})
+    ).rejects.toThrow(FgaApiInternalError);
+    });
+    it("should retry 500 error without Retry-After header using exponential backoff", async () => {
+    const updateBaseConfig = {
+    ...baseConfig,
+    retryParams: GetDefaultRetryParams(2, 10),
+    };
+    const fgaApiWithRetry = new {{appShortName}}Api({ ...updateBaseConfig });
 
-        await expect(
-          fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey })
-        ).rejects.toThrow(FgaApiInternalError);
-      });
+    nock(basePath)
+    .post(
+    `/stores/${storeId}/check`,
+    {
+    tuple_key: tupleKey,
+    },
+    expect.objectContaining({ Authorization: "Bearer test-token" })
+    )
+    .reply(500, {
+    code: "internal_error",
+    message: "nock error",
+    });
 
-      it("should not throw FgaApiInternalError with default retries", async () => {
-        nock(basePath)
-          .post(
-            `/stores/${storeId}/check`,
-            {
-              tuple_key: tupleKey,
-            },
-            expect.objectContaining({ Authorization: "Bearer test-token" })
-          )
-          .reply(500, {
-            code: "internal_error",
-            message: "nock error",
-          }, {
-            'Retry-After': '1' 
-          });
+    nock(basePath)
+    .post(
+    `/stores/${storeId}/check`,
+    {
+    tuple_key: tupleKey,
+    },
+    expect.objectContaining({ Authorization: "Bearer test-token" })
+    )
+    .reply(200, {
+    allowed: true,
+    });
 
-        nock(basePath)
-          .post(
-            `/stores/${storeId}/check`,
-            {
-              tuple_key: tupleKey,
-            },
-            expect.objectContaining({ Authorization: "Bearer test-token" })
-          )
-          .reply(200, {
-            allowed: true,
-          });
+    const response = await fgaApiWithRetry.check(baseConfig.storeId!, { tuple_key: tupleKey });
+    expect(response.allowed).toBe(true);
+    });
 
-        const response = await fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey });
-        expect(response.allowed).toBe(true);
-      });
+    it("should not throw FgaApiInternalError with default retries", async () => {
+    nock(basePath)
+    .post(
+    `/stores/${storeId}/check`,
+    {
+    tuple_key: tupleKey,
+    },
+    expect.objectContaining({ Authorization: "Bearer test-token" })
+    )
+    .reply(500, {
+    code: "internal_error",
+    message: "nock error",
+    }, {
+    'Retry-After': '1'
+    });
+
+    nock(basePath)
+    .post(
+    `/stores/${storeId}/check`,
+    {
+    tuple_key: tupleKey,
+    },
+    expect.objectContaining({ Authorization: "Bearer test-token" })
+    )
+    .reply(200, {
+    allowed: true,
+    });
+
+    const response = await fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey });
+    expect(response.allowed).toBe(true);
+    });
     });
 
     describe("404 level error should result in FgaApiNotFoundError", () => {
-      const tupleKey = {
-        user: "user:xyz",
-        relation: "viewer",
-        object: "foobar:x",
-      };
+    const tupleKey = {
+    user: "user:xyz",
+    relation: "viewer",
+    object: "foobar:x",
+    };
 
-      beforeEach(async () => {
-        nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
+    beforeEach(async () => {
+    nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER, "test-token");
 
-        nock(basePath)
-          .post(
-            `/stores/${storeId}/check`,
-            {
-              tuple_key: tupleKey,
-            },
-            expect.objectContaining({ Authorization: "Bearer test-token" })
-          )
-          .reply(404, {
-            code: "undefined_endpoint",
-            message: "nock error",
-          });
-      });
+    nock(basePath)
+    .post(
+    `/stores/${storeId}/check`,
+    {
+    tuple_key: tupleKey,
+    },
+    expect.objectContaining({ Authorization: "Bearer test-token" })
+    )
+    .reply(404, {
+    code: "undefined_endpoint",
+    message: "nock error",
+    });
+    });
 
-      afterEach(() => {
-        nock.cleanAll();
-      });
+    afterEach(() => {
+    nock.cleanAll();
+    });
 
-      it("should throw FgaApiNotFoundError", async () => {
-        await expect(
-          fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey })
-        ).rejects.toThrow(FgaApiNotFoundError);
-      });
+    it("should throw FgaApiNotFoundError", async () => {
+    await expect(
+    fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey })
+    ).rejects.toThrow(FgaApiNotFoundError);
+    });
     });
 
     describe("401 during authentication should result in FgaApiAuthenticationError", () => {
-      const tupleKey = {
-        user: "user:xyz",
-        relation: "viewer",
-        object: "foobar:x",
-      };
+    const tupleKey = {
+    user: "user:xyz",
+    relation: "viewer",
+    object: "foobar:x",
+    };
 
-      beforeEach(async () => {
-        nock(`https://${ {{appUpperCaseName}}_API_TOKEN_ISSUER}`)
-          .post("/oauth/token")
-          .reply(401);
+    beforeEach(async () => {
+    nock(`https://${ {{appUpperCaseName}}_API_TOKEN_ISSUER}`)
+    .post("/oauth/token")
+    .reply(401);
 
-        nock(basePath)
-          .post(
-            `/stores/${storeId}/check`,
-            {
-              tuple_key: tupleKey,
-            },
-            expect.objectContaining({ Authorization: "Bearer test-token" })
-          )
-          .reply(500, {
-            code: "invalid_claims",
-            message: "nock error",
-          });
-      });
-
-      afterEach(() => {
-        nock.cleanAll();
-      });
-
-      it("should throw FgaApiAuthenticationError", async () => {
-        fgaApi = new {{appShortName}}Api({ ...baseConfig });
-        await expect(
-          fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey })
-        ).rejects.toThrow(FgaApiAuthenticationError);
-      });
+    nock(basePath)
+    .post(
+    `/stores/${storeId}/check`,
+    {
+    tuple_key: tupleKey,
+    },
+    expect.objectContaining({ Authorization: "Bearer test-token" })
+    )
+    .reply(500, {
+    code: "invalid_claims",
+    message: "nock error",
     });
-  });
+    });
 
-  describe("happy path of CHECK", () => {
+    afterEach(() => {
+    nock.cleanAll();
+    });
+
+    it("should throw FgaApiAuthenticationError", async () => {
+    fgaApi = new {{appShortName}}Api({ ...baseConfig });
+    await expect(
+    fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey })
+    ).rejects.toThrow(FgaApiAuthenticationError);
+    });
+    });
+    });
+
+    describe("happy path of CHECK", () => {
     let result: CallResult<CheckResponse>;
     let fgaApi: {{appShortName}}Api;
 
     beforeAll(async () => {
-      fgaApi = new {{appShortName}}Api({ ...baseConfig });
-      nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER);
+    fgaApi = new {{appShortName}}Api({ ...baseConfig });
+    nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER);
 
-      const tupleKey = {
-        user: "user:xyz",
-        relation: "abc",
-        object: "foobar:x",
-      };
-      const scope = nocks.check(baseConfig.storeId!, tupleKey);
-      expect(scope.isDone()).toBe(false);
+    const tupleKey = {
+    user: "user:xyz",
+    relation: "abc",
+    object: "foobar:x",
+    };
+    const scope = nocks.check(baseConfig.storeId!, tupleKey);
+    expect(scope.isDone()).toBe(false);
 
-      result = await fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey });
-      expect(scope.isDone()).toBe(true);
+    result = await fgaApi.check(baseConfig.storeId!, { tuple_key: tupleKey });
+    expect(scope.isDone()).toBe(true);
 
-      nock.cleanAll();
+    nock.cleanAll();
     });
 
     it("should return allowed", () => {
-      expect(result.allowed).toBe(true);
+    expect(result.allowed).toBe(true);
     });
 
     it("should return the proper $response object", () => {
-      expect(result).toHaveProperty("$response");
-      expect(result.$response.status).toBe(200);
-      expect(
-        Object.prototype.propertyIsEnumerable.call(result, "$response")
-      ).toBe(false);
+    expect(result).toHaveProperty("$response");
+    expect(result.$response.status).toBe(200);
+    expect(
+    Object.prototype.propertyIsEnumerable.call(result, "$response")
+    ).toBe(false);
     });
-  });
+    });
 
-  describe("using the sdk", () => {
+    describe("using the sdk", () => {
     let fgaApi: {{appShortName}}Api;
 
     beforeAll(() => {
-      fgaApi = new {{appShortName}}Api({ ...baseConfig });
+    fgaApi = new {{appShortName}}Api({ ...baseConfig });
     });
 
     beforeEach(() => {
-      nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER);
+    nocks.tokenExchange({{appUpperCaseName}}_API_TOKEN_ISSUER);
     });
 
     afterEach(() => {
-      nock.cleanAll();
+    nock.cleanAll();
     });
 
     describe("check", () => {
-      it("should properly pass the request and return an allowed API response", async () => {
-        const tuple = {
-          user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-          relation: "admin",
-          object: "workspace:1",
-        };
-        const scope = nocks.check(baseConfig.storeId!, tuple);
+    it("should properly pass the request and return an allowed API response", async () => {
+    const tuple = {
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation: "admin",
+    object: "workspace:1",
+    };
+    const scope = nocks.check(baseConfig.storeId!, tuple);
 
-        expect(scope.isDone()).toBe(false);
-        const data = await fgaApi.check(baseConfig.storeId!, { tuple_key: tuple });
+    expect(scope.isDone()).toBe(false);
+    const data = await fgaApi.check(baseConfig.storeId!, { tuple_key: tuple });
 
-        expect(scope.isDone()).toBe(true);
-        expect(data).toMatchObject({ allowed: expect.any(Boolean) });
-      });
+    expect(scope.isDone()).toBe(true);
+    expect(data).toMatchObject({ allowed: expect.any(Boolean) });
+    });
     });
 
     describe("write: write tuples", () => {
-      it("should properly call the {{appShortName}} Write API", async () => {
-        const tuple = {
-          user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-          relation: "admin",
-          object: "workspace:1",
-        };
-        const scope = nocks.write(baseConfig.storeId!);
+    it("should properly call the {{appShortName}} Write API", async () => {
+    const tuple = {
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation: "admin",
+    object: "workspace:1",
+    };
+    const scope = nocks.write(baseConfig.storeId!);
 
-        expect(scope.isDone()).toBe(false);
-        const data = await fgaApi.write(
-          baseConfig.storeId!,
-          {
-            writes: { tuple_keys: [tuple] },
-            authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1",
-          });
+    expect(scope.isDone()).toBe(false);
+    const data = await fgaApi.write(
+    baseConfig.storeId!,
+    {
+    writes: { tuple_keys: [tuple] },
+    authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1",
+    });
 
-        expect(scope.isDone()).toBe(true);
-        expect(data).toMatchObject({});
-      });
+    expect(scope.isDone()).toBe(true);
+    expect(data).toMatchObject({});
+    });
     });
 
     describe("write: delete tuples", () => {
-      it("should properly call the {{appShortName}} Write API", async () => {
-        const tuple = {
-          user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-          relation: "admin",
-          object: "workspace:1",
-        };
-        const scope = nocks.delete(baseConfig.storeId!, tuple);
+    it("should properly call the {{appShortName}} Write API", async () => {
+    const tuple = {
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation: "admin",
+    object: "workspace:1",
+    };
+    const scope = nocks.delete(baseConfig.storeId!, tuple);
 
-        expect(scope.isDone()).toBe(false);
-        const data = await fgaApi.write(
-          baseConfig.storeId!,
-          {
-            deletes: { tuple_keys: [tuple] },
-            authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1",
-          });
+    expect(scope.isDone()).toBe(false);
+    const data = await fgaApi.write(
+    baseConfig.storeId!,
+    {
+    deletes: { tuple_keys: [tuple] },
+    authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1",
+    });
 
-        expect(scope.isDone()).toBe(true);
-        expect(data).toMatchObject({});
-      });
+    expect(scope.isDone()).toBe(true);
+    expect(data).toMatchObject({});
+    });
     });
 
     describe("expand", () => {
-      it("should properly call the {{appShortName}} Expand API", async () => {
-        const tuple = {
-          user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-          relation: "admin",
-          object: "workspace:1",
-        };
-        const scope = nocks.expand(baseConfig.storeId!, tuple);
+    it("should properly call the {{appShortName}} Expand API", async () => {
+    const tuple = {
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation: "admin",
+    object: "workspace:1",
+    };
+    const scope = nocks.expand(baseConfig.storeId!, tuple);
 
-        expect(scope.isDone()).toBe(false);
-        const data = await fgaApi.expand(
-          baseConfig.storeId!,
-          { tuple_key: tuple, authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1"});
+    expect(scope.isDone()).toBe(false);
+    const data = await fgaApi.expand(
+    baseConfig.storeId!,
+    { tuple_key: tuple, authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1"});
 
-        expect(scope.isDone()).toBe(true);
-        expect(data).toMatchObject({});
-      });
+    expect(scope.isDone()).toBe(true);
+    expect(data).toMatchObject({});
+    });
     });
 
     describe("read", () => {
-      it("should properly call the {{appShortName}} Read API", async () => {
-        const tuple = {
-          user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-          relation: "admin",
-          object: "workspace:1",
-        };
-        const scope = nocks.read(baseConfig.storeId!, tuple);
+    it("should properly call the {{appShortName}} Read API", async () => {
+    const tuple = {
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation: "admin",
+    object: "workspace:1",
+    };
+    const scope = nocks.read(baseConfig.storeId!, tuple);
 
-        expect(scope.isDone()).toBe(false);
-        const data = await fgaApi.read(baseConfig.storeId!, { tuple_key: tuple });
+    expect(scope.isDone()).toBe(false);
+    const data = await fgaApi.read(baseConfig.storeId!, { tuple_key: tuple });
 
-        expect(scope.isDone()).toBe(true);
-        expect(data).toMatchObject({});
-      });
+    expect(scope.isDone()).toBe(true);
+    expect(data).toMatchObject({});
+    });
     });
 
     describe("writeAuthorizationModel", () => {
-      it("should call the api and return the response", async () => {
-        const authorizationModel = {
-          schema_version: "1.1",
-          type_definitions: [
-            { type: "workspace", relations: { admin: { this: {} } } },
-          ],
-        };
-        const scope = nocks.writeAuthorizationModel(
-          baseConfig.storeId!,
-          authorizationModel
-        );
+    it("should call the api and return the response", async () => {
+    const authorizationModel = {
+    schema_version: "1.1",
+    type_definitions: [
+    { type: "workspace", relations: { admin: { this: {} } } },
+    ],
+    };
+    const scope = nocks.writeAuthorizationModel(
+    baseConfig.storeId!,
+    authorizationModel
+    );
 
-        expect(scope.isDone()).toBe(false);
-        const data = await fgaApi.writeAuthorizationModel(
-          baseConfig.storeId!,
-          authorizationModel
-        );
+    expect(scope.isDone()).toBe(false);
+    const data = await fgaApi.writeAuthorizationModel(
+    baseConfig.storeId!,
+    authorizationModel
+    );
 
-        expect(scope.isDone()).toBe(true);
-        expect(data).toMatchObject({ id: expect.any(String) });
-      });
+    expect(scope.isDone()).toBe(true);
+    expect(data).toMatchObject({ id: expect.any(String) });
+    });
     });
 
     describe("readAuthorizationModel", () => {
-      it("should call the api and return the response", async () => {
-        const configId = "string";
-        const scope = nocks.readSingleAuthzModel(baseConfig.storeId!, configId);
+    it("should call the api and return the response", async () => {
+    const configId = "string";
+    const scope = nocks.readSingleAuthzModel(baseConfig.storeId!, configId);
 
-        expect(scope.isDone()).toBe(false);
-        const data = await fgaApi.readAuthorizationModel(baseConfig.storeId!, configId);
+    expect(scope.isDone()).toBe(false);
+    const data = await fgaApi.readAuthorizationModel(baseConfig.storeId!, configId);
 
-        expect(scope.isDone()).toBe(true);
-        expect(data).toMatchObject({
-          authorization_model: {
-            id: expect.any(String),
-            schema_version: "1.1",
-            type_definitions: expect.arrayContaining([]),
-          },
-        });
-      });
+    expect(scope.isDone()).toBe(true);
+    expect(data).toMatchObject({
+    authorization_model: {
+    id: expect.any(String),
+    schema_version: "1.1",
+    type_definitions: expect.arrayContaining([]),
+    },
+    });
+    });
     });
 
     describe("readAuthorizationModels", () => {
-      it("should call the api and return the response", async () => {
-        const scope = nocks.readAuthorizationModels(baseConfig.storeId!, defaultConfiguration.getBasePath(), [{ id: "1", schema_version: "1.1", type_definitions: []}]);
+    it("should call the api and return the response", async () => {
+    const scope = nocks.readAuthorizationModels(baseConfig.storeId!, defaultConfiguration.getBasePath(), [{ id: "1", schema_version: "1.1", type_definitions: []}]);
 
-        expect(scope.isDone()).toBe(false);
-        const data = await fgaApi.readAuthorizationModels(baseConfig.storeId!);
+    expect(scope.isDone()).toBe(false);
+    const data = await fgaApi.readAuthorizationModels(baseConfig.storeId!);
 
-        expect(scope.isDone()).toBe(true);
-        expect(data).toMatchObject({
-          authorization_models: expect.arrayContaining([{ id: "1", schema_version: "1.1", type_definitions: []}]),
-        });
-      });
+    expect(scope.isDone()).toBe(true);
+    expect(data).toMatchObject({
+    authorization_models: expect.arrayContaining([{ id: "1", schema_version: "1.1", type_definitions: []}]),
+    });
+    });
     });
 
     describe("readChanges", () => {
-      it("should call the api and return the response", async () => {
-        const type = "repo";
-        const pageSize = 25;
-        const continuationToken = "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==";
-        const startTime = "2022-01-01T00:00:00Z";
+    it("should call the api and return the response", async () => {
+    const type = "repo";
+    const pageSize = 25;
+    const continuationToken = "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==";
+    const startTime = "2022-01-01T00:00:00Z";
 
-        const scope = nocks.readChanges(baseConfig.storeId!, type, pageSize, continuationToken, startTime);
+    const scope = nocks.readChanges(baseConfig.storeId!, type, pageSize, continuationToken, startTime);
 
-        expect(scope.isDone()).toBe(false);
-        const response = await fgaApi.readChanges(baseConfig.storeId!, type, pageSize, continuationToken, startTime);
+    expect(scope.isDone()).toBe(false);
+    const response = await fgaApi.readChanges(baseConfig.storeId!, type, pageSize, continuationToken, startTime);
 
-        expect(scope.isDone()).toBe(true);
-        expect(response).toMatchObject({ changes: expect.arrayContaining([]) });
-      });
+    expect(scope.isDone()).toBe(true);
+    expect(response).toMatchObject({ changes: expect.arrayContaining([]) });
+    });
     });
 
     describe("listObjects", () => {
-      it("should call the api and return the response", async () => {
-        const mockedResponse = { objects: ["document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"] };
-        const scope = nocks.listObjects(baseConfig.storeId!, mockedResponse);
+    it("should call the api and return the response", async () => {
+    const mockedResponse = { objects: ["document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"] };
+    const scope = nocks.listObjects(baseConfig.storeId!, mockedResponse);
 
-        expect(scope.isDone()).toBe(false);
-        const response = await fgaApi.listObjects(
-          baseConfig.storeId!,
-          {
-            authorization_model_id: "01GAHCE4YVKPQEKZQHT2R89MQV",
-            user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-            relation: "can_read",
-            type: "document",
-            contextual_tuples: {
-              tuple_keys:
-                [{
-                  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
-                  relation: "editor",
-                  object: "folder:product"
-                }, {
-                  user: "folder:product",
-                  relation: "parent",
-                  object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
-                }]
-             }
-          });
-
-        expect(scope.isDone()).toBe(true);
-        expect(response.objects).toHaveLength(mockedResponse.objects.length);
-        expect(response.objects).toEqual(expect.arrayContaining(mockedResponse.objects));
-      });
+    expect(scope.isDone()).toBe(false);
+    const response = await fgaApi.listObjects(
+    baseConfig.storeId!,
+    {
+    authorization_model_id: "01GAHCE4YVKPQEKZQHT2R89MQV",
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation: "can_read",
+    type: "document",
+    contextual_tuples: {
+    tuple_keys:
+    [{
+    user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+    relation: "editor",
+    object: "folder:product"
+    }, {
+    user: "folder:product",
+    relation: "parent",
+    object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
+    }]
+    }
     });
-  });
-});
+
+    expect(scope.isDone()).toBe(true);
+    expect(response.objects).toHaveLength(mockedResponse.objects.length);
+    expect(response.objects).toEqual(expect.arrayContaining(mockedResponse.objects));
+    });
+    });
+    });
+    });
