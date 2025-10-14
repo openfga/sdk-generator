@@ -31,7 +31,7 @@
   "sourceFolder": "src",
   "targetFramework": "netstandard2.0;net48;net8.0;net9.0",
   "multiTarget": true,
-  "testTargetFramework": "netcoreapp3.1;net48;net8.0;net9.0",
+  "testTargetFramework": "net48;net8.0;net9.0",
   "validatable": true,
   "enablePostProcessFile": true,
   "hashCodeBasePrimeNumber": 9661,
