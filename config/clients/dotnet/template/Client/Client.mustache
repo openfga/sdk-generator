@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using {{packageName}}.Api;
+using {{packageName}}.ApiClient;
 using {{packageName}}.Client.Model;
 #if NETSTANDARD2_0 || NET48
 using {{packageName}}.Client.Extensions;
@@ -53,8 +54,19 @@ public class {{appShortName}}Client : IDisposable {
 
     public void Dispose() => api.Dispose();
 
+    /// <summary>
+    ///     Extracts and validates headers from options object implementing ClientRequestOptions interface
+    /// </summary>
+    /// <param name="options">Options object that may implement ClientRequestOptions</param>
+    /// <returns>Headers dictionary if present, otherwise null</returns>
+    /// <exception cref="ArgumentException">Thrown when headers contain invalid data</exception>
+    private static IDictionary<string, string>? ExtractHeaders(object? options) {
+        var headers = (options as ClientRequestOptions)?.Headers;
+        ClientConfiguration.ValidateHeaders(headers, "options.Headers");
+        return headers;
+    }
 
-    #if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
     private async Task ProcessWriteChunksAsync<T>(
         IEnumerable<T[]> chunks,
         Func<T[], ClientWriteRequest> createRequest,
@@ -63,7 +75,7 @@ public class {{appShortName}}Client : IDisposable {
         ClientWriteOptions clientWriteOpts,
         int maxParallelReqs,
         CancellationToken cancellationToken) {
-        
+
         await Parallel.ForEachAsync(chunks,
             new ParallelOptions { MaxDegreeOfParallelism = maxParallelReqs, CancellationToken = cancellationToken },
             async (chunk, token) => {
@@ -96,7 +108,7 @@ public class {{appShortName}}Client : IDisposable {
         IClientBatchCheckOptions? options,
         int maxParallelReqs,
         CancellationToken cancellationToken) {
-        
+
         await Parallel.ForEachAsync(requests,
             new ParallelOptions { MaxDegreeOfParallelism = maxParallelReqs, CancellationToken = cancellationToken },
             async (request, token) => {
@@ -114,7 +126,7 @@ public class {{appShortName}}Client : IDisposable {
                 }
             });
     }
-    #else
+#else
     private async Task ProcessWriteChunksAsync<T>(
         IEnumerable<T[]> chunks,
         Func<T[], ClientWriteRequest> createRequest,
@@ -123,7 +135,7 @@ public class {{appShortName}}Client : IDisposable {
         ClientWriteOptions clientWriteOpts,
         int maxParallelReqs,
         CancellationToken cancellationToken) {
-        
+
         using (var throttler = new SemaphoreSlim(maxParallelReqs)) {
             var tasks = chunks.Select(async chunk => {
                 await throttler.WaitAsync(cancellationToken);
@@ -164,7 +176,7 @@ public class {{appShortName}}Client : IDisposable {
         IClientBatchCheckOptions? options,
         int maxParallelReqs,
         CancellationToken cancellationToken) {
-        
+
         using (var throttler = new SemaphoreSlim(maxParallelReqs)) {
             var tasks = requests.Select(async request => {
                 await throttler.WaitAsync(cancellationToken);
@@ -190,7 +202,7 @@ public class {{appShortName}}Client : IDisposable {
             await Task.WhenAll(tasks);
         }
     }
-    #endif
+#endif
 
     private string GetStoreId(StoreIdOptions? options) {
         var storeId = options?.StoreId ?? StoreId;
@@ -221,7 +233,7 @@ public class {{appShortName}}Client : IDisposable {
    */
     public async Task<ListStoresResponse> ListStores(IClientListStoresRequest? body, IClientListStoresOptions? options = default,
         CancellationToken cancellationToken = default) =>
-        await api.ListStores(options?.PageSize, options?.ContinuationToken, body?.Name, cancellationToken);
+        await api.ListStores(options?.PageSize, options?.ContinuationToken, body?.Name, ExtractHeaders(options), cancellationToken);
 
     /**
    * CreateStore - Initialize a store
@@ -229,19 +241,19 @@ public class {{appShortName}}Client : IDisposable {
     public async Task<CreateStoreResponse> CreateStore(ClientCreateStoreRequest body,
         ClientRequestOptions? options = default,
         CancellationToken cancellationToken = default) =>
-        await api.CreateStore(body, cancellationToken);
+        await api.CreateStore(body, options?.Headers, cancellationToken);
 
     /**
    * GetStore - Get information about the current store
    */
     public async Task<GetStoreResponse> GetStore(IClientRequestOptionsWithStoreId? options = default, CancellationToken cancellationToken = default) =>
-        await api.GetStore(GetStoreId(options), cancellationToken);
+        await api.GetStore(GetStoreId(options), ExtractHeaders(options), cancellationToken);
 
     /**
    * DeleteStore - Delete a store
    */
     public async Task DeleteStore(IClientRequestOptionsWithStoreId? options = default, CancellationToken cancellationToken = default) =>
-        await api.DeleteStore(GetStoreId(options), cancellationToken);
+        await api.DeleteStore(GetStoreId(options), ExtractHeaders(options), cancellationToken);
 
     /************************
      * Authorization Models *
@@ -253,7 +265,7 @@ public class {{appShortName}}Client : IDisposable {
     public async Task<ReadAuthorizationModelsResponse> ReadAuthorizationModels(
         IClientReadAuthorizationModelsOptions? options = default,
         CancellationToken cancellationToken = default) =>
-        await api.ReadAuthorizationModels(GetStoreId(options), options?.PageSize, options?.ContinuationToken, cancellationToken);
+        await api.ReadAuthorizationModels(GetStoreId(options), options?.PageSize, options?.ContinuationToken, ExtractHeaders(options), cancellationToken);
 
     /**
      * WriteAuthorizationModel - Create a new version of the authorization model
@@ -261,7 +273,7 @@ public class {{appShortName}}Client : IDisposable {
     public async Task<WriteAuthorizationModelResponse> WriteAuthorizationModel(ClientWriteAuthorizationModelRequest body,
         IClientRequestOptionsWithStoreId? options = default,
         CancellationToken cancellationToken = default) =>
-        await api.WriteAuthorizationModel(GetStoreId(options), body, cancellationToken);
+        await api.WriteAuthorizationModel(GetStoreId(options), body, ExtractHeaders(options), cancellationToken);
 
     /**
      * ReadAuthorizationModel - Read the current authorization model
@@ -274,7 +286,7 @@ public class {{appShortName}}Client : IDisposable {
             throw new FgaRequiredParamError("ClientConfiguration", "AuthorizationModelId");
         }
 
-        return await api.ReadAuthorizationModel(GetStoreId(options), authorizationModelId, cancellationToken);
+        return await api.ReadAuthorizationModel(GetStoreId(options), authorizationModelId, ExtractHeaders(options), cancellationToken);
     }
 
     /**
@@ -284,7 +296,7 @@ public class {{appShortName}}Client : IDisposable {
         IClientRequestOptionsWithAuthZModelId? options = default,
         CancellationToken cancellationToken = default) {
         var response =
-            await ReadAuthorizationModels(new ClientReadAuthorizationModelsOptions {StoreId = options?.StoreId, PageSize = 1}, cancellationToken);
+            await ReadAuthorizationModels(new ClientReadAuthorizationModelsOptions { StoreId = options?.StoreId, PageSize = 1, Headers = ExtractHeaders(options) }, cancellationToken);
 
         if (response.AuthorizationModels.Count > 0) {
             return new ReadAuthorizationModelResponse { AuthorizationModel = response.AuthorizationModels?[0] };
@@ -303,7 +315,7 @@ public class {{appShortName}}Client : IDisposable {
     public async Task<ReadChangesResponse> ReadChanges(ClientReadChangesRequest? body = default,
         ClientReadChangesOptions? options = default,
         CancellationToken cancellationToken = default) =>
-        await api.ReadChanges(GetStoreId(options), body?.Type, options?.PageSize, options?.ContinuationToken, body?.StartTime, cancellationToken);
+        await api.ReadChanges(GetStoreId(options), body?.Type, options?.PageSize, options?.ContinuationToken, body?.StartTime, ExtractHeaders(options), cancellationToken);
 
     /**
      * Read - Read tuples previously written to the store (does not evaluate)
@@ -317,8 +329,11 @@ public class {{appShortName}}Client : IDisposable {
         return await api.Read(
             GetStoreId(options),
             new ReadRequest {
-                TupleKey = tupleKey, PageSize = options?.PageSize, ContinuationToken = options?.ContinuationToken, Consistency = options?.Consistency,
-            }, cancellationToken);
+                TupleKey = tupleKey,
+                PageSize = options?.PageSize,
+                ContinuationToken = options?.ContinuationToken,
+                Consistency = options?.Consistency,
+            }, ExtractHeaders(options), cancellationToken);
     }
 
     /**
@@ -344,7 +359,7 @@ public class {{appShortName}}Client : IDisposable {
                 requestBody.Deletes = new WriteRequestDeletes(body.Deletes.ConvertAll(key => key.ToTupleKeyWithoutCondition()));
             }
 
-            await api.Write(GetStoreId(options), requestBody, cancellationToken);
+            await api.Write(GetStoreId(options), requestBody, ExtractHeaders(options), cancellationToken);
             return new ClientWriteResponse {
                 Writes =
                     body.Writes?.ConvertAll(tupleKey =>
@@ -357,7 +372,7 @@ public class {{appShortName}}Client : IDisposable {
             };
         }
 
-        var clientWriteOpts = new ClientWriteOptions() { StoreId = StoreId, AuthorizationModelId = authorizationModelId };
+        var clientWriteOpts = new ClientWriteOptions() { StoreId = StoreId, AuthorizationModelId = authorizationModelId, Headers = ExtractHeaders(options) };
 
         var writeChunks = body.Writes?.Chunk(maxPerChunk).ToList() ?? new List<ClientTupleKey[]>();
         var writeResponses = new ConcurrentBag<ClientWriteSingleResponse>();
@@ -389,14 +404,14 @@ public class {{appShortName}}Client : IDisposable {
      */
     public async Task<ClientWriteResponse> WriteTuples(List<ClientTupleKey> body, IClientWriteOptions? options = default,
         CancellationToken cancellationToken = default) =>
-        await Write(new ClientWriteRequest {Writes = body}, options, cancellationToken);
+        await Write(new ClientWriteRequest { Writes = body }, options, cancellationToken);
 
     /**
      * DeleteTuples - Utility method to delete tuples, wraps Write
      */
     public async Task<ClientWriteResponse> DeleteTuples(List<ClientTupleKeyWithoutCondition> body, IClientWriteOptions? options = default,
         CancellationToken cancellationToken = default) =>
-        await Write(new ClientWriteRequest {Deletes = body}, options, cancellationToken);
+        await Write(new ClientWriteRequest { Deletes = body }, options, cancellationToken);
 
     /************************
      * Relationship Queries *
@@ -411,7 +426,7 @@ public class {{appShortName}}Client : IDisposable {
         await api.Check(
             GetStoreId(options),
             new CheckRequest {
-                TupleKey = new CheckRequestTupleKey {User = body.User, Relation = body.Relation, Object = body.Object},
+                TupleKey = new CheckRequestTupleKey { User = body.User, Relation = body.Relation, Object = body.Object },
                 ContextualTuples =
                     new ContextualTupleKeys {
                         TupleKeys = body.ContextualTuples?.ConvertAll(tupleKey => tupleKey.ToTupleKey()) ??
@@ -420,7 +435,7 @@ public class {{appShortName}}Client : IDisposable {
                 Context = body.Context,
                 AuthorizationModelId = GetAuthorizationModelId(options),
                 Consistency = options?.Consistency,
-            }, cancellationToken);
+            }, ExtractHeaders(options), cancellationToken);
 
     /**
    * BatchCheck - Run a set of checks (evaluates)
@@ -431,7 +446,7 @@ public class {{appShortName}}Client : IDisposable {
         var responses = new ConcurrentBag<BatchCheckSingleResponse>();
 
         var maxParallelReqs = options?.MaxParallelRequests ?? DEFAULT_MAX_METHOD_PARALLEL_REQS;
-        
+
         await ProcessCheckRequestsAsync(body, responses, options, maxParallelReqs, cancellationToken);
 
         return new ClientBatchCheckClientResponse { Responses = responses.ToList() };
@@ -446,7 +461,7 @@ public class {{appShortName}}Client : IDisposable {
         await api.Expand(
             GetStoreId(options),
             new ExpandRequest {
-                TupleKey = new ExpandRequestTupleKey {Relation = body.Relation, Object = body.Object},
+                TupleKey = new ExpandRequestTupleKey { Relation = body.Relation, Object = body.Object },
                 ContextualTuples =
                     new ContextualTupleKeys {
                         TupleKeys = body.ContextualTuples?.ConvertAll(tupleKey => tupleKey.ToTupleKey()) ??
@@ -454,7 +469,7 @@ public class {{appShortName}}Client : IDisposable {
                     },
                 AuthorizationModelId = GetAuthorizationModelId(options),
                 Consistency = options?.Consistency
-            }, cancellationToken);
+            }, ExtractHeaders(options), cancellationToken);
 
     /**
      * ListObjects - List the objects of a particular type that the user has a certain relation to (evaluates)
@@ -474,7 +489,7 @@ public class {{appShortName}}Client : IDisposable {
             Context = body.Context,
             AuthorizationModelId = GetAuthorizationModelId(options),
             Consistency = options?.Consistency,
-        }, cancellationToken);
+        }, ExtractHeaders(options), cancellationToken);
 
 
     /**
@@ -526,12 +541,11 @@ public class {{appShortName}}Client : IDisposable {
             Object = body.Object,
             Relation = body.Relation,
             UserFilters = body.UserFilters,
-            ContextualTuples =  body.ContextualTuples?.ConvertAll(tupleKey => tupleKey.ToTupleKey()) ??
-                                new List<TupleKey>(),
+            ContextualTuples = body.ContextualTuples?.ConvertAll(tupleKey => tupleKey.ToTupleKey()) ?? new List<TupleKey>(),
             Context = body.Context,
             AuthorizationModelId = GetAuthorizationModelId(options),
             Consistency = options?.Consistency
-        });
+        }, ExtractHeaders(options), cancellationToken);
 
     /**************
      * Assertions *
@@ -547,7 +561,7 @@ public class {{appShortName}}Client : IDisposable {
             throw new FgaRequiredParamError("ClientConfiguration", "AuthorizationModelId");
         }
 
-        return await api.ReadAssertions(GetStoreId(options), authorizationModelId, cancellationToken);
+        return await api.ReadAssertions(GetStoreId(options), authorizationModelId, ExtractHeaders(options), cancellationToken);
     }
 
     /**
@@ -576,6 +590,6 @@ public class {{appShortName}}Client : IDisposable {
         }
 
         await api.WriteAssertions(GetStoreId(options), authorizationModelId,
-            new WriteAssertionsRequest {Assertions = assertions}, cancellationToken);
+            new WriteAssertionsRequest { Assertions = assertions }, ExtractHeaders(options), cancellationToken);
     }
 }

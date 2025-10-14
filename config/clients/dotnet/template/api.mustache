@@ -1,13 +1,13 @@
 {{>partial_header}}
 
+using {{packageName}}.ApiClient;
+using {{packageName}}.Exceptions;
+using {{packageName}}.{{modelPackage}};
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using {{packageName}}.ApiClient;
-using {{packageName}}.Exceptions;
-using {{packageName}}.{{modelPackage}};
 
 namespace {{packageName}}.{{apiPackage}};
 
@@ -34,17 +34,18 @@ public class {{classname}} : IDisposable {
     /// <summary>
     /// {{summary}} {{notes}}
     /// </summary>
-    /// <exception cref="{{packageName}}.Exceptions.ApiException">Thrown when fails to make API call</exception>
+    /// <exception cref="ApiException">Thrown when fails to make API call</exception>
     {{#allParams}}
     /// <param name="{{paramName}}">{{description}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}</param>
     {{/allParams}}
+    /// <param name="headers"></param>
     /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
     /// <returns>Task of {{returnType}}{{^returnType}}void{{/returnType}}</returns>
     {{#isDeprecated}}
     [Obsolete]
     {{/isDeprecated}}
-    {{#returnType}}public async Task<{{{.}}}>{{/returnType}}{{^returnType}}public async Task{{/returnType}} {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^required}}{{#optionalMethodArgument}} = default({{{dataType}}}){{/optionalMethodArgument}}{{/required}}{{^-last}}, {{/-last}}{{/allParams}}{{#allParams.0}}, {{/allParams.0}}CancellationToken cancellationToken = default) {
-        var pathParams = new Dictionary<string, string> {};
+    {{#returnType}}public async Task<{{{.}}}>{{/returnType}}{{^returnType}}public async Task{{/returnType}} {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^required}}{{#optionalMethodArgument}} = default({{{dataType}}}){{/optionalMethodArgument}}{{/required}}{{^-last}}, {{/-last}}{{/allParams}}{{#allParams.0}}, {{/allParams.0}}IDictionary<string, string>? headers = null, CancellationToken cancellationToken = default) {
+        var pathParams = new Dictionary<string, string> { };
         {{#pathParams.0}}
         if (string.IsNullOrWhiteSpace(storeId)) {
             throw new FgaRequiredParamError("{{operationId}}", "StoreId");
@@ -87,7 +88,7 @@ public class {{classname}} : IDisposable {
         };
 
         {{#returnType}}return {{/returnType}}await _apiClient.SendRequestAsync{{#returnType}}<{{#bodyParam}}{{{dataType}}}{{/bodyParam}}{{^bodyParam}}Any{{/bodyParam}}, {{{.}}}>{{/returnType}}(requestBuilder,
-            "{{operationId}}", cancellationToken);
+            "{{operationId}}", headers, cancellationToken);
     }
 
     {{/operation}}
