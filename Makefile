@@ -107,7 +107,6 @@ test-client-dotnet: build-client-dotnet build-dotnet-multi-image
 
 .PHONY: build-client-dotnet
 build-client-dotnet: build-dotnet-multi-image
-	rm -rf ${CLIENTS_OUTPUT_DIR}/fga-dotnet-sdk/src/OpenFga.Sdk.Test
 	make build-client sdk_language=dotnet tmpdir=${TMP_DIR}
 
 	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet build --configuration Release'"
