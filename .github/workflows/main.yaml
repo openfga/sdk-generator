@@ -98,7 +98,8 @@ jobs:
       - name: Run All Tests
         run: make test-client-dotnet
         env:
-          OPEN_API_REF: f9709139a3693f6624efda12a001e242c5d506b6
+          OPEN_API_REF: 0ac19aac54f21f3c78970126b84b4c69c6e3b9a2
+          OPENAPI_GENERATOR_CLI_DOCKER_TAG: v7.11.0
 
       - name: Check for SDK changes
         run: |

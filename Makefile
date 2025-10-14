@@ -2,10 +2,10 @@
 OPENFGA_DOCKER_TAG = v1
 OPEN_API_REF ?= e53c69cc55317404d02a6d8e418d626268f28a59
 OPEN_API_URL = https://raw.githubusercontent.com/openfga/api/${OPEN_API_REF}/docs/openapiv2/apidocs.swagger.json
-OPENAPI_GENERATOR_CLI_DOCKER_TAG = v6.4.0
+OPENAPI_GENERATOR_CLI_DOCKER_TAG ?= v6.4.0
 NODE_DOCKER_TAG = 20-alpine
 GO_DOCKER_TAG = 1
-DOTNET_DOCKER_TAG = 6.0
+DOTNET_DOCKER_TAG = 9.0
 GOLINT_DOCKER_TAG = latest-alpine
 BUSYBOX_DOCKER_TAG = 1
 GRADLE_DOCKER_TAG = 8.12-jdk17
@@ -36,6 +36,13 @@ pull-docker-images:
 	docker pull mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG}
 	docker pull busybox:${BUSYBOX_DOCKER_TAG}
 	docker pull gradle:${GRADLE_DOCKER_TAG}
+
+## Build custom Docker images
+build-docker-images: build-dotnet-multi-image
+
+.PHONY: build-dotnet-multi-image
+build-dotnet-multi-image:
+	docker build -f docker/dotnet-multi.Dockerfile -t openfga/dotnet-multi:${DOTNET_DOCKER_TAG} .
 
 ## Building and Testing
 .PHONY: test
@@ -93,18 +100,27 @@ tag-client-dotnet: test-client-dotnet
 	make utils-tag-client sdk_language=dotnet
 
 .PHONY: test-client-dotnet
-test-client-dotnet: build-client-dotnet
-	make run-in-docker sdk_language=dotnet image=mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet test'"
+test-client-dotnet: build-client-dotnet build-dotnet-multi-image
+	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet test --framework net48'"
+	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet test --framework net8.0'"
+	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet test --framework net9.0'"
 
 .PHONY: build-client-dotnet
-build-client-dotnet:
+build-client-dotnet: build-dotnet-multi-image
 	rm -rf ${CLIENTS_OUTPUT_DIR}/fga-dotnet-sdk/src/OpenFga.Sdk.Test
 	make build-client sdk_language=dotnet tmpdir=${TMP_DIR}
 
-	make run-in-docker sdk_language=dotnet image=mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet build --configuration Release'"
-	# For some reason the first round of formatting fails with an error - running it again produces the correct result
-	make run-in-docker sdk_language=dotnet image=mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet format ./OpenFga.Sdk.sln'" || true
-	make run-in-docker sdk_language=dotnet image=mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet format ./OpenFga.Sdk.sln'"
+	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet build --configuration Release'"
+	# Workaround for dotnet format issue: https://github.com/dotnet/format/issues/1634
+	# Format with single target (net8.0) to avoid merge conflicts, then restore multi-targeting
+	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c '\
+		cp src/OpenFga.Sdk/OpenFga.Sdk.csproj src/OpenFga.Sdk/OpenFga.Sdk.csproj.bak && \
+		cp src/OpenFga.Sdk.Test/OpenFga.Sdk.Test.csproj src/OpenFga.Sdk.Test/OpenFga.Sdk.Test.csproj.bak && \
+		sed \"s/<TargetFrameworks>.*<\/TargetFrameworks>/<TargetFramework>net8.0<\/TargetFramework>/\" src/OpenFga.Sdk/OpenFga.Sdk.csproj.bak > src/OpenFga.Sdk/OpenFga.Sdk.csproj && \
+		sed \"s/<TargetFrameworks>.*<\/TargetFrameworks>/<TargetFramework>net8.0<\/TargetFramework>/\" src/OpenFga.Sdk.Test/OpenFga.Sdk.Test.csproj.bak > src/OpenFga.Sdk.Test/OpenFga.Sdk.Test.csproj && \
+		(dotnet restore ./OpenFga.Sdk.sln && dotnet format ./OpenFga.Sdk.sln) || true && \
+		mv src/OpenFga.Sdk/OpenFga.Sdk.csproj.bak src/OpenFga.Sdk/OpenFga.Sdk.csproj && \
+		mv src/OpenFga.Sdk.Test/OpenFga.Sdk.Test.csproj.bak src/OpenFga.Sdk.Test/OpenFga.Sdk.Test.csproj'"
 
 ### Python
 .PHONY: tag-client-python

@@ -1,6 +1,10 @@
 {{>partial_header}}
+
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 using {{packageName}}.{{modelPackage}};
 
@@ -60,6 +64,7 @@ namespace {{testPackageName}}.Models {
         /// <summary>
         /// Deserialize ReadChangesResponse
         /// </summary>
+        [Fact]
         public void DeserializeReadChangesResponse() {
             var jsonResponse =
                 "{\"changes\":[{\"tuple_key\":{\"object\":\"document:planning\",\"relation\":\"viewer\",\"user\":\"user:jane\"},\"operation\":\"TUPLE_OPERATION_WRITE\",\"timestamp\":\"2022-01-01T00:00:00.000000000Z\"},{\"tuple_key\":{\"object\":\"document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a\",\"relation\":\"owner\",\"user\":\"user:anna\"},\"operation\":\"TUPLE_OPERATION_DELETE\",\"timestamp\":\"2022-01-01T00:00:00.000000000Z\"}],\"continuation_token\":\"abcxyz==\"}";

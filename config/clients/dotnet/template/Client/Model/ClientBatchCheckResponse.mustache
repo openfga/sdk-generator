@@ -1,6 +1,9 @@
 {{>partial_header}}
 
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
@@ -44,28 +47,44 @@ public class BatchCheckSingleResponse : IEquatable<BatchCheckSingleResponse>, IV
     public Exception? Error { get; set; }
 
     /// <inheritdoc />
-    public bool Equals(BatchCheckSingleResponse? other)
-    {
+    public bool Equals(BatchCheckSingleResponse? other) {
         if (other == null) return false;
         if (ReferenceEquals(this, other)) return true;
 
         return Allowed == other.Allowed &&
                EqualityComparer<ClientCheckRequest>.Default.Equals(Request, other.Request) &&
-               EqualityComparer<Exception>.Default.Equals(Error, other.Error);
+               (ReferenceEquals(Error, other.Error) ||
+                (Error != null && other.Error != null &&
+                   Error.GetType() == other.Error.GetType() &&
+                   Error.Message == other.Error.Message));
     }
 
     /// <inheritdoc />
-    public override bool Equals(object obj)
-    {
-        if (obj is BatchCheckSingleResponse other)
-        {
+    public override bool Equals(object obj) {
+        if (obj is BatchCheckSingleResponse other) {
             return Equals(other);
         }
         return false;
     }
 
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) =>
-        throw new NotImplementedException();
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) {
+        yield break;
+    }
+
+    public override int GetHashCode() {
+        unchecked {
+            int hashCode = 9661;
+            hashCode = (hashCode * 9923) + Allowed.GetHashCode();
+            if (Request != null) {
+                hashCode = (hashCode * 9923) + Request.GetHashCode();
+            }
+            if (Error != null) {
+                hashCode = (hashCode * 9923) + Error.Message.GetHashCode();
+                hashCode = (hashCode * 9923) + Error.Message.GetHashCode();
+            }
+            return hashCode;
+        }
+    }
 }
 
 /// <summary>
@@ -92,8 +111,7 @@ public class ClientBatchCheckClientResponse : IEquatable<ClientBatchCheckClientR
     public List<BatchCheckSingleResponse> Responses { get; set; }
 
     /// <inheritdoc />
-    public bool Equals(ClientBatchCheckClientResponse? other)
-    {
+    public bool Equals(ClientBatchCheckClientResponse? other) {
         if (other == null) return false;
         if (ReferenceEquals(this, other)) return true;
 
@@ -101,21 +119,32 @@ public class ClientBatchCheckClientResponse : IEquatable<ClientBatchCheckClientR
     }
 
     /// <inheritdoc />
-    public override bool Equals(object obj)
-    {
-        if (obj is ClientBatchCheckClientResponse other)
-        {
+    public override bool Equals(object obj) {
+        if (obj is ClientBatchCheckClientResponse other) {
             return Equals(other);
         }
         return false;
     }
 
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) =>
-        throw new NotImplementedException();
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) {
+        yield break;
+    }
 
     /// <summary>
     ///     Appends a response to the list of responses
     /// </summary>
     /// <param name="response"></param>
     public void AppendResponse(BatchCheckSingleResponse response) => Responses.Add(response);
+
+    public override int GetHashCode() {
+        unchecked {
+            int hashCode = 9661;
+            if (Responses != null) {
+                foreach (var response in Responses) {
+                    hashCode = (hashCode * 9923) + (response?.GetHashCode() ?? 0);
+                }
+            }
+            return hashCode;
+        }
+    }
 }

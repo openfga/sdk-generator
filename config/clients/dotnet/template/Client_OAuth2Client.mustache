@@ -1,11 +1,18 @@
 {{>partial_header}}
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Net.Http;
+using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
+
 using {{packageName}}.Client.Model;
 using {{packageName}}.Configuration;
 using {{packageName}}.Exceptions;
 using {{packageName}}.Telemetry;
-using System.Diagnostics;
-using System.Text.Json.Serialization;
 
 namespace {{packageName}}.ApiClient;
 
