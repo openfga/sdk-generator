@@ -4,7 +4,10 @@ using OpenFga.Sdk.Model;
 
 namespace {{packageName}}.Client.Model;
 
-public class ClientListRelationsOptions : IClientBatchCheckOptions {
+public interface IClientListRelationsOptions : IClientBatchCheckOptions {
+}
+
+public class ClientListRelationsOptions : IClientListRelationsOptions {
     /// <inheritdoc />
     public string? StoreId { get; set; }
 
@@ -17,5 +20,5 @@ public class ClientListRelationsOptions : IClientBatchCheckOptions {
     public int? MaxParallelRequests { get; set; }
 
     /// <inheritdoc />
-    public ConsistencyPreference? Consistency { get; set; }    
+    public ConsistencyPreference? Consistency { get; set; }
 }

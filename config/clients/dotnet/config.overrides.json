@@ -11,7 +11,7 @@
   "testPackageGuid": "d119dfae-509a-4eba-a973-645b739356fc",
   "packageName": "OpenFga.Sdk",
   "testPackageName": "OpenFga.Sdk.Test",
-  "packageVersion": "0.6.0",
+  "packageVersion": "0.7.0",
   "licenseUrl": "https://github.com/openfga/dotnet-sdk/blob/main/LICENSE",
   "fossaComplianceNoticeId": "f8ac2ec4-84fc-44f4-a617-5800cd3d180e",
   "termsOfService": "",
@@ -346,6 +346,7 @@
     "example/OpenTelemetryExample/OpenTelemetryExample.cs": {},
     "example/OpenTelemetryExample/OpenTelemetryExample.csproj": {},
     "assets/FGAIcon.png": {},
-    ".editorconfig": {}
+    ".editorconfig": {},
+    "SUPPORTED_FRAMEWORKS.md": {}
   }
 }
