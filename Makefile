@@ -101,7 +101,7 @@ tag-client-dotnet: test-client-dotnet
 
 .PHONY: test-client-dotnet
 test-client-dotnet: build-client-dotnet build-dotnet-multi-image
-	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet test'"
+	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet test --framework net48 --framework net8.0 --framework net9.0'"
 
 .PHONY: build-client-dotnet
 build-client-dotnet: build-dotnet-multi-image
