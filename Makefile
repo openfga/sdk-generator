@@ -10,6 +10,8 @@ GOLINT_DOCKER_TAG = latest-alpine
 BUSYBOX_DOCKER_TAG = 1
 GRADLE_DOCKER_TAG = 8.12-jdk17
 PYTHON_DOCKER_TAG = 3.10
+RUBY_DOCKER_TAG = 3.4
+
 # Other config
 CONFIG_DIR = ${PWD}/config
 CLIENTS_OUTPUT_DIR = ${PWD}/clients
@@ -171,6 +173,20 @@ test-client-java: build-client-java
 .PHONY: test-integration-client-java
 test-integration-client-java: test-client-java
 	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c 'gradle test-integration'"
+
+### Ruby
+.PHONY: tag-client-ruby
+tag-client-ruby: test-client-ruby
+	make utils-tag-client sdk_language=ruby
+
+.PHONY: build-client-ruby
+build-client-ruby:
+	make build-client sdk_language=ruby tmpdir=${TMP_DIR}
+
+.PHONY: test-client-ruby
+test-client-ruby: build-client-ruby
+	make run-in-docker sdk_language=ruby image=ruby:${RUBY_DOCKER_TAG} command="/bin/sh -c 'bundle install && bundle exec rspec'"
+
 
 .PHONY: run-in-docker
 run-in-docker:
