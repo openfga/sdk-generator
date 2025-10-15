@@ -4,6 +4,7 @@
   "artifactId": "openfga-sdk",
   "groupId": "dev.openfga",
   "packageVersion": "0.9.2",
+  "basePackage": "dev.openfga.sdk",
   "apiPackage": "dev.openfga.sdk.api",
   "authPackage": "dev.openfga.sdk.api.auth",
   "clientPackage": "dev.openfga.sdk.api.client",
@@ -33,6 +34,10 @@
   "caseInsensitiveResponseHeaders": true,
   "openTelemetryDocumentation": "OpenTelemetry.md",
   "files": {
+    "src/main/constants/FgaConstants.mustache": {
+      "destinationFilename": "src/main/dev/openfga/sdk/constants/FgaConstants.java",
+      "templateType": "SupportingFiles"
+    },
     "src/main/api/auth/AccessToken.java.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/api/auth/AccessToken.java",
       "templateType": "SupportingFiles"
