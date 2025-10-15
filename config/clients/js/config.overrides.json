@@ -10,7 +10,7 @@
   "useSingleRequestParameter": false,
   "supportsES6": true,
   "modelPropertyNaming": "original",
-  "openTelemetryDocumentation": "opentelemetry.md",
+  "openTelemetryDocumentation": "docs/opentelemetry.md",
   "files": {
     "constants.mustache": {
       "destinationFilename": "constants/index.ts",

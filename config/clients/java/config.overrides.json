@@ -32,7 +32,7 @@
   "enumUnknownDefaultCase": true,
   "allowUnicodeIdentifiers": true,
   "caseInsensitiveResponseHeaders": true,
-  "openTelemetryDocumentation": "OpenTelemetry.md",
+  "openTelemetryDocumentation": "docs/OpenTelemetry.md",
   "files": {
     "src/main/constants/FgaConstants.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/constants/FgaConstants.java",

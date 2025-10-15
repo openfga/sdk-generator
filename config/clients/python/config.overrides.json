@@ -10,7 +10,7 @@
   "infoEmail": "community@openfga.dev",
   "docPrefix": "https://github.com/openfga/python-sdk/blob/main/",
   "pythonMinimumRuntime": "3.10",
-  "openTelemetryDocumentation": "opentelemetry.md",
+  "openTelemetryDocumentation": "docs/opentelemetry.md",
   "supportsStreamedListObjects": "streamed_list_objects",
   "files": {
     "src/constants.mustache": {

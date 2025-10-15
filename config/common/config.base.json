@@ -49,6 +49,10 @@
       "destinationFilename": "VERSION.txt",
       "templateType": "SupportingFiles"
     },
+    "README.mustache": {
+      "destinationFilename": "README.md",
+      "templateType": "SupportingFiles"
+    },
     ".github/CODEOWNERS.mustache": {
       "destinationFilename": ".github/CODEOWNERS",
       "templateType": "SupportingFiles"

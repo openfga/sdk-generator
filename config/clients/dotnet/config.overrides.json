@@ -36,7 +36,7 @@
   "enablePostProcessFile": true,
   "hashCodeBasePrimeNumber": 9661,
   "hashCodeMultiplierPrimeNumber": 9923,
-  "supportsOpenTelemetry": true,
+  "openTelemetryDocumentation": "OpenTelemetry.md",
   "files": {
     "constants.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Constants/FgaConstants.cs",
