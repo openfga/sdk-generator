@@ -8,7 +8,7 @@
   "fossaComplianceNoticeId": "41c01c64-f74a-414a-9e39-7aeca87bc47b",
   "generateInterfaces": true,
   "enumClassPrefix": true,
-  "openTelemetryDocumentation": "opentelemetry.md",
+  "openTelemetryDocumentation": "docs/OpenTelemetry.md",
   "targetGoVersion": "1.24.0",
   "toolchainGoVersion": "1.25.1",
   "files": {
