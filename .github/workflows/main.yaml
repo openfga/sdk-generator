@@ -175,6 +175,8 @@ jobs:
       - name: Run All Tests
         run: |-
           make test-integration-client-java
+        env:
+            OPEN_API_REF: 0ac19aac54f21f3c78970126b84b4c69c6e3b9a2
 
       - name: Check for SDK changes
         run: |
