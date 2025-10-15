@@ -1,8 +1,8 @@
 {{>licenseInfo}}
 package {{package}};
 
-import static {{utilPackage}}.StringUtil.isNullOrWhitespace;
-import static {{utilPackage}}.Validation.assertParamExists;
+import static {{basePackage}}.util.StringUtil.isNullOrWhitespace;
+import static {{basePackage}}.util.Validation.assertParamExists;
 
 import {{authPackage}}.*;
 import {{configPackage}}.*;
@@ -10,8 +10,8 @@ import {{clientPackage}}.*;
 import {{telemetryPackage}}.Attribute;
 import {{telemetryPackage}}.Attributes;
 import {{telemetryPackage}}.Telemetry;
-import {{utilPackage}}.Pair;
-import {{utilPackage}}.StringUtil;
+import {{basePackage}}.util.Pair;
+import {{basePackage}}.util.StringUtil;
 import {{errorsPackage}}.*;
 
 {{#imports}}
