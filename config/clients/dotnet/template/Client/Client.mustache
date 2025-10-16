@@ -212,6 +212,20 @@ public class {{appShortName}}Client : IDisposable {
         return authorizationModelId;
     }
 
+    private static WriteRequestWrites.OnDuplicateEnum MapOnDuplicateWrites(OnDuplicateWrites? behavior) {
+        if (behavior == null) return WriteRequestWrites.OnDuplicateEnum.Error;
+        return behavior.Value == OnDuplicateWrites.Error
+            ? WriteRequestWrites.OnDuplicateEnum.Error
+            : WriteRequestWrites.OnDuplicateEnum.Ignore;
+    }
+
+    private static WriteRequestDeletes.OnMissingEnum MapOnMissingDeletes(OnMissingDeletes? behavior) {
+        if (behavior == null) return WriteRequestDeletes.OnMissingEnum.Error;
+        return behavior.Value == OnMissingDeletes.Error
+            ? WriteRequestDeletes.OnMissingEnum.Error
+            : WriteRequestDeletes.OnMissingEnum.Ignore;
+    }
+
     /**********
      * Stores *
      **********/
@@ -343,13 +357,13 @@ public class {{appShortName}}Client : IDisposable {
             if (body.Writes?.Count > 0) {
                 requestBody.Writes = new WriteRequestWrites(
                     body.Writes.ConvertAll(key => key.ToTupleKey()),
-                    options?.Conflict?.OnDuplicateWrites ?? WriteRequestWrites.OnDuplicateEnum.Error
+                    MapOnDuplicateWrites(options?.Conflict?.OnDuplicateWrites)
                 );
             }
             if (body.Deletes?.Count > 0) {
                 requestBody.Deletes = new WriteRequestDeletes(
                     body.Deletes.ConvertAll(key => key.ToTupleKeyWithoutCondition()),
-                    options?.Conflict?.OnMissingDeletes ?? WriteRequestDeletes.OnMissingEnum.Error
+                    MapOnMissingDeletes(options?.Conflict?.OnMissingDeletes)
                 );
             }
 

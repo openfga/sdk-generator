@@ -323,12 +323,12 @@ var response = await fgaClient.Write(body, options);
 The SDK allows you to control how write conflicts are handled using the `Conflict` option:
 
 - **OnDuplicateWrites**: Controls behavior when writing a tuple that already exists
-  - `WriteRequestWrites.OnDuplicateEnum.Error` - Return error on duplicates (default)
-  - `WriteRequestWrites.OnDuplicateEnum.Ignore` - Silently skip duplicate writes
+  - `OnDuplicateWrites.Error` - Return error on duplicates (default)
+  - `OnDuplicateWrites.Ignore` - Silently skip duplicate writes
 
 - **OnMissingDeletes**: Controls behavior when deleting a tuple that doesn't exist
-  - `WriteRequestDeletes.OnMissingEnum.Error` - Return error on missing deletes (default)
-  - `WriteRequestDeletes.OnMissingEnum.Ignore` - Silently skip missing deletes
+  - `OnMissingDeletes.Error` - Return error on missing deletes (default)
+  - `OnMissingDeletes.Ignore` - Silently skip missing deletes
 
 ```csharp
 var body = new ClientWriteRequest() {
@@ -350,8 +350,8 @@ var body = new ClientWriteRequest() {
 var options = new ClientWriteOptions {
     AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
     Conflict = new ConflictOptions {
-        OnDuplicateWrites = WriteRequestWrites.OnDuplicateEnum.Ignore,
-        OnMissingDeletes = WriteRequestDeletes.OnMissingEnum.Ignore
+        OnDuplicateWrites = OnDuplicateWrites.Ignore,
+        OnMissingDeletes = OnMissingDeletes.Ignore
     }
 };
 var response = await fgaClient.Write(body, options);

@@ -2212,7 +2212,7 @@ public class {{appShortName}}ClientTests : IDisposable {
         var response = await fgaClient.Write(body, new ClientWriteOptions {
             AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
             Conflict = new ConflictOptions {
-                OnDuplicateWrites = WriteRequestWrites.OnDuplicateEnum.Ignore
+                OnDuplicateWrites = OnDuplicateWrites.Ignore
             }
         });
 
@@ -2261,7 +2261,7 @@ public class {{appShortName}}ClientTests : IDisposable {
         var response = await fgaClient.Write(body, new ClientWriteOptions {
             AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
             Conflict = new ConflictOptions {
-                OnDuplicateWrites = WriteRequestWrites.OnDuplicateEnum.Error
+                OnDuplicateWrites = OnDuplicateWrites.Error
             }
         });
 
@@ -2310,7 +2310,7 @@ public class {{appShortName}}ClientTests : IDisposable {
         var response = await fgaClient.Write(body, new ClientWriteOptions {
             AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
             Conflict = new ConflictOptions {
-                OnMissingDeletes = WriteRequestDeletes.OnMissingEnum.Ignore
+                OnMissingDeletes = OnMissingDeletes.Ignore
             }
         });
 
@@ -2359,7 +2359,7 @@ public class {{appShortName}}ClientTests : IDisposable {
         var response = await fgaClient.Write(body, new ClientWriteOptions {
             AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
             Conflict = new ConflictOptions {
-                OnMissingDeletes = WriteRequestDeletes.OnMissingEnum.Error
+                OnMissingDeletes = OnMissingDeletes.Error
             }
         });
 
@@ -2415,8 +2415,8 @@ public class {{appShortName}}ClientTests : IDisposable {
         var response = await fgaClient.Write(body, new ClientWriteOptions {
             AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
             Conflict = new ConflictOptions {
-                OnDuplicateWrites = WriteRequestWrites.OnDuplicateEnum.Ignore,
-                OnMissingDeletes = WriteRequestDeletes.OnMissingEnum.Ignore
+                OnDuplicateWrites = OnDuplicateWrites.Ignore,
+                OnMissingDeletes = OnMissingDeletes.Ignore
             }
         });
 
@@ -2486,8 +2486,8 @@ public class {{appShortName}}ClientTests : IDisposable {
                 MaxPerChunk = 1
             },
             Conflict = new ConflictOptions {
-                OnDuplicateWrites = WriteRequestWrites.OnDuplicateEnum.Ignore,
-                OnMissingDeletes = WriteRequestDeletes.OnMissingEnum.Ignore
+                OnDuplicateWrites = OnDuplicateWrites.Ignore,
+                OnMissingDeletes = OnMissingDeletes.Ignore
             }
         });
 
@@ -2600,7 +2600,7 @@ public class {{appShortName}}ClientTests : IDisposable {
         var response = await fgaClient.WriteTuples(tuples, new ClientWriteOptions {
             AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
             Conflict = new ConflictOptions {
-                OnDuplicateWrites = WriteRequestWrites.OnDuplicateEnum.Ignore
+                OnDuplicateWrites = OnDuplicateWrites.Ignore
             }
         });
 
@@ -2647,7 +2647,7 @@ public class {{appShortName}}ClientTests : IDisposable {
         var response = await fgaClient.DeleteTuples(tuples, new ClientWriteOptions {
             AuthorizationModelId = "01GXSA8YR785C4FYS3C0RTG7B1",
             Conflict = new ConflictOptions {
-                OnMissingDeletes = WriteRequestDeletes.OnMissingEnum.Ignore
+                OnMissingDeletes = OnMissingDeletes.Ignore
             }
         });
 
