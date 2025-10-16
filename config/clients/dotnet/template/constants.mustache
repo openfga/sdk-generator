@@ -1,0 +1,145 @@
+{{>partial_header}}
+
+namespace OpenFga.Sdk.Constants;
+
+/// <summary>
+/// Centralized constants for the OpenFGA .NET SDK.
+/// </summary>
+public static class FgaConstants {
+    /// <summary>
+    /// Version of the OpenFGA .NET SDK.
+    /// </summary>
+    public const string SdkVersion = "{{packageVersion}}";
+
+    /// <summary>
+    /// User agent used in HTTP requests.
+    /// </summary>
+    public const string UserAgent = "{{userAgent}}";
+
+    /// <summary>
+    /// Example API domain for documentation/tests.
+    /// </summary>
+    public static readonly string SampleBaseDomain = "{{sampleApiDomain}}";
+
+    /// <summary>
+    /// API URL used for tests.
+    /// </summary>
+    public static readonly string TestApiUrl = "https://api." + SampleBaseDomain;
+
+    /// <summary>
+    /// API Token Issuer URL used for tests.
+    /// </summary>
+    public static readonly string TestIssuerUrl = "https://issuer." + SampleBaseDomain;
+
+    /// <summary>
+    /// Default API URL.
+    /// </summary>
+    public static readonly string DefaultApiUrl = "{{defaultApiUrl}}";
+
+    // Retry configuration
+
+    /// <summary>
+    /// Maximum allowed number of retries for HTTP requests.
+    /// </summary>
+    public const int RetryMaxAllowedNumber = {{retryMaxAllowedNumber}};
+
+    /// <summary>
+    /// Default maximum number of retries for HTTP requests.
+    /// </summary>
+    public const int DefaultMaxRetry = {{defaultMaxRetry}};
+
+    /// <summary>
+    /// Default minimum wait time between retries in milliseconds.
+    /// </summary>
+    public const int DefaultMinWaitInMs = {{defaultMinWaitInMs}};
+
+    /// <summary>
+    /// Maximum backoff time in seconds.
+    /// </summary>
+    public const int MaxBackoffTimeInSec = {{maxBackoffTimeInSec}};
+
+    /// <summary>
+    /// Maximum allowable duration for retry headers in seconds.
+    /// </summary>
+    public const int RetryHeaderMaxAllowableDurationInSec = {{retryHeaderMaxAllowableDurationInSec}};
+
+    /// <summary>
+    /// Standard HTTP header for retry-after.
+    /// </summary>
+    public static readonly string RetryAfterHeaderName = "{{retryAfterHeaderName}}";
+
+    /// <summary>
+    /// Rate limit reset header name.
+    /// </summary>
+    public static readonly string RateLimitResetHeaderName = "{{rateLimitResetHeaderName}}";
+
+    /// <summary>
+    /// Alternative rate limit reset header name.
+    /// </summary>
+    public static readonly string RateLimitResetAltHeaderName = "{{rateLimitResetAltHeaderName}}";
+
+    // Client methods
+
+    /// <summary>
+    /// Maximum number of parallel requests for a single method.
+    /// </summary>
+    public const int ClientMaxMethodParallelRequests = {{clientMaxMethodParallelRequests}};
+
+    /// <summary>
+    /// Maximum batch size for batch requests.
+    /// </summary>
+    public const int ClientMaxBatchSize = {{clientMaxBatchSize}};
+
+    /// <summary>
+    /// Header used to identify the client method.
+    /// </summary>
+    public static readonly string ClientMethodHeader = "{{clientMethodHeader}}";
+
+    /// <summary>
+    /// Header used to identify bulk requests.
+    /// </summary>
+    public static readonly string ClientBulkRequestIdHeader = "{{clientBulkRequestIdHeader}}";
+
+    // Connection options
+
+    /// <summary>
+    /// Default timeout for HTTP requests in milliseconds.
+    /// </summary>
+    public const int DefaultRequestTimeoutInMs = {{defaultRequestTimeoutInMs}};
+
+    /// <summary>
+    /// Default connection timeout in milliseconds.
+    /// </summary>
+    public const int DefaultConnectionTimeoutInMs = {{defaultConnectionTimeoutInMs}};
+
+    // Token management
+
+    /// <summary>
+    /// Buffer time in seconds before token expiry to consider it expired.
+    /// </summary>
+    public const int TokenExpiryThresholdBufferInSec = {{tokenExpiryThresholdBufferInSec}};
+
+    /// <summary>
+    /// Jitter time in seconds to add randomness to token expiry checks.
+    /// </summary>
+    public const int TokenExpiryJitterInSec = {{tokenExpiryJitterInSec}};
+
+    // FGA Response Headers
+
+    /// <summary>
+    /// Response header name for query duration in milliseconds.
+    /// </summary>
+    public static readonly string QueryDurationHeaderName = "{{queryDurationHeaderName}}";
+
+    // .NET Specific constants
+
+    /// <summary>
+    /// Prime number used as a base in hash code calculations.
+    /// </summary>
+    public const int HashCodeBasePrimeNumber = {{hashCodeBasePrimeNumber}};
+
+    /// <summary>
+    /// Prime number used as a multiplier in hash code calculations.
+    /// </summary>
+    public const int HashCodeMultiplierPrimeNumber = {{hashCodeMultiplierPrimeNumber}};
+}

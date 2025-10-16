@@ -10,167 +10,18 @@
   "useSingleRequestParameter": false,
   "supportsES6": true,
   "modelPropertyNaming": "original",
-  "openTelemetryDocumentation": "opentelemetry.md",
+  "openTelemetryDocumentation": "docs/opentelemetry.md",
   "files": {
-    "tests/jest.config.js": {},
-    "tests/tsconfig.spec.json": {},
-    "tests/index.test.ts.mustache": {
-      "destinationFilename": "tests/index.test.ts",
-      "templateType": "SupportingFiles"
-    },
-    "tests/client.test.ts.mustache": {
-      "destinationFilename": "tests/client.test.ts",
-      "templateType": "SupportingFiles"
-    },
-    "tests/validation.test.ts.mustache": {
-      "destinationFilename": "tests/validation.test.ts",
-      "templateType": "SupportingFiles"
-    },
-    "tests/headers.test.ts.mustache": {
-      "destinationFilename": "tests/headers.test.ts",
-      "templateType": "SupportingFiles"
-    },
-    "tests/helpers/index.ts.mustache": {
-      "destinationFilename": "tests/helpers/index.ts",
-      "templateType": "SupportingFiles"
-    },
-    "tests/helpers/nocks.ts.mustache": {
-      "destinationFilename": "tests/helpers/nocks.ts",
-      "templateType": "SupportingFiles"
-    },
-    "tests/helpers/default-config.ts.mustache": {
-      "destinationFilename": "tests/helpers/default-config.ts",
-      "templateType": "SupportingFiles"
-    },
-    "tests/telemetry/attributes.test.ts.mustache": {
-      "destinationFilename": "tests/telemetry/attributes.test.ts",
-      "templateType": "SupportingFiles"
-    },
-    "tests/telemetry/configuration.test.ts.mustache": {
-      "destinationFilename": "tests/telemetry/configuration.test.ts",
-      "templateType": "SupportingFiles"
-    },
-    "tests/telemetry/counters.test.ts.mustache": {
-      "destinationFilename": "tests/telemetry/counters.test.ts",
-      "templateType": "SupportingFiles"
-    },
-    "tests/telemetry/histograms.test.ts.mustache": {
-      "destinationFilename": "tests/telemetry/histograms.test.ts",
-      "templateType": "SupportingFiles"
-    },
-    "tests/telemetry/metrics.test.ts.mustache": {
-      "destinationFilename": "tests/telemetry/metrics.test.ts",
-      "templateType": "SupportingFiles"
-    },
-    "utils/assert-never.ts.mustache": {
-      "destinationFilename": "utils/assert-never.ts",
-      "templateType": "SupportingFiles"
-    },
-    "utils/chunk-array.ts.mustache": {
-      "destinationFilename": "utils/chunk-array.ts",
-      "templateType": "SupportingFiles"
-    },
-    "utils/index.ts.mustache": {
-      "destinationFilename": "utils/index.ts",
-      "templateType": "SupportingFiles"
-    },
-    "utils/generate-random-id.ts.mustache": {
-      "destinationFilename": "utils/generate-random-id.ts",
-      "templateType": "SupportingFiles"
-    },
-    "utils/set-header-if-not-set.ts.mustache": {
-      "destinationFilename": "utils/set-header-if-not-set.ts",
-      "templateType": "SupportingFiles"
-    },
-    "utils/set-not-enumerable-property.ts.mustache": {
-      "destinationFilename": "utils/set-not-enumerable-property.ts",
-      "templateType": "SupportingFiles"
-    },
-    ".eslintrc.js": {},
-    ".eslintignore": {},
-    "tsconfig.json": {},
-    "client.mustache": {
-      "destinationFilename": "client.ts",
-      "templateType": "SupportingFiles"
-    },
-    "validation.mustache": {
-      "destinationFilename": "validation.ts",
-      "templateType": "SupportingFiles"
-    },
-    "credentials/index.ts.mustache": {
-      "destinationFilename": "credentials/index.ts",
-      "templateType": "SupportingFiles"
-    },
-    "credentials/credentials.ts.mustache": {
-      "destinationFilename": "credentials/credentials.ts",
-      "templateType": "SupportingFiles"
-    },
-    "credentials/types.ts.mustache": {
-      "destinationFilename": "credentials/types.ts",
-      "templateType": "SupportingFiles"
-    },
-    "errors.mustache": {
-      "destinationFilename": "errors.ts",
+    "constants.mustache": {
+      "destinationFilename": "constants/index.ts",
       "templateType": "SupportingFiles"
     },
     "apiModel.mustache": {
       "destinationFilename": "apiModel.ts",
       "templateType": "SupportingFiles"
     },
-    "README.mustache": {
-      "destinationFilename": "README.md",
-      "templateType": "SupportingFiles"
-    },
-    "package.mustache": {
-      "destinationFilename": "package.json",
-      "templateType": "SupportingFiles"
-    },
     "npmrc.mustache": {
       "destinationFilename": ".npmrc",
-      "templateType": "SupportingFiles"
-    },
-    "example/Makefile": {},
-    "example/README.md.mustache": {
-      "destinationFilename": "example/README.md",
-      "templateType": "SupportingFiles"
-    },
-    "example/example1/example1.mjs": {},
-    "example/example1/package.json.mustache": {
-      "destinationFilename": "example/example1/package.json",
-      "templateType": "SupportingFiles"
-    },
-    "example/opentelemetry/.env.example": {},
-    "example/opentelemetry/.npmrc": {},
-    "example/opentelemetry/opentelemetry.mjs": {},
-    "example/opentelemetry/README.md": {},
-    "example/opentelemetry/instrumentation.mjs": {},
-    "example/opentelemetry/package.json.mustache": {
-      "destinationFilename": "example/opentelemetry/package.json",
-      "templateType": "SupportingFiles"
-    },
-    ".madgerc": {},
-    "telemetry/attributes.ts.mustache": {
-      "destinationFilename": "telemetry/attributes.ts",
-      "templateType": "SupportingFiles"
-    },
-    "telemetry/configuration.ts.mustache": {
-      "destinationFilename": "telemetry/configuration.ts",
-      "templateType": "SupportingFiles"
-    },
-    "telemetry/counters.ts.mustache": {
-      "destinationFilename": "telemetry/counters.ts",
-      "templateType": "SupportingFiles"
-    },
-    "telemetry/histograms.ts.mustache": {
-      "destinationFilename": "telemetry/histograms.ts",
-      "templateType": "SupportingFiles"
-    },
-    "telemetry/metrics.ts.mustache": {
-      "destinationFilename": "telemetry/metrics.ts",
-      "templateType": "SupportingFiles"
-    },
-    "docs/opentelemetry.md.mustache": {
-      "destinationFilename": "docs/opentelemetry.md",
       "templateType": "SupportingFiles"
     }
   }

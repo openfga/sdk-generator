@@ -208,9 +208,9 @@
                 // Ref: https://stackoverflow.com/a/263416
                 // Ref: https://www.loganfranken.com/blog/687/overriding-equals-in-c-part-1/
 
-                int hashCode = {{hashCodeBasePrimeNumber}};
+                int hashCode = FgaConstants.HashCodeBasePrimeNumber;
                 if (this.ActualInstance != null)
-                    hashCode = hashCode * {{hashCodeMultiplierPrimeNumber}} + this.ActualInstance.GetHashCode();
+                    hashCode = hashCode * FgaConstants.HashCodeMultiplierPrimeNumber + this.ActualInstance.GetHashCode();
                 return hashCode;
             }
         }

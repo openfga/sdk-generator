@@ -37,10 +37,6 @@
       "destinationFilename": ".gitignore",
       "templateType": "SupportingFiles"
     },
-    "CHANGELOG.md.mustache": {
-      "destinationFilename": "CHANGELOG.md",
-      "templateType": "SupportingFiles"
-    },
     "LICENSE.mustache": {
       "destinationFilename": "LICENSE",
       "templateType": "SupportingFiles"
@@ -53,8 +49,8 @@
       "destinationFilename": "VERSION.txt",
       "templateType": "SupportingFiles"
     },
-    ".fossa.yml.mustache": {
-      "destinationFilename": ".fossa.yml",
+    "README.mustache": {
+      "destinationFilename": "README.md",
       "templateType": "SupportingFiles"
     },
     ".github/CODEOWNERS.mustache": {
@@ -77,6 +73,7 @@
       "templateType": "SupportingFiles"
     }
   },
+  "defaultApiUrl": "http://localhost:8080",
   "retryMaxAllowedNumber": 15,
   "defaultMaxRetry": 3,
   "defaultMinWaitInMs": 100,
@@ -84,10 +81,15 @@
   "retryHeaderMaxAllowableDurationInSec": 1800,
   "clientMaxMethodParallelRequests": 10,
   "clientMaxBatchSize": 50,
+  "defaultRequestTimeoutInMs": 10000,
   "defaultConnectionTimeoutInMs": 10000,
   "tokenExpiryThresholdBufferInSec": 300,
   "tokenExpiryJitterInSec": 300,
   "clientMethodHeader": "X-OpenFGA-Client-Method",
   "clientBulkRequestIdHeader": "X-OpenFGA-Client-Bulk-Request-Id",
-  "openFGADockerTag": "v1.10.2"
+  "retryAfterHeaderName": "Retry-After",
+  "rateLimitResetHeaderName": "X-RateLimit-Reset",
+  "rateLimitResetAltHeaderName": "X-Rate-Limit-Reset",
+  "queryDurationHeaderName": "fga-query-duration-ms",
+  "openFGADockerTag": "v1.10.3"
 }
