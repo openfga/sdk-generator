@@ -1,8 +1,36 @@
 {{>partial_header}}
 
+using {{packageName}}.Model;
 using System.Collections.Generic;
 
 namespace {{packageName}}.Client.Model;
+
+/// <summary>
+///     ConflictOptions - Controls behavior for duplicate writes and missing deletes
+/// </summary>
+public interface IConflictOptions {
+    /// <summary>
+    ///     Controls behavior when writing a tuple that already exists
+    /// </summary>
+    WriteRequestWrites.OnDuplicateEnum? OnDuplicateWrites { get; set; }
+
+    /// <summary>
+    ///     Controls behavior when deleting a tuple that doesn't exist
+    /// </summary>
+    WriteRequestDeletes.OnMissingEnum? OnMissingDeletes { get; set; }
+}
+
+public class ConflictOptions : IConflictOptions {
+    /// <summary>
+    ///     Controls behavior when writing a tuple that already exists
+    /// </summary>
+    public WriteRequestWrites.OnDuplicateEnum? OnDuplicateWrites { get; set; }
+
+    /// <summary>
+    ///     Controls behavior when deleting a tuple that doesn't exist
+    /// </summary>
+    public WriteRequestDeletes.OnMissingEnum? OnMissingDeletes { get; set; }
+}
 
 /// <summary>
 ///     TransactionOpts
@@ -43,6 +71,7 @@ public class TransactionOptions : ITransactionOpts {
 
 public interface IClientWriteOptions : IClientRequestOptionsWithAuthZModelId {
     ITransactionOpts Transaction { get; set; }
+    IConflictOptions? Conflict { get; set; }
 }
 
 public class ClientWriteOptions : IClientWriteOptions {
@@ -56,6 +85,9 @@ public class ClientWriteOptions : IClientWriteOptions {
 
     /// <inheritdoc />
     public ITransactionOpts Transaction { get; set; }
+
+    /// <inheritdoc />
+    public IConflictOptions? Conflict { get; set; }
 
     /// <inheritdoc />
     public IDictionary<string, string>? Headers { get; set; }

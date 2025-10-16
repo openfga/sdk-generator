@@ -341,10 +341,16 @@ public class {{appShortName}}Client : IDisposable {
                 AuthorizationModelId = authorizationModelId
             };
             if (body.Writes?.Count > 0) {
-                requestBody.Writes = new WriteRequestWrites(body.Writes.ConvertAll(key => key.ToTupleKey()));
+                requestBody.Writes = new WriteRequestWrites(
+                    body.Writes.ConvertAll(key => key.ToTupleKey()),
+                    options?.Conflict?.OnDuplicateWrites ?? WriteRequestWrites.OnDuplicateEnum.Error
+                );
             }
             if (body.Deletes?.Count > 0) {
-                requestBody.Deletes = new WriteRequestDeletes(body.Deletes.ConvertAll(key => key.ToTupleKeyWithoutCondition()));
+                requestBody.Deletes = new WriteRequestDeletes(
+                    body.Deletes.ConvertAll(key => key.ToTupleKeyWithoutCondition()),
+                    options?.Conflict?.OnMissingDeletes ?? WriteRequestDeletes.OnMissingEnum.Error
+                );
             }
 
             await api.Write(GetStoreId(options), requestBody, options, cancellationToken);
@@ -360,7 +366,12 @@ public class {{appShortName}}Client : IDisposable {
             };
         }
 
-        var clientWriteOpts = new ClientWriteOptions() { StoreId = StoreId, AuthorizationModelId = authorizationModelId, Headers = options?.Headers };
+        var clientWriteOpts = new ClientWriteOptions() {
+            StoreId = StoreId,
+            AuthorizationModelId = authorizationModelId,
+            Headers = ExtractHeaders(options)?.Headers,
+            Conflict = options?.Conflict
+        };
 
         var writeChunks = body.Writes?.Chunk(maxPerChunk).ToList() ?? new List<ClientTupleKey[]>();
         var writeResponses = new ConcurrentBag<ClientWriteSingleResponse>();
