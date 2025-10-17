@@ -1,7 +1,7 @@
 # Changelog
 
 ## [Unreleased](https://{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/compare/v{{packageVersion}}...HEAD)
-- feat: add support for conflict options for Write operations: (#610)
+- feat: add support for conflict options for Write operations: (#235)
   The client now supports setting `ConflictOptions` on `ClientWriteOptions` to control behavior when writing duplicate tuples or deleting non-existent tuples. This feature requires OpenFGA server [v1.10.0](https://github.com/openfga/openfga/releases/tag/v1.10.0) or later.
   See [Conflict Options for Write Operations](./README.md#conflict-options-for-write-operations) for more.
   - `on_duplicate` for handling duplicate tuple writes (ERROR or IGNORE)
