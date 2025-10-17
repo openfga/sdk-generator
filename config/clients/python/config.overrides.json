@@ -153,6 +153,14 @@
       "destinationFilename": "openfga_sdk/client/models/write_transaction_opts.py",
       "templateType": "SupportingFiles"
     },
+    "src/client/models/write_conflict_opts.py.mustache": {
+      "destinationFilename": "openfga_sdk/client/models/write_conflict_opts.py",
+      "templateType": "SupportingFiles"
+    },
+    "src/client/models/write_options.py.mustache": {
+      "destinationFilename": "openfga_sdk/client/models/write_options.py",
+      "templateType": "SupportingFiles"
+    },
     "/src/models/__init__.py.mustache": {
       "destinationFilename": "openfga_sdk/models/__init__.py",
       "templateType": "SupportingFiles"
