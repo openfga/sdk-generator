@@ -1,5 +1,7 @@
 {{>partial_header}}
 
+using System.Collections.Generic;
+
 namespace {{packageName}}.Client.Model;
 
 /// <summary>
@@ -54,4 +56,7 @@ public class ClientWriteOptions : IClientWriteOptions {
 
     /// <inheritdoc />
     public ITransactionOpts Transaction { get; set; }
+
+    /// <inheritdoc />
+    public IDictionary<string, string>? Headers { get; set; }
 }
