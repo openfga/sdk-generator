@@ -88,7 +88,7 @@ public class {{classname}} : IDisposable {
         };
 
         {{#returnType}}return {{/returnType}}await _apiClient.SendRequestAsync{{#returnType}}<{{#bodyParam}}{{{dataType}}}{{/bodyParam}}{{^bodyParam}}Any{{/bodyParam}}, {{{.}}}>{{/returnType}}(requestBuilder,
-            "{{operationId}}", options?.Headers, cancellationToken);
+            "{{operationId}}", options, cancellationToken);
     }
 
     {{/operation}}
