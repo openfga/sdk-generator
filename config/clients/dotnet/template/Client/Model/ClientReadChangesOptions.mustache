@@ -1,5 +1,7 @@
 {{>partial_header}}
 
+using System.Collections.Generic;
+
 namespace {{packageName}}.Client.Model;
 
 /// <summary>
@@ -18,4 +20,7 @@ public class ClientReadChangesOptions : IClientReadChangesOptions {
 
     /// <inheritdoc />
     public string? ContinuationToken { get; set; }
+
+    /// <inheritdoc />
+    public IDictionary<string, string>? Headers { get; set; }
 }
