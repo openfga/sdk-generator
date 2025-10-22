@@ -330,6 +330,10 @@
       "destinationFilename": "src/OpenFga.Sdk/Model/JsonStringEnumMemberConverter.cs",
       "templateType": "SupportingFiles"
     },
+    "modelRequestOptions.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Model/RequestOptions.cs",
+      "templateType": "SupportingFiles"
+    },
     ".fossa.yml.mustache": {
       "destinationFilename": ".fossa.yml",
       "templateType": "SupportingFiles"
