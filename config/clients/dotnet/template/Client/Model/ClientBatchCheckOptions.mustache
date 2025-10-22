@@ -1,6 +1,7 @@
 {{>partial_header}}
 
-using OpenFga.Sdk.Model;
+using {{packageName}}.Model;
+using System.Collections.Generic;
 
 namespace {{packageName}}.Client.Model;
 
@@ -25,4 +26,7 @@ public class ClientBatchCheckOptions : IClientBatchCheckOptions {
 
     /// <inheritdoc />
     public ConsistencyPreference? Consistency { get; set; }
+
+    /// <inheritdoc />
+    public IDictionary<string, string>? Headers { get; set; }
 }
