@@ -54,12 +54,24 @@
       "destinationFilename": "src/OpenFga.Sdk/ApiClient/RequestBuilder.cs",
       "templateType": "SupportingFiles"
     },
+    "Client_RetryHandler.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/ApiClient/RetryHandler.cs",
+      "templateType": "SupportingFiles"
+    },
     "Client_Utils.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/ApiClient/Utils.cs",
       "templateType": "SupportingFiles"
     },
     "OpenFgaClientTests.mustache": {
       "destinationFilename": "src/OpenFga.Sdk.Test/Client/OpenFgaClientTests.cs",
+      "templateType": "SupportingFiles"
+    },
+    "ApiClient/OAuth2ClientTests.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk.Test/ApiClient/OAuth2ClientTests.cs",
+      "templateType": "SupportingFiles"
+    },
+    "ApiClient/RetryHandlerTests.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk.Test/ApiClient/RetryHandlerTests.cs",
       "templateType": "SupportingFiles"
     },
     "Client/Client.mustache": {
@@ -240,6 +252,10 @@
     },
     "Client/Model/StoreIdOptions.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/Model/StoreIdOptions.cs",
+      "templateType": "SupportingFiles"
+    },
+    "Properties_AssemblyInfo.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Properties/AssemblyInfo.cs",
       "templateType": "SupportingFiles"
     },
     "Telemetry/Attributes.cs.mustache": {
