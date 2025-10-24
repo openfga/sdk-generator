@@ -1,6 +1,6 @@
 # Main config
 OPENFGA_DOCKER_TAG = v1
-OPEN_API_REF ?= e53c69cc55317404d02a6d8e418d626268f28a59
+OPEN_API_REF ?= 0ac19aac54f21f3c78970126b84b4c69c6e3b9a2
 OPEN_API_URL = https://raw.githubusercontent.com/openfga/api/${OPEN_API_REF}/docs/openapiv2/apidocs.swagger.json
 OPENAPI_GENERATOR_CLI_DOCKER_TAG ?= v6.4.0
 NODE_DOCKER_TAG = 20-alpine
@@ -88,7 +88,7 @@ test-client-go: build-client-go
 
 .PHONY: build-client-go
 build-client-go:
-	make build-client sdk_language=go tmpdir=${TMP_DIR}
+	make build-client-streamed sdk_language=go tmpdir=${TMP_DIR}
 	make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'gofmt -w . && go mod tidy'"
 	find ${CLIENTS_OUTPUT_DIR}/fga-go-sdk/example -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | while read example_dir; do \
 		make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'cd example/$$example_dir && gofmt -w . && go mod tidy'"; \
