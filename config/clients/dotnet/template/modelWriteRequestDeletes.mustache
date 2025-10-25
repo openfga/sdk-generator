@@ -1,0 +1,338 @@
+{{>partial_header}}
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+{{#validatable}}
+using System.ComponentModel.DataAnnotations;
+{{/validatable}}
+using System.Runtime.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+
+namespace {{packageName}}.{{modelPackage}}
+{
+{{#models}}
+{{#model}}
+    /// <summary>
+    /// {{description}}{{^description}}{{classname}}{{/description}}
+    /// </summary>
+    [DataContract(Name = "{{{name}}}")]
+    {{#discriminator}}
+    [JsonConverter(typeof(JsonSubtypes), "{{{discriminatorName}}}")]
+    {{#mappedModels}}
+    [JsonSubtypes.KnownSubType(typeof({{{modelName}}}), "{{{mappingName}}}")]
+    {{/mappedModels}}
+    {{/discriminator}}
+    public {{#isEnum}}{{^isArray}}{{>visibility}}{{/isArray}}{{/isEnum}}{{^isEnum}}partial {{/isEnum}}class {{{classname}}}{{#parent}} : {{{.}}}{{/parent}}{{^parent}} : IEquatable<{{classname}}>{{#validatable}}, IValidatableObject{{/validatable}}{{/parent}}
+    {
+        /// <summary>
+        /// Defines OnMissing behavior
+        /// </summary>
+        public enum OnMissingEnum
+        {
+            /// <summary>
+            /// Enum Error for value: error
+            /// </summary>
+            [EnumMember(Value = "error")]
+            Error = 1,
+
+            /// <summary>
+            /// Enum Ignore for value: ignore
+            /// </summary>
+            [EnumMember(Value = "ignore")]
+            Ignore = 2
+        }
+
+{{#vars}}
+{{#isEnum}}
+{{#allowableValues}}
+        /// <summary>
+        /// {{description}}{{^description}}Gets or Sets {{{name}}}{{/description}}
+        /// </summary>
+{{#description}}
+        /// <value>{{.}}</value>
+{{/description}}
+{{#isContainer}}
+        [DataMember(Name="{{baseName}}", EmitDefaultValue={{emitDefaultValue}})]
+{{/isContainer}}
+        public {{#isArray}}{{#uniqueItems}}HashSet{{/uniqueItems}}{{^uniqueItems}}List{{/uniqueItems}}{{/isArray}}{{#isMap}}Dictionary{{/isMap}}<string, {{{datatypeWithEnum}}}{{^datatypeWithEnum}}{{{dataType}}}{{/datatypeWithEnum}}>{{^isContainer}}{{{datatypeWithEnum}}}{{^datatypeWithEnum}}{{{dataType}}}{{/datatypeWithEnum}}{{/isContainer}} {{name}} { get; set; }
+{{^isContainer}}
+{{>modelInnerEnum}}
+{{/isContainer}}
+{{/allowableValues}}
+{{/isEnum}}
+{{/vars}}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="{{classname}}" /> class.
+        /// </summary>
+        [JsonConstructor]
+        public {{{classname}}}()
+        {
+            {{#vars}}
+            {{#defaultValue}}
+            {{^isReadOnly}}
+            {{^isContainer}}
+            this.{{name}} = {{{defaultValue}}};
+            {{/isContainer}}
+            {{/isReadOnly}}
+            {{/defaultValue}}
+            {{/vars}}
+            this.AdditionalProperties = new Dictionary<string, object>();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="{{classname}}" /> class.
+        /// </summary>
+{{#vars}}
+{{^isReadOnly}}
+        /// <param name="{{#lambda.camelcase_param}}{{name}}{{/lambda.camelcase_param}}">{{#description}}{{.}}{{/description}}{{^description}}{{#lambda.camelcase_param}}{{name}}{{/lambda.camelcase_param}}{{/description}}{{^required}} (default to {{defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}.</param>
+{{/isReadOnly}}
+{{/vars}}
+        public {{{classname}}}({{#readWriteVars}}{{{dataType}}} {{#lambda.camelcase_param}}{{{name}}}{{/lambda.camelcase_param}} = default{{^-last}}, {{/-last}}{{/readWriteVars}})
+        {
+{{#vars}}
+{{#required}}
+            {{^defaultValue}}
+            {{^isReadOnly}}
+            {{^isNullable}}
+            // to ensure "{{#lambda.camelcase_param}}{{name}}{{/lambda.camelcase_param}}" is required (not null)
+            if ({{#lambda.camelcase_param}}{{{name}}}{{/lambda.camelcase_param}} == null)
+            {
+                throw new ArgumentNullException("{{#lambda.camelcase_param}}{{name}}{{/lambda.camelcase_param}} is a required property for {{classname}} and cannot be null");
+            }
+            {{/isNullable}}
+            {{/isReadOnly}}
+            {{/defaultValue}}
+            this.{{name}} = {{#lambda.camelcase_param}}{{name}}{{/lambda.camelcase_param}};
+{{/required}}
+{{/vars}}
+{{#vars}}
+{{^required}}
+            {{#defaultValue}}
+            {{^isReadOnly}}
+            // use default value if no "{{#lambda.camelcase_param}}{{name}}{{/lambda.camelcase_param}}" provided
+            this.{{name}} = {{#lambda.camelcase_param}}{{name}}{{/lambda.camelcase_param}} ?? {{{defaultValue}}};
+            {{/isReadOnly}}
+            {{/defaultValue}}
+            {{^defaultValue}}
+            this.{{name}} = {{#lambda.camelcase_param}}{{name}}{{/lambda.camelcase_param}};
+            {{/defaultValue}}
+{{/required}}
+{{/vars}}
+            this.AdditionalProperties = new Dictionary<string, object>();
+        }
+
+{{#vars}}
+        /// <summary>
+        /// {{description}}{{^description}}Gets or Sets {{{name}}}{{/description}}
+        /// </summary>{{#description}}
+        /// <value>{{.}}</value>{{/description}}
+{{^isEnum}}
+        [DataMember(Name = "{{baseName}}", {{#required}}IsRequired = true, {{/required}}EmitDefaultValue = {{emitDefaultValue}})]
+{{/isEnum}}
+{{#deprecated}}
+        [Obsolete]
+{{/deprecated}}
+{{#minimum}}
+{{#maximum}}
+        [Range({{minimum}}, {{maximum}})]
+{{/maximum}}
+{{/minimum}}
+{{#minLength}}
+{{#maxLength}}
+        [StringLength({{maxLength}}, MinimumLength={{minLength}})]
+{{/maxLength}}
+{{^maxLength}}
+        [MinLength({{.}})]
+{{/maxLength}}
+{{/minLength}}
+{{^minLength}}
+{{#maxLength}}
+        [MaxLength({{.}})]
+{{/maxLength}}
+{{/minLength}}
+{{#pattern}}
+        [RegularExpression("{{.}}")]
+{{/pattern}}
+        [JsonPropertyName("{{baseName}}")]
+{{#isNullable}}
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+{{/isNullable}}
+        public {{{dataType}}} {{name}} { get; {{#isReadOnly}}private {{/isReadOnly}}set; }
+
+{{/vars}}
+        /// <summary>
+        /// Gets or Sets additional properties
+        /// </summary>
+        [JsonExtensionData]
+        public IDictionary<string, object> AdditionalProperties { get; set; }
+
+{{#vendorExtensions.x-serialization-methods}}
+
+        /// <summary>
+        /// Returns the JSON string presentation of the object
+        /// </summary>
+        /// <returns>JSON string presentation of the object</returns>
+        public virtual string ToJson()
+        {
+            return JsonSerializer.Serialize(this);
+        }
+
+        /// <summary>
+        /// Builds a {{classname}} from the JSON string presentation of the object
+        /// </summary>
+        /// <returns>{{classname}}</returns>
+        public static {{classname}} FromJson(string jsonString) {
+            return JsonSerializer.Deserialize<{{classname}}>(jsonString) ?? throw new InvalidOperationException();
+        }
+
+{{/vendorExtensions.x-serialization-methods}}
+{{^isEnum}}
+{{^parent}}
+        /// <summary>
+        /// Returns true if objects are equal
+        /// </summary>
+        /// <param name="input">Object to be compared</param>
+        /// <returns>Boolean</returns>
+        public override bool Equals(object input)
+        {
+            {{#useCompareNetObjects}}
+            return OpenAPIClientUtils.compareLogic.Compare(this, input as {{classname}}).AreEqual;
+            {{/useCompareNetObjects}}
+            {{^useCompareNetObjects}}
+            return this.Equals(input as {{classname}});
+            {{/useCompareNetObjects}}
+        }
+
+        /// <summary>
+        /// Returns true if {{classname}} instances are equal
+        /// </summary>
+        /// <param name="input">Instance of {{classname}} to be compared</param>
+        /// <returns>Boolean</returns>
+        public bool Equals({{classname}} input)
+        {
+            {{#useCompareNetObjects}}
+            return OpenAPIClientUtils.compareLogic.Compare(this, input).AreEqual;
+            {{/useCompareNetObjects}}
+            {{^useCompareNetObjects}}
+            if (input == null)
+            {
+                return false;
+            }
+            return {{#vars}}{{#parent}}base.Equals(input) && {{/parent}}{{^isContainer}}
+                (
+                    this.{{name}} == input.{{name}} ||
+                    {{^vendorExtensions.x-is-value-type}}
+                    {{#required}}
+                    {{^isNullable}}
+                    this.{{name}} != null &&
+                    {{/isNullable}}
+                    {{/required}}
+                    {{^required}}
+                    (this.{{name}} != null &&
+                    {{/required}}
+                    {{/vendorExtensions.x-is-value-type}}
+                    this.{{name}}.Equals(input.{{name}}){{^vendorExtensions.x-is-value-type}}){{/vendorExtensions.x-is-value-type}}
+                ){{^-last}} && {{/-last}}{{/isContainer}}{{#isContainer}}
+                (
+                    this.{{name}} == input.{{name}} ||
+                    {{^vendorExtensions.x-is-value-type}}
+                    this.{{name}} != null &&
+                    input.{{name}} != null &&
+                    {{/vendorExtensions.x-is-value-type}}
+                    this.{{name}}.SequenceEqual(input.{{name}})
+                ){{^-last}} && {{/-last}}{{/isContainer}}{{/vars}}
+                && (this.AdditionalProperties.Count == input.AdditionalProperties.Count && this.AdditionalProperties.All(kv => input.AdditionalProperties.ContainsKey(kv.Key) && Equals(kv.Value, input.AdditionalProperties[kv.Key])));
+            {{/useCompareNetObjects}}
+        }
+
+        /// <summary>
+        /// Gets the hash code
+        /// </summary>
+        /// <returns>Hash code</returns>
+        public override int GetHashCode()
+        {
+            unchecked // Overflow is fine, just wrap
+            {
+                int hashCode = {{hashCodeBasePrimeNumber}};
+{{#vars}}
+                if (this.{{name}} != null)
+                {
+                    hashCode = (hashCode * {{hashCodeMultiplierPrimeNumber}}) + this.{{name}}.GetHashCode();
+                }
+{{/vars}}
+                if (this.AdditionalProperties != null)
+                {
+                    hashCode = (hashCode * {{hashCodeMultiplierPrimeNumber}}) + this.AdditionalProperties.GetHashCode();
+                }
+                return hashCode;
+            }
+        }
+
+{{/parent}}
+{{/isEnum}}
+{{#validatable}}
+{{^parent}}
+        /// <summary>
+        /// To validate all properties of the instance
+        /// </summary>
+        /// <param name="validationContext">Validation context</param>
+        /// <returns>Validation Result</returns>
+        public IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> Validate(ValidationContext validationContext)
+        {
+{{#vars}}
+{{#hasValidation}}
+{{#maxLength}}
+            // {{{name}}} ({{{dataType}}}) maxLength
+            if (this.{{{name}}} != null && this.{{{name}}}.Length > {{maxLength}})
+            {
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for {{{name}}}, length must be less than {{maxLength}}.", new [] { "{{{name}}}" });
+            }
+
+{{/maxLength}}
+{{#minLength}}
+            // {{{name}}} ({{{dataType}}}) minLength
+            if (this.{{{name}}} != null && this.{{{name}}}.Length < {{minLength}})
+            {
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for {{{name}}}, length must be greater than {{minLength}}.", new [] { "{{{name}}}" });
+            }
+
+{{/minLength}}
+{{#maximum}}
+            // {{{name}}} ({{{dataType}}}) maximum
+            if (this.{{{name}}} > ({{{dataType}}}){{maximum}})
+            {
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for {{{name}}}, must be a value less than or equal to {{maximum}}.", new [] { "{{{name}}}" });
+            }
+
+{{/maximum}}
+{{#minimum}}
+            // {{{name}}} ({{{dataType}}}) minimum
+            if (this.{{{name}}} < ({{{dataType}}}){{minimum}})
+            {
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for {{{name}}}, must be a value greater than or equal to {{minimum}}.", new [] { "{{{name}}}" });
+            }
+
+{{/minimum}}
+{{#pattern}}
+            // {{{name}}} ({{{dataType}}}) pattern
+            Regex regex{{{name}}} = new Regex(@"{{{vendorExtensions.x-regex}}}"{{#vendorExtensions.x-modifiers}}{{#-first}}, {{/-first}}RegexOptions.{{{.}}}{{^-last}} | {{/-last}}{{/vendorExtensions.x-modifiers}});
+            if (false == regex{{{name}}}.Match(this.{{{name}}}).Success)
+            {
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for {{{name}}}, must match a pattern of " + regex{{{name}}}, new [] { "{{{name}}}" });
+            }
+
+{{/pattern}}
+{{/hasValidation}}
+{{/vars}}
+            yield break;
+        }
+{{/parent}}
+{{/validatable}}
+    }
+{{/model}}
+{{/models}}
+}

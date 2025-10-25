@@ -1,0 +1,190 @@
+{{>partial_header}}
+
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+
+using {{packageName}}.Api;
+using {{packageName}}.ApiClient;
+using {{packageName}}.Client.Model;
+#if NETSTANDARD2_0 || NET48
+using {{packageName}}.Client.Extensions;
+#endif
+using {{packageName}}.Exceptions;
+using {{packageName}}.Model;
+
+namespace {{packageName}}.Client;
+
+public interface I{{appShortName}}Client {
+    /// <summary>
+    ///     Store ID
+    /// </summary>
+    string? StoreId { get; set; }
+
+    /// <summary>
+    ///     Authorization Model ID
+    /// </summary>
+    string? AuthorizationModelId { get; set; }
+
+    /**********
+     * Stores *
+     **********/
+
+    /**
+   * ListStores - Get a paginated list of stores.
+   */
+    Task<ListStoresResponse> ListStores(IClientListStoresRequest? body, IClientListStoresOptions? options = default,
+        CancellationToken cancellationToken = default);
+
+    /**
+   * CreateStore - Initialize a store
+   */
+    Task<CreateStoreResponse> CreateStore(ClientCreateStoreRequest body,
+        IClientRequestOptions? options = default,
+        CancellationToken cancellationToken = default);
+
+    /**
+   * GetStore - Get information about the current store
+   */
+    Task<GetStoreResponse> GetStore(IClientRequestOptionsWithStoreId? options = default, CancellationToken cancellationToken = default);
+
+    /**
+   * DeleteStore - Delete a store
+   */
+    Task DeleteStore(IClientRequestOptionsWithStoreId? options = default, CancellationToken cancellationToken = default);
+
+    /************************
+     * Authorization Models *
+     ************************/
+
+    /**
+     * ReadAuthorizationModels - Read all authorization models
+     */
+    Task<ReadAuthorizationModelsResponse> ReadAuthorizationModels(
+        IClientReadAuthorizationModelsOptions? options = default,
+        CancellationToken cancellationToken = default);
+
+    /**
+     * WriteAuthorizationModel - Create a new version of the authorization model
+     */
+    Task<WriteAuthorizationModelResponse> WriteAuthorizationModel(ClientWriteAuthorizationModelRequest body,
+        IClientRequestOptionsWithStoreId? options = default,
+        CancellationToken cancellationToken = default);
+
+    /**
+     * ReadAuthorizationModel - Read the current authorization model
+     */
+    Task<ReadAuthorizationModelResponse> ReadAuthorizationModel(
+        IClientReadAuthorizationModelOptions? options = default,
+        CancellationToken cancellationToken = default);
+
+    /**
+     * ReadLatestAuthorizationModel - Read the latest authorization model for the current store
+     */
+    Task<ReadAuthorizationModelResponse?> ReadLatestAuthorizationModel(
+        IClientRequestOptionsWithAuthZModelId? options = default,
+        CancellationToken cancellationToken = default);
+
+    /***********************
+     * Relationship Tuples *
+     ***********************/
+
+    /**
+     * Read Changes - Read the list of historical relationship tuple writes and deletes
+     */
+    Task<ReadChangesResponse> ReadChanges(ClientReadChangesRequest? body = default,
+        ClientReadChangesOptions? options = default,
+        CancellationToken cancellationToken = default);
+
+    /**
+     * Read - Read tuples previously written to the store (does not evaluate)
+     */
+    Task<ReadResponse> Read(ClientReadRequest? body = default, IClientReadOptions? options = default,
+        CancellationToken cancellationToken = default);
+
+    /**
+     * Write - Create or delete relationship tuples
+     */
+    Task<ClientWriteResponse> Write(ClientWriteRequest body, IClientWriteOptions? options = default,
+        CancellationToken cancellationToken = default);
+
+    /**
+     * WriteTuples - Utility method to write tuples, wraps Write
+     */
+    Task<ClientWriteResponse> WriteTuples(List<ClientTupleKey> body, IClientWriteOptions? options = default,
+        CancellationToken cancellationToken = default);
+
+    /**
+     * DeleteTuples - Utility method to delete tuples, wraps Write
+     */
+    Task<ClientWriteResponse> DeleteTuples(List<ClientTupleKeyWithoutCondition> body, IClientWriteOptions? options = default,
+        CancellationToken cancellationToken = default);
+
+    /************************
+     * Relationship Queries *
+     ************************/
+
+    /**
+   * Check - Check if a user has a particular relation with an object (evaluates)
+   */
+    Task<CheckResponse> Check(IClientCheckRequest body,
+        IClientCheckOptions? options = default,
+        CancellationToken cancellationToken = default);
+
+    /**
+   * BatchCheck - Run a set of checks (evaluates)
+   */
+    Task<ClientBatchCheckClientResponse> BatchCheck(List<ClientCheckRequest> body,
+        IClientBatchCheckOptions? options = default,
+        CancellationToken cancellationToken = default);
+
+    /**
+   * Expand - Expands the relationships in userset tree format (evaluates)
+   */
+    Task<ExpandResponse> Expand(IClientExpandRequest body,
+        IClientExpandOptions? options = default,
+        CancellationToken cancellationToken = default);
+
+    /**
+     * ListObjects - List the objects of a particular type that the user has a certain relation to (evaluates)
+     */
+    Task<ListObjectsResponse> ListObjects(IClientListObjectsRequest body,
+        IClientListObjectsOptions? options = default,
+        CancellationToken cancellationToken = default);
+
+
+    /**
+     * ListRelations - List all the relations a user has with an object (evaluates)
+     */
+    Task<ListRelationsResponse> ListRelations(IClientListRelationsRequest body,
+        IClientListRelationsOptions? options = default,
+        CancellationToken cancellationToken = default);
+
+    /**
+     * ListUsers - List all users of the given type that the object has a relation with (evaluates)
+     */
+    Task<ListUsersResponse> ListUsers(IClientListUsersRequest body,
+        IClientListUsersOptions? options = default,
+        CancellationToken cancellationToken = default);
+
+    /**************
+     * Assertions *
+     **************/
+
+    /**
+   * ReadAssertions - Read assertions for a particular authorization model
+   */
+    Task<ReadAssertionsResponse> ReadAssertions(IClientReadAssertionsOptions? options = default,
+        CancellationToken cancellationToken = default);
+
+    /**
+     * WriteAssertions - Updates assertions for a particular authorization model
+     */
+    Task WriteAssertions(List<ClientAssertion> body,
+        IClientWriteAssertionsOptions? options = default,
+        CancellationToken cancellationToken = default);
+}

@@ -19,7 +19,7 @@ using {{packageName}}.Model;
 
 namespace {{packageName}}.Client;
 
-public class {{appShortName}}Client : IDisposable {
+public class {{appShortName}}Client : I{{appShortName}}Client, IDisposable {
     private readonly ClientConfiguration _configuration;
     protected {{appShortName}}Api api;
     private string CLIENT_BULK_REQUEST_ID_HEADER = "{{clientBulkRequestIdHeader}}";

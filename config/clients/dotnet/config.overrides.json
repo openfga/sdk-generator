@@ -66,6 +66,10 @@
       "destinationFilename": "src/OpenFga.Sdk/Client/Client.cs",
       "templateType": "SupportingFiles"
     },
+    "Client/IClient.mustache": {
+      "destinationFilename": "src/OpenFga.Sdk/Client/IClient.cs",
+      "templateType": "SupportingFiles"
+    },
     "Client/ClientConfiguration.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Client/ClientConfiguration.cs",
       "templateType": "SupportingFiles"
