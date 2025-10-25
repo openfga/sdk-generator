@@ -11,6 +11,7 @@
   "supportsES6": true,
   "modelPropertyNaming": "original",
   "openTelemetryDocumentation": "opentelemetry.md",
+  "supportsStreamedListObjects": "streamedListObjects",
   "files": {
     "tests/jest.config.js": {},
     "tests/tsconfig.spec.json": {},
@@ -24,6 +25,10 @@
     },
     "tests/validation.test.ts.mustache": {
       "destinationFilename": "tests/validation.test.ts",
+      "templateType": "SupportingFiles"
+    },
+    "tests/streaming.test.ts.mustache": {
+      "destinationFilename": "tests/streaming.test.ts",
       "templateType": "SupportingFiles"
     },
     "tests/headers.test.ts.mustache": {
@@ -97,6 +102,10 @@
       "destinationFilename": "validation.ts",
       "templateType": "SupportingFiles"
     },
+    "streaming.mustache": {
+      "destinationFilename": "streaming.ts",
+      "templateType": "SupportingFiles"
+    },
     "credentials/index.ts.mustache": {
       "destinationFilename": "credentials/index.ts",
       "templateType": "SupportingFiles"
@@ -146,6 +155,17 @@
     "example/opentelemetry/instrumentation.mjs": {},
     "example/opentelemetry/package.json.mustache": {
       "destinationFilename": "example/opentelemetry/package.json",
+      "templateType": "SupportingFiles"
+    },
+    "example/streamed-list-objects/README.md": {},
+    "example/streamed-list-objects/model.json": {},
+    "example/streamed-list-objects/streamedListObjects.mjs": {},
+    "example/streamed-list-objects-local/README.md": {
+      "destinationFilename": "example/streamed-list-objects-local/README.md",
+      "templateType": "SupportingFiles"
+    },
+    "example/streamed-list-objects-local/streamedListObjectsLocal.mjs": {
+      "destinationFilename": "example/streamed-list-objects-local/streamedListObjectsLocal.mjs",
       "templateType": "SupportingFiles"
     },
     ".madgerc": {},
