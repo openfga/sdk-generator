@@ -36,8 +36,12 @@ export const getNocks = ((nock: typeof Nock) => ({
     expiresIn = 300,
     statusCode = 200,
   ) => {
-    return nock(`https://${apiTokenIssuer}`, { reqheaders: { "Content-Type": "application/x-www-form-urlencoded"} })
-      .post("/oauth/token")
+    const url = new URL(apiTokenIssuer.match(/^https?:\/\//) ? apiTokenIssuer : `https://${apiTokenIssuer}`);
+    if (url.pathname === "" || url.pathname === "/") {
+      url.pathname = "/oauth/token";
+    }
+    return nock(`${url.protocol}//${url.host}`, { reqheaders: { "Content-Type": "application/x-www-form-urlencoded"} })
+      .post(url.pathname)
       .reply(statusCode, {
         access_token: accessToken,
         expires_in: expiresIn,
