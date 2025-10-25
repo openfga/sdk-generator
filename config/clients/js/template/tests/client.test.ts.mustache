@@ -812,6 +812,35 @@ describe("{{appTitleCaseName}} Client", () => {
       });
     });
 
+{{#supportsStreamedListObjects}}
+    describe("StreamedListObjects", () => {
+      it("should stream objects and return them via async generator", async () => {
+        const mockObjects = [
+          "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+          "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69b",
+          "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69c"
+        ];
+        const scope = nocks.streamedListObjects(baseConfig.storeId!, mockObjects);
+
+        expect(scope.isDone()).toBe(false);
+        const results: string[] = [];
+        for await (const response of fgaClient.{{supportsStreamedListObjects}}({
+          user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+          relation: "can_read",
+          type: "document",
+        }, {
+          authorizationModelId: "01GAHCE4YVKPQEKZQHT2R89MQV",
+        })) {
+          results.push(response.object);
+        }
+
+        expect(scope.isDone()).toBe(true);
+        expect(results).toHaveLength(mockObjects.length);
+        expect(results).toEqual(expect.arrayContaining(mockObjects));
+      });
+    });
+{{/supportsStreamedListObjects}}
+
     describe("ListRelations", () => {
       it("should properly pass the request and return an allowed API response", async () => {
         const tuples = [{
