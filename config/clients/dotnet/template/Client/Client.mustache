@@ -277,6 +277,11 @@ public class {{appShortName}}Client : IDisposable {
         CancellationToken cancellationToken = default) =>
         await api.WriteAuthorizationModel(GetStoreId(options), body, options, cancellationToken);
 
+    public async Task<WriteAuthorizationModelResponse> WriteAuthorizationModel(WriteAuthorizationModelRequest body,
+        IClientRequestOptionsWithStoreId? options = default,
+        CancellationToken cancellationToken = default) =>
+        await api.WriteAuthorizationModel(GetStoreId(options), body, cancellationToken);
+
     /**
      * ReadAuthorizationModel - Read the current authorization model
      */
