@@ -107,8 +107,7 @@ test-client-dotnet: build-client-dotnet build-dotnet-multi-image
 
 .PHONY: build-client-dotnet
 build-client-dotnet: build-dotnet-multi-image
-	rm -rf ${CLIENTS_OUTPUT_DIR}/fga-dotnet-sdk/src/OpenFga.Sdk.Test
-	make build-client sdk_language=dotnet tmpdir=${TMP_DIR}
+	make build-client sdk_language=dotnet tmpdir=${TMP_DIR} OPENAPI_GENERATOR_CLI_DOCKER_TAG=v7.11.0
 
 	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet build --configuration Release'"
 	# Workaround for dotnet format issue: https://github.com/dotnet/format/issues/1634
@@ -131,14 +130,9 @@ tag-client-python: test-client-python
 build-client-python:
 	make build-client-streamed sdk_language=python tmpdir=${TMP_DIR} library="asyncio"
 
-	mv ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/api/open_fga_api_sync.py ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/openfga_sdk/sync/open_fga_api.py
-	mv ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/test/test_open_fga_api.py ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/test/api/open_fga_api_test.py
-	mv ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/test/_/*.py ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/test/ && rm -rf ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/test/_/
-
 	sort -uo ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/.openapi-generator/FILES{,}
 
 	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/openfga_sdk/api/open_fga_api.py /config/clients/python/patches/open_fga_api.py.patch && \
-		patch -p1 /module/openfga_sdk/sync/open_fga_api.py /config/clients/python/patches/open_fga_api_sync.py.patch && \
 		patch -p1 /module/docs/OpenFgaApi.md /config/clients/python/patches/OpenFgaApi.md.patch'"
 
 	make run-in-docker sdk_language=python image=ghcr.io/astral-sh/uv:python${PYTHON_DOCKER_TAG}-alpine command="/bin/sh -c 'export UV_LINK_MODE=copy && \

@@ -35,6 +35,8 @@ jobs:
 
       - name: Run SDK Tests
         run: make test-client-js
+        env:
+          OPEN_API_REF: c0b62b28b14d0d164d37a1f6bf19dc9d39e5769b
 
       - name: Check for SDK changes
         run: |
@@ -65,8 +67,6 @@ jobs:
 
       - name: Run SDK Tests
         run: make test-client-go
-        env:
-          OPEN_API_REF: 0ac19aac54f21f3c78970126b84b4c69c6e3b9a2
 
       - name: Check for SDK changes
         run: |
@@ -98,7 +98,6 @@ jobs:
       - name: Run All Tests
         run: make test-client-dotnet
         env:
-          OPEN_API_REF: 0ac19aac54f21f3c78970126b84b4c69c6e3b9a2
           OPENAPI_GENERATOR_CLI_DOCKER_TAG: v7.11.0
 
       - name: Check for SDK changes
@@ -135,8 +134,6 @@ jobs:
 
       - name: Run All Tests
         run: make test-client-python
-        env:
-          OPEN_API_REF: 0ac19aac54f21f3c78970126b84b4c69c6e3b9a2
 
       - name: Check for SDK changes
         run: |
@@ -175,8 +172,6 @@ jobs:
       - name: Run All Tests
         run: |-
           make test-integration-client-java
-        env:
-            OPEN_API_REF: 0ac19aac54f21f3c78970126b84b4c69c6e3b9a2
 
       - name: Check for SDK changes
         run: |

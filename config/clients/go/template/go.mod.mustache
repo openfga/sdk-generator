@@ -1,8 +1,8 @@
 module {{gitHost}}/{{gitUserId}}/{{gitRepoId}}{{#isGoSubmodule}}/{{packageName}}{{/isGoSubmodule}}
 
-go 1.24.0
+go {{targetGoVersion}}
 
-toolchain go1.25.1
+toolchain go{{toolchainGoVersion}}
 
 require (
 	github.com/jarcoal/httpmock v1.4.1

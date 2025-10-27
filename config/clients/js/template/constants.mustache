@@ -1,0 +1,154 @@
+{{>partial_header}}
+
+/**
+ * Version of the OpenFGA JavaScript SDK.
+ */
+const SdkVersion = "{{packageVersion}}"
+
+/**
+ * User agent used in HTTP requests.
+ */
+const UserAgent = "{{userAgent}}"
+
+/**
+ * Example API domain for documentation/tests.
+ */
+const SampleBaseDomain = "{{sampleApiDomain}}"
+
+/**
+ * API URL used for tests.
+ */
+const TestApiUrl = `https://api.${SampleBaseDomain}`
+
+/**
+ * API Token Issuer URL used for tests.
+ */
+const TestIssuerUrl = `https://issuer.${SampleBaseDomain}`
+
+/**
+ * Default API URL.
+ */
+const DefaultApiUrl = "{{defaultApiUrl}}"
+
+// Retry configuration
+
+/**
+ * Maximum allowed number of retries for HTTP requests.
+ */
+const RetryMaxAllowedNumber = {{retryMaxAllowedNumber}}
+
+/**
+ * Default maximum number of retries for HTTP requests.
+ */
+const DefaultMaxRetry = {{defaultMaxRetry}}
+
+/**
+ * Default minimum wait time between retries in milliseconds.
+ */
+const DefaultMinWaitInMs = {{defaultMinWaitInMs}}
+
+/**
+ * Maximum backoff time in seconds.
+ */
+const MaxBackoffTimeInSec = {{maxBackoffTimeInSec}}
+
+/**
+ * Maximum allowable duration for retry headers in seconds.
+ */
+const RetryHeaderMaxAllowableDurationInSec = {{retryHeaderMaxAllowableDurationInSec}}
+
+/**
+ * Standard HTTP header for retry-after.
+ */
+const RetryAfterHeaderName = "{{retryAfterHeaderName}}"
+
+/**
+ * Rate limit reset header name.
+ */
+const RateLimitResetHeaderName = "{{rateLimitResetHeaderName}}"
+
+/**
+ * Alternative rate limit reset header name.
+ */
+const RateLimitResetAltHeaderName = "{{rateLimitResetAltHeaderName}}"
+
+// Client methods
+
+/**
+ * Maximum number of parallel requests for a single method.
+ */
+const ClientMaxMethodParallelRequests = {{clientMaxMethodParallelRequests}}
+
+/**
+ * Maximum batch size for batch requests.
+ */
+const ClientMaxBatchSize = {{clientMaxBatchSize}}
+
+/**
+ * Header used to identify the client method.
+ */
+const ClientMethodHeader = "{{clientMethodHeader}}"
+
+/**
+ * Header used to identify bulk requests.
+ */
+const ClientBulkRequestIdHeader = "{{clientBulkRequestIdHeader}}"
+
+// Connection options
+
+/**
+ * Default timeout for HTTP requests in milliseconds.
+ */
+const DefaultRequestTimeoutInMs = {{defaultRequestTimeoutInMs}}
+
+/**
+ * Default connection timeout in milliseconds.
+ */
+const DefaultConnectionTimeoutInMs = {{defaultConnectionTimeoutInMs}}
+
+// Token management
+
+/**
+ * Buffer time in seconds before token expiry to consider it expired.
+ */
+const TokenExpiryThresholdBufferInSec = {{tokenExpiryThresholdBufferInSec}}
+
+/**
+ * Jitter time in seconds to add randomness to token expiry checks.
+ */
+const TokenExpiryJitterInSec = {{tokenExpiryJitterInSec}}
+
+// FGA Response Headers
+
+/**
+ * Response header name for query duration in milliseconds.
+ */
+const QueryDurationHeaderName = "{{queryDurationHeaderName}}"
+
+const SdkConstants = Object.freeze({
+  SdkVersion,
+  UserAgent,
+  SampleBaseDomain,
+  TestApiUrl,
+  TestIssuerUrl,
+  DefaultApiUrl,
+  RetryMaxAllowedNumber,
+  DefaultMaxRetry,
+  DefaultMinWaitInMs,
+  MaxBackoffTimeInSec,
+  RetryHeaderMaxAllowableDurationInSec,
+  RetryAfterHeaderName,
+  RateLimitResetHeaderName,
+  RateLimitResetAltHeaderName,
+  ClientMaxMethodParallelRequests,
+  ClientMaxBatchSize,
+  ClientMethodHeader,
+  ClientBulkRequestIdHeader,
+  DefaultRequestTimeoutInMs,
+  DefaultConnectionTimeoutInMs,
+  TokenExpiryThresholdBufferInSec,
+  TokenExpiryJitterInSec,
+  QueryDurationHeaderName,
+});
+
+export default SdkConstants;
