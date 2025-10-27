@@ -117,19 +117,19 @@ class {{classname}}:
 {{#isArray}}
         if (self.local_vars_configuration.client_side_validation
                 and not set({{{name}}}).issubset(set(allowed_values))):
+            invalid_values = ", ".join(map(str, set({{{name}}}) - set(allowed_values)))
+            valid_values = ", ".join(map(str, allowed_values))
             raise ValueError(
-                "Invalid values for `{{{name}}}` [{0}], must be a subset of [{1}]"
-                .format(", ".join(map(str, set({{{name}}}) - set(allowed_values))),
-                        ", ".join(map(str, allowed_values)))
+                f"Invalid values for `{{{name}}}` [{invalid_values}], must be a subset of [{valid_values}]"
             )
 {{/isArray}}
 {{#isMap}}
         if (self.local_vars_configuration.client_side_validation
                 and not set({{{name}}}.keys()).issubset(set(allowed_values))):
+            invalid_keys = ", ".join(map(str, set({{{name}}}.keys()) - set(allowed_values)))
+            valid_values = ", ".join(map(str, allowed_values))
             raise ValueError(
-                "Invalid keys in `{{{name}}}` [{0}], must be a subset of [{1}]"
-                .format(", ".join(map(str, set({{{name}}}.keys()) - set(allowed_values))),
-                        ", ".join(map(str, allowed_values)))
+                f"Invalid keys in `{{{name}}}` [{invalid_keys}], must be a subset of [{valid_values}]"
             )
 {{/isMap}}
 {{/isContainer}}
@@ -137,8 +137,7 @@ class {{classname}}:
         allowed_values = [{{#isNullable}}None,{{/isNullable}}{{#allowableValues}}{{#values}}{{#isString}}"{{/isString}}{{{this}}}{{#isString}}"{{/isString}}{{^-last}}, {{/-last}}{{/values}}{{/allowableValues}}]
         if self.local_vars_configuration.client_side_validation and {{{name}}} not in allowed_values:
             raise ValueError(
-                "Invalid value for `{{{name}}}` ({0}), must be one of {1}"
-                .format({{{name}}}, allowed_values)
+                f"Invalid value for `{{name}}` ({{{{{name}}}}}), must be one of {allowed_values}"
             )
 {{/isContainer}}
 {{/isEnum}}
