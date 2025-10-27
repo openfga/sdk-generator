@@ -6,3 +6,5 @@ src/OpenFga.Sdk/Client/*
 src/OpenFga.Sdk.Test/Api/*
 src/OpenFga.Sdk.Test/Client/*
 src/OpenFga.Sdk.Test/Model/*
+src/OpenFga.Sdk.Test/OpenFga.Sdk.Test.csproj
+src/OpenFga.Sdk/OpenFga.Sdk.csproj

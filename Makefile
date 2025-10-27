@@ -107,7 +107,7 @@ test-client-dotnet: build-client-dotnet build-dotnet-multi-image
 
 .PHONY: build-client-dotnet
 build-client-dotnet: build-dotnet-multi-image
-	make build-client sdk_language=dotnet tmpdir=${TMP_DIR}
+	make build-client sdk_language=dotnet tmpdir=${TMP_DIR} OPENAPI_GENERATOR_CLI_DOCKER_TAG=v7.11.0
 
 	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet build --configuration Release'"
 	# Workaround for dotnet format issue: https://github.com/dotnet/format/issues/1634
