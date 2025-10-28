@@ -1,0 +1,27 @@
+{
+  "tree": {
+    "root": {
+      "name": "document:2021-budget#reader",
+      "union": {
+        "nodes": [
+          {
+            "name": "document:2021-budget#reader",
+            "leaf": {
+              "users": {
+                "users": ["user:bob"]
+              }
+            }
+          },
+          {
+            "name": "document:2021-budget#reader",
+            "leaf": {
+              "computed": {
+                "userset": "document:2021-budget#writer"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
