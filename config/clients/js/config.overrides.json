@@ -11,6 +11,7 @@
   "supportsES6": true,
   "modelPropertyNaming": "original",
   "openTelemetryDocumentation": "opentelemetry.md",
+  "enumNameSuffix": "",
   "files": {
     "tests/jest.config.js": {},
     "tests/tsconfig.spec.json": {},
