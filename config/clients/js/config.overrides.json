@@ -9,6 +9,7 @@
   "fossaComplianceNoticeId": "9c7d9da4-2a75-47c9-bfc9-31b301fb764f",
   "useSingleRequestParameter": false,
   "supportsES6": true,
+  "supportsStreamedListObjects": true,
   "modelPropertyNaming": "original",
   "openTelemetryDocumentation": "docs/opentelemetry.md",
   "files": {
@@ -22,6 +23,10 @@
     },
     "npmrc.mustache": {
       "destinationFilename": ".npmrc",
+      "templateType": "SupportingFiles"
+    },
+    "streaming.mustache": {
+      "destinationFilename": "streaming.ts",
       "templateType": "SupportingFiles"
     }
   }

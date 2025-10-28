@@ -14,5 +14,6 @@
 | [**BatchCheck**]({{apiDocsUrl}}#/Relationship%20Queries/BatchCheck) | **POST** /stores/{store_id}/batch-check | Similar to check, but accepts a list of relations to check |
 | [**Expand**]({{apiDocsUrl}}#/Relationship%20Queries/Expand) | **POST** /stores/{store_id}/expand | Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason about and debug a certain relationship |
 | [**ListObjects**]({{apiDocsUrl}}#/Relationship%20Queries/ListObjects) | **POST** /stores/{store_id}/list-objects | [EXPERIMENTAL] Get all objects of the given type that the user has a relation with |
-| [**ReadAssertions**]({{apiDocsUrl}}#/Assertions/ReadAssertions) | **GET** /stores/{store_id}/assertions/{authorization_model_id} | Read assertions for an authorization model ID |
+{{#supportsStreamedListObjects}}| [**StreamedListObjects**]({{apiDocsUrl}}#/Relationship%20Queries/StreamedListObjects) | **POST** /stores/{store_id}/streamed-list-objects | Stream all objects of the given type that the user has a relation with (Node.js only) |
+{{/supportsStreamedListObjects}}| [**ReadAssertions**]({{apiDocsUrl}}#/Assertions/ReadAssertions) | **GET** /stores/{store_id}/assertions/{authorization_model_id} | Read assertions for an authorization model ID |
 | [**WriteAssertions**]({{apiDocsUrl}}#/Assertions/WriteAssertions) | **PUT** /stores/{store_id}/assertions/{authorization_model_id} | Upsert assertions for an authorization model ID |
