@@ -466,6 +466,28 @@ const response = await fgaClient.listObjects({
 // response.objects = ["document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"]
 ```
 
+{{#supportsStreamedListObjects}}
+##### Streamed List Objects
+
+List the objects of a particular type that the user has a certain relation to, using the streaming API.
+
+> **Note**: This is a Node.js-only feature. The streaming API allows you to retrieve more than the standard 1000 object limit.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/StreamedListObjects)
+
+```javascript
+const fgaClient = new OpenFgaClient({ apiUrl: "http://localhost:8080", storeId: "01H0H015178Y2V4CX10C2KGHF4" });
+
+for await (const response of fgaClient.streamedListObjects({
+  user: "user:anne",
+  relation: "owner",
+  type: "document"
+})) {
+  console.log(response.object);
+}
+```
+
+{{/supportsStreamedListObjects}}
 ##### List Relations
 
 List the relations a user has with an object. This wraps around [BatchCheck](#batchcheck) to allow checking multiple relationships at once.
