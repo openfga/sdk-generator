@@ -1,0 +1,84 @@
+{{>partial_header}}
+
+package constants
+
+const (
+    // SdkVersion is the version of the OpenFGA Go SDK.
+    SdkVersion = "{{packageVersion}}"
+
+    // UserAgent is the user agent used in HTTP requests.
+    UserAgent = "{{userAgent}}"
+
+    // SampleBaseDomain is the example API domain for documentation/tests.
+    SampleBaseDomain = "{{sampleApiDomain}}"
+
+    // TestApiUrl is the API URL used for tests.
+    TestApiUrl = "https://api." + SampleBaseDomain
+
+    // TestIssuerUrl is the API Token Issuer URL used for tests.
+    TestIssuerUrl = "https://issuer." + SampleBaseDomain
+
+    // DefaultApiUrl is the default API URL.
+    DefaultApiUrl = "{{defaultApiUrl}}"
+
+    // Retry configuration
+
+    // RetryMaxAllowedNumber is the maximum allowed number of retries for HTTP requests.
+    RetryMaxAllowedNumber = {{retryMaxAllowedNumber}}
+
+    // DefaultMaxRetry is the default maximum number of retries for HTTP requests.
+    DefaultMaxRetry = {{defaultMaxRetry}}
+
+    // DefaultMinWaitInMs is the default minimum wait time between retries in milliseconds.
+    DefaultMinWaitInMs = {{defaultMinWaitInMs}}
+
+    // MaxBackoffTimeInSec is the maximum backoff time in seconds.
+    MaxBackoffTimeInSec = {{maxBackoffTimeInSec}}
+
+    // RetryHeaderMaxAllowableDurationInSec is the maximum allowable duration for retry headers in seconds.
+    RetryHeaderMaxAllowableDurationInSec = {{retryHeaderMaxAllowableDurationInSec}}
+
+    // RetryAfterHeaderName is the standard HTTP header for retry-after.
+    RetryAfterHeaderName = "{{retryAfterHeaderName}}"
+
+    // RateLimitResetHeaderName is the rate limit reset header name.
+    RateLimitResetHeaderName = "{{rateLimitResetHeaderName}}"
+
+    // RateLimitResetAltHeaderName is the alternative rate limit reset header name.
+    RateLimitResetAltHeaderName = "{{rateLimitResetAltHeaderName}}"
+
+    // Client methods
+
+    // ClientMaxMethodParallelRequests is the maximum number of parallel requests for a single method.
+    ClientMaxMethodParallelRequests = {{clientMaxMethodParallelRequests}}
+
+    // ClientMaxBatchSize is the maximum batch size for batch requests.
+    ClientMaxBatchSize = {{clientMaxBatchSize}}
+
+    // ClientMethodHeader is the header used to identify the client method.
+    ClientMethodHeader = "{{clientMethodHeader}}"
+
+    // ClientBulkRequestIdHeader is the header used to identify bulk requests.
+    ClientBulkRequestIdHeader = "{{clientBulkRequestIdHeader}}"
+
+    // Connection options
+
+    // DefaultRequestTimeoutInMs is the default timeout for HTTP requests in milliseconds.
+    DefaultRequestTimeoutInMs = {{defaultRequestTimeoutInMs}}
+
+    // DefaultConnectionTimeoutInMs is the default connection timeout in milliseconds.
+    DefaultConnectionTimeoutInMs = {{defaultConnectionTimeoutInMs}}
+
+    // Token management
+
+    // TokenExpiryThresholdBufferInSec is the buffer time in seconds before token expiry to consider it expired.
+    TokenExpiryThresholdBufferInSec = {{tokenExpiryThresholdBufferInSec}}
+
+    // TokenExpiryJitterInSec is the jitter time in seconds to add randomness to token expiry checks.
+    TokenExpiryJitterInSec = {{tokenExpiryJitterInSec}}
+
+    // FGA Response Headers
+
+    // QueryDurationHeaderName is the response header name for query duration in milliseconds.
+    QueryDurationHeaderName = "{{queryDurationHeaderName}}"
+)
