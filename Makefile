@@ -68,7 +68,7 @@ test-client-js: build-client-js
 
 .PHONY: build-client-js
 build-client-js:
-	make build-client sdk_language=js tmpdir=${TMP_DIR}
+	make build-client-streamed sdk_language=js tmpdir=${TMP_DIR}
 	sed -i -e "s|_this|this|g" ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*.ts
 	sed -i -e "s|_this|this|g" ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*.md
 	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*-e
