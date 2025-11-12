@@ -11,6 +11,7 @@
   "supportsES6": true,
   "modelPropertyNaming": "original",
   "openTelemetryDocumentation": "docs/opentelemetry.md",
+  "enumNameSuffix": "",
   "files": {
     "constants.mustache": {
       "destinationFilename": "constants/index.ts",
