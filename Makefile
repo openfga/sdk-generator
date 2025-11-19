@@ -107,7 +107,13 @@ test-client-dotnet: build-client-dotnet build-dotnet-multi-image
 
 .PHONY: build-client-dotnet
 build-client-dotnet: build-dotnet-multi-image
-	make build-client-streamed sdk_language=dotnet tmpdir=${TMP_DIR} OPENAPI_GENERATOR_CLI_DOCKER_TAG=v7.11.0
+	@if grep -q '"supportsStreamedListObjects": true' config/clients/dotnet/config.overrides.json; then \
+		echo "Building dotnet SDK with streaming support..."; \
+		make build-client-streamed sdk_language=dotnet tmpdir=${TMP_DIR} OPENAPI_GENERATOR_CLI_DOCKER_TAG=v7.11.0; \
+	else \
+		echo "Building dotnet SDK without streaming support..."; \
+		make build-client-non-streamed sdk_language=dotnet tmpdir=${TMP_DIR} OPENAPI_GENERATOR_CLI_DOCKER_TAG=v7.11.0; \
+	fi
 
 	make run-in-docker sdk_language=dotnet image=openfga/dotnet-multi:${DOTNET_DOCKER_TAG} command="/bin/sh -c 'dotnet build --configuration Release'"
 	# Workaround for dotnet format issue: https://github.com/dotnet/format/issues/1634
@@ -199,10 +205,24 @@ build-client-streamed: build-openapi-streamed
 	SDK_LANGUAGE="${sdk_language}" TMP_DIR="${tmpdir}" LIBRARY_TEMPLATE="${library}"\
 		./scripts/build_client.sh
 
+.PHONY: build-client-non-streamed
+build-client-non-streamed: build-openapi-non-streamed
+	SDK_LANGUAGE="${sdk_language}" TMP_DIR="${tmpdir}" LIBRARY_TEMPLATE="${library}"\
+		./scripts/build_client.sh
+
 .PHONY: build-openapi-streamed
 build-openapi-streamed: init get-openapi-doc
 	cat "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.json" | \
 		jq '(.. | .tags? | select(.)) |= ["OpenFga"] | (.tags? | select(.)) |= [{"name":"OpenFga"}] | del(.definitions.ReadTuplesParams, .definitions.ReadTuplesResponse, .paths."/stores/{store_id}/read-tuples") | .paths."/stores/{store_id}/streamed-list-objects".post["x-streaming"] = true | .paths."/stores/{store_id}/streamed-list-objects".post["x-streaming-response-type"] = "StreamedListObjectsResponse"' > \
+		${DOCS_CACHE_DIR}/openfga.openapiv2.json
+	sed -i -e 's/"Object"/"FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
+	sed -i -e 's/#\/definitions\/Object"/#\/definitions\/FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
+	sed -i -e 's/v1.//g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
+
+.PHONY: build-openapi-non-streamed
+build-openapi-non-streamed: init get-openapi-doc
+	cat "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.json" | \
+		jq '(.. | .tags? | select(.)) |= ["OpenFga"] | (.tags? | select(.)) |= [{"name":"OpenFga"}] | del(.definitions.ReadTuplesParams, .definitions.ReadTuplesResponse, .paths."/stores/{store_id}/read-tuples", .definitions.StreamedListObjectsResponse, .definitions.StreamResultOfStreamedListObjectsResponse, .paths."/stores/{store_id}/streamed-list-objects")' > \
 		${DOCS_CACHE_DIR}/openfga.openapiv2.json
 	sed -i -e 's/"Object"/"FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
 	sed -i -e 's/#\/definitions\/Object"/#\/definitions\/FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
