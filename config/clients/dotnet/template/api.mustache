@@ -6,6 +6,7 @@ using {{packageName}}.{{modelPackage}};
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,6 +32,71 @@ public class {{classname}} : IDisposable {
 
     {{#operations}}
     {{#operation}}
+    {{#vendorExtensions.x-streaming}}
+    /// <summary>
+    /// {{summary}} {{notes}}
+    /// </summary>
+    /// <exception cref="ApiException">Thrown when fails to make API call</exception>
+    {{#allParams}}
+    /// <param name="{{paramName}}">{{description}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}{{#isDeprecated}} (deprecated){{/isDeprecated}}</param>
+    {{/allParams}}
+    /// <param name="options">Request options.</param>
+    /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
+    /// <returns>IAsyncEnumerable of {{vendorExtensions.x-streaming-response-type}}</returns>
+    {{#isDeprecated}}
+    [Obsolete]
+    {{/isDeprecated}}
+    public async IAsyncEnumerable<{{vendorExtensions.x-streaming-response-type}}> {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^required}}{{#optionalMethodArgument}} = default({{{dataType}}}){{/optionalMethodArgument}}{{/required}}{{^-last}}, {{/-last}}{{/allParams}}{{#allParams.0}}, {{/allParams.0}}IRequestOptions? options = null, [EnumeratorCancellation] CancellationToken cancellationToken = default) {
+        var pathParams = new Dictionary<string, string> { };
+        {{#pathParams.0}}
+        if (string.IsNullOrWhiteSpace(storeId)) {
+            throw new FgaRequiredParamError("{{operationId}}", "StoreId");
+        }
+        {{/pathParams.0}}
+
+        {{#pathParams}}
+        if ({{paramName}} != null) {
+            {{#isDateTime}}
+            // call the specific date time stringify
+            pathParams.Add("{{baseName}}", {{paramName}}?.ToString("0"));
+            {{/isDateTime}}
+            {{^isDateTime}}
+            pathParams.Add("{{baseName}}", {{paramName}}.ToString());
+            {{/isDateTime}}
+        }
+        {{/pathParams}}
+        var queryParams = new Dictionary<string, string>();
+        {{#queryParams}}
+        if ({{paramName}} != null) {
+            {{#isDateTime}}
+            // call the specific date time stringify
+            queryParams.Add("{{baseName}}", {{paramName}}?.ToString("O"));
+            {{/isDateTime}}
+            {{^isDateTime}}
+            queryParams.Add("{{baseName}}", {{paramName}}.ToString());
+            {{/isDateTime}}
+        }
+        {{/queryParams}}
+
+        var requestBuilder = new RequestBuilder<{{#bodyParam}}{{{dataType}}}{{/bodyParam}}{{^bodyParam}}Any{{/bodyParam}}> {
+            Method = new HttpMethod("{{httpMethod}}"),
+            BasePath = _configuration.BasePath,
+            PathTemplate = "{{path}}",
+            PathParameters = pathParams,
+            {{#bodyParam}}
+            Body = {{paramName}},
+            {{/bodyParam}}
+            QueryParameters = queryParams,
+        };
+
+        await foreach (var response in _apiClient.SendStreamingRequestAsync<{{#bodyParam}}{{{dataType}}}{{/bodyParam}}{{^bodyParam}}Any{{/bodyParam}}, {{vendorExtensions.x-streaming-response-type}}>(requestBuilder,
+            "{{operationId}}", options, cancellationToken)) {
+            yield return response;
+        }
+    }
+
+    {{/vendorExtensions.x-streaming}}
+    {{^vendorExtensions.x-streaming}}
     /// <summary>
     /// {{summary}} {{notes}}
     /// </summary>
@@ -91,6 +157,7 @@ public class {{classname}} : IDisposable {
             "{{operationId}}", options, cancellationToken);
     }
 
+    {{/vendorExtensions.x-streaming}}
     {{/operation}}
     {{/operations}}
 
