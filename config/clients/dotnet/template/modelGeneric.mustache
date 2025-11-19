@@ -317,7 +317,8 @@
             return OpenAPIClientUtils.compareLogic.Compare(this, input as {{classname}}).AreEqual;
             {{/useCompareNetObjects}}
             {{^useCompareNetObjects}}
-            return this.Equals(input as {{classname}});
+            if (input == null || input.GetType() != this.GetType()) return false;
+            return this.Equals(({{classname}})input);
             {{/useCompareNetObjects}}
         }
 
