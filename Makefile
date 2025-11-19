@@ -202,7 +202,7 @@ build-client-streamed: build-openapi-streamed
 .PHONY: build-openapi-streamed
 build-openapi-streamed: init get-openapi-doc
 	cat "${DOCS_CACHE_DIR}/openfga.openapiv2.raw.json" | \
-		jq '(.. | .tags? | select(.)) |= ["OpenFga"] | (.tags? | select(.)) |= [{"name":"OpenFga"}] | del(.definitions.ReadTuplesParams, .definitions.ReadTuplesResponse, .paths."/stores/{store_id}/read-tuples")' > \
+		jq '(.. | .tags? | select(.)) |= ["OpenFga"] | (.tags? | select(.)) |= [{"name":"OpenFga"}] | del(.definitions.ReadTuplesParams, .definitions.ReadTuplesResponse, .paths."/stores/{store_id}/read-tuples") | .paths."/stores/{store_id}/streamed-list-objects".post["x-streaming"] = true | .paths."/stores/{store_id}/streamed-list-objects".post["x-streaming-response-type"] = "StreamedListObjectsResponse"' > \
 		${DOCS_CACHE_DIR}/openfga.openapiv2.json
 	sed -i -e 's/"Object"/"FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
 	sed -i -e 's/#\/definitions\/Object"/#\/definitions\/FgaObject"/g' ${DOCS_CACHE_DIR}/openfga.openapiv2.json
