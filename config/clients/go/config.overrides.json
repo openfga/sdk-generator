@@ -20,6 +20,14 @@
     "api_client.mustache": {
       "destinationFilename": "api_client.go",
       "templateType": "SupportingFiles"
+    },
+    "streaming.mustache": {
+      "destinationFilename": "streaming.go",
+      "templateType": "SupportingFiles"
+    },
+    "streaming_test.mustache": {
+      "destinationFilename": "streaming_test.go",
+      "templateType": "SupportingFiles"
     }
   }
 }
