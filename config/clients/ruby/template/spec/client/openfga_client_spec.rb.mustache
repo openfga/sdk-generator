@@ -1,0 +1,1720 @@
+# frozen_string_literal: true
+
+require 'spec_helper'
+
+describe OpenFga::SdkClient do
+  let(:api_url) { 'http://localhost:8090' }
+  let(:store_id) { '01JSKYVY76JYW2DG65NG1444T4' }
+  let(:authorization_model_id) { '01G50QVV17PECNVAHX1GG4Y5NC' }
+  let(:subject) { OpenFga::SdkClient.new(api_url:, store_id:) }
+  let(:subject_no_store) { OpenFga::SdkClient.new(api_url:) }
+
+  def store_path(store_id)
+    "/stores/#{store_id}"
+  end
+
+  def stores_url(store_id = nil)
+    if store_id
+      "#{api_url}#{store_path(store_id)}" if store_id
+    else
+      "#{api_url}/stores"
+    end
+  end
+
+  describe 'Configuration errors' do
+    it 'checks for api_url' do
+      expect { OpenFga::SdkClient.new }.to raise_error(ConfigurationNilError) do |err|
+        expect(err.property).to be :api_url
+      end
+    end
+  end
+
+  it 'can create a client with basic options' do
+    expect(OpenFga::SdkClient.new(api_url:)).not_to be_nil
+  end
+
+  describe 'Authorization Models' do
+    context 'when writing an authorization model' do
+      let(:valid_body) { load_json('write_authorization_model_body') }
+      let(:invalid_body) { { type_definitions: [{}], schema_version: '1.1' } }
+
+      # unit tests for write_authorization_model
+      # Create a new authorization model
+      # The WriteAuthorizationModel API will add a new authorization model to a store. Each item in the &#x60;type_definitions&#x60; array is a type definition as specified in the field &#x60;type_definition&#x60;. The response will return the authorization model&#39;s ID in the &#x60;id&#x60; field.  ## Example To add an authorization model with &#x60;user&#x60; and &#x60;document&#x60; type definitions, call POST authorization-models API with the body:  &#x60;&#x60;&#x60;json {   \&quot;type_definitions\&quot;:[     {       \&quot;type\&quot;:\&quot;user\&quot;     },     {       \&quot;type\&quot;:\&quot;document\&quot;,       \&quot;relations\&quot;:{         \&quot;reader\&quot;:{           \&quot;union\&quot;:{             \&quot;child\&quot;:[               {                 \&quot;this\&quot;:{}               },               {                 \&quot;computedUserset\&quot;:{                   \&quot;object\&quot;:\&quot;\&quot;,                   \&quot;relation\&quot;:\&quot;writer\&quot;                 }               }             ]           }         },         \&quot;writer\&quot;:{           \&quot;this\&quot;:{}         }       }     }   ] } &#x60;&#x60;&#x60; OpenFGA&#39;s response will include the version id for this authorization model, which will look like  &#x60;&#x60;&#x60; {\&quot;authorization_model_id\&quot;: \&quot;01G50QVV17PECNVAHX1GG4Y5NC\&quot;} &#x60;&#x60;&#x60;
+      # @param store_id
+      # @param body
+      # @param [Hash] opts the optional parameters
+      # @return [WriteAuthorizationModelResponse]
+      it 'creates an authorization model successfully' do
+        stub_request_with_response(method: :post,
+                                   path: "#{stores_url(store_id)}/authorization-models",
+                                   status: 201,
+                                   request_body: valid_body,
+                                   response_body: { authorization_model_id: '01G50QVV17PECNVAHX1GG4Y5NC' })
+
+        response = subject.write_authorization_model(type_definitions: valid_body['type_definitions'],
+                                                     schema_version: valid_body['schema_version'],
+                                                     conditions: valid_body['conditions'])
+        expect(response).to be_a(OpenFga::WriteAuthorizationModelResponse)
+        expect(response.authorization_model_id).not_to be_nil
+      end
+
+      it 'should work without conditions' do
+        stub_request_with_response(method: :post,
+                                   path: "#{stores_url(store_id)}/authorization-models",
+                                   status: 201,
+                                   request_body: valid_body.slice('type_definitions', 'schema_version'),
+                                   response_body: { authorization_model_id: '01G50QVV17PECNVAHX1GG4Y5NC' })
+
+        response = subject.write_authorization_model(type_definitions: valid_body['type_definitions'],
+                                                     schema_version: valid_body['schema_version'])
+        expect(response).to be_a(OpenFga::WriteAuthorizationModelResponse)
+        expect(response.authorization_model_id).not_to be_nil
+      end
+
+      it 'raises an error for invalid authorization model request' do
+        stub_request_with_response(method: :post,
+                                   path: "#{stores_url(store_id)}/authorization-models",
+                                   status: 400,
+                                   request_body: invalid_body,
+                                   response_body: {
+                                     code: 'validation_error',
+                                     message: 'Generic validation error'
+                                   })
+
+        expect { subject.write_authorization_model(type_definitions: invalid_body[:type_definitions],
+                                                   schema_version: invalid_body[:schema_version]) }
+          .to(raise_error(OpenFga::ApiError))
+      end
+
+      it 'raises an error if store_id is missing' do
+        stub_request_with_response(method: :post,
+                                   path: "#{stores_url(store_id)}/authorization-models",
+                                   status: 400)
+        expect { subject_no_store.write_authorization_model(type_definitions: valid_body['type_definitions'],
+                                                            schema_version: valid_body['schema_version'],
+                                                            conditions: valid_body['conditions']) }.to raise_error(MissingStoreIdError)
+      end
+
+      it 'raises an error if type_definition is missing' do
+        stub_request_with_response(method: :post,
+                                   path: "#{stores_url(store_id)}/authorization-models",
+                                   status: 400)
+        expect { subject.write_authorization_model(type_definitions: nil,
+                                                   schema_version: valid_body['schema_version']) }.to raise_error(ArgumentError)
+      end
+
+      it 'raises an error if schema_version is missing' do
+        stub_request_with_response(method: :post,
+                                   path: "#{stores_url(store_id)}/authorization-models",
+                                   status: 400)
+        expect { subject.write_authorization_model(type_definitions: valid_body['type_definitions'],
+                                                   schema_version: nil) }.to raise_error(ArgumentError)
+      end
+    end
+
+    context 'when reading an authorization model' do
+      let(:model_id) { '01G5JAVJ41T49E9TT3SKVS7X1J' }
+      let(:valid_response) { load_json('read_authorization_model_response') }
+      # unit tests for read_authorization_model
+      # Return a particular version of an authorization model
+      # The ReadAuthorizationModel API returns an authorization model by its identifier. The response will return the authorization model for the particular version.  ## Example To retrieve the authorization model with ID &#x60;01G5JAVJ41T49E9TT3SKVS7X1J&#x60; for the store, call the GET authorization-models by ID API with &#x60;01G5JAVJ41T49E9TT3SKVS7X1J&#x60; as the &#x60;id&#x60; path parameter.  The API will return: &#x60;&#x60;&#x60;json {   \&quot;authorization_model\&quot;:{     \&quot;id\&quot;:\&quot;01G5JAVJ41T49E9TT3SKVS7X1J\&quot;,     \&quot;type_definitions\&quot;:[       {         \&quot;type\&quot;:\&quot;user\&quot;       },       {         \&quot;type\&quot;:\&quot;document\&quot;,         \&quot;relations\&quot;:{           \&quot;reader\&quot;:{             \&quot;union\&quot;:{               \&quot;child\&quot;:[                 {                   \&quot;this\&quot;:{}                 },                 {                   \&quot;computedUserset\&quot;:{                     \&quot;object\&quot;:\&quot;\&quot;,                     \&quot;relation\&quot;:\&quot;writer\&quot;                   }                 }               ]             }           },           \&quot;writer\&quot;:{             \&quot;this\&quot;:{}           }         }       }     ]   } } &#x60;&#x60;&#x60; In the above example, there are 2 types (&#x60;user&#x60; and &#x60;document&#x60;). The &#x60;document&#x60; type has 2 relations (&#x60;writer&#x60; and &#x60;reader&#x60;).
+      # @param store_id
+      # @param id
+      # @param [Hash] opts the optional parameters
+      # @return [ReadAuthorizationModelResponse]
+      it 'returns the authorization model successfully' do
+        stub_request_with_response(method: :get,
+                                   path: "#{stores_url(store_id)}/authorization-models/#{model_id}",
+                                   status: 200,
+                                   response_body: valid_response)
+
+        result = subject.read_authorization_model(id: model_id)
+        expect(result).to be_a(OpenFga::ReadAuthorizationModelResponse)
+        expect(result.authorization_model.id).to eq(model_id)
+      end
+
+      it 'raises an error if store_id is missing' do
+        expect { subject_no_store.read_authorization_model(id: model_id) }.to raise_error(MissingStoreIdError)
+      end
+
+      it 'raises an error if model_id is missing' do
+        expect { subject.read_authorization_model(id: nil) }.to raise_error(ArgumentError)
+      end
+
+      it 'raises an error if the authorization model does not exist' do
+        stub_request_with_response(method: :get,
+                                   path: "#{stores_url(store_id)}/authorization-models/#{model_id}",
+                                   status: 404,
+                                   response_body: {
+                                     code: 'undefined_endpoint',
+                                     message: 'Endpoint not enabled'
+                                   })
+        expect { subject.read_authorization_model(id: model_id) }.to raise_error(OpenFga::ApiError)
+      end
+    end
+
+    context 'when listing authorization models' do
+      let(:valid_response) { load_json('read_authorization_models_response') }
+      it 'returns authorization models successfully' do
+        stub_request_with_response(method: :get,
+                                   path: "#{stores_url(store_id)}/authorization-models",
+                                   status: 200,
+                                   response_body: valid_response)
+        result = subject.read_authorization_models
+        expect(result).to be_a(OpenFga::ReadAuthorizationModelsResponse)
+      end
+
+      it 'raises an error if store_id is missing' do
+        subject = OpenFga::SdkClient.new(api_url:)
+        expect { subject.read_authorization_models }.to raise_error(MissingStoreIdError)
+      end
+
+      it 'raises an error' do
+        stub_request_with_response(method: :get,
+                                   path: "#{stores_url(store_id)}/authorization-models",
+                                   status: 400)
+        expect { subject.read_authorization_models }.to raise_error(OpenFga::ApiError)
+      end
+    end
+  end
+
+  describe 'Assertions' do
+      let(:assertions) do
+        [
+          {
+            tuple_key: {
+              object: 'document:2021-budget',
+              relation: 'reader',
+              user: 'user:anne'
+            },
+            expectation: true,
+            contextual_tuples: [
+              {
+                user: 'user:anne',
+                relation: 'reader',
+                object: 'document:2021-budget',
+                condition: {
+                  name: 'condition1',
+                  context: {}
+                }
+              }
+            ],
+            context: {
+              view_count: 100
+            }
+          }
+        ]
+      end
+
+      context 'when getting assertions' do
+        before do
+          stub_request_with_response(method: :get,
+                                     path: "#{stores_url(store_id)}/assertions/#{authorization_model_id}",
+                                     status: 200,
+                                     response_body: { authorization_model_id:, assertions: })
+
+          @response = subject.read_assertions(store_id:, authorization_model_id:)
+        end
+
+        it 'retrieves assertions successfully' do
+          expect(@response).to be_a(OpenFga::ReadAssertionsResponse)
+          expect(@response.assertions.size).to eq(1)
+          expect(@response.assertions[0].tuple_key.user).to eq('user:anne')
+          expect(@response.assertions[0].expectation).to eq(true)
+        end
+
+        it 'raises an error if store_id is missing' do
+          expect { subject_no_store.read_assertions(authorization_model_id:) }.to raise_error(MissingStoreIdError)
+        end
+
+        it 'raises an error if model_id is missing' do
+          expect { subject.read_assertions(store_id:, authorization_model_id: nil) }.to raise_error(MissingAuthorizationModelIdError)
+        end
+
+        it 'raises an error if the assertions do not exist' do
+          stub_request_with_response(method: :get,
+                                     path: "#{stores_url(store_id)}/assertions/#{authorization_model_id}",
+                                     status: 404,
+                                     response_body: {
+                                       code: 'undefined_endpoint',
+                                       message: 'Endpoint not enabled'
+                                     })
+          expect { subject.read_assertions(store_id:, authorization_model_id:) }.to raise_error(OpenFga::ApiError)
+        end
+      end
+
+      describe 'when writing assertions' do
+        it 'writes assertions successfully' do
+          stub_request_with_response(method: :put,
+                                     path: "#{stores_url(store_id)}/assertions/#{authorization_model_id}",
+                                     status: 204,
+                                     request_body: { assertions: })
+
+          expect { subject.write_assertions(assertions:, opts: { store_id:, authorization_model_id: }) }.not_to raise_error
+        end
+
+        it 'raises an error if store_id is missing' do
+          expect { subject_no_store.write_assertions(assertions:) }.to raise_error(MissingStoreIdError)
+        end
+
+        it 'raises an error if model_id is missing' do
+          expect { subject.write_assertions(assertions:, opts: { store_id:,  authorization_model_id: nil }) }.to raise_error(MissingAuthorizationModelIdError)
+        end
+
+        it 'raises an error for invalid assertions' do
+          stub_request_with_response(method: :put,
+                                     path: "#{stores_url(store_id)}/assertions/#{authorization_model_id}",
+                                     status: 400,
+                                     request_body: { assertions: [] },
+                                     response_body: {
+                                       code: 'validation_error',
+                                       message: 'Invalid assertions'
+                                     })
+
+          expect { subject.write_assertions(assertions: [], opts: { store_id:, authorization_model_id: }) }.to raise_error(ArgumentError)
+        end
+      end
+    end
+
+  describe 'Relationship Queries' do
+    # unit tests for batch_check
+    # Send a list of &#x60;check&#x60; operations in a single request
+    # The &#x60;BatchCheck&#x60; API functions nearly identically to &#x60;Check&#x60;, but instead of checking a single user-object relationship BatchCheck accepts a list of relationships to check and returns a map containing &#x60;BatchCheckItem&#x60; response for each check it received.  An associated &#x60;correlation_id&#x60; is required for each check in the batch. This ID is used to correlate a check to the appropriate response. It is a string consisting of only alphanumeric characters or hyphens with a maximum length of 36 characters. This &#x60;correlation_id&#x60; is used to map the result of each check to the item which was checked, so it must be unique for each item in the batch. We recommend using a UUID or ULID as the &#x60;correlation_id&#x60;, but you can use whatever unique identifier you need as long  as it matches this regex pattern: &#x60;^[\\w\\d-]{1,36}$&#x60;  For more details on how &#x60;Check&#x60; functions, see the docs for &#x60;/check&#x60;.  ### Examples #### A BatchCheckRequest &#x60;&#x60;&#x60;json {   \&quot;checks\&quot;: [      {        \&quot;tuple_key\&quot;: {          \&quot;object\&quot;: \&quot;document:2021-budget\&quot;          \&quot;relation\&quot;: \&quot;reader\&quot;,          \&quot;user\&quot;: \&quot;user:anne\&quot;,        },        \&quot;contextual_tuples\&quot;: {...}        \&quot;context\&quot;: {}        \&quot;correlation_id\&quot;: \&quot;01JA8PM3QM7VBPGB8KMPK8SBD5\&quot;      },      {        \&quot;tuple_key\&quot;: {          \&quot;object\&quot;: \&quot;document:2021-budget\&quot;          \&quot;relation\&quot;: \&quot;reader\&quot;,          \&quot;user\&quot;: \&quot;user:bob\&quot;,        },        \&quot;contextual_tuples\&quot;: {...}        \&quot;context\&quot;: {}        \&quot;correlation_id\&quot;: \&quot;01JA8PMM6A90NV5ET0F28CYSZQ\&quot;      }    ] } &#x60;&#x60;&#x60;  Below is a possible response to the above request. Note that the result map&#39;s keys are the &#x60;correlation_id&#x60; values from the checked items in the request: &#x60;&#x60;&#x60;json {    \&quot;result\&quot;: {      \&quot;01JA8PMM6A90NV5ET0F28CYSZQ\&quot;: {        \&quot;allowed\&quot;: false,         \&quot;error\&quot;: {\&quot;message\&quot;: \&quot;\&quot;}      },      \&quot;01JA8PM3QM7VBPGB8KMPK8SBD5\&quot;: {        \&quot;allowed\&quot;: true,         \&quot;error\&quot;: {\&quot;message\&quot;: \&quot;\&quot;}      } } &#x60;&#x60;&#x60;
+    # @param store_id
+    # @param body
+    # @param [Hash] opts the optional parameters
+    # @return [BatchCheckResponse]
+    context 'when running a batch check' do
+      let(:checks) do
+        [
+          {
+            tuple_key: {
+              user: 'user:anne',
+              relation: :reader,
+              object: 'document:2021-budget'
+            },
+            correlation_id: '01JA8PM3QM7VBPGB8KMPK8SBD5',
+            context: {}
+          },
+          {
+            tuple_key: {
+              user: 'user:bob',
+              relation: :reader,
+              object: 'document:2021-budget'
+            },
+            correlation_id: '01JA8PMM6A90NV5ET0F28CYSZQ',
+            context: {}
+          }
+        ]
+      end
+      let(:checks_with_contextual_tuples) do
+        [
+          {
+            tuple_key: {
+              user: 'user:anne',
+              relation: :reader,
+              object: 'document:2021-budget'
+            },
+            correlation_id: '01JA8PM3QM7VBPGB8KMPK8SBD5',
+            contextual_tuples: {
+              tuple_keys: [
+                {
+                  user: 'user:anne',
+                  relation: 'reader',
+                  object: 'document:2021-budget',
+                  condition: {
+                    name: 'condition1',
+                    context: {}
+                  }
+                }
+              ]
+            },
+            context: {}
+          }
+        ]
+      end
+      let(:response_body) do
+        {
+          result: {
+            '01JA8PM3QM7VBPGB8KMPK8SBD5' => { allowed: true, error: { message: '' } },
+            '01JA8PMM6A90NV5ET0F28CYSZQ' => { allowed: false, error: { message: '' } }
+          }
+        }
+      end
+
+      it 'returns batch check results successfully' do
+        stub_request_with_response(
+          method: :post,
+          path: "#{stores_url(store_id)}/batch-check",
+          status: 200,
+          request_body: { checks:, consistency: 'UNSPECIFIED' },
+          response_body:
+        )
+
+        result = subject.batch_check(checks:)
+        expect(result).to be_a(OpenFga::BatchCheckResponse)
+        expect(result.result['01JA8PM3QM7VBPGB8KMPK8SBD5'].allowed).to be true
+        expect(result.result['01JA8PMM6A90NV5ET0F28CYSZQ'].allowed).to be false
+      end
+
+      it 'returns batch check results successfully with contextual tuples' do
+        stub_request_with_response(
+          method: :post,
+          path: "#{stores_url(store_id)}/batch-check",
+          status: 200,
+          request_body: { checks: checks_with_contextual_tuples, consistency: 'UNSPECIFIED' },
+          response_body: {
+            result: {
+              '01JA8PM3QM7VBPGB8KMPK8SBD5' => { allowed: true, error: { message: '' } }
+            }
+          })
+
+        result = subject.batch_check(checks: checks_with_contextual_tuples)
+        expect(result).to be_a(OpenFga::BatchCheckResponse)
+        expect(result.result['01JA8PM3QM7VBPGB8KMPK8SBD5'].allowed).to be true
+      end
+
+      it 'raises an error if checks are missing' do
+        expect { subject.batch_check(checks: []) }.to raise_error(ArgumentError)
+      end
+
+      it 'raises an error if correlation_id is missing' do
+        expect { subject.batch_check(checks: [ { tuple_key: {}, correlation_id: nil } ]) }.to raise_error(ArgumentError)
+      end
+
+      it 'raises an error if tuple_key is missing' do
+        expect { subject.batch_check(checks: [ tuple_key: nil, correlation_id: '01JA8PMM6A90NV5ET0F28CYSZQ' ]) }.to raise_error(ArgumentError)
+      end
+
+      it 'raises an error if correlation_id has the wrong format' do
+        expect { subject.batch_check(checks: [ tuple_key: {}, correlation_id: '' ]) }.to raise_error(ArgumentError)
+      end
+
+      it 'raises an error if store_id is missing' do
+        expect { subject_no_store.batch_check(checks:) }.to raise_error(MissingStoreIdError)
+      end
+
+      context 'with max_batch_size parameter' do
+        let(:large_check_set) do
+          (1..75).map do |i|
+            {
+              tuple_key: { user: "user:user#{i}", relation: 'reader', object: "document:#{i}" },
+              correlation_id: "check-#{i}"
+            }
+          end
+        end
+
+        it 'splits large check sets into multiple batches with default batch size (50)' do
+          # First batch: checks 1-50
+          first_batch_request = {
+            checks: (1..50).map do |i|
+              {
+                tuple_key: { user: "user:user#{i}", relation: 'reader', object: "document:#{i}" },
+                correlation_id: "check-#{i}"
+              }
+            end,
+            consistency: 'UNSPECIFIED'
+          }
+
+          first_batch_response = {
+            result: (1..50).map { |i| ["check-#{i}", { allowed: true }] }.to_h
+          }
+
+          # Second batch: checks 51-75
+          second_batch_request = {
+            checks: (51..75).map do |i|
+              {
+                tuple_key: { user: "user:user#{i}", relation: 'reader', object: "document:#{i}" },
+                correlation_id: "check-#{i}"
+              }
+            end,
+            consistency: 'UNSPECIFIED'
+          }
+
+          second_batch_response = {
+            result: (51..75).map { |i| ["check-#{i}", { allowed: true }] }.to_h
+          }
+
+          # Stub both requests
+          stub_request_with_response(
+            method: :post,
+            path: "#{stores_url(store_id)}/batch-check",
+            status: 200,
+            request_body: first_batch_request,
+            response_body: first_batch_response
+          )
+
+          stub_request_with_response(
+            method: :post,
+            path: "#{stores_url(store_id)}/batch-check",
+            status: 200,
+            request_body: second_batch_request,
+            response_body: second_batch_response
+          )
+
+          result = subject.batch_check(checks: large_check_set)
+
+          expect(result).to be_a(OpenFga::BatchCheckResponse)
+          expect(result.result.size).to eq(75)
+          expect(result.result).to include('check-1', 'check-50', 'check-52', 'check-75')
+        end
+
+        it 'respects custom max_batch_size parameter' do
+          # With max_batch_size: 25, we should get 3 batches for 75 checks
+          batch_requests = [
+            { checks: (1..25).map { |i| { tuple_key: { user: "user:user#{i}", relation: 'reader', object: "document:#{i}" }, correlation_id: "check-#{i}" } } },
+            { checks: (26..50).map { |i| { tuple_key: { user: "user:user#{i}", relation: 'reader', object: "document:#{i}" }, correlation_id: "check-#{i}" } } },
+            { checks: (51..75).map { |i| { tuple_key: { user: "user:user#{i}", relation: 'reader', object: "document:#{i}" }, correlation_id: "check-#{i}" } } }
+          ]
+
+          # Stub all three requests
+          batch_requests.each do |request|
+            response = {
+              result: request[:checks].map { |check| [check[:correlation_id], { allowed: true }] }.to_h
+            }
+
+            stub_request_with_response(
+              method: :post,
+              path: "#{stores_url(store_id)}/batch-check",
+              status: 200,
+              request_body: request.merge(consistency: 'UNSPECIFIED'),
+              response_body: response
+            )
+          end
+
+          result = subject.batch_check(
+            checks: large_check_set,
+            opts: { max_batch_size: 25 }
+          )
+
+          expect(result).to be_a(OpenFga::BatchCheckResponse)
+          expect(result.result.size).to eq(75)
+          # Verify all correlation_ids are present
+          (1..75).each do |i|
+            expect(result.result).to include("check-#{i}")
+          end
+        end
+
+        it 'uses single batch for small check sets under the limit' do
+          small_check_set = (1..10).map do |i|
+            {
+              tuple_key: { user: "user:user#{i}", relation: 'reader', object: "document:#{i}" },
+              correlation_id: "check-#{i}"
+            }
+          end
+
+          single_batch_request = {
+            checks: small_check_set.map do |check|
+              {
+                tuple_key: check[:tuple_key],
+                correlation_id: check[:correlation_id]
+              }
+            end,
+            consistency: 'UNSPECIFIED'
+          }
+
+          single_batch_response = {
+            result: (1..10).map { |i| ["check-#{i}", { allowed: true }] }.to_h
+          }
+
+          stub_request_with_response(
+            method: :post,
+            path: "#{stores_url(store_id)}/batch-check",
+            status: 200,
+            request_body: single_batch_request,
+            response_body: single_batch_response
+          )
+
+          result = subject.batch_check(checks: small_check_set)
+
+          expect(result).to be_a(OpenFga::BatchCheckResponse)
+          expect(result.result.size).to eq(10)
+        end
+      end
+
+      context 'with max_parallel_requests parameter' do
+        let(:concurrent_check_set) do
+          (1..20).map do |i|
+            {
+              tuple_key: { user: "user:user#{i}", relation: 'reader', object: "document:#{i}" },
+              correlation_id: "check-#{i}"
+            }
+          end
+        end
+
+        it 'processes batches concurrently with custom max_parallel_requests' do
+          # With 20 checks and max_batch_size: 5, we get 4 batches
+          (1..4).each do |batch_num|
+            start_idx = (batch_num - 1) * 5 + 1
+            end_idx = batch_num * 5
+
+            batch_request = {
+              checks: (start_idx..end_idx).map do |i|
+                {
+                  tuple_key: { user: "user:user#{i}", relation: 'reader', object: "document:#{i}" },
+                  correlation_id: "check-#{i}"
+                }
+              end,
+              consistency: 'UNSPECIFIED'
+            }
+
+            batch_response = {
+              result: (start_idx..end_idx).map { |i| ["check-#{i}", { allowed: true }] }.to_h
+            }
+
+            stub_request_with_response(
+              method: :post,
+              path: "#{stores_url(store_id)}/batch-check",
+              status: 200,
+              request_body: batch_request,
+              response_body: batch_response
+            )
+          end
+
+          result = subject.batch_check(
+            checks: concurrent_check_set,
+            opts: { max_batch_size: 5, max_parallel_requests: 2 }
+          )
+
+          expect(result).to be_a(OpenFga::BatchCheckResponse)
+          expect(result.result.size).to eq(20)
+          # Verify all correlation_ids are present
+          (1..20).each do |i|
+            expect(result.result).to include("check-#{i}")
+          end
+        end
+
+        it 'respects max_parallel_requests = 1 for sequential processing' do
+          # This should process batches one at a time
+          sequential_check_set = (1..15).map do |i|
+            {
+              tuple_key: { user: "user:user#{i}", relation: 'reader', object: "document:#{i}" },
+              correlation_id: "check-#{i}"
+            }
+          end
+
+          # With max_batch_size: 5, we get 3 batches
+          (1..3).each do |batch_num|
+            start_idx = (batch_num - 1) * 5 + 1
+            end_idx = batch_num * 5
+
+            batch_request = {
+              checks: (start_idx..end_idx).map do |i|
+                {
+                  tuple_key: { user: "user:user#{i}", relation: 'reader', object: "document:#{i}" },
+                  correlation_id: "check-#{i}"
+                }
+              end,
+              consistency: 'UNSPECIFIED'
+            }
+
+            batch_response = {
+              result: (start_idx..end_idx).map { |i| ["check-#{i}", { allowed: true }] }.to_h
+            }
+
+            stub_request_with_response(
+              method: :post,
+              path: "#{stores_url(store_id)}/batch-check",
+              status: 200,
+              request_body: batch_request,
+              response_body: batch_response
+            )
+          end
+
+          result = subject.batch_check(
+            checks: sequential_check_set,
+            opts: { max_batch_size: 5, max_parallel_requests: 1 }
+          )
+
+          expect(result).to be_a(OpenFga::BatchCheckResponse)
+          expect(result.result.size).to eq(15)
+        end
+      end
+
+      context 'with both parameters combined' do
+        it 'correctly applies both max_batch_size and max_parallel_requests' do
+          # 100 checks with batch size 20 = 5 batches, max 3 concurrent
+          large_dataset = (1..100).map do |i|
+            {
+              tuple_key: { user: "user:user#{i}", relation: 'reader', object: "document:#{i}" },
+              correlation_id: "check-#{i}"
+            }
+          end
+
+          # Create 5 batches of 20 checks each
+          (1..5).each do |batch_num|
+            start_idx = (batch_num - 1) * 20 + 1
+            end_idx = batch_num * 20
+
+            batch_request = {
+              checks: (start_idx..end_idx).map do |i|
+                {
+                  tuple_key: { user: "user:user#{i}", relation: 'reader', object: "document:#{i}" },
+                  correlation_id: "check-#{i}"
+                }
+              end,
+              consistency: 'UNSPECIFIED'
+            }
+
+            batch_response = {
+              result: (start_idx..end_idx).map { |i| ["check-#{i}", { allowed: true }] }.to_h
+            }
+
+            stub_request_with_response(
+              method: :post,
+              path: "#{stores_url(store_id)}/batch-check",
+              status: 200,
+              request_body: batch_request,
+              response_body: batch_response
+            )
+          end
+
+          result = subject.batch_check(
+            checks: large_dataset,
+            opts: { max_batch_size: 20, max_parallel_requests: 3 }
+          )
+
+          expect(result).to be_a(OpenFga::BatchCheckResponse)
+          expect(result.result.size).to eq(100)
+          # Verify all correlation_ids are present
+          (1..100).each do |i|
+            expect(result.result).to include("check-#{i}")
+          end
+        end
+      end
+
+      context 'error handling with concurrent processing' do
+        let(:error_prone_checks) do
+          (1..10).map do |i|
+            {
+              tuple_key: { user: "user:user#{i}", relation: 'reader', object: "document:#{i}" },
+              correlation_id: "check-#{i}"
+            }
+          end
+        end
+
+        it 'handles partial failures gracefully when some batches fail' do
+          # First batch succeeds
+          first_batch_request = {
+            checks: (1..5).map do |i|
+              {
+                tuple_key: { user: "user:user#{i}", relation: 'reader', object: "document:#{i}" },
+                correlation_id: "check-#{i}"
+              }
+            end,
+            consistency: 'UNSPECIFIED'
+          }
+
+          first_batch_response = {
+            result: (1..5).map { |i| ["check-#{i}", { allowed: true }] }.to_h
+          }
+
+          # Second batch fails
+          second_batch_request = {
+            checks: (6..10).map do |i|
+              {
+                tuple_key: { user: "user:user#{i}", relation: 'reader', object: "document:#{i}" },
+                correlation_id: "check-#{i}"
+              }
+            end,
+            consistency: 'UNSPECIFIED'
+          }
+
+          stub_request_with_response(
+            method: :post,
+            path: "#{stores_url(store_id)}/batch-check",
+            status: 200,
+            request_body: first_batch_request,
+            response_body: first_batch_response
+          )
+
+          stub_request(:post, "#{stores_url(store_id)}/batch-check")
+            .with(body: hash_including(second_batch_request))
+            .to_return(status: 500, body: '{"error": "Internal server error"}')
+
+          # Should not raise error, but should include results from successful batch
+          result = subject.batch_check(
+            checks: error_prone_checks,
+            opts: { max_batch_size: 5 }
+          )
+
+          expect(result).to be_a(OpenFga::BatchCheckResponse)
+          # Should have results from the first batch only
+          expect(result.result.size).to eq(5)
+          expect(result.result).to include('check-1', 'check-5')
+          expect(result.result).not_to include('check-6', 'check-10')
+        end
+      end
+    end
+
+    # unit tests for check
+    # Check whether a user is authorized to access an object
+    # The Check API returns whether a given user has a relationship with a given object in a given store. The &#x60;user&#x60; field of the request can be a specific target, such as &#x60;user:anne&#x60;, or a userset (set of users) such as &#x60;group:marketing#member&#x60; or a type-bound public access &#x60;user:*&#x60;. To arrive at a result, the API uses: an authorization model, explicit tuples written through the Write API, contextual tuples present in the request, and implicit tuples that exist by virtue of applying set theory (such as &#x60;document:2021-budget#viewer@document:2021-budget#viewer&#x60;; the set of users who are viewers of &#x60;document:2021-budget&#x60; are the set of users who are the viewers of &#x60;document:2021-budget&#x60;). A &#x60;contextual_tuples&#x60; object may also be included in the body of the request. This object contains one field &#x60;tuple_keys&#x60;, which is an array of tuple keys. Each of these tuples may have an associated &#x60;condition&#x60;. You may also provide an &#x60;authorization_model_id&#x60; in the body. This will be used to assert that the input &#x60;tuple_key&#x60; is valid for the model specified. If not specified, the assertion will be made against the latest authorization model ID. It is strongly recommended to specify authorization model id for better performance. You may also provide a &#x60;context&#x60; object that will be used to evaluate the conditioned tuples in the system. It is strongly recommended to provide a value for all the input parameters of all the conditions, to ensure that all tuples be evaluated correctly. By default, the Check API caches results for a short time to optimize performance. You may specify a value of &#x60;HIGHER_CONSISTENCY&#x60; for the optional &#x60;consistency&#x60; parameter in the body to inform the server that higher conisistency is preferred at the expense of increased latency. Consideration should be given to the increased latency if requesting higher consistency. The response will return whether the relationship exists in the field &#x60;allowed&#x60;.  Some exceptions apply, but in general, if a Check API responds with &#x60;{allowed: true}&#x60;, then you can expect the equivalent ListObjects query to return the object, and viceversa.  For example, if &#x60;Check(user:anne, reader, document:2021-budget)&#x60; responds with &#x60;{allowed: true}&#x60;, then &#x60;ListObjects(user:anne, reader, document)&#x60; may include &#x60;document:2021-budget&#x60; in the response. ## Examples ### Querying with contextual tuples In order to check if user &#x60;user:anne&#x60; of type &#x60;user&#x60; has a &#x60;reader&#x60; relationship with object &#x60;document:2021-budget&#x60; given the following contextual tuple &#x60;&#x60;&#x60;json {   \&quot;user\&quot;: \&quot;user:anne\&quot;,   \&quot;relation\&quot;: \&quot;member\&quot;,   \&quot;object\&quot;: \&quot;time_slot:office_hours\&quot; } &#x60;&#x60;&#x60; the Check API can be used with the following request body: &#x60;&#x60;&#x60;json {   \&quot;tuple_key\&quot;: {     \&quot;user\&quot;: \&quot;user:anne\&quot;,     \&quot;relation\&quot;: \&quot;reader\&quot;,     \&quot;object\&quot;: \&quot;document:2021-budget\&quot;   },   \&quot;contextual_tuples\&quot;: {     \&quot;tuple_keys\&quot;: [       {         \&quot;user\&quot;: \&quot;user:anne\&quot;,         \&quot;relation\&quot;: \&quot;member\&quot;,         \&quot;object\&quot;: \&quot;time_slot:office_hours\&quot;       }     ]   },   \&quot;authorization_model_id\&quot;: \&quot;01G50QVV17PECNVAHX1GG4Y5NC\&quot; } &#x60;&#x60;&#x60; ### Querying usersets Some Checks will always return &#x60;true&#x60;, even without any tuples. For example, for the following authorization model &#x60;&#x60;&#x60;python model   schema 1.1 type user type document   relations     define reader: [user] &#x60;&#x60;&#x60; the following query &#x60;&#x60;&#x60;json {   \&quot;tuple_key\&quot;: {      \&quot;user\&quot;: \&quot;document:2021-budget#reader\&quot;,      \&quot;relation\&quot;: \&quot;reader\&quot;,      \&quot;object\&quot;: \&quot;document:2021-budget\&quot;   } } &#x60;&#x60;&#x60; will always return &#x60;{ \&quot;allowed\&quot;: true }&#x60;. This is because usersets are self-defining: the userset &#x60;document:2021-budget#reader&#x60; will always have the &#x60;reader&#x60; relation with &#x60;document:2021-budget&#x60;. ### Querying usersets with difference in the model A Check for a userset can yield results that must be treated carefully if the model involves difference. For example, for the following authorization model &#x60;&#x60;&#x60;python model   schema 1.1 type user type group   relations     define member: [user] type document   relations     define blocked: [user]     define reader: [group#member] but not blocked &#x60;&#x60;&#x60; the following query &#x60;&#x60;&#x60;json {   \&quot;tuple_key\&quot;: {      \&quot;user\&quot;: \&quot;group:finance#member\&quot;,      \&quot;relation\&quot;: \&quot;reader\&quot;,      \&quot;object\&quot;: \&quot;document:2021-budget\&quot;   },   \&quot;contextual_tuples\&quot;: {     \&quot;tuple_keys\&quot;: [       {         \&quot;user\&quot;: \&quot;user:anne\&quot;,         \&quot;relation\&quot;: \&quot;member\&quot;,         \&quot;object\&quot;: \&quot;group:finance\&quot;       },       {         \&quot;user\&quot;: \&quot;group:finance#member\&quot;,         \&quot;relation\&quot;: \&quot;reader\&quot;,         \&quot;object\&quot;: \&quot;document:2021-budget\&quot;       },       {         \&quot;user\&quot;: \&quot;user:anne\&quot;,         \&quot;relation\&quot;: \&quot;blocked\&quot;,         \&quot;object\&quot;: \&quot;document:2021-budget\&quot;       }     ]   }, } &#x60;&#x60;&#x60; will return &#x60;{ \&quot;allowed\&quot;: true }&#x60;, even though a specific user of the userset &#x60;group:finance#member&#x60; does not have the &#x60;reader&#x60; relationship with the given object. ### Requesting higher consistency By default, the Check API caches results for a short time to optimize performance. You may request higher consistency to inform the server that higher consistency should be preferred at the expense of increased latency. Care should be taken when requesting higher consistency due to the increased latency. &#x60;&#x60;&#x60;json {   \&quot;tuple_key\&quot;: {      \&quot;user\&quot;: \&quot;group:finance#member\&quot;,      \&quot;relation\&quot;: \&quot;reader\&quot;,      \&quot;object\&quot;: \&quot;document:2021-budget\&quot;   },   \&quot;consistency\&quot;: \&quot;HIGHER_CONSISTENCY\&quot; } &#x60;&#x60;&#x60;
+    # @param store_id
+    # @param body
+    # @param [Hash] opts the optional parameters
+    # @return [CheckResponse]
+    context 'when running a check request' do
+      let(:contextual_tuples) do
+          {
+            tuple_keys: [
+              {
+                user: 'user:anne',
+                relation: 'writer',
+                object: 'document:2021-budget',
+                condition: {
+                  name: 'condition1',
+                  context: {}
+                }
+              }
+            ]
+          }
+        end
+
+      it 'should work for authorized tuple' do
+        stub_request_with_response(method: :post,
+                                   path: "#{stores_url(store_id)}/check",
+                                   status: 200,
+                                   request_body: { tuple_key:
+                                                     {
+                                                       user: 'user:anne',
+                                                       relation: 'reader',
+                                                       object: 'document:2021-budget'
+                                                     },
+                                                   consistency: 'UNSPECIFIED'
+                                   },
+                                   response_body: { allowed: true, resolution: 'string' })
+
+        response = subject.check(user: 'user:anne', relation: :reader, object: 'document:2021-budget')
+        expect(response).to be_a(OpenFga::CheckResponse)
+        expect(response.allowed).to be true
+      end
+
+      it 'should fail for unauthorized tuple' do
+        stub_request_with_response(method: :post,
+                                   path: "#{stores_url(store_id)}/check",
+                                   status: 200,
+                                   request_body: { tuple_key:
+                                                     {
+                                                       user: 'user:anne',
+                                                       relation: 'reader',
+                                                       object: 'document:2021-budget'
+                                                     },
+                                                   consistency: 'UNSPECIFIED'
+                                   },
+                                   response_body: { allowed: false, resolution: 'string' })
+
+        response = subject.check(user: 'user:anne', relation: :reader, object: 'document:2021-budget')
+        expect(response).to be_a(OpenFga::CheckResponse)
+        expect(response.allowed).to be false
+      end
+
+      it 'should raise an error if store_id is missing' do
+        expect { subject_no_store.check(user: 'user:anne', relation: :reader, object: 'roadmap') }.to raise_error(MissingStoreIdError)
+      end
+
+      it 'should raise an error if user is missing' do
+        expect { subject.check(user: nil, relation: :reader, object: 'roadmap') }.to raise_error(ArgumentError)
+      end
+
+      it 'should raise an error if relation is missing' do
+        expect { subject.check(user: 'user:anne', relation: nil, object: 'roadmap') }.to raise_error(ArgumentError)
+      end
+
+      it 'should raise an error if object is missing' do
+        expect { subject.check(user: 'user:anne', relation: :reader, object: nil) }.to raise_error(ArgumentError)
+      end
+
+      it 'should work with contextual tuples' do
+        stub_request_with_response(method: :post,
+                                   path: "#{stores_url(store_id)}/check",
+                                   status: 200,
+                                   request_body: { tuple_key:
+                                                     {
+                                                       user: 'user:anne',
+                                                       relation: 'reader',
+                                                       object: 'document:2021-budget'
+                                                     },
+                                                   contextual_tuples:,
+                                                   consistency: 'UNSPECIFIED'
+                                   },
+                                   response_body: { allowed: true, resolution: 'string' })
+
+        response = subject.check(user: 'user:anne', relation: :reader, object: 'document:2021-budget',
+                                 contextual_tuples:)
+        expect(response).to be_a(OpenFga::CheckResponse)
+        expect(response.allowed).to be true
+      end
+
+      it 'should work with different authorization_model_id' do
+        stub_request_with_response(method: :post,
+                                   path: "#{stores_url(store_id)}/check",
+                                   status: 200,
+                                   request_body: {
+                                     tuple_key: {
+                                       user: 'user:anne',
+                                       relation: 'reader',
+                                       object: 'document:2021-budget'
+                                     },
+                                     authorization_model_id: 'KJHGFDSUYTR',
+                                     consistency: 'UNSPECIFIED'
+                                   },
+                                   response_body: { allowed: true, resolution: 'string' })
+
+        response = subject.check(user: 'user:anne', relation: :reader, object: 'document:2021-budget',
+                                 opts: { authorization_model_id: 'KJHGFDSUYTR' })
+        expect(response).to be_a(OpenFga::CheckResponse)
+        expect(response.allowed).to be true
+      end
+
+      it 'should work with context' do
+        stub_request_with_response(method: :post,
+                                   path: "#{stores_url(store_id)}/check",
+                                   status: 200,
+                                   request_body: {
+                                     tuple_key: {
+                                       user: 'user:anne',
+                                       relation: 'reader',
+                                       object: 'document:2021-budget'
+                                     },
+                                     context: {},
+                                     consistency: 'UNSPECIFIED'
+                                   },
+                                   response_body: { allowed: true, resolution: 'string' })
+
+        response = subject.check(user: 'user:anne', relation: :reader, object: 'document:2021-budget',
+                                 context: {})
+        expect(response).to be_a(OpenFga::CheckResponse)
+        expect(response.allowed).to be true
+      end
+
+    end
+
+    # unit tests for expand
+    # Expand all relationships in userset tree format, and following userset rewrite rules.  Useful to reason about and debug a certain relationship
+    # The Expand API will return all users and usersets that have certain relationship with an object in a certain store. This is different from the &#x60;/stores/{store_id}/read&#x60; API in that both users and computed usersets are returned. Body parameters &#x60;tuple_key.object&#x60; and &#x60;tuple_key.relation&#x60; are all required. A &#x60;contextual_tuples&#x60; object may also be included in the body of the request. This object contains one field &#x60;tuple_keys&#x60;, which is an array of tuple keys. Each of these tuples may have an associated &#x60;condition&#x60;. The response will return a tree whose leaves are the specific users and usersets. Union, intersection and difference operator are located in the intermediate nodes.  ## Example To expand all users that have the &#x60;reader&#x60; relationship with object &#x60;document:2021-budget&#x60;, use the Expand API with the following request body &#x60;&#x60;&#x60;json {   \&quot;tuple_key\&quot;: {     \&quot;object\&quot;: \&quot;document:2021-budget\&quot;,     \&quot;relation\&quot;: \&quot;reader\&quot;   },   \&quot;authorization_model_id\&quot;: \&quot;01G50QVV17PECNVAHX1GG4Y5NC\&quot; } &#x60;&#x60;&#x60; OpenFGA&#39;s response will be a userset tree of the users and usersets that have read access to the document. &#x60;&#x60;&#x60;json {   \&quot;tree\&quot;:{     \&quot;root\&quot;:{       \&quot;type\&quot;:\&quot;document:2021-budget#reader\&quot;,       \&quot;union\&quot;:{         \&quot;nodes\&quot;:[           {             \&quot;type\&quot;:\&quot;document:2021-budget#reader\&quot;,             \&quot;leaf\&quot;:{               \&quot;users\&quot;:{                 \&quot;users\&quot;:[                   \&quot;user:bob\&quot;                 ]               }             }           },           {             \&quot;type\&quot;:\&quot;document:2021-budget#reader\&quot;,             \&quot;leaf\&quot;:{               \&quot;computed\&quot;:{                 \&quot;userset\&quot;:\&quot;document:2021-budget#writer\&quot;               }             }           }         ]       }     }   } } &#x60;&#x60;&#x60; The caller can then call expand API for the &#x60;writer&#x60; relationship for the &#x60;document:2021-budget&#x60;. ### Expand Request with Contextual Tuples  Given the model &#x60;&#x60;&#x60;python model     schema 1.1  type user  type folder     relations         define owner: [user]  type document     relations         define parent: [folder]         define viewer: [user] or writer         define writer: [user] or owner from parent &#x60;&#x60;&#x60; and the initial tuples &#x60;&#x60;&#x60;json [{     \&quot;user\&quot;: \&quot;user:bob\&quot;,     \&quot;relation\&quot;: \&quot;owner\&quot;,     \&quot;object\&quot;: \&quot;folder:1\&quot; }] &#x60;&#x60;&#x60;  To expand all &#x60;writers&#x60; of &#x60;document:1&#x60; when &#x60;document:1&#x60; is put in &#x60;folder:1&#x60;, the first call could be  &#x60;&#x60;&#x60;json {   \&quot;tuple_key\&quot;: {     \&quot;object\&quot;: \&quot;document:1\&quot;,     \&quot;relation\&quot;: \&quot;writer\&quot;   },   \&quot;contextual_tuples\&quot;: {     \&quot;tuple_keys\&quot;: [       {         \&quot;user\&quot;: \&quot;folder:1\&quot;,         \&quot;relation\&quot;: \&quot;parent\&quot;,         \&quot;object\&quot;: \&quot;document:1\&quot;       }     ]   } } &#x60;&#x60;&#x60; this returns: &#x60;&#x60;&#x60;json {   \&quot;tree\&quot;: {     \&quot;root\&quot;: {       \&quot;name\&quot;: \&quot;document:1#writer\&quot;,       \&quot;union\&quot;: {         \&quot;nodes\&quot;: [           {             \&quot;name\&quot;: \&quot;document:1#writer\&quot;,             \&quot;leaf\&quot;: {               \&quot;users\&quot;: {                 \&quot;users\&quot;: []               }             }           },           {             \&quot;name\&quot;: \&quot;document:1#writer\&quot;,             \&quot;leaf\&quot;: {               \&quot;tupleToUserset\&quot;: {                 \&quot;tupleset\&quot;: \&quot;document:1#parent\&quot;,                 \&quot;computed\&quot;: [                   {                     \&quot;userset\&quot;: \&quot;folder:1#owner\&quot;                   }                 ]               }             }           }         ]       }     }   } } &#x60;&#x60;&#x60; This tells us that the &#x60;owner&#x60; of &#x60;folder:1&#x60; may also be a writer. So our next call could be to find the &#x60;owners&#x60; of &#x60;folder:1&#x60; &#x60;&#x60;&#x60;json {   \&quot;tuple_key\&quot;: {     \&quot;object\&quot;: \&quot;folder:1\&quot;,     \&quot;relation\&quot;: \&quot;owner\&quot;   } } &#x60;&#x60;&#x60; which gives &#x60;&#x60;&#x60;json {   \&quot;tree\&quot;: {     \&quot;root\&quot;: {       \&quot;name\&quot;: \&quot;folder:1#owner\&quot;,       \&quot;leaf\&quot;: {         \&quot;users\&quot;: {           \&quot;users\&quot;: [             \&quot;user:bob\&quot;           ]         }       }     }   } } &#x60;&#x60;&#x60;
+    # @param store_id
+    # @param body
+    # @param [Hash] opts the optional parameters
+    # @return [ExpandResponse]
+    context 'when running expand' do
+      let(:relation) { 'reader' }
+      let(:object) { 'document:2021-budget' }
+      let(:authorization_model_id) { '01G50QVV17PECNVAHX1GG4Y5NC' }
+      let(:contextual_tuples) do
+        { tuple_keys:
+            [
+              {
+                user: 'folder:1',
+                relation: 'parent',
+                object: 'document:1'
+              }
+            ]
+        }
+      end
+
+      it 'expands relationships successfully' do
+        stub = stub_request_with_response(method: :post,
+                                   path: "#{stores_url(store_id)}/expand",
+                                   status: 200,
+                                   request_body: {
+                                     tuple_key: {
+                                       relation:,
+                                       object:
+                                     },
+                                     authorization_model_id:,
+                                     consistency: 'UNSPECIFIED'
+                                   },
+                                   response_body: load_json('expand_response'))
+
+
+        response = subject.expand(relation:, object:, opts: { authorization_model_id: })
+
+        expect(stub).to have_been_requested
+        expect(response).to be_a(OpenFga::ExpandResponse)
+        expect(response.tree.root.name).to eq('document:2021-budget#reader')
+        expect(response.tree.root.union.nodes.size).to eq(2)
+      end
+
+      it 'raises an error if store_id is missing' do
+        expect { subject_no_store.expand(relation:, object:) }.to raise_error(MissingStoreIdError)
+      end
+
+      it 'raises an error if relation is missing' do
+        expect { subject.expand(relation: nil, object:) }.to raise_error(ArgumentError)
+      end
+
+      it 'raises an error if object is missing' do
+        expect { subject.expand(relation:, object: nil) }.to raise_error(ArgumentError)
+      end
+
+      it 'expands relationships with contextual tuples' do
+        stub = stub_request_with_response(method: :post,
+                                   path: "#{stores_url(store_id)}/expand",
+                                   status: 200,
+                                   request_body: {
+                                     tuple_key: {
+                                       relation: 'writer',
+                                       object: 'document:1'
+                                     },
+                                     authorization_model_id:,
+                                     consistency: 'UNSPECIFIED',
+                                     contextual_tuples:
+                                   },
+                                   response_body: load_json('expand_with_contextual_tuples_response'))
+
+        response = subject.expand(relation: :writer, object: 'document:1',
+                                  opts: { contextual_tuples:, authorization_model_id: })
+
+        expect(stub).to have_been_requested
+        expect(response).to be_a(OpenFga::ExpandResponse)
+        expect(response.tree.root.name).to eq('document:1#writer')
+      end
+
+      # unit tests for list_users
+      # List the users matching the provided filter who have a certain relation to a particular type.
+      # The ListUsers API returns a list of all the users of a specific type that have a relation to a given object.  To arrive at a result, the API uses: an authorization model, explicit tuples written through the Write API, contextual tuples present in the request, and implicit tuples that exist by virtue of applying set theory (such as &#x60;document:2021-budget#viewer@document:2021-budget#viewer&#x60;; the set of users who are viewers of &#x60;document:2021-budget&#x60; are the set of users who are the viewers of &#x60;document:2021-budget&#x60;). An &#x60;authorization_model_id&#x60; may be specified in the body. If it is not specified, the latest authorization model ID will be used. It is strongly recommended to specify authorization model id for better performance. You may also specify &#x60;contextual_tuples&#x60; that will be treated as regular tuples. Each of these tuples may have an associated &#x60;condition&#x60;. You may also provide a &#x60;context&#x60; object that will be used to evaluate the conditioned tuples in the system. It is strongly recommended to provide a value for all the input parameters of all the conditions, to ensure that all tuples be evaluated correctly. The response will contain the related users in an array in the \&quot;users\&quot; field of the response. These results may include specific objects, usersets  or type-bound public access. Each of these types of results is encoded in its own type and not represented as a string.In cases where a type-bound public access result is returned (e.g. &#x60;user:*&#x60;), it cannot be inferred that all subjects of that type have a relation to the object; it is possible that negations exist and checks should still be queried on individual subjects to ensure access to that document.The number of users in the response array will be limited by the execution timeout specified in the flag OPENFGA_LIST_USERS_DEADLINE and by the upper bound specified in the flag OPENFGA_LIST_USERS_MAX_RESULTS, whichever is hit first. The returned users will not be sorted, and therefore two identical calls may yield different sets of users.
+      # @param store_id
+      # @param body
+      # @param [Hash] opts the optional parameters
+      # @return [ListUsersResponse]
+      describe 'list_users test' do
+        it 'should work' do
+          # assertion here. ref: https://rspec.info/features/3-12/rspec-expectations/built-in-matchers/
+        end
+      end
+    end
+
+    # unit tests for list_objects
+    # List all objects of the given type that the user has a relation with
+    # The ListObjects API returns a list of all the objects of the given type that the user has a relation with.  To arrive at a result, the API uses: an authorization model, explicit tuples written through the Write API, contextual tuples present in the request, and implicit tuples that exist by virtue of applying set theory (such as &#x60;document:2021-budget#viewer@document:2021-budget#viewer&#x60;; the set of users who are viewers of &#x60;document:2021-budget&#x60; are the set of users who are the viewers of &#x60;document:2021-budget&#x60;). An &#x60;authorization_model_id&#x60; may be specified in the body. If it is not specified, the latest authorization model ID will be used. It is strongly recommended to specify authorization model id for better performance. You may also specify &#x60;contextual_tuples&#x60; that will be treated as regular tuples. Each of these tuples may have an associated &#x60;condition&#x60;. You may also provide a &#x60;context&#x60; object that will be used to evaluate the conditioned tuples in the system. It is strongly recommended to provide a value for all the input parameters of all the conditions, to ensure that all tuples be evaluated correctly. By default, the Check API caches results for a short time to optimize performance. You may specify a value of &#x60;HIGHER_CONSISTENCY&#x60; for the optional &#x60;consistency&#x60; parameter in the body to inform the server that higher conisistency is preferred at the expense of increased latency. Consideration should be given to the increased latency if requesting higher consistency. The response will contain the related objects in an array in the \&quot;objects\&quot; field of the response and they will be strings in the object format &#x60;&lt;type&gt;:&lt;id&gt;&#x60; (e.g. \&quot;document:roadmap\&quot;). The number of objects in the response array will be limited by the execution timeout specified in the flag OPENFGA_LIST_OBJECTS_DEADLINE and by the upper bound specified in the flag OPENFGA_LIST_OBJECTS_MAX_RESULTS, whichever is hit first. The objects given will not be sorted, and therefore two identical calls can give a given different set of objects.
+    # @param user
+    # @param relation
+    # @param type
+    # @param body
+    # @param [Hash] opts the optional parameters
+    # @return [ListObjectsResponse]
+    context 'when running list objects' do
+      let(:user) { 'user:anne' }
+      let(:relation) { 'reader' }
+      let(:type) { 'document' }
+      let(:authorization_model_id) { '01G50QVV17PECNVAHX1GG4Y5NC' }
+      let(:contextual_tuples) do
+        { tuple_keys:
+            [
+              {
+                user: 'user:anne',
+                relation: 'reader',
+                object: 'document:1'
+              }
+            ]
+        }
+      end
+
+      it 'list objects successfully' do
+        stub = stub_request_with_response(method: :post,
+                                          path: "#{stores_url(store_id)}/list-objects",
+                                          status: 200,
+                                          request_body: {
+                                            type:,
+                                            relation:,
+                                            user:,
+                                            authorization_model_id:,
+                                            consistency: 'MINIMIZE_LATENCY'
+                                          },
+                                          response_body: {
+                                            objects: %w[document:2021-budget document:2022-budget]
+                                          })
+
+        response = subject.list_objects(user:, relation:, type:, opts: {
+          authorization_model_id:, consistency: 'MINIMIZE_LATENCY'
+        })
+
+        expect(stub).to have_been_requested
+        expect(response).to be_a(OpenFga::ListObjectsResponse)
+        expect(response.objects).to include('document:2021-budget')
+        expect(response.objects.size).to eq(2)
+      end
+
+      it 'raises an error if store_id is missing' do
+        expect { subject_no_store.list_objects(user:, relation:, type:) }.to raise_error(MissingStoreIdError)
+      end
+
+      it 'raises an error if user is missing' do
+        expect { subject.list_objects(user: nil, relation:, type:) }.to raise_error(ArgumentError)
+      end
+
+      it 'raises an error if relation is missing' do
+        expect { subject.list_objects(user:, relation: nil, type:) }.to raise_error(ArgumentError)
+      end
+
+      it 'raises an error if type is missing' do
+        expect { subject.list_objects(user:, relation:, type: nil) }.to raise_error(ArgumentError)
+      end
+
+      it 'list objects with contextual tuples' do
+        stub = stub_request_with_response(method: :post,
+                                          path: "#{stores_url(store_id)}/list-objects",
+                                          status: 200,
+                                          request_body: {
+                                            type:,
+                                            relation:,
+                                            user:,
+                                            authorization_model_id:,
+                                            contextual_tuples:,
+                                            consistency: 'MINIMIZE_LATENCY'
+                                          },
+                                          response_body: {
+                                            objects: %w[document:2021-budget document:2022-budget]
+                                          })
+
+        response = subject.list_objects(user:, relation:, type:, contextual_tuples:,
+                                  opts: { authorization_model_id:,
+                                          consistency: 'MINIMIZE_LATENCY'
+                                  })
+
+        expect(stub).to have_been_requested
+        expect(response).to be_a(OpenFga::ListObjectsResponse)
+        expect(response.objects).to include('document:2022-budget')
+        expect(response.objects.size).to eq(2)
+      end
+
+      it 'list objects with context' do
+        stub = stub_request_with_response(method: :post,
+                                          path: "#{stores_url(store_id)}/list-objects",
+                                          status: 200,
+                                          request_body: {
+                                            type:,
+                                            relation:,
+                                            user:,
+                                            authorization_model_id:,
+                                            contextual_tuples:,
+                                            context: { view_count: 100 },
+                                            consistency: 'MINIMIZE_LATENCY'
+                                          },
+                                          response_body: {
+                                            objects: %w[document:2021-budget document:2022-budget]
+                                          })
+
+        response = subject.list_objects(user:, relation:, type:, contextual_tuples:,
+                                        context: { view_count: 100 },
+                                        opts: { authorization_model_id:,
+                                                consistency: 'MINIMIZE_LATENCY'
+                                        })
+
+        expect(stub).to have_been_requested
+        expect(response).to be_a(OpenFga::ListObjectsResponse)
+        expect(response.objects).to include('document:2022-budget')
+        expect(response.objects.size).to eq(2)
+      end
+    end
+  end
+
+  describe 'Stores' do
+    # unit tests for create_store
+    # Create a store
+    # Create a unique OpenFGA store which will be used to store authorization models and relationship tuples.
+    # @param name [String]
+    # @param [Hash] opts the optional parameters
+    # @return [CreateStoreResponse]
+    context 'when creating a store' do
+      let(:store_attributes) { { id: store_id, name: 'new_store', created_at: DateTime.now, updated_at: DateTime.now } }
+
+      it 'creates a store successfully' do
+        stub_request_with_response(method: :post,
+                                   path: stores_url,
+                                   status: 200,
+                                   request_body: { name: 'new_store' },
+                                   response_body: store_attributes)
+
+        response = subject.create_store(name: 'new_store')
+
+        expect(response).to be_instance_of(OpenFga::CreateStoreResponse)
+        expect(response.id).to eq(store_id)
+      end
+
+      it 'raises an error for invalid store creation request' do
+        stub_request_with_response(method: :post,
+                                   path: stores_url,
+                                   status: 400,
+                                   request_body: { name: '' },
+                                   response_body: { code: 'validation_error',
+                                                    message: 'Generic validation error' })
+
+        expect { subject.create_store(name: '') }.to raise_error(OpenFga::ApiError)
+      end
+    end
+
+    # unit tests for delete_store
+    # Delete a store
+    # Delete an OpenFGA store. This does not delete the data associated with the store, like tuples or authorization models.
+    # @param store_id
+    # @param [Hash] opts the optional parameters
+    # @return [nil]
+    describe 'when deleting a store' do
+      it 'should delete store successfully' do
+        stub_request_with_response(method: :delete,
+                                   path: stores_url(store_id),
+                                   status: 204)
+        expect(subject.delete_store).to be_nil
+      end
+
+      it 'should raise an error id no store_id is set' do
+        expect { subject_no_store.delete_store }.to raise_error(MissingStoreIdError)
+      end
+
+      it 'should raise an error ' do
+        stub_request_with_response(method: :delete,
+                                   path: stores_url(store_id),
+                                   status: 400,
+                                   response_body: { code: 'validation_error',
+                                                    message: 'Generic validation error' })
+        expect { subject.delete_store }.to raise_error(OpenFga::ApiError)
+      end
+    end
+
+    # unit tests for get_store
+    # Get a store
+    # Returns an OpenFGA store by its identifier
+    # @param store_id
+    # @param [Hash] opts the optional parameters
+    # @return [GetStoreResponse]
+    describe 'when getting a store' do
+      let(:store_attributes) { { id: store_id, name: 'new_store', created_at: DateTime.now, updated_at: DateTime.now } }
+      let(:subject) { OpenFga::SdkClient.new(api_url:, store_id:) }
+
+      it 'should get a store successfully' do
+        stub_request_with_response(method: :get,
+                                   path: stores_url(store_id),
+                                   status: 200,
+                                   response_body: store_attributes)
+        response = subject.get_store
+        expect(response).to be_instance_of(OpenFga::GetStoreResponse)
+        expect(response.id).to eq(store_id)
+      end
+
+      it 'should raise an error id no store_id is set' do
+        expect { subject_no_store.get_store }.to raise_error(MissingStoreIdError)
+      end
+
+      it 'should raise an error ' do
+        stub_request_with_response(method: :get,
+                                   path: stores_url(store_id),
+                                   status: 400)
+        expect { subject.get_store }.to raise_error(OpenFga::ApiError)
+      end
+    end
+
+    # unit tests for list_stores
+    #   List all stores
+    #   Returns a paginated list of OpenFGA stores and a continuation token to get additional stores. The continuation token will be empty if there are no more stores.
+    #   @param [Hash] opts the optional parameters
+    #   @option opts [Integer] :page_size
+    #   @option opts [String] :continuation_token
+    #   @return [ListStoresResponse]
+    describe 'when listing stores' do
+      let(:store_attributes) { { id: store_id, name: 'new_store', created_at: DateTime.now, updated_at: DateTime.now } }
+
+      it 'should list stores successfully' do
+        stub_request_with_response(method: :get,
+                                   path: stores_url,
+                                   status: 200,
+                                   response_body: { stores: [store_attributes],
+                                                    continuation_token: 'eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ' })
+        response = subject.list_stores
+        expect(response).to be_instance_of(OpenFga::ListStoresResponse)
+        expect(response.stores[0].id).to eq(store_id)
+      end
+
+      it 'should raise an error ' do
+        stub_request_with_response(method: :get,
+                                   path: stores_url,
+                                   status: 400)
+        expect { subject.list_stores }.to raise_error(OpenFga::ApiError)
+      end
+    end
+  end
+
+  describe 'Tuples' do
+    describe 'when reading changes' do
+      let(:type) { 'document' }
+      let(:start_time) { '2014-01-02T15:14:15Z' }
+      let(:page_size) { 10 }
+      let(:continuation_token) { 'token' }
+      let(:response_body) { {
+        changes: [
+          {
+            tuple_key: {
+              user: 'user:anne',
+              relation: 'reader',
+              object: 'document:2021-budget',
+              condition: {
+                name: 'condition1',
+                context: {}
+              }
+            },
+            operation: 'TUPLE_OPERATION_WRITE',
+            timestamp: '2025-04-23T14:30:00.000Z'
+          }
+        ],
+        continuation_token: 'eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=='
+      } }
+
+      describe 'when there are no options' do
+        before do
+          stub_request_with_response(method: :get,
+                                     path: "#{stores_url(store_id)}/changes?type=#{type}&start_time=#{start_time}",
+                                     status: 200,
+                                     response_body:)
+
+          @response = subject.read_changes(type:, start_time:)
+        end
+
+        it 'should read tuple changes successfully' do
+          expect(@response).to be_a(OpenFga::ReadChangesResponse)
+        end
+
+        it 'contains the expected changes' do
+          expect(@response.changes.size).to eq(1)
+          expect(@response.changes[0].tuple_key.user).to eq('user:anne')
+          expect(@response.changes[0].operation).to eq('TUPLE_OPERATION_WRITE')
+        end
+
+        it 'contains a continuation token' do
+          expect(@response.continuation_token).not_to be_nil
+        end
+
+        it 'should raise an error if store_id is missing' do
+          expect { subject_no_store.read_changes(type:, start_time:, opts: { store_id: nil }) }.to raise_error(MissingStoreIdError)
+        end
+
+        it 'should not raise an error if the store_id is given as client config' do
+          client = OpenFga::SdkClient.new(api_url:, store_id:)
+          expect { client.read_changes(type:, start_time:) }.not_to raise_error
+        end
+      end
+
+      describe 'when there are options' do
+        it 'should send the correct request' do
+          stub_request_with_response(
+            method: :get,
+            path: "#{stores_url(store_id)}/changes?page_size=#{page_size}&type=#{type}&start_time=#{start_time}&continuation_token=#{continuation_token}",
+            status: 200,
+            response_body:)
+
+          opts = {
+            continuation_token:,
+            store_id:,
+            page_size:
+          }
+
+          # call will fail if the request if `path` above is not generated correctly
+          # based on `body` and `opts`.
+          expect { subject.read_changes(type:, start_time:, opts:) }.not_to raise_error
+        end
+      end
+    end
+
+    describe 'when reading tuples' do
+      let(:user) { 'user:1' }
+      let(:relation) { 'reader' }
+      let(:object_all) { 'document:' }
+      let(:object) { 'document:1' }
+      let(:request_body) { {
+                                   tuple_key: {
+                                     user:,
+                                     relation:,
+                                     object:
+                                   },
+                                   page_size: 50
+                                 }}
+      let(:response_body) {
+        {
+          tuples: [
+            key: {
+              user:,
+              relation:,
+              object:
+            },
+            timestamp: '2025-06-06T14:30:00.000Z',
+          ],
+          continuation_token: 'token',
+        }
+      }
+
+      describe 'when there are no options' do
+        it 'should read a single tuple successfully' do
+          stub = stub_request_with_response(method: :post,
+                                           path: "#{stores_url(store_id)}/read",
+                                           status: 200,
+                                           request_body:,
+                                           response_body:)
+
+          response = subject.read(user:, relation:, object:)
+
+          expect(stub).to have_been_requested
+          expect(response).to be_a(OpenFga::ReadResponse)
+        end
+
+        it 'should read all tuples' do
+          stub = stub_request_with_response(method: :post,
+                                            path: "#{stores_url(store_id)}/read",
+                                            status: 200,
+                                            request_body: { page_size: 50 },
+                                            response_body:)
+
+          response = subject.read
+
+          expect(stub).to have_been_requested
+          expect(response).to be_a(OpenFga::ReadResponse)
+        end
+
+        it 'should read all tuples of a type successfully' do
+          stub = stub_request_with_response(method: :post,
+                                            path: "#{stores_url(store_id)}/read",
+                                            status: 200,
+                                            request_body: { tuple_key: { user:, relation:, object: object_all }, page_size: 50 },
+                                            response_body:)
+
+          response = subject.read(user:, relation:, object: object_all)
+
+          expect(stub).to have_been_requested
+          expect(response).to be_a(OpenFga::ReadResponse)
+        end
+
+        it 'should read tuples related to a user and object successfully' do
+          stub = stub_request_with_response(method: :post,
+                                            path: "#{stores_url(store_id)}/read",
+                                            status: 200,
+                                            request_body: { tuple_key: { user:, object: }, page_size: 50 },
+                                            response_body:)
+
+          response = subject.read(user:, object:)
+
+          expect(stub).to have_been_requested
+          expect(response).to be_a(OpenFga::ReadResponse)
+        end
+
+        it 'should read tuples related to an object successfully' do
+          stub = stub_request_with_response(method: :post,
+                                            path: "#{stores_url(store_id)}/read",
+                                            status: 200,
+                                            request_body: { tuple_key: { object: }, page_size: 50 },
+                                            response_body:)
+
+          response = subject.read(object:)
+
+          expect(stub).to have_been_requested
+          expect(response).to be_a(OpenFga::ReadResponse)
+        end
+
+        it 'should raise an error if store_id is missing' do
+          expect { subject_no_store.read(user:, relation:, object:) }.to raise_error(MissingStoreIdError)
+        end
+      end
+
+      describe 'when there are options' do
+        it 'should send the correct request' do
+          opts = {
+            page_size: 20,
+            continuation_token: 'continuation_token',
+            store_id:
+          }
+
+          stub = stub_request_with_response(
+            path: "#{stores_url(store_id)}/read",
+            method: :post,
+            status: 200,
+            request_body: request_body.merge(opts.except(:store_id)),
+            response_body:)
+
+          subject.read(user:, relation:, object:, opts:)
+          expect(stub).to have_been_requested
+        end
+      end
+    end
+
+    describe 'the write endpoint' do
+      describe 'when writing tuples' do
+        let(:writes) { { tuple_keys: [{
+            user: 'user:1',
+            relation: 'member',
+            object: 'group:1'
+          }]
+        } }
+
+        it 'should successfully make the request' do
+          expected_request = {
+            writes:,
+            authorization_model_id:
+          }
+
+          opts = {
+            authorization_model_id:,
+            store_id:
+          }
+
+          stub = stub_request_with_response(
+            path: "#{stores_url(store_id)}/write",
+            method: :post,
+            status: 200,
+            request_body: expected_request,
+            response_body: {},
+          )
+
+          subject.write(writes:, opts:)
+          expect(stub).to have_been_requested
+        end
+
+        it 'does not send authorization_model_id if not specified' do
+          expected_request = {
+            writes:
+          }
+
+          opts = {
+            store_id:
+          }
+
+          stub = stub_request_with_response(
+            path: "#{stores_url(store_id)}/write",
+            method: :post,
+            status: 200,
+            request_body: expected_request,
+            response_body: {},
+          )
+
+          subject.write(writes:, opts:)
+
+          expect(stub).to have_been_requested
+        end
+
+        it 'throws an error if store_id is not specified' do
+          expect { subject_no_store.write(writes:) }.to raise_error(MissingStoreIdError)
+        end
+      end
+
+      describe 'when deleting tuples' do
+        let(:deletes) { {
+            tuple_keys: [{
+              user: 'user:1',
+              relation: 'member',
+              object: 'group:1'
+            }]
+        }}
+
+        it 'should successfully make the request' do
+          expected_request = {
+              deletes:,
+              authorization_model_id:
+          }
+
+          opts = {
+            authorization_model_id:,
+            store_id:
+          }
+
+          stub = stub_request_with_response(
+            path: "#{stores_url(store_id)}/write",
+            method: :post,
+            status: 200,
+            request_body: expected_request,
+            response_body: {},
+          )
+          subject.write(deletes:, opts:)
+
+          expect(stub).to have_been_requested
+        end
+
+        it 'does not send authorization_model_id if not specified' do
+          expected_request = {
+            deletes:
+          }
+
+          opts = {
+            store_id:
+          }
+
+          stub = stub_request_with_response(
+            path: "#{stores_url(store_id)}/write",
+            method: :post,
+            status: 200,
+            request_body: expected_request,
+            response_body: {},
+          )
+
+          subject.write(deletes:, opts:)
+
+          expect(stub).to have_been_requested
+        end
+
+        it 'throws an error if store_id is not specified' do
+          expect { subject_no_store.write(deletes:) }.to raise_error(MissingStoreIdError)
+        end
+      end
+
+      describe 'when deleting and writing tuples together' do
+        let(:expected_request) { {
+          writes: {
+            tuple_keys: [{
+              user: 'user:2',
+              relation: 'member',
+              object: 'group:2'
+            }]
+          },
+          deletes: {
+            tuple_keys: [{
+              user: 'user:1',
+              relation: 'member',
+              object: 'group:1'
+            }]
+          },
+          authorization_model_id:
+        }}
+
+        it 'should successfully make the request' do
+          opts = {
+            authorization_model_id:,
+            store_id:
+          }
+
+          stub = stub_request_with_response(
+            path: "#{stores_url(store_id)}/write",
+            method: :post,
+            status: 200,
+            request_body: expected_request,
+            response_body: {},
+          )
+
+          subject.write(
+            writes: {
+              tuple_keys: [{
+                user: 'user:2',
+                relation: 'member',
+                object: 'group:2'
+              }]
+            },
+            deletes: {
+              tuple_keys: [{
+                user: 'user:1',
+                relation: 'member',
+                object: 'group:1'
+              }]
+            }, opts:)
+
+          expect(stub).to have_been_requested
+        end
+      end
+    end
+
+    describe 'the list-users endpoint' do
+      it 'should successfully make the request' do
+        expected_request = {
+          object: 'group:1',
+          relation: :member,
+          user_filters: [{
+                           type: 'user'
+                         }],
+          authorization_model_id:,
+          consistency: 'UNSPECIFIED',
+        }
+
+        opts = {
+          authorization_model_id:,
+        }
+
+        stub = stub_request_with_response(
+          path: "#{stores_url(store_id)}/list-users",
+          method: :post,
+          status: 200,
+          request_body: expected_request,
+          response_body: {
+            users: []
+          },
+        )
+
+        subject.list_users(
+          relation: :member,
+          object: 'group:1',
+          user_filters: [{ type: 'user' }],
+          opts:
+        )
+
+        expect(stub).to have_been_requested
+      end
+
+      it 'should successfully make the request with all parameters' do
+        expected_request = {
+          object: 'group:1',
+          relation: :member,
+          user_filters: [{
+                           type: 'user'
+                         }],
+          authorization_model_id:,
+          contextual_tuples: [{
+                                user: 'user:john',
+                                relation: 'member',
+                                object: 'group:2',
+                                condition: {
+                                  name: 'condition_1',
+                                  context: {}
+                                }
+                              }],
+          context: {
+            my_key: 'value_1'
+          },
+          consistency: 'UNSPECIFIED',
+        }
+
+        opts = {
+          authorization_model_id:,
+        }
+
+        stub = stub_request_with_response(
+          path: "#{stores_url(store_id)}/list-users",
+          method: :post,
+          status: 200,
+          request_body: expected_request,
+          response_body: {
+            users: []
+          },
+        )
+
+        subject.list_users(
+          relation: :member,
+          object: 'group:1',
+          user_filters: [{
+                           type: 'user'
+                         }],
+          contextual_tuples: [{
+                                user: 'user:john',
+                                relation: 'member',
+                                object: 'group:2',
+                                condition: {
+                                  name: 'condition_1',
+                                  context: {}
+                                }
+                              }],
+          context: {
+            my_key: 'value_1'
+          },
+          opts:
+        )
+
+        expect(stub).to have_been_requested
+      end
+
+      it 'should raise an error if relation is missing' do
+        expect { subject.list_users(relation: nil, object: 'group:1', user_filters: [{ type: 'user' }]) }.to raise_error(ArgumentError)
+      end
+
+      it 'should raise an error if object is missing' do
+        expect { subject.list_users(relation: :member, object: nil, user_filters: [{ type: 'user' }]) }.to raise_error(ArgumentError)
+      end
+
+      it 'should raise an error if store_id is missing' do
+        expect { subject_no_store.list_users(relation: :member, object: 'group:1', user_filters: [{ type: 'user' }]) }.to raise_error(MissingStoreIdError)
+      end
+    end
+  end
+end
