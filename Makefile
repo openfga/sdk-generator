@@ -68,7 +68,13 @@ test-client-js: build-client-js
 
 .PHONY: build-client-js
 build-client-js:
-	make build-client-streamed sdk_language=js tmpdir=${TMP_DIR}
+	@if grep -q '"supportsStreamedListObjects": true' config/clients/js/config.overrides.json; then \
+		echo "Building JS SDK with streaming support..."; \
+		make build-client-streamed sdk_language=js tmpdir=${TMP_DIR}; \
+	else \
+		echo "Building JS SDK without streaming support..."; \
+		make build-client-non-streamed sdk_language=js tmpdir=${TMP_DIR}; \
+	fi
 	sed -i -e "s|_this|this|g" ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*.ts
 	sed -i -e "s|_this|this|g" ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*.md
 	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*-e
