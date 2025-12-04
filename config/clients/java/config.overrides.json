@@ -3,7 +3,7 @@
   "gitRepoId": "java-sdk",
   "artifactId": "openfga-sdk",
   "groupId": "dev.openfga",
-  "packageVersion": "0.9.2",
+  "packageVersion": "0.9.3",
   "basePackage": "dev.openfga.sdk",
   "apiPackage": "dev.openfga.sdk.api",
   "authPackage": "dev.openfga.sdk.api.auth",
@@ -36,6 +36,18 @@
   "files": {
     "src/main/constants/FgaConstants.mustache": {
       "destinationFilename": "src/main/java/dev/openfga/sdk/constants/FgaConstants.java",
+      "templateType": "SupportingFiles"
+    },
+    "libraries/native/StreamResult.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/model/StreamResult.java",
+      "templateType": "SupportingFiles"
+    },
+    "libraries/native/BaseStreamingApi.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/BaseStreamingApi.java",
+      "templateType": "SupportingFiles"
+    },
+    "libraries/native/StreamedListObjectsApi.mustache": {
+      "destinationFilename": "src/main/java/dev/openfga/sdk/api/StreamedListObjectsApi.java",
       "templateType": "SupportingFiles"
     }
   }
