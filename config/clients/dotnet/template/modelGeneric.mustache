@@ -317,7 +317,8 @@
             return OpenAPIClientUtils.compareLogic.Compare(this, input as {{classname}}).AreEqual;
             {{/useCompareNetObjects}}
             {{^useCompareNetObjects}}
-            return this.Equals(input as {{classname}});
+            if (input == null || input.GetType() != this.GetType()) return false;
+            return this.Equals(({{classname}})input);
             {{/useCompareNetObjects}}
         }
 
@@ -354,7 +355,7 @@
                     {{/vendorExtensions.x-is-value-type}}this.{{name}}.SequenceEqual(input.{{name}})
                 ){{^-last}} && {{/-last}}{{/isContainer}}{{/vars}}{{^vars}}{{#parent}}base.Equals(input){{/parent}}{{^parent}}false{{/parent}}{{/vars}}{{^isAdditionalPropertiesTrue}};{{/isAdditionalPropertiesTrue}}
                 {{#isAdditionalPropertiesTrue}}
-                && (this.AdditionalProperties.Count == input.AdditionalProperties.Count && this.AdditionalProperties.All(kv => input.AdditionalProperties.ContainsKey(kv.Key) && Equals(kv.Value, input.AdditionalProperties[kv.Key])));
+                && (this.AdditionalProperties.Count == input.AdditionalProperties.Count && this.AdditionalProperties.All(kv => input.AdditionalProperties.TryGetValue(kv.Key, out var inputValue) && Equals(kv.Value, inputValue)));
                 {{/isAdditionalPropertiesTrue}}
             {{/useCompareNetObjects}}
         }

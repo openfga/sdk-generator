@@ -12,6 +12,7 @@
   "modelPropertyNaming": "original",
   "openTelemetryDocumentation": "docs/opentelemetry.md",
   "enumNameSuffix": "",
+  "supportsStreamedListObjects": false,
   "files": {
     "constants.mustache": {
       "destinationFilename": "constants/index.ts",
