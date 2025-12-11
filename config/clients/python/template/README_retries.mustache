@@ -20,3 +20,27 @@ async def main():
     async with {{appShortName}}Client(config) as client:
         return await client.read_authorization_models()
 ```
+
+
+### Error Handling
+
+The SDK provides comprehensive error handling with detailed error information and convenient helper methods.
+
+Key features:
+- Operation context in error messages (e.g., `[write]`, `[check]`)
+- Detailed error codes and messages from the API
+- Helper methods for error categorization (`is_validation_error()`, `is_retryable()`, etc.)
+
+```python
+from {{packageName}}.exceptions import ApiException
+
+try:
+    await client.write([tuple])
+except ApiException as e:
+    print(f"Error: {e}")  # [write] HTTP 400 type 'invalid_type' not found (validation_error) [request-id: abc-123]
+
+    if e.is_validation_error():
+        print(f"Validation error: {e.error_message}")
+    elif e.is_retryable():
+        print(f"Temporary error - retrying... (Request ID: {e.request_id})")
+```
