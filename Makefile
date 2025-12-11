@@ -157,8 +157,14 @@ build-client-python:
 test-client-python: build-client-python
 	make run-in-docker sdk_language=python image=ghcr.io/astral-sh/uv:python${PYTHON_DOCKER_TAG}-alpine command="/bin/sh -c 'export UV_LINK_MODE=copy && \
 		uv sync && \
-		uv run pytest --cov-report term-missing --cov=openfga_sdk test/ && \
+		uv run pytest -m \"not integration\" --cov-report term-missing --cov=openfga_sdk test/ && \
 		uv run ruff check .'"
+
+.PHONY: test-integration-client-python
+test-integration-client-python: test-client-python
+	make run-in-docker sdk_language=python image=ghcr.io/astral-sh/uv:python${PYTHON_DOCKER_TAG}-alpine command="/bin/sh -c 'export UV_LINK_MODE=copy && \
+		uv sync && \
+		uv run pytest -m integration test/'"
 
 ### Java
 .PHONY: tag-client-java
