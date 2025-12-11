@@ -161,7 +161,7 @@ test-client-python: build-client-python
 		uv run ruff check .'"
 
 .PHONY: test-integration-client-python
-test-integration-client-python: test-client-python
+test-integration-client-python: build-client-python
 	make run-in-docker sdk_language=python image=ghcr.io/astral-sh/uv:python${PYTHON_DOCKER_TAG}-alpine command="/bin/sh -c 'export UV_LINK_MODE=copy && \
 		uv sync && \
 		uv run pytest -m integration test/'"
