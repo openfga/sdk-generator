@@ -10,6 +10,7 @@ GOLINT_DOCKER_TAG = latest-alpine
 BUSYBOX_DOCKER_TAG = 1
 GRADLE_DOCKER_TAG = 8.12-jdk17
 PYTHON_DOCKER_TAG = 3.10
+RUST_DOCKER_TAG = 1.72.1
 # Other config
 CONFIG_DIR = ${PWD}/config
 CLIENTS_OUTPUT_DIR = ${PWD}/clients
@@ -36,6 +37,7 @@ pull-docker-images:
 	docker pull mcr.microsoft.com/dotnet/sdk:${DOTNET_DOCKER_TAG}
 	docker pull busybox:${BUSYBOX_DOCKER_TAG}
 	docker pull gradle:${GRADLE_DOCKER_TAG}
+	docker pull rust:${RUST_DOCKER_TAG}
 
 ## Build custom Docker images
 build-docker-images: build-dotnet-multi-image
@@ -183,6 +185,16 @@ test-client-java: build-client-java
 .PHONY: test-integration-client-java
 test-integration-client-java: test-client-java
 	make run-in-docker sdk_language=java image=gradle:${GRADLE_DOCKER_TAG} command="/bin/sh -c 'gradle test-integration'"
+
+### Rust
+.PHONY: build-client-rust
+build-client-rust:
+	make build-client sdk_language=rust tmpdir=${TMP_DIR}
+	make run-in-docker sdk_language=rust image=rust:${RUST_DOCKER_TAG} command="/bin/sh -c 'cargo fix --allow-no-vcs && cargo build'"
+
+.PHONY: test-client-rust
+test-client-rust: build-client-rust
+	make run-in-docker sdk_language=rust image=rust:${RUST_DOCKER_TAG} command="/bin/sh -c 'cargo test'"
 
 .PHONY: run-in-docker
 run-in-docker:
