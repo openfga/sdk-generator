@@ -55,12 +55,13 @@ OpenFGA is designed to make it easy for application builders to model their perm
 ## Getting Started
 
 ### Requirements
-1. Git
-2. Docker
-3. Make (Optional, but makes things much easier)
+1. git
+2. docker
+3. make
 4. curl
-5. Bash
+5. bash
 6. sed
+7. jq
 
 ### Usage
 
@@ -93,11 +94,12 @@ There is a helpful script to setup a new SDK
 ```shell
 make setup-new-sdk
 ```
-
-1. It will ask you for a an SDK ID, use something like: go, js, dotnet, java, etc...
-2. It will ask you for a [valid generator](https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators.md)
-3. Then in will initialize all the files, you will need to add the configuration specific to that sdk
-4. Now you can run `make build-client-${SDK_ID}` to generate the SDK
+1. It will ask you for:
+    * an SDK ID: (e.g. `go`, `js`, `dotnet`, `java`) - this will become the name of the SDK.
+    * OpenAPI Generator name for the `-g` flag (e.g., `ruby`, `go`, `python-legacy`) - this must be a [valid generator](https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators.md)
+    * Generator Template Path - Directory in OpenAPI Generator repo (usually same as generator, but can differ - e.g., `ruby-client` for `ruby`) - the template must exist [here](https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator/src/main/resources)
+2. Then in will initialize all the files, you will need to add the configuration specific to that sdk, mainly in `config/clients/{SDK_ID}/config.overrides.json`
+3. Now you can run `make build-client-${SDK_ID}` to generate the SDK
 
 #### Manually
 
