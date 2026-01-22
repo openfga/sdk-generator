@@ -48,7 +48,6 @@ echo "Task 1: Create config directory at $CONFIG_PATH"
 mkdir -p "${CONFIG_PATH}"
 
 printf "Task 1.1: Initialize files\n"
-echo "${GENERATOR}" > "${CONFIG_PATH}/generator.txt"
 touch "${CONFIG_PATH}/CHANGELOG.md.mustache"
 CONFIG_OVERRIDES=$(cat <<EOF
 {
@@ -158,6 +157,7 @@ if ! COMMIT_HASH="$(git rev-parse --verify "refs/remotes/origin/$TEMPLATE_SOURCE
 fi
 TEMPLATE_SOURCE_DATA=$(cat <<EOF
 {
+  "generator": "${GENERATOR}",
   "repo": "$TEMPLATE_SOURCE_REPO",
   "branch": "$TEMPLATE_SOURCE_BRANCH",
   "commit": "${COMMIT_HASH:?}",

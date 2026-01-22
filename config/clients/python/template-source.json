@@ -1,4 +1,5 @@
 {
+  "generator": "python-legacy",
   "repo": "https://github.com/OpenAPITools/openapi-generator",
   "branch": "master",
   "commit": "fea42b547ed61dcfdfc479cab6f68a601ec5adde",

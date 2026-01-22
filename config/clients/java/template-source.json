@@ -1,4 +1,5 @@
 {
+  "generator": "java",
   "repo": "https://github.com/OpenAPITools/openapi-generator",
   "branch": "master",
   "commit": "90eacb685c57308e67c65e436b19d160091f91e1",
