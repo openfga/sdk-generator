@@ -41,7 +41,13 @@ fi
 echo "Generator (must be a valid generator from https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators.md):"
 read -r GENERATOR
 
-printf "Chosen options:\n- SDK_ID: %s\n- GENERATOR: %s\n\n" "${SDK_ID}" "${GENERATOR:?}"
+echo "Template path (usually same as generator, but e.g., 'ruby-client' for 'ruby'). Press Enter to use '${GENERATOR}':"
+read -r TEMPLATE_PATH
+if [ -z "${TEMPLATE_PATH}" ]; then
+  TEMPLATE_PATH="${GENERATOR}"
+fi
+
+printf "Chosen options:\n- SDK_ID: %s\n- GENERATOR: %s\n- TEMPLATE_PATH: %s\n\n" "${SDK_ID}" "${GENERATOR:?}" "${TEMPLATE_PATH:?}"
 
 echo "Task 1: Create config directory at $CONFIG_PATH"
 
@@ -80,7 +86,7 @@ printf "Task 1: Done\n\n"
 echo "Task 2: Clone template to a temporary directory"
 TEMPLATE_SOURCE_REPO="https://github.com/OpenAPITools/openapi-generator"
 TEMPLATE_SOURCE_BRANCH=master
-TEMPLATE_SOURCE_PATH="modules/openapi-generator/src/main/resources/${GENERATOR}"
+TEMPLATE_SOURCE_PATH="modules/openapi-generator/src/main/resources/${TEMPLATE_PATH}"
 
 printf "Task 2.1: Create temporary directory\n"
 tmpdir=$(mktemp -d)
@@ -140,7 +146,8 @@ git fetch --depth 1 origin "$TEMPLATE_SOURCE_BRANCH" > /dev/null && echo " - Don
 printf "Task 2.4: Verify template path exists in branch\n"
 if ! git ls-tree "origin/$TEMPLATE_SOURCE_BRANCH" "$TEMPLATE_SOURCE_PATH" 2>/dev/null | grep -q .; then
     echo "Error: Template path '$TEMPLATE_SOURCE_PATH' does not exist in branch 'origin/$TEMPLATE_SOURCE_BRANCH'"
-    echo "Please verify that the generator '$GENERATOR' is available in the OpenAPI Generator repository."
+    echo "Please verify that the template path is correct."
+    echo "Hint: Check https://github.com/OpenAPITools/openapi-generator/tree/$TEMPLATE_SOURCE_BRANCH/modules/openapi-generator/src/main/resources"
     exit 1
 fi
 echo " - Done"
