@@ -44,4 +44,4 @@ docker run --rm \
   "${library[@]}" \
   -o "/clients/fga-${SDK_LANGUAGE}-sdk" \
   -c /config/config.json \
-  -g "$(cat ./config/clients/"${SDK_LANGUAGE}"/generator.txt)"
+  -g "$(jq -r '.generator' ./config/clients/"${SDK_LANGUAGE}"/template-source.json)"

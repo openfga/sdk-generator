@@ -1,0 +1,8 @@
+{
+  "generator": "typescript-axios",
+  "repo": "https://github.com/OpenAPITools/openapi-generator",
+  "branch": "master",
+  "commit": "unknown",
+  "url": "https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator/src/main/resources/typescript-axios",
+  "docs": "https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/typescript-axios.md"
+}
