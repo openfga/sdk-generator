@@ -24,5 +24,6 @@
   "sortModelPropertiesByRequiredFlag": true,
   "sortParamsByRequiredFlag": false,
   "targetRubyVersion": "3.2",
-  "files": {}
+  "files": {
+  }
 }
