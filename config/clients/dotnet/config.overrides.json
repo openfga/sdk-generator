@@ -37,7 +37,7 @@
   "hashCodeBasePrimeNumber": 9661,
   "hashCodeMultiplierPrimeNumber": 9923,
   "openTelemetryDocumentation": "OpenTelemetry.md",
-  "supportsStreamedListObjects": false,
+  "supportsStreamedListObjects": true,
   "files": {
     "constants.mustache": {
       "destinationFilename": "src/OpenFga.Sdk/Constants/FgaConstants.cs",
