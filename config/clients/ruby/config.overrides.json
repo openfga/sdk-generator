@@ -25,5 +25,9 @@
   "sortParamsByRequiredFlag": false,
   "targetRubyVersion": "3.2",
   "files": {
+    "api_model_base.mustache": {
+      "destinationFilename": "lib/openfga/api_model_base.rb",
+      "templateType": "SupportingFiles"
+    }
   }
 }
