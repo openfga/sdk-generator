@@ -1,0 +1,554 @@
+# OpenFga Client Methods
+
+#### Stores
+
+##### List Stores
+
+Get a paginated list of stores.
+
+[API Documentation]({{apiDocsUrl}}#/Stores/ListStores)
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+options = { page_size: 25, continuation_token: "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==" }
+response = fga_client.list_stores(options)
+# response = ListStoresResponse(...)
+# response.stores = [Store(id: "01FQH7V8BEG3GPQW93KTRFR8JB", name: "FGA Demo Store", created_at: "2022-01-01T00:00:00.000Z", updated_at: "2022-01-01T00:00:00.000Z")]
+```
+
+##### Create Store
+
+Create and initialize a store.
+
+[API Documentation]({{apiDocsUrl}}#/Stores/CreateStore)
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+body = {
+  name: "FGA Demo Store"
+}
+response = fga_client.create_store(body)
+# response.id = "01FQH7V8BEG3GPQW93KTRFR8JB"
+```
+
+##### Get Store
+
+Get information about the current store.
+
+[API Documentation]({{apiDocsUrl}}#/Stores/GetStore)
+
+> Requires a client initialized with a store_id
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+response = fga_client.get_store()
+# response = OpenFga::GetStoreResponse(id: "01FQH7V8BEG3GPQW93KTRFR8JB", name: "FGA Demo Store", created_at: "2022-01-01T00:00:00.000Z", updated_at: "2022-01-01T00:00:00.000Z")
+```
+
+##### Delete Store
+
+Delete a store.
+
+[API Documentation]({{apiDocsUrl}}#/Stores/DeleteStore)
+
+> Requires a client initialized with a store_id
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+response = fga_client.delete_store()
+# nil 
+```
+
+#### Authorization Models
+
+##### Read Authorization Models
+
+Read all authorization models in the store.
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModels)
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+options = { page_size: 25, continuation_token: "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==" }
+response = fga_client.read_authorization_models(options)
+# response.authorization_models = [OpenFga::AuthorizationModel(id: '01GXSA8YR785C4FYS3C0RTG7B1', schema_version: '1.1', type_definitions: type_definitions[...]), OpenFga::AuthorizationModel(id: '01GXSBM5PVYHCJNRNKXMB4QZTW', schema_version: '1.1', type_definitions: type_definitions[...])]
+```
+
+##### Write Authorization Model
+
+Create a new authorization model.
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/WriteAuthorizationModel)
+
+> Note: To learn how to build your authorization model, check the Docs at {{docsUrl}}.
+
+> Learn more about [the {{appTitleCaseName}} configuration language]({{docsUrl}}/configuration-language).
+
+> You can use the [{{appTitleCaseName}} Syntax Transformer](https://github.com/openfga/syntax-transformer) to convert between the friendly DSL and the JSON authorization model.
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+type_definitions = [
+  {
+    type: "user"
+  },
+  {
+    type: "document",
+    relations: {
+      writer: { this: {} },
+      viewer: {
+        union: {
+          child: [
+            { this: {} },
+            {
+              computed_userset: {
+                object: "",
+                relation: "writer"
+              }
+            }
+          ]
+        }
+      }
+    },
+    metadata: {
+      relations: {
+        writer: {
+          directly_related_user_types: [
+            { type: "user" },
+            { type: "user", condition: "ViewCountLessThan200" }
+          ]
+        },
+        viewer: {
+          directly_related_user_types: [
+            { type: "user" }
+          ]
+        }
+      }
+    }
+  }
+]
+
+conditions = {
+  ViewCountLessThan200: {
+    name: "ViewCountLessThan200",
+    expression: "ViewCount < 200",
+    parameters: {
+      ViewCount: {
+        type_name: "TYPE_NAME_INT"
+      },
+      Type: {
+        type_name: "TYPE_NAME_STRING"
+      },
+      Name: {
+        type_name: "TYPE_NAME_STRING"
+      }
+    }
+  }
+}
+
+body = {
+  schema_version: "1.1",
+  type_definitions: type_definitions,
+  conditions: conditions
+}
+
+response = fga_client.write_authorization_model(body)
+# response.authorization_model_id = "01GXSA8YR785C4FYS3C0RTG7B1"
+```
+
+##### Read a Single Authorization Model
+
+Read a particular authorization model.
+
+[API Documentation]({{apiDocsUrl}}#/Authorization%20Models/ReadAuthorizationModel)
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+options = {
+  # You can rely on the model id set in the configuration or override it for this specific request
+  authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1"
+}
+
+response = fga_client.read_authorization_model(options)
+# response.authorization_model = OpenFga::AuthorizationModel(id: '01GXSA8YR785C4FYS3C0RTG7B1', schema_version: '1.1', type_definitions: type_definitions[...])
+```
+
+#### Relationship Tuples
+
+##### Read Relationship Tuple Changes (Watch)
+
+Reads the list of historical relationship tuple writes and deletes.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/ReadChanges)
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+options = {
+  page_size: 25,
+  continuation_token: "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
+}
+
+response = fga_client.read_changes(options)
+# response.continuation_token = ...
+# response.changes = [TupleChange(tuple_key: TupleKey(object: "...", relation: "...", user: "..."), operation: TupleOperation("TUPLE_OPERATION_WRITE"), timestamp: ...)]
+```
+
+##### Read Relationship Tuples
+
+Reads the relationship tuples stored in the database. It does not evaluate nor exclude invalid tuples according to the authorization model.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Read)
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+# Find if a relationship tuple stating that a certain user is a viewer of certain document
+body = {
+  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+  relation: "viewer",
+  object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
+}
+
+response = fga_client.read(body)
+# response = ReadResponse(tuples: [Tuple(key: TupleKey(user: "...", relation: "...", object: "..."), timestamp: ...)])
+```
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+# Find all relationship tuples where a certain user has a relationship as any relation to a certain document
+body = {
+  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+  object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
+}
+
+response = fga_client.read(body)
+# response = ReadResponse(tuples: [Tuple(key: TupleKey(user: "...", relation: "...", object: "..."), timestamp: ...)])
+```
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+# Find all relationship tuples where a certain user is a viewer of any document
+body = {
+  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+  relation: "viewer",
+  object: "document:"
+}
+
+response = fga_client.read(body)
+# response = ReadResponse(tuples: [Tuple(key: TupleKey(user: "...", relation: "...", object: "..."), timestamp: ...)])
+```
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+# Find all relationship tuples where any user has a relationship as any relation with a particular document
+body = {
+  object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
+}
+
+response = fga_client.read(body)
+# response = ReadResponse(tuples: [Tuple(key: TupleKey(user: "...", relation: "...", object: "..."), timestamp: ...)])
+```
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+# Read all stored relationship tuples
+body = {}
+
+response = fga_client.read(body)
+# response = ReadResponse(tuples: [Tuple(key: TupleKey(user: "...", relation: "...", object: "..."), timestamp: ...)])
+```
+
+##### Write (Create and Delete) Relationship Tuples
+
+Create and/or delete relationship tuples to update the system state.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Tuples/Write)
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+body = {
+  writes: {
+    tuple_keys: [
+      {
+        user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        relation: "viewer",
+        object: "doc:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
+      },
+      {
+        user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        relation: "viewer",
+        object: "doc:0192ab2d-d36e-7cb3-a4a8-5d1d67a300c5"
+      }
+    ]
+  },
+  deletes: {
+    tuple_keys: [
+      {
+        user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        relation: "writer",
+        object: "doc:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
+      }
+    ]
+  },
+  opts: {
+    # You can rely on the model id set in the configuration or override it for this specific request
+    authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1"
+  }
+}
+
+response = fga_client.write(body)
+```
+
+#### Relationship Queries
+
+##### Check
+
+Check if a user has a particular relation with an object.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Check)
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+body = {
+  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+  relation: "writer",
+  object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+  opts: {
+    # You can rely on the model id set in the configuration or override it for this specific request
+    authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1",
+    context: {
+      ViewCount: 100
+    }
+  }
+}
+
+response = fga_client.check(body)
+# response.allowed = true
+```
+
+##### Batch Check
+
+Performs multiple relationship checks in a single batch request.
+
+[API Documentation](https://openfga.dev/api/service#/Relationship%20Queries/BatchCheck)
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+body = {
+  checks: [
+    {
+      tuple_key: {
+        user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        relation: "viewer",
+        object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
+      },
+      correlation_id: "check-1",
+      contextual_tuples: {
+        tuple_keys: [
+          {
+            user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+            relation: "editor",
+            object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
+          }
+        ]
+      },
+      context: {
+        ViewCount: 100
+      }
+    },
+    {
+      tuple_key: {
+        user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        relation: "admin",
+        object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
+      },
+      correlation_id: "check-2"
+    }
+  ],
+  opts: {
+    authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1",
+    max_parallel_requests: 10,
+    max_batch_size: 50
+  }
+}
+
+response = fga_client.batch_check(body)
+# response.result contains the results mapped by correlation_id
+```
+
+#### Expand
+
+Expands the relationships in userset tree format.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/Expand)
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+body = {
+  relation: "viewer",
+  object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+  opts: {
+    # You can rely on the model id set in the configuration or override it for this specific request
+    authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1"
+  }
+}
+
+response = fga_client.expand(body)
+# response = ExpandResponse(tree: UsersetTree(root: Node(name: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a#viewer", leaf: Leaf(users: Users(users: ["user:81684243-9356-4421-8fbf-a4f8d36aa31b", "user:f52a4f7a-054d-47ff-bb6e-3ac81269988f"])))))
+```
+
+#### List Objects
+
+List the objects of a particular type a user has access to.
+
+[API Documentation]({{apiDocsUrl}}#/Relationship%20Queries/ListObjects)
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+body = {
+  user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+  relation: "viewer",
+  type: "document",
+  contextual_tuples: {
+    tuple_keys: [
+      {
+        user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+        relation: "writer",
+        object: "document:0192ab2d-d36e-7cb3-a4a8-5d1d67a300c5"
+      }
+    ]
+  },
+  context: {
+    ViewCount: 100
+  },
+  opts: {
+    # You can rely on the model id set in the configuration or override it for this specific request
+    authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1"
+  }
+}
+
+response = fga_client.list_objects(body)
+# response.objects = ["document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"]
+```
+
+#### List Users
+
+List the users who have a certain relation to a particular type.
+
+[API Documentation](https://openfga.dev/api/service#/Relationship%20Queries/ListUsers)
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+body = {
+  relation: "can_read",
+  object: "document:2021-budget",
+  user_filters: [
+    { type: "user" },
+    { type: "team", relation: "member" }
+  ],
+  contextual_tuples: [
+    {
+      user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+      relation: "editor",
+      object: "folder:product"
+    },
+    {
+      user: "folder:product",
+      relation: "parent",
+      object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
+    }
+  ],
+  context: {},
+  opts: {
+    authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1"
+  }
+}
+
+response = fga_client.list_users(body)
+# response.users = [{object: {type: "user", id: "81684243-9356-4421-8fbf-a4f8d36aa31b"}}, {userset: {type: "user"}}, ...]
+```
+
+#### Assertions
+
+##### Read Assertions
+
+Read assertions for a particular authorization model.
+
+[API Documentation]({{apiDocsUrl}}#/Assertions/Read%20Assertions)
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+options = {
+  # You can rely on the model id set in the configuration or override it for this specific request
+  authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1"
+}
+
+response = fga_client.read_assertions(options)
+```
+
+##### Write Assertions
+
+Update the assertions for a particular authorization model.
+
+[API Documentation]({{apiDocsUrl}}#/Assertions/Write%20Assertions)
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
+body = {
+  assertions: [
+    {
+      user: "user:81684243-9356-4421-8fbf-a4f8d36aa31b",
+      relation: "viewer",
+      object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a",
+      expectation: true
+    }
+  ],
+  opts: {
+    # You can rely on the model id set in the configuration or override it for this specific request
+    authorization_model_id: "01GXSA8YR785C4FYS3C0RTG7B1"
+  }
+}
+
+response = fga_client.write_assertions(body)
+```
