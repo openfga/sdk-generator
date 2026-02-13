@@ -32,6 +32,6 @@
     "constants.mustache": {
       "destinationFilename": "lib/openfga/constants.rb",
       "templateType": "SupportingFiles"
-    },
+    }
   }
 }
