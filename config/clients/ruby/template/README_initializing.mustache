@@ -12,9 +12,9 @@ require 'openfga'
 def main
   # Initialize the fga_client
   fga_client = OpenFga::SdkClient.new(
-    api_url: FGA_API_URL,  # required
-    store_id: FGA_STORE_ID,  # optional, not needed when calling `create_store` or `list_stores`
-    authorization_model_id: FGA_MODEL_ID  # optional, can be overridden per request
+    api_url: ENV['FGA_API_URL'],  # required
+    store_id: ENV['FGA_STORE_ID'],  # optional, not needed when calling `create_store` or `list_stores`
+    authorization_model_id: ENV['FGA_MODEL_ID']  # optional, can be overridden per request
   )
   
   api_response = fga_client.read_authorization_models()
@@ -30,12 +30,12 @@ require 'openfga'
 def main
   # Initialize the fga_client
   fga_client = OpenFga::SdkClient.new(
-    api_url: FGA_API_URL,  # required
-    store_id: FGA_STORE_ID,  # optional, not needed when calling `create_store` or `list_stores`
-    authorization_model_id: FGA_MODEL_ID,  # optional, can be overridden per request
+    api_url: ENV['FGA_API_URL'],  # required
+    store_id: ENV['FGA_STORE_ID'],  # optional, not needed when calling `create_store` or `list_stores`
+    authorization_model_id: ENV['FGA_MODEL_ID'],  # optional, can be overridden per request
     credentials: {
       method: :api_token,
-      api_token: FGA_API_TOKEN
+      api_token: ENV['FGA_API_TOKEN']
     }
   )
   
@@ -52,15 +52,15 @@ require 'openfga'
 def main
   # Initialize the fga_client
   fga_client = OpenFga::SdkClient.new(
-    api_url: FGA_API_URL,  # required
-    store_id: FGA_STORE_ID,  # optional, not needed when calling `create_store` or `list_stores`
-    authorization_model_id: FGA_MODEL_ID,  # optional, can be overridden per request
+    api_url: ENV['FGA_API_URL'],  # required
+    store_id: ENV['FGA_STORE_ID'],  # optional, not needed when calling `create_store` or `list_stores`
+    authorization_model_id: ENV['FGA_MODEL_ID'],  # optional, can be overridden per request
     credentials: {
       method: :client_credentials,
-      api_token_issuer: FGA_API_TOKEN_ISSUER,
-      api_audience: FGA_API_AUDIENCE,
-      client_id: FGA_CLIENT_ID,
-      client_secret: FGA_CLIENT_SECRET
+      api_token_issuer: ENV['FGA_API_TOKEN_ISSUER'],
+      api_audience: ENV['FGA_API_AUDIENCE'],
+      client_id: ENV['FGA_CLIENT_ID'],
+      client_secret: ENV['FGA_CLIENT_SECRET']
     }
   )
   
@@ -81,9 +81,9 @@ require 'openfga'
 def main
   # Initialize the fga_client
   fga_client = OpenFga::SdkClient.new(
-    api_url: FGA_API_URL,
-    store_id: FGA_STORE_ID,
-    authorization_model_id: FGA_MODEL_ID
+    api_url: ENV['FGA_API_URL'],
+    store_id: ENV['FGA_STORE_ID'],
+    authorization_model_id: ENV['FGA_MODEL_ID']
   )
   
   # Add custom headers to a specific request
