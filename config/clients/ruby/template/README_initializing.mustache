@@ -1,0 +1,105 @@
+We strongly recommend you initialize the `SdkClient` only once and then re-use it 
+throughout your app, otherwise you will incur the cost of having to re-initialize 
+multiple times or at every request, the cost of reduced connection pooling and 
+re-use, and would be particularly costly in the client credentials flow,
+as that flow will be performed on every request.
+
+#### No Credentials
+
+```ruby
+require 'openfga'
+
+def main
+  # Initialize the fga_client
+  fga_client = OpenFga::SdkClient.new(
+    api_url: FGA_API_URL,  # required
+    store_id: FGA_STORE_ID,  # optional, not needed when calling `create_store` or `list_stores`
+    authorization_model_id: FGA_MODEL_ID  # optional, can be overridden per request
+  )
+  
+  api_response = fga_client.read_authorization_models()
+  return api_response
+end
+```
+
+#### API Token
+
+```ruby
+require 'openfga'
+
+def main
+  # Initialize the fga_client
+  fga_client = OpenFga::SdkClient.new(
+    api_url: FGA_API_URL,  # required
+    store_id: FGA_STORE_ID,  # optional, not needed when calling `create_store` or `list_stores`
+    authorization_model_id: FGA_MODEL_ID,  # optional, can be overridden per request
+    credentials: {
+      method: :api_token,
+      api_token: FGA_API_TOKEN
+    }
+  )
+  
+  api_response = fga_client.read_authorization_models()
+  return api_response
+end
+```
+
+#### Client Credentials
+
+```ruby
+require 'openfga'
+
+def main
+  # Initialize the fga_client
+  fga_client = OpenFga::SdkClient.new(
+    api_url: FGA_API_URL,  # required
+    store_id: FGA_STORE_ID,  # optional, not needed when calling `create_store` or `list_stores`
+    authorization_model_id: FGA_MODEL_ID,  # optional, can be overridden per request
+    credentials: {
+      method: :client_credentials,
+      api_token_issuer: FGA_API_TOKEN_ISSUER,
+      api_audience: FGA_API_AUDIENCE,
+      client_id: FGA_CLIENT_ID,
+      client_secret: FGA_CLIENT_SECRET
+    }
+  )
+  
+  api_response = fga_client.read_authorization_models()
+  return api_response
+end
+```
+
+### Custom Headers
+
+#### Per-Request Headers
+
+You can send custom headers on a per-request basis by using the `opts` parameter. Per-request headers will override any default headers with the same name.
+
+```ruby
+require 'openfga'
+
+def main
+  # Initialize the fga_client
+  fga_client = OpenFga::SdkClient.new(
+    api_url: FGA_API_URL,
+    store_id: FGA_STORE_ID,
+    authorization_model_id: FGA_MODEL_ID
+  )
+  
+  # Add custom headers to a specific request
+  result = fga_client.check(
+    user: "user:anne",
+    relation: "viewer",
+    object: "document:roadmap",
+    opts: {
+      header_params: {
+        "X-Request-ID": "123e4567-e89b-12d3-a456-426614174000",
+        "X-Custom-Header": "custom-value"
+      }
+    }
+  )
+  
+  return result
+end
+```
+
