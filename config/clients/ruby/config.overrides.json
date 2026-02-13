@@ -28,6 +28,10 @@
     "api_model_base.mustache": {
       "destinationFilename": "lib/openfga/api_model_base.rb",
       "templateType": "SupportingFiles"
-    }
+    },
+    "constants.mustache": {
+      "destinationFilename": "lib/openfga/constants.rb",
+      "templateType": "SupportingFiles"
+    },
   }
 }
