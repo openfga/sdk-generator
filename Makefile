@@ -266,3 +266,12 @@ shellcheck:
 .PHONY: setup-new-sdk
 setup-new-sdk:
 	./scripts/setup_new_sdk.sh
+
+.PHONY: build-client-ruby
+build-client-ruby:
+	make build-client sdk_language=ruby tmpdir=${TMP_DIR}
+	# ... any other custom build steps ...
+
+.PHONY: test-client-ruby
+test-client-ruby: build-client-ruby
+	# ... any custom test code ...
