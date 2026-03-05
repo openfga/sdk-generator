@@ -24,6 +24,7 @@
   "sortModelPropertiesByRequiredFlag": true,
   "sortParamsByRequiredFlag": false,
   "targetRubyVersion": "3.2",
+  "userAgent": "openfga-sdk ruby/$gemVersion",
   "files": {
     "api_model_base.mustache": {
       "destinationFilename": "lib/openfga/api_model_base.rb",
