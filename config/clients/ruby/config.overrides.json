@@ -11,7 +11,7 @@
   "enumUnknownDefaultCase": false,
   "gemAuthor": "Carla Urrea Stabile, Steven Hobbs",
   "gemAuthorEmail": "contact@openfga.dev",
-  "gemHomepage": "https://openfga.dev",
+  "gemHomepage": "https://github.com/carlastabile/openfga-ruby-sdk",
   "gemLicense": "Apache-2.0",
   "gemMetadata": {},
   "gemName": "openfga",
