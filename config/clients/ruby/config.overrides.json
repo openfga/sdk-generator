@@ -3,7 +3,7 @@
   "gitRepoId": "ruby-sdk",
   "packageName": "openfga",
   "packageVersion": "0.1.4",
-  "packageDescription": "Community-driven Ruby SDK for OpenFGA",
+  "packageDescription": "Ruby SDK for OpenFGA",
   "packageDetailedDescription": "This is community-driven Ruby SDK for OpenFGA. It provides a wrapper around the [OpenFGA API definition](https://openfga.dev/api).",
   "allowUnicodeIdentifiers": false,
   "disallowAdditionalPropertiesIfNotPresent": false,
