@@ -30,6 +30,11 @@ public class {{classname}} : IDisposable {
         _apiClient = new ApiClient.ApiClient(_configuration, httpClient);
     }
 
+    /// <summary>
+    /// Gets the internal ApiClient instance for making custom API requests.
+    /// </summary>
+    internal ApiClient.ApiClient ApiClientInternal => _apiClient;
+
     {{#operations}}
     {{#operation}}
     {{#vendorExtensions.x-streaming}}
