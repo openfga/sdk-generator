@@ -12,6 +12,7 @@
   "pythonMinimumRuntime": "3.10",
   "openTelemetryDocumentation": "docs/opentelemetry.md",
   "supportsStreamedListObjects": "streamed_list_objects",
+  "supportsExecuteApiRequest": true,
   "files": {
     "src/constants.mustache": {
       "destinationFilename": "openfga_sdk/constants.py",
