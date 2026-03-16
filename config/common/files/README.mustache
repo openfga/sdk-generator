@@ -49,6 +49,9 @@
       - [Read Assertions](#read-assertions)
       - [Write Assertions](#write-assertions)
   - [Retries](#retries)
+{{#supportsExecuteApiRequest}}
+  - [Calling Other Endpoints](#calling-other-endpoints)
+{{/supportsExecuteApiRequest}}
   - [API Endpoints](#api-endpoints)
   - [Models](#models)
 {{#openTelemetryDocumentation}}
@@ -104,8 +107,10 @@ If your server is configured with [authentication enabled]({{docsUrl}}/getting-s
 ### Calling the API
 
 {{>README_calling_api}}
+{{#supportsExecuteApiRequest}}### Calling Other Endpoints
 
-### Retries
+{{>README_calling_other_endpoints}}
+{{/supportsExecuteApiRequest}}### Retries
 
 {{>README_retries}}
 
