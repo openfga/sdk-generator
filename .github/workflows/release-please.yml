@@ -1,0 +1,227 @@
+name: release-please
+
+on:
+  workflow_call:
+    inputs:
+      bump-type:
+        description: >
+          Version bump type. Select 'explicit' to supply an exact version via
+          the 'release-version' field below. Select 'auto' to let
+          conventional-commits determine the bump automatically.
+        required: false
+        type: string
+        default: 'auto'
+      release-version:
+        description: >
+          Explicit version to release (e.g. 1.2.3 or 1.4.0-beta.1).
+        required: false
+        type: string
+        default: ''
+    secrets:
+      APP_ID:
+        required: true
+      APP_PRIVATE_KEY:
+        required: true
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    # On push: only run when the merge commit is a release PR commit
+    # (title starts with "chore(release)"). This prevents the job firing on
+    # every single push to main. The release PR merge commit always has this
+    # title because release-please sets the PR title to "chore(release): ...".
+    # On workflow_dispatch: always run (manual trigger for creating releases).
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      startsWith(github.event.head_commit.message, 'chore(release)')
+
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name:        ${{ steps.release.outputs.tag_name }}
+      pr_number:       ${{ steps.release.outputs.pr_number }}
+
+    steps:
+      - name: Generate token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id:      ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token:       ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+
+      # ── workflow_dispatch only: rebuild release branch from latest main ──
+      - name: Prepare release branch
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git fetch origin main
+          git checkout -B release origin/main
+          git push origin release --force
+
+      # Close any stale open release PRs before creating a new one.
+      # These accumulate when previous runs fail or PRs get manually closed
+      # without merging. Finding two merged PRs for the same version causes
+      # release-please to try creating duplicate releases and fail.
+      - name: Close stale release PRs
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh pr list \
+            --repo ${{ github.repository }} \
+            --head "release-please--branches--release" \
+            --state open \
+            --json number \
+            --jq '.[].number' \
+          | xargs -r -I{} gh pr close {} \
+              --repo ${{ github.repository }} \
+              --comment "Superseded by new release workflow run — closing stale release PR."
+          echo "Stale PR cleanup done."
+
+      - name: Compute release-as version
+        id: compute-release-as
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          BUMP="${{ inputs.bump-type }}"
+
+          if [[ "$BUMP" == "patch" || "$BUMP" == "minor" || "$BUMP" == "major" ]]; then
+            CURRENT=$(jq -r '.["."]' .release-please-manifest.json | cut -d'-' -f1)
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+
+            if   [[ "$BUMP" == "major" ]]; then NEXT="$((MAJOR + 1)).0.0"
+            elif [[ "$BUMP" == "minor" ]]; then NEXT="${MAJOR}.$((MINOR + 1)).0"
+            else                               NEXT="${MAJOR}.${MINOR}.$((PATCH + 1))"
+            fi
+
+            echo "value=$NEXT" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Push Release-As commit
+        if: >-
+          github.event_name == 'workflow_dispatch' && (
+            (inputs.bump-type == 'explicit' && inputs.release-version != '') ||
+            inputs.bump-type == 'patch' ||
+            inputs.bump-type == 'minor' ||
+            inputs.bump-type == 'major'
+          )
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout release
+
+          if [[ "${{ inputs.bump-type }}" == "explicit" ]]; then
+            VERSION="${{ inputs.release-version }}"
+          else
+            VERSION="${{ steps.compute-release-as.outputs.value }}"
+          fi
+
+          git commit --allow-empty \
+            -m "chore: release ${VERSION}" \
+            -m "Release-As: ${VERSION}"
+
+          git push origin release
+
+      # ── key fix: target-branch depends on what triggered the run ────────
+      #
+      #   workflow_dispatch  →  target release branch (build the PR)
+      #   push to main       →  target main branch    (detect the merged PR
+      #                         and emit release_created=true)
+      - name: Resolve target branch
+        id: target
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "branch=release" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch=main" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run release-please
+        uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token:         ${{ steps.app-token.outputs.token }}
+          config-file:   release-please-config.json
+          manifest-file: .release-please-manifest.json
+          target-branch: ${{ steps.target.outputs.branch }}
+
+      - name: Retarget release PR to main
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          PR=$(gh pr list \
+            --repo ${{ github.repository }} \
+            --head "release-please--branches--release" \
+            --json number \
+            --jq '.[0].number' 2>/dev/null || true)
+
+          if [[ -z "$PR" || "$PR" == "null" ]]; then
+            echo "No release PR found — nothing to retarget."
+            exit 0
+          fi
+
+          echo "Retargeting PR #$PR base → main"
+          gh api \
+            repos/${{ github.repository }}/pulls/$PR \
+            -X PATCH \
+            -f base=main
+
+          # Rename head branch from release-please--branches--release to
+          # release-please--branches--main so the post-merge push-to-main
+          # run can correlate the merge commit with this release PR.
+          echo "Renaming head branch to release-please--branches--main"
+          SHA=$(gh api repos/${{ github.repository }}/git/refs/heads/release-please--branches--release --jq '.object.sha')
+          gh api \
+            repos/${{ github.repository }}/git/refs/heads/release-please--branches--release \
+            -X PATCH \
+            -f ref="refs/heads/release-please--branches--main" \
+            -f sha="$SHA"
+
+          echo "Done. PR #$PR now targets main with correct head branch."
+
+  # ── post-release: fires when the release PR is merged into main ──────────
+  post-release:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id:      ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token:       ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+
+      # Reset release branch to match main so the next cycle starts clean
+      - name: Sync release branch to main
+        run: |
+          git fetch origin main
+          git checkout release 2>/dev/null || git checkout -b release
+          git reset --hard origin/main
+          git push origin release --force
+
+      - name: Post-release summary
+        run: |
+          echo "### Release ${{ needs.release-please.outputs.tag_name }} published" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Tag \`${{ needs.release-please.outputs.tag_name }}\` is now available." >> "$GITHUB_STEP_SUMMARY"
+          echo "\`release\` branch has been reset to \`main\` for the next cycle." >> "$GITHUB_STEP_SUMMARY"
+          echo "Add downstream steps here (e.g. publish packages, deploy)." >> "$GITHUB_STEP_SUMMARY"
