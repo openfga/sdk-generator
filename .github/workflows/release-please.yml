@@ -5,10 +5,9 @@ on:
     inputs:
       trigger-event:
         description: >
-          The GitHub event that triggered the caller workflow. Pass as
-          ${{ github.event_name }} from the caller. Used internally to
-          distinguish manual dispatch (workflow_dispatch) from automated
-          push-to-main runs (push).
+          The GitHub event that triggered the caller workflow (workflow_dispatch
+          or push). Pass github.event_name from the caller. Used internally to
+          distinguish manual dispatch from automated push-to-main runs.
         required: true
         type: string
       bump-type:
