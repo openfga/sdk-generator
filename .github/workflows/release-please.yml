@@ -137,8 +137,9 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config user.name github-actions
-          git config user.email ${{ secrets.GPG_EMAIL }}
+          git config --global user.name openfga-releaser-bot
+          git config --global user.email ${{ secrets.GPG_EMAIL }}    
+          git config --global tag.gpgSign true
 
       - name: Push Release-As commit
         if: >-
