@@ -99,6 +99,21 @@ jobs:
               --comment "Superseded by new release workflow run — closing stale release PR."
           echo "Stale PR cleanup done."
 
+          # Remove 'autorelease: pending' from merged PRs that were NOT merged
+          # into main. These can accumulate when a release PR is merged into
+          # the 'release' branch (or any other non-main branch) and would
+          # otherwise cause release-please to attempt a duplicate release.
+          gh pr list \
+            --repo ${{ github.repository }} \
+            --label "autorelease: pending" \
+            --state merged \
+            --json number,baseRefName \
+            --jq '.[] | select(.baseRefName != "main") | .number' \
+          | xargs -r -I{} gh pr edit {} \
+              --repo ${{ github.repository }} \
+              --remove-label "autorelease: pending"
+          echo "Stale autorelease label cleanup done."
+
       - name: Compute release-as version
         id: compute-release-as
         if: inputs.trigger-event == 'workflow_dispatch'
