@@ -25,7 +25,7 @@ on:
         type: string
         default: ''
     secrets:
-      RELEASER_APP_ID:
+      RELEASER_APP_CLIENT_ID:
         required: true
       RELEASER_APP_PRIVATE_KEY:
         required: true
@@ -62,7 +62,7 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
-          app-id:      ${{ secrets.RELEASER_APP_ID }}
+          client-id:   ${{ secrets.RELEASER_APP_CLIENT_ID }}
           private-key: ${{ secrets.RELEASER_APP_PRIVATE_KEY }}
 
       - name: Checkout
@@ -243,7 +243,7 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
-          app-id:      ${{ secrets.RELEASER_APP_ID }}
+          client-id:   ${{ secrets.RELEASER_APP_CLIENT_ID }}
           private-key: ${{ secrets.RELEASER_APP_PRIVATE_KEY }}
 
       - name: Checkout
