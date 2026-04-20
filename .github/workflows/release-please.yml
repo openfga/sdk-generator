@@ -142,6 +142,7 @@ jobs:
           passphrase:          ${{ secrets.GPG_PASSPHRASE }}
           git_user_signingkey: true
           git_commit_gpgsign:  true
+          git_tag_gpgsign: true
 
       - name: Configure Git
         run: |
