@@ -144,8 +144,7 @@ build-client-python:
 
 	sort -uo ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/.openapi-generator/FILES{,}
 
-	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/openfga_sdk/api/open_fga_api.py /config/clients/python/patches/open_fga_api.py.patch && \
-		patch -p1 /module/docs/OpenFgaApi.md /config/clients/python/patches/OpenFgaApi.md.patch'"
+	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/docs/OpenFgaApi.md /config/clients/python/patches/OpenFgaApi.md.patch'"
 
 	make run-in-docker sdk_language=python image=ghcr.io/astral-sh/uv:python${PYTHON_DOCKER_TAG}-alpine command="/bin/sh -c 'export UV_LINK_MODE=copy && \
 		uv sync && \

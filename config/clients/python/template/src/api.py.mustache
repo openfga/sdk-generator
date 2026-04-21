@@ -1,5 +1,10 @@
 {{>partial_header}}
 
+from __future__ import annotations
+
+from collections.abc import AsyncIterator
+from typing import Any
+
 from {{packageName}}.api_client import ApiClient
 from {{packageName}}.exceptions import ApiValueError, FgaValidationException
 from {{packageName}}.oauth2 import OAuth2Client
@@ -14,6 +19,24 @@ class {{classname}}:
 
     Do not edit the class manually.
     """
+
+    _COMMON_PARAMS = [
+        "async_req",
+        "_request_timeout",
+        "_headers",
+        "_retry_params",
+        "_streaming",
+    ]
+
+    _COMMON_ERROR_RESPONSE_TYPES = {
+        400: "ValidationErrorMessageResponse",
+        401: "UnauthenticatedResponse",
+        403: "ForbiddenResponse",
+        404: "PathUnknownErrorMessageResponse",
+        409: "AbortedMessageResponse",
+        422: "UnprocessableContentMessageResponse",
+        500: "InternalErrorMessageResponse",
+    }
 
     def __init__(self, api_client=None):
         if api_client is None:
@@ -30,7 +53,6 @@ class {{classname}}:
 
         self._telemetry = Telemetry()
 
-{{#asyncio}}
     async def __aenter__(self):
         return self
 
@@ -39,21 +61,324 @@ class {{classname}}:
 
     async def close(self):
         await self.api_client.close()
-{{/asyncio}}
-{{^asyncio}}
-    def __enter__(self):
-        return self
 
-    def __exit__(self):
-        self.close()
+    async def _execute(
+        self,
+        method: str,
+        path: str,
+        operation_name: str,
+        response_types_map: dict,
+        body=None,
+        query_params=None,
+        headers: dict | None = None,
+        options: dict | None = None,
+    ) -> Any:
+        """Shared executor for all API endpoint methods.
 
-    def close(self):
-        self.api_client.close()
-{{/asyncio}}
+        Delegates to the public execute_api_request / execute_streamed_api_request
+        so all API calls share one unified code path.
+        """
+        if options is None:
+            options = {}
+
+        header_params = dict(headers or {})
+        header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )
+        if body is not None:
+            content_type = self.api_client.select_header_content_type(
+                ["application/json"], method, body
+            )
+            if content_type:
+                header_params["Content-Type"] = content_type
+
+        telemetry_attributes: dict[TelemetryAttribute, str | bool | int | float] = {
+            TelemetryAttributes.fga_client_request_method: operation_name,
+            TelemetryAttributes.fga_client_request_store_id: self.api_client.get_store_id(),
+            TelemetryAttributes.fga_client_request_model_id: options.get(
+                "authorization_model_id", ""
+            ),
+        }
+        telemetry_attributes = TelemetryAttributes.fromBody(
+            body=body, attributes=telemetry_attributes
+        )
+
+        if options.get("_streaming", False):
+            return self.execute_streamed_api_request(
+                operation_name=operation_name,
+                method=method,
+                path=path,
+                body=body,
+                query_params=query_params or [],
+                headers=header_params,
+                options=options,
+                response_types_map=response_types_map,
+                telemetry_attributes=telemetry_attributes,
+                _skip_builder=True,
+            )
+
+        return await self.execute_api_request(
+            operation_name=operation_name,
+            method=method,
+            path=path,
+            body=body,
+            query_params=query_params or [],
+            headers=header_params,
+            options=options,
+            response_types_map=response_types_map,
+            telemetry_attributes=telemetry_attributes,
+            _skip_builder=True,
+        )
+
+    async def execute_api_request(
+        self,
+        *,
+        operation_name: str,
+        method: str,
+        path: str,
+        path_params: dict[str, str] | None = None,
+        body: dict[str, Any] | list[Any] | str | bytes | None = None,
+        query_params: dict[str, str | int | list[str | int]] | list | None = None,
+        headers: dict[str, str] | None = None,
+        options: dict[str, Any] | None = None,
+        response_types_map: dict | None = None,
+        telemetry_attributes: dict | None = None,
+        _skip_builder: bool = False,
+    ) -> Any:
+        """
+        Execute an arbitrary HTTP request to any OpenFGA API endpoint.
+
+        Useful for calling endpoints not yet wrapped by the SDK while
+        still getting authentication, retries, and error handling.
+
+        When called directly by users, returns a RawResponse.
+        When called internally with response_types_map, returns a deserialized typed model.
+
+        :param operation_name: Operation name for telemetry (e.g., "CustomCheck")
+        :param method: HTTP method (GET, POST, PUT, DELETE, PATCH)
+        :param path: API path, e.g. "/stores/{store_id}/my-endpoint".
+        :param path_params: Path parameter substitutions (URL-encoded automatically).
+            All path parameters, including store_id, must be provided explicitly.
+        :param body: Request body for POST/PUT/PATCH
+        :param query_params: Query string parameters
+        :param headers: Custom headers (SDK enforces Content-Type and Accept)
+        :param options: Extra options e.g. {"retry_params": RetryParams(max_retry=3)}
+        :param response_types_map: When provided, merge with common error types and
+            return a deserialized typed model. When None, return RawResponse.
+        :param telemetry_attributes: When provided, use as-is for telemetry.
+            When None, build minimal defaults.
+        :param _skip_builder: When True, path/headers/query_params are used as-is
+            (already resolved by _execute). When False (default), run through
+            ExecuteApiRequestBuilder.
+        :return: RawResponse (public callers) or deserialized model (internal callers)
+        """
+        from {{packageName}}.client.execute_api_request_builder import (
+            ExecuteApiRequestBuilder,
+            ResponseParser,
+        )
+        from {{packageName}}.client.models.raw_response import RawResponse
+
+        if _skip_builder:
+            resource_path = path
+            query_params_list = query_params if query_params is not None else []
+            final_headers = headers or {}
+        else:
+            builder = ExecuteApiRequestBuilder(
+                operation_name=operation_name,
+                method=method,
+                path=path,
+                path_params=path_params,
+                body=body,
+                query_params=query_params,
+                headers=headers,
+            )
+            builder.validate()
+
+            resource_path = builder.build_path()
+            query_params_list = builder.build_query_params_list()
+            final_headers = builder.build_headers()
+
+        retry_params = (
+            options.get("retry_params") or options.get("_retry_params")
+            if options
+            else None
+        )
+        request_timeout = options.get("_request_timeout") if options else None
+        async_req = options.get("async_req") if options else None
+
+        if telemetry_attributes is None:
+            telemetry_attributes = {
+                TelemetryAttributes.fga_client_request_method: operation_name.lower(),
+            }
+            if self.api_client.get_store_id():
+                telemetry_attributes[
+                    TelemetryAttributes.fga_client_request_store_id
+                ] = self.api_client.get_store_id()
+
+        if response_types_map is not None:
+            merged_response_types_map = {
+                **self._COMMON_ERROR_RESPONSE_TYPES,
+                **response_types_map,
+            }
+            return await self.api_client.call_api(
+                resource_path=resource_path,
+                method=method.upper(),
+                path_params={},
+                query_params=query_params_list if query_params_list else [],
+                header_params=final_headers,
+                body=body,
+                post_params=[],
+                files={},
+                response_types_map=merged_response_types_map,
+                auth_settings=[],
+                async_req=async_req,
+                _return_http_data_only=True,
+                _preload_content=True,
+                _request_timeout=request_timeout,
+                _retry_params=retry_params,
+                collection_formats={},
+                _oauth2_client=self._oauth2_client,
+                _telemetry_attributes=telemetry_attributes,
+                _streaming=False,
+            )
+
+        # No response_types_map: public caller path → return RawResponse
+        await self.api_client.call_api(
+            resource_path=resource_path,
+            method=method.upper(),
+            query_params=query_params_list if query_params_list else None,
+            header_params=final_headers,
+            body=body,
+            response_types_map={},
+            auth_settings=[],
+            _return_http_data_only=True,
+            _preload_content=True,
+            _retry_params=retry_params,
+            _oauth2_client=self._oauth2_client,
+            _telemetry_attributes=telemetry_attributes,
+            _streaming=False,
+        )
+
+        rest_response = getattr(self.api_client, "last_response", None)
+        if rest_response is None:
+            raise RuntimeError(
+                f"No response for {method.upper()} {resource_path} "
+                f"(operation: {operation_name})"
+            )
+
+        return RawResponse(
+            status=rest_response.status,
+            headers=dict(rest_response.getheaders()),
+            body=ResponseParser.parse_body(rest_response.data),
+        )
+
+    async def execute_streamed_api_request(
+        self,
+        *,
+        operation_name: str,
+        method: str,
+        path: str,
+        path_params: dict[str, str] | None = None,
+        body: dict[str, Any] | list[Any] | str | bytes | None = None,
+        query_params: dict[str, str | int | list[str | int]] | list | None = None,
+        headers: dict[str, str] | None = None,
+        options: dict[str, Any] | None = None,
+        response_types_map: dict | None = None,
+        telemetry_attributes: dict | None = None,
+        _skip_builder: bool = False,
+    ) -> AsyncIterator[dict[str, Any]]:
+        """
+        Execute an arbitrary HTTP request to a streaming OpenFGA API endpoint.
+
+        Yields parsed JSON objects as they arrive. Use with async for:
+
+            async for chunk in api.execute_streamed_api_request(...):
+                process(chunk)
+
+        :param operation_name: Operation name for telemetry (e.g., "StreamedListObjects")
+        :param method: HTTP method (GET, POST, PUT, DELETE, PATCH)
+        :param path: API path, e.g. "/stores/{store_id}/streamed-list-objects".
+        :param path_params: Path parameter substitutions (URL-encoded automatically).
+            All path parameters, including store_id, must be provided explicitly.
+        :param body: Request body for POST/PUT/PATCH
+        :param query_params: Query string parameters
+        :param headers: Custom headers (SDK enforces Content-Type and Accept)
+        :param options: Extra options e.g. {"retry_params": RetryParams(max_retry=3)}
+        :param response_types_map: When provided, merge with common error types.
+        :param telemetry_attributes: When provided, use as-is for telemetry.
+        :param _skip_builder: When True, path/headers/query_params are used as-is.
+        """
+        if _skip_builder:
+            resource_path = path
+            query_params_list = query_params if query_params is not None else []
+            final_headers = headers or {}
+        else:
+            from {{packageName}}.client.execute_api_request_builder import (
+                ExecuteApiRequestBuilder,
+            )
+
+            builder = ExecuteApiRequestBuilder(
+                operation_name=operation_name,
+                method=method,
+                path=path,
+                path_params=path_params,
+                body=body,
+                query_params=query_params,
+                headers=headers,
+            )
+            builder.validate()
+
+            resource_path = builder.build_path()
+            query_params_list = builder.build_query_params_list()
+            final_headers = builder.build_headers()
+
+        retry_params = (
+            options.get("retry_params") or options.get("_retry_params")
+            if options
+            else None
+        )
+        request_timeout = options.get("_request_timeout") if options else None
+
+        if telemetry_attributes is None:
+            telemetry_attributes = {
+                TelemetryAttributes.fga_client_request_method: operation_name.lower(),
+            }
+            if self.api_client.get_store_id():
+                telemetry_attributes[
+                    TelemetryAttributes.fga_client_request_store_id
+                ] = self.api_client.get_store_id()
+
+        if response_types_map is not None:
+            merged_response_types_map = {
+                **self._COMMON_ERROR_RESPONSE_TYPES,
+                **response_types_map,
+            }
+        else:
+            merged_response_types_map = {}
+
+        stream = await self.api_client.call_api(
+            resource_path=resource_path,
+            method=method.upper(),
+            query_params=query_params_list if query_params_list else None,
+            header_params=final_headers,
+            body=body,
+            response_types_map=merged_response_types_map,
+            auth_settings=[],
+            _return_http_data_only=True,
+            _preload_content=True,
+            _request_timeout=request_timeout,
+            _retry_params=retry_params,
+            _oauth2_client=self._oauth2_client,
+            _telemetry_attributes=telemetry_attributes,
+            _streaming=True,
+        )
+
+        async for chunk in stream:
+            yield chunk
 
 {{#operation}}
 
-    {{#asyncio}}async {{/asyncio}}def {{operationId}}(self, {{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{^-first}}{{paramName}}, {{/-first}}{{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs):
+    async def {{operationId}}(self, {{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{#isPathParam}}{{^-first}}{{paramName}}, {{/-first}}{{/isPathParam}}{{^isPathParam}}{{paramName}}, {{/isPathParam}}{{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs):
         """{{{summary}}}{{^summary}}{{operationId}}{{/summary}}
 
 {{#notes}}
@@ -61,17 +386,20 @@ class {{classname}}:
 {{/notes}}
 
 {{#sortParamsByRequiredFlag}}
-        >>> thread = {{#asyncio}}await {{/asyncio}}api.{{operationId}}({{#allParams}}{{#required}}{{^-first}}{{paramName}}{{^-last}}, {{/-last}}{{/-first}}{{/required}}{{/allParams}})
-{{/sortParamsByRequiredFlag}}
-{{^sortParamsByRequiredFlag}}
-        >>> thread = {{#asyncio}}await {{/asyncio}}api.{{operationId}}({{#allParams}}{{#required}}{{^-first}}{{paramName}}={{paramName}}_value{{^-last}}, {{/-last}} {{/-first}}{{/required}}{{/allParams}})
+        >>> thread = await api.{{operationId}}({{#allParams}}{{#required}}{{#isPathParam}}{{^-first}}{{paramName}}{{^-last}}, {{/-last}}{{/-first}}{{/isPathParam}}{{^isPathParam}}{{paramName}}{{^-last}}, {{/-last}}{{/isPathParam}}{{/required}}{{/allParams}})
 {{/sortParamsByRequiredFlag}}
 
 {{#requiredParams}}
+{{#isPathParam}}
 {{^-first}}
         :param {{paramName}}:{{#description}} {{{.}}}{{/description}} (required)
         :type {{paramName}}: {{dataType}}
 {{/-first}}
+{{/isPathParam}}
+{{^isPathParam}}
+        :param {{paramName}}:{{#description}} {{{.}}}{{/description}} (required)
+        :type {{paramName}}: {{dataType}}
+{{/isPathParam}}
 {{/requiredParams}}
 {{#optionalParams}}
         :param {{paramName}}:{{#description}} {{{.}}}{{/description}}(optional)
@@ -92,10 +420,9 @@ class {{classname}}:
                  returns the request thread.
         :rtype: {{returnType}}{{^returnType}}None{{/returnType}}
         """
-        kwargs["_return_http_data_only"] = True
-        return {{#asyncio}}await {{/asyncio}}self.{{operationId}}_with_http_info({{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{^-first}}{{paramName}}, {{/-first}}{{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs){{#asyncio}}{{/asyncio}}
+        return await self.{{operationId}}_with_http_info({{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{#isPathParam}}{{^-first}}{{paramName}}, {{/-first}}{{/isPathParam}}{{^isPathParam}}{{paramName}}, {{/isPathParam}}{{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs)
 
-    {{#asyncio}}async {{/asyncio}}def {{operationId}}_with_http_info(self, {{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{^-first}}{{paramName}}, {{/-first}}{{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs):
+    async def {{operationId}}_with_http_info(self, {{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{#isPathParam}}{{^-first}}{{paramName}}, {{/-first}}{{/isPathParam}}{{^isPathParam}}{{paramName}}, {{/isPathParam}}{{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs):
         """{{{summary}}}{{^summary}}{{operationId}}{{/summary}}
 
 {{#notes}}
@@ -103,17 +430,20 @@ class {{classname}}:
 {{/notes}}
 
 {{#sortParamsByRequiredFlag}}
-        >>> thread = api.{{operationId}}_with_http_info({{#allParams}}{{#required}}{{^-first}}{{paramName}}{{^-last}}, {{/-last}}{{/-first}}{{/required}}{{/allParams}})
-{{/sortParamsByRequiredFlag}}
-{{^sortParamsByRequiredFlag}}
-        >>> thread = api.{{operationId}}_with_http_info({{#allParams}}{{#required}}{{^-first}}{{paramName}}={{paramName}}_value{{^-last}}, {{/-last}} {{/-first}}{{/required}}{{/allParams}})
+        >>> thread = api.{{operationId}}_with_http_info({{#allParams}}{{#required}}{{#isPathParam}}{{^-first}}{{paramName}}{{^-last}}, {{/-last}}{{/-first}}{{/isPathParam}}{{^isPathParam}}{{paramName}}{{^-last}}, {{/-last}}{{/isPathParam}}{{/required}}{{/allParams}})
 {{/sortParamsByRequiredFlag}}
 
 {{#requiredParams}}
+{{#isPathParam}}
 {{^-first}}
         :param {{paramName}}:{{#description}} {{{.}}}{{/description}} (required)
         :type {{paramName}}: {{dataType}}
 {{/-first}}
+{{/isPathParam}}
+{{^isPathParam}}
+        :param {{paramName}}:{{#description}} {{{.}}}{{/description}} (required)
+        :type {{paramName}}: {{dataType}}
+{{/isPathParam}}
 {{/requiredParams}}
 {{#optionalParams}}
         :param {{paramName}}:{{#description}} {{{.}}}{{/description}}(optional)
@@ -144,187 +474,105 @@ class {{classname}}:
         :rtype: {{#returnType}}tuple({{.}}, status_code(int), headers(HTTPHeaderDict)){{/returnType}}{{^returnType}}None{{/returnType}}
         """
 
-        {{#servers.0}}
-        local_var_hosts = [
-{{#servers}}
-            '{{{url}}}'{{^-last}},{{/-last}}
-{{/servers}}
-        ]
-        local_var_host = local_var_hosts[0]
-        if kwargs.get('_host_index'):
-            _host_index = int(kwargs.get('_host_index'))
-            if _host_index < 0 or _host_index >= len(local_var_hosts):
-                raise ApiValueError(
-                    "Invalid host index. Must be 0 <= index < %s"
-                    % len(local_var_host)
-                )
-            local_var_host = local_var_hosts[_host_index]
-        {{/servers.0}}
         local_var_params = locals()
 
         all_params = [
-{{#requiredParams}}{{^-first}}
-            '{{paramName}}'{{^-last}},{{/-last}}
-{{/-first}}{{/requiredParams}}
+{{#requiredParams}}
+{{#isPathParam}}
+{{^-first}}
+            "{{paramName}}",
+{{/-first}}
+{{/isPathParam}}
+{{^isPathParam}}
+            "{{paramName}}",
+{{/isPathParam}}
+{{/requiredParams}}
 {{#optionalParams}}
-            '{{paramName}}'{{^-last}},{{/-last}}
+            "{{paramName}}",
 {{/optionalParams}}
         ]
-        all_params.extend(
-            [
-                'async_req',
-                '_return_http_data_only',
-                '_preload_content',
-                '_request_timeout',
-                '_request_auth',
-                '_content_type',
-                '_headers',
-                '_retry_params',
-                '_streaming',
-            ]
-        )
+        all_params.extend(self._COMMON_PARAMS)
 
-        for key, val in local_var_params['kwargs'].items():
-            if key not in all_params{{#servers.0}} and key != "_host_index"{{/servers.0}}:
+        for key, val in local_var_params["kwargs"].items():
+            if key not in all_params:
                 raise FgaValidationException(
                     f"Got an unexpected keyword argument '{key}' to method {{operationId}}"
                 )
             local_var_params[key] = val
-        del local_var_params['kwargs']
+        del local_var_params["kwargs"]
 {{#allParams}}
 {{^isNullable}}
 {{#required}}
+{{#isPathParam}}
 {{^-first}}
-        # verify the required parameter '{{paramName}}' is set
-        if self.api_client.client_side_validation and local_var_params.get('{{paramName}}') is None:
+        if (
+            self.api_client.client_side_validation
+            and local_var_params.get("{{paramName}}") is None
+        ):
             raise ApiValueError(
-                "Missing the required parameter `{{paramName}}` when calling `{{operationId}}`")
+                "Missing the required parameter `{{paramName}}` when calling `{{operationId}}`"
+            )
 {{/-first}}
+{{/isPathParam}}
+{{^isPathParam}}
+        # verify the required parameter '{{paramName}}' is set
+        if (
+            self.api_client.client_side_validation
+            and local_var_params.get("{{paramName}}") is None
+        ):
+            raise ApiValueError(
+                "Missing the required parameter `{{paramName}}` when calling `{{operationId}}`"
+            )
+{{/isPathParam}}
 {{/required}}
 {{/isNullable}}
 {{/allParams}}
-
-{{#allParams}}
-{{#-last}}
-{{/-last}}
-{{/allParams}}
-        collection_formats = {}
-
-        path_params = {}
-
-        store_id = None
 {{#pathParams}}
-{{^-first}}
-        if '{{paramName}}' in local_var_params:
-            path_params['{{baseName}}'] = local_var_params['{{paramName}}']{{#isArray}}
-            collection_formats['{{baseName}}'] = '{{collectionFormat}}'{{/isArray}}
-{{/-first}}
-
 {{#-first}}
         if self.api_client._get_store_id() is None:
             raise ApiValueError(
-                "Store ID expected in api_client's configuration when calling `{{operationId}}`")
+                "Store ID expected in api_client's configuration when calling `{{operationId}}`"
+            )
         store_id = self.api_client._get_store_id()
 {{/-first}}
-
 {{/pathParams}}
-
-        query_params = []
 {{#queryParams}}
-        if local_var_params.get('{{paramName}}') is not None:
-            query_params.append(('{{baseName}}', local_var_params['{{paramName}}'])){{#isArray}}
-            collection_formats['{{baseName}}'] = '{{collectionFormat}}'{{/isArray}}
+{{#-first}}
+        query_params = []
+{{/-first}}
+        if local_var_params.get("{{paramName}}") is not None:
+            query_params.append(("{{baseName}}", local_var_params["{{paramName}}"]))
 {{/queryParams}}
-
-        header_params = dict(local_var_params.get('_headers', {}))
-{{#headerParams}}
-        if '{{paramName}}' in local_var_params:
-            header_params['{{baseName}}'] = local_var_params['{{paramName}}']{{#isArray}}
-            collection_formats['{{baseName}}'] = '{{collectionFormat}}'{{/isArray}}
-{{/headerParams}}
-
-        form_params = []
-        local_var_files = {}
-{{#formParams}}
-        if '{{paramName}}' in local_var_params:
-            {{^isFile}}form_params.append(('{{baseName}}', local_var_params['{{paramName}}'])){{/isFile}}{{#isFile}}local_var_files['{{baseName}}'] = local_var_params['{{paramName}}']{{/isFile}}{{#isArray}}
-            collection_formats['{{baseName}}'] = '{{collectionFormat}}'{{/isArray}}
-{{/formParams}}
-
-        body_params = None
+        return await self._execute(
+            method="{{httpMethod}}",
+            path={{#pathParams}}{{#-first}}f"{{/-first}}{{/pathParams}}{{^pathParams}}"{{/pathParams}}{{{path}}}",
+            operation_name="{{operationId}}",
+{{#returnType}}
+{{#responses}}
+{{#-first}}
+            response_types_map={
+{{/-first}}
+{{^isWildcard}}
+                {{code}}: {{#dataType}}"{{.}}"{{/dataType}}{{^dataType}}None{{/dataType}},
+{{/isWildcard}}
+{{#-last}}
+            },
+{{/-last}}
+{{/responses}}
+{{/returnType}}
+{{^returnType}}
+            response_types_map={},
+{{/returnType}}
 {{#bodyParam}}
-        if '{{paramName}}' in local_var_params:
-            body_params = local_var_params['{{paramName}}']
+            body=local_var_params.get("{{paramName}}"),
 {{/bodyParam}}
-        {{#hasProduces}}
-        # HTTP header `Accept`
-        header_params['Accept'] = self.api_client.select_header_accept(
-            [{{#produces}}'{{{mediaType}}}'{{^-last}}, {{/-last}}{{/produces}}])
-
-        {{/hasProduces}}
-        {{#hasConsumes}}
-        # HTTP header `Content-Type`
-        content_types_list = local_var_params.get('_content_type', self.api_client.select_header_content_type([{{#consumes}}'{{{mediaType}}}'{{^-last}}, {{/-last}}{{/consumes}}],'{{httpMethod}}', body_params))
-        if content_types_list:
-                header_params['Content-Type'] = content_types_list
-
-        {{/hasConsumes}}
-        # Authentication setting
-        auth_settings = [{{#authMethods}}'{{name}}'{{^-last}}, {{/-last}}{{/authMethods}}]
-
-        {{#returnType}}
-        {{#responses}}
-        {{#-first}}
-        response_types_map = {
-        {{/-first}}
-            {{^isWildcard}}
-            {{code}}: {{#dataType}}"{{.}}"{{/dataType}}{{^dataType}}None{{/dataType}},
-            {{/isWildcard}}
-        {{#-last}}
-        }
-        {{/-last}}
-        {{/responses}}
-        {{/returnType}}
-        {{^returnType}}
-        response_types_map = {}
-        {{/returnType}}
-
-        telemetry_attributes: dict[TelemetryAttribute, str | bool | int | float] = {
-            TelemetryAttributes.fga_client_request_method: "{{operationId}}",
-            TelemetryAttributes.fga_client_request_store_id: self.api_client.get_store_id(),
-            TelemetryAttributes.fga_client_request_model_id: local_var_params.get(
-                "authorization_model_id", ""
-            ),
-        }
-
-        telemetry_attributes = TelemetryAttributes.fromBody(
-            body=body_params,
-            attributes=telemetry_attributes,
-        )
-
-        return {{#asyncio}}await ({{/asyncio}}self.api_client.call_api(
-            '{{{path}}}'.replace('{store_id}', store_id), '{{httpMethod}}',
-            path_params,
-            query_params,
-            header_params,
-            body=body_params,
-            post_params=form_params,
-            files=local_var_files,
-            response_types_map=response_types_map,
-            auth_settings=auth_settings,
-            async_req=local_var_params.get('async_req'),
-            _return_http_data_only=local_var_params.get('_return_http_data_only'),
-            _preload_content=local_var_params.get('_preload_content', True),
-            _request_timeout=local_var_params.get('_request_timeout'),
-            _retry_params=local_var_params.get('_retry_params'),
-            {{#servers.0}}
-            _host=local_var_host,
-            {{/servers.0}}
-            collection_formats=collection_formats,
-            _request_auth=local_var_params.get('_request_auth'),
-            _oauth2_client=self._oauth2_client,
-            _telemetry_attributes=telemetry_attributes,
-            _streaming=local_var_params.get('_streaming', False){{#asyncio}}){{/asyncio}}
+{{#queryParams}}
+{{#-first}}
+            query_params=query_params,
+{{/-first}}
+{{/queryParams}}
+            headers=local_var_params.get("_headers"),
+            options=local_var_params,
         )
 {{/operation}}
 {{/operations}}
