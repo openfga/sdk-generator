@@ -53,8 +53,6 @@ jobs:
     if: inputs.trigger-event == 'workflow_dispatch' || inputs.trigger-event == 'push'
 
     outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name:        ${{ steps.release.outputs.tag_name }}
       pr_number:       ${{ steps.release.outputs.pr_number }}
 
     steps:
@@ -143,12 +141,6 @@ jobs:
           git_user_signingkey: true
           git_commit_gpgsign:  true
 
-      - name: Configure Git
-        run: |
-          git config user.name openfga-releaser-bot
-          git config user.email ${{ secrets.GPG_EMAIL }}
-          git config tag.gpgSign true
-
       - name: Push Release-As commit
         if: >-
           inputs.trigger-event == 'workflow_dispatch' && (
@@ -175,8 +167,8 @@ jobs:
       # ── key fix: target-branch depends on what triggered the run ────────
       #
       #   workflow_dispatch  →  target release branch (build the PR)
-      #   push to main       →  target main branch    (detect the merged PR
-      #                         and emit release_created=true)
+      #   push to main       →  target main branch    (detect the merged PR;
+      #                         post-release job handles tagging and release)
       - name: Resolve target branch
         id: target
         run: |
@@ -194,6 +186,7 @@ jobs:
           config-file:   release-please-config.json
           manifest-file: .release-please-manifest.json
           target-branch: ${{ steps.target.outputs.branch }}
+          skip-github-release: 'true'
 
       - name: Retarget release PR to main
         if: inputs.trigger-event == 'workflow_dispatch'
@@ -233,7 +226,7 @@ jobs:
   # ── post-release: fires when the release PR is merged into main ──────────
   post-release:
     needs: release-please
-    if: needs.release-please.outputs.release_created == 'true'
+    if: inputs.trigger-event == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -251,9 +244,126 @@ jobs:
         with:
           token:       ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
+          fetch-tags:  true
+
+      - name: Determine tag name
+        id: tag
+        run: |
+          VERSION=$(jq -r '.["."]' .release-please-manifest.json)
+          if [[ -z "$VERSION" || "$VERSION" == "null" ]]; then
+            echo "::error::Could not read version from .release-please-manifest.json"
+            exit 1
+          fi
+          echo "name=v${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Resolved tag from manifest: v${VERSION}"
+
+      - name: Check if release is needed
+        id: check
+        env:
+          TAG_NAME: ${{ steps.tag.outputs.name }}
+        run: |
+          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Tag $TAG_NAME already exists — nothing to release."
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Tag $TAG_NAME does not exist — proceeding with release."
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Import GPG key
+        if: steps.check.outputs.needed == 'true'
+        uses: crazy-max/ghaction-import-gpg@2dc316deee8e90f13e1a351ab510b4d5bc0c82cd # v7.0.0
+        with:
+          gpg_private_key:     ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase:          ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign:  true
+          git_tag_gpgsign:     true
+
+      - name: Create and push GPG-signed tag
+        if: steps.check.outputs.needed == 'true'
+        env:
+          TAG_NAME: ${{ steps.tag.outputs.name }}
+        run: |
+          git tag -s "$TAG_NAME" -m "Release ${TAG_NAME}"
+          git push origin "$TAG_NAME"
+          echo "Pushed GPG-signed tag $TAG_NAME"
+
+      - name: Build release notes
+        if: steps.check.outputs.needed == 'true'
+        id: notes
+        env:
+          TAG_NAME: ${{ steps.tag.outputs.name }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          VERSION="${TAG_NAME#v}"
+
+          # Extract the section for this version from CHANGELOG.md
+          CHANGELOG_NOTES=""
+          if [[ -f CHANGELOG.md ]]; then
+            # Escape dots in the version for safe regex matching (handles pre-release like 1.2.3-beta.1)
+            ESCAPED_VER=$(echo "$VERSION" | sed 's/\./\\./g')
+            CHANGELOG_NOTES=$(awk -v pat="^## \\[${ESCAPED_VER}\\]" \
+              '$0 ~ pat {found=1; next}
+               found && /^## \[[0-9]/{exit}
+               found && /^### \[[0-9]/{exit}
+               found{print}' CHANGELOG.md)
+          fi
+
+          # Get GitHub auto-generated notes (new contributor shout-outs, etc.)
+          PREV_TAG=$(git tag -l 'v*' --sort=-v:refname | grep -v "^${TAG_NAME}$" | head -1)
+          GH_NOTES=""
+          if [[ -n "$PREV_TAG" ]]; then
+            GH_NOTES=$(gh api repos/${{ github.repository }}/releases/generate-notes \
+              -X POST \
+              -f tag_name="$TAG_NAME" \
+              -f previous_tag_name="$PREV_TAG" \
+              --jq '.body' 2>/dev/null || true)
+          fi
+
+          # Combine: changelog first, then GitHub auto-generated notes
+          {
+            if [[ -n "$CHANGELOG_NOTES" ]]; then
+              echo "$CHANGELOG_NOTES"
+            fi
+            if [[ -n "$GH_NOTES" ]]; then
+              echo ""
+              echo "$GH_NOTES"
+            fi
+          } > /tmp/release-notes.md
+
+          # If both are empty, fall back to --generate-notes at release time
+          if [[ ! -s /tmp/release-notes.md ]]; then
+            echo "generate-notes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "generate-notes=false" >> "$GITHUB_OUTPUT"
+            echo "--- Release notes preview ---"
+            cat /tmp/release-notes.md
+          fi
+
+      - name: Create GitHub release
+        if: steps.check.outputs.needed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          TAG_NAME: ${{ steps.tag.outputs.name }}
+        run: |
+          if [[ "${{ steps.notes.outputs.generate-notes }}" == "true" ]]; then
+            gh release create "$TAG_NAME" \
+              --repo "${{ github.repository }}" \
+              --title "$TAG_NAME" \
+              --verify-tag \
+              --generate-notes
+          else
+            gh release create "$TAG_NAME" \
+              --repo "${{ github.repository }}" \
+              --title "$TAG_NAME" \
+              --verify-tag \
+              --notes-file /tmp/release-notes.md
+          fi
 
       # Reset release branch to match main so the next cycle starts clean
       - name: Sync release branch to main
+        if: steps.check.outputs.needed == 'true'
         run: |
           git fetch origin main
           git checkout release 2>/dev/null || git checkout -b release
@@ -261,9 +371,10 @@ jobs:
           git push origin release --force
 
       - name: Post-release summary
+        if: steps.check.outputs.needed == 'true'
         run: |
-          echo "### Release ${{ needs.release-please.outputs.tag_name }} published" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Release ${{ steps.tag.outputs.name }} published" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "Tag \`${{ needs.release-please.outputs.tag_name }}\` is now available." >> "$GITHUB_STEP_SUMMARY"
+          echo "GPG-signed tag \`${{ steps.tag.outputs.name }}\` has been pushed." >> "$GITHUB_STEP_SUMMARY"
+          echo "GitHub release created from the signed tag." >> "$GITHUB_STEP_SUMMARY"
           echo "\`release\` branch has been reset to \`main\` for the next cycle." >> "$GITHUB_STEP_SUMMARY"
-          echo "Add downstream steps here (e.g. publish packages, deploy)." >> "$GITHUB_STEP_SUMMARY"
