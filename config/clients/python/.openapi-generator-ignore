@@ -17,3 +17,4 @@ openfga_sdk/configuration.py
 openfga_sdk/constants.py
 openfga_sdk/exceptions.py
 openfga_sdk/rest.py
+VERSION.txt
