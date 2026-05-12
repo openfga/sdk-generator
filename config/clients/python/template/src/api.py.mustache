@@ -548,17 +548,9 @@ class {{classname}}:
             path={{#pathParams}}{{#-first}}f"{{/-first}}{{/pathParams}}{{^pathParams}}"{{/pathParams}}{{{path}}}",
             operation_name="{{operationId}}",
 {{#returnType}}
-{{#responses}}
-{{#-first}}
-            response_types_map={
-{{/-first}}
-{{^isWildcard}}
-                {{code}}: {{#dataType}}"{{.}}"{{/dataType}}{{^dataType}}None{{/dataType}},
-{{/isWildcard}}
-{{#-last}}
-            },
-{{/-last}}
-{{/responses}}
+{{#responses}}{{#is2xx}}
+            response_types_map={ {{code}}: {{#dataType}}"{{.}}"{{/dataType}}{{^dataType}}None{{/dataType}}},
+{{/is2xx}}{{/responses}}
 {{/returnType}}
 {{^returnType}}
             response_types_map={},
