@@ -29,8 +29,8 @@ jobs:
           REPOSITORY: ${{ github.repository }}
           PRERELEASE: ${{ steps.check.outputs.prerelease }}
         run: |
-          FLAGS="--draft=false"
+          FLAGS=(--draft=false)
           if [[ "$PRERELEASE" == "true" ]]; then
-            FLAGS="$FLAGS --prerelease --latest=false"
+            FLAGS+=(--prerelease --latest=false)
           fi
-          gh release edit "$REF_NAME" --repo "$REPOSITORY" $FLAGS
+          gh release edit "$REF_NAME" --repo "$REPOSITORY" "${FLAGS[@]}"
