@@ -70,6 +70,7 @@ jobs:
         with:
           token:       ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
+          fetch-tags:  true
 
       # ── workflow_dispatch only: rebuild release branch from latest main ──
       - name: Prepare release branch
@@ -146,7 +147,7 @@ jobs:
       - name: Configure Git
         run: |
           git config user.name openfga-releaser-bot
-          git config user.email ${{ secrets.GPG_EMAIL }}
+          git config user.email ${{ steps.import-gpg.outputs.email }}
           git config tag.gpgSign true
 
       - name: Push Release-As commit
@@ -231,9 +232,16 @@ jobs:
           echo "Done. PR #$PR now targets main with correct head branch."
 
   # ── post-release: fires when the release PR is merged into main ──────────
+  # release-please-config.json sets "skip-github-release": true, so the action
+  # only lands the CHANGELOG/manifest bump. Here we create the GPG-signed tag
+  # and a *draft* GitHub Release. The draft is undrafted by the SDK's own
+  # publish workflow (triggered by the tag push) only after a successful
+  # publish to the package registry, via the reusable undraft-release.yml.
   post-release:
     needs: release-please
-    if: needs.release-please.outputs.release_created == 'true'
+    # The caller only invokes this workflow on push when the merge commit title
+    # starts with "release:", so a manifest change is guaranteed here.
+    if: inputs.trigger-event == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -252,6 +260,136 @@ jobs:
           token:       ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
 
+      - name: Import GPG key
+        id: import-gpg
+        uses: crazy-max/ghaction-import-gpg@2dc316deee8e90f13e1a351ab510b4d5bc0c82cd # v7.0.0
+        with:
+          gpg_private_key:     ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase:          ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign:  true
+
+      - name: Configure Git
+        run: |
+          git config user.name openfga-releaser-bot
+          git config user.email ${{ steps.import-gpg.outputs.email }}
+          git config tag.gpgSign true
+
+      - name: Detect released package from manifest diff
+        id: parse-release
+        run: |
+          MANIFEST=".release-please-manifest.json"
+          PREV_MANIFEST="$(mktemp)"
+
+          # Snapshot the previous manifest so the parse script can read it as a
+          # plain file (no shell-escaping concerns).
+          git show "HEAD~1:$MANIFEST" >"$PREV_MANIFEST"
+
+          RELEASES=$(bash .github/workflows/scripts/parse-release.sh \
+            manifest-diff "$MANIFEST" "$PREV_MANIFEST")
+
+          echo "Detected releases:"
+          jq -r '.[] | "  - \(.tag_name)"' <<<"$RELEASES"
+
+          echo "releases=$RELEASES" >>"$GITHUB_OUTPUT"
+
+      - name: Create signed tag and draft GitHub release
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPO:     ${{ github.repository }}
+        run: |
+          RELEASES='${{ steps.parse-release.outputs.releases }}'
+
+          echo "$RELEASES" | jq -c '.[]' | while read -r ENTRY; do
+            PKG=$(jq -r '.component'     <<<"$ENTRY")
+            VERSION=$(jq -r '.version'   <<<"$ENTRY")
+            TAG_NAME=$(jq -r '.tag_name' <<<"$ENTRY")
+
+            echo "::group::$TAG_NAME"
+
+            # Single-package SDKs use the root component "." (CHANGELOG.md and
+            # tags live at the repo root). The non-root branch keeps the script
+            # forward-compatible with monorepo-style manifests.
+            if [[ "$PKG" == "." ]]; then
+              CHANGELOG="CHANGELOG.md"
+              TAG_GLOB="v*"
+            else
+              CHANGELOG="${PKG}/CHANGELOG.md"
+              TAG_GLOB="${PKG}/v*"
+            fi
+
+            # Extract release notes for this version from the CHANGELOG.
+            # Logic lives in scripts/parse-release.sh (unit-tested).
+            NOTES=$(bash .github/workflows/scripts/parse-release.sh \
+              changelog-notes "$CHANGELOG" "$VERSION")
+
+            # Create the GPG-signed tag (skip if it already exists) and push it.
+            # The push triggers the SDK's publish workflow.
+            if git rev-parse "refs/tags/$TAG_NAME" >/dev/null 2>&1; then
+              echo "Tag $TAG_NAME already exists — skipping tag creation."
+            else
+              git tag -s "$TAG_NAME" -m "Release ${TAG_NAME}"
+              git push origin "$TAG_NAME"
+            fi
+
+            # Find the previous tag so the auto-generated notes only cover
+            # commits since the last release.
+            git fetch --tags --quiet origin || true
+            PREV_TAG=$(git tag --list "$TAG_GLOB" --sort=-v:refname \
+              | grep -vFx "$TAG_NAME" \
+              | head -n1 || true)
+
+            echo "Previous tag: ${PREV_TAG:-<none>}"
+
+            # Build the JSON payload for the generate-notes API. Omit
+            # previous_tag_name when no prior tag exists — GitHub will then
+            # auto-detect a sensible baseline.
+            GEN_PAYLOAD=$(jq -nc \
+              --arg tag "$TAG_NAME" \
+              --arg target "main" \
+              --arg prev "$PREV_TAG" \
+              '{tag_name: $tag, target_commitish: $target}
+                + (if $prev != "" then {previous_tag_name: $prev} else {} end)')
+
+            AUTO_NOTES=$(gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              "repos/${REPO}/releases/generate-notes" \
+              --input - <<<"$GEN_PAYLOAD" \
+              --jq '.body' 2>/dev/null || true)
+
+            if [[ -n "$AUTO_NOTES" ]]; then
+              NOTES=$(printf '%s\n\n%s\n' "$NOTES" "$AUTO_NOTES")
+            else
+              echo "::warning::No auto-generated notes returned for $TAG_NAME — using changelog notes only."
+            fi
+
+            # Mark anything with a pre-release suffix (e.g. -beta.1) as a pre-release.
+            PRERELEASE_FLAG=()
+            if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              PRERELEASE_FLAG=(--prerelease)
+            fi
+
+            # Create the GitHub release as a draft. It is undrafted by the SDK's
+            # publish workflow only after a successful publish.
+            if gh release view "$TAG_NAME" --repo "$REPO" >/dev/null 2>&1; then
+              echo "Release $TAG_NAME already exists — updating notes."
+              gh release edit "$TAG_NAME" \
+                --repo "$REPO" \
+                --title "$TAG_NAME" \
+                --notes "$NOTES" \
+                --draft "${PRERELEASE_FLAG[@]}"
+            else
+              gh release create "$TAG_NAME" \
+                --repo "$REPO" \
+                --title "$TAG_NAME" \
+                --notes "$NOTES" \
+                --draft "${PRERELEASE_FLAG[@]}"
+            fi
+
+            echo "::endgroup::"
+          done
+
       # Reset release branch to match main so the next cycle starts clean
       - name: Sync release branch to main
         run: |
@@ -262,8 +400,10 @@ jobs:
 
       - name: Post-release summary
         run: |
-          echo "### Release ${{ needs.release-please.outputs.tag_name }} published" >> "$GITHUB_STEP_SUMMARY"
+          RELEASES='${{ steps.parse-release.outputs.releases }}'
+          echo "### Releases drafted" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "Tag \`${{ needs.release-please.outputs.tag_name }}\` is now available." >> "$GITHUB_STEP_SUMMARY"
+          echo "$RELEASES" | jq -r '.[] | "- `\(.tag_name)` — signed tag pushed, draft release created"' >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "The publish workflow will undraft each release after a successful publish to the package registry." >> "$GITHUB_STEP_SUMMARY"
           echo "\`release\` branch has been reset to \`main\` for the next cycle." >> "$GITHUB_STEP_SUMMARY"
-          echo "Add downstream steps here (e.g. publish packages, deploy)." >> "$GITHUB_STEP_SUMMARY"
