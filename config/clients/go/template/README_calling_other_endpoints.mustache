@@ -1,0 +1,145 @@
+In certain cases you may want to call other APIs not yet wrapped by the SDK. You can do so by using the `APIExecutor` available from the `fgaClient`.
+The `APIExecutor` allows you to make raw HTTP calls to any OpenFGA endpoint by specifying the operation name, HTTP method, path, parameters, body, and headers, while still honoring the client configuration (authentication, telemetry, retries, and error handling).
+
+This is useful when:
+
+- you want to call a new endpoint that is not yet supported by the SDK
+- you are using an earlier version of the SDK that doesn't yet support a particular endpoint
+- you have a custom endpoint deployed that extends the OpenFGA API
+
+In all cases, you initialize the SDK the same way as usual, and then get the `APIExecutor` from the `fgaClient` instance.
+
+```go
+// Initialize the client, same as above
+fgaClient, err := NewSdkClient(&ClientConfiguration{...})
+
+// Get the generic API executor
+executor := fgaClient.GetAPIExecutor()
+
+// Custom new endpoint that doesn't exist in the SDK yet
+requestBody := map[string]interface{}{
+    "user":     "user:bob",
+    "action":   "custom_action",
+    "resource": "resource:123",
+}
+
+// Build the request
+request := openfga.NewAPIExecutorRequestBuilder("CustomEndpoint", http.MethodPost, "/stores/{store_id}/custom-endpoint").
+    WithPathParameter("store_id", storeID).
+    WithQueryParameter("page_size", "20").
+    WithQueryParameter("continuation_token", "eyJwayI6...").
+    WithBody(requestBody).
+    WithHeader("X-Experimental-Feature", "enabled").
+    Build()
+```
+
+#### Example: Calling a new "Custom Endpoint" endpoint and handling raw response
+
+```go
+// Get raw response without automatic decoding
+rawResponse, err := executor.Execute(ctx, request)
+
+if err != nil {
+    log.Fatalf("Custom endpoint failed: %v", err)
+}
+
+// Manually decode the response
+var result map[string]interface{}
+if err := json.Unmarshal(rawResponse.Body, &result); err != nil {
+    log.Fatalf("Failed to decode: %v", err)
+}
+
+fmt.Printf("Response: %+v\n", result)
+
+// You can access fields like headers, status code, etc. from rawResponse:
+fmt.Printf("Status Code: %d\n", rawResponse.StatusCode)
+fmt.Printf("Headers: %+v\n", rawResponse.Headers)
+```
+
+#### Example: Calling a new "Custom Endpoint" endpoint and decoding response into a struct
+
+```go
+// Define a struct to hold the response
+type CustomEndpointResponse struct {
+    Allowed bool   `json:"allowed"`
+    Reason  string `json:"reason"`
+}
+var customEndpointResponse CustomEndpointResponse
+
+// Get raw response decoded into CustomEndpointResponse struct
+rawResponse, err := executor.ExecuteWithDecode(ctx, request, &customEndpointResponse) // Pass pointer to struct for decoding
+
+if err != nil {
+    log.Fatalf("Custom endpoint failed: %v", err)
+}
+
+fmt.Printf("Response: %+v\n", customEndpointResponse)
+
+// You can access fields like headers, status code, etc. from rawResponse:
+fmt.Printf("Status Code: %d\n", rawResponse.StatusCode)
+fmt.Printf("Headers: %+v\n", rawResponse.Headers)
+```
+
+#### Example: Calling streaming endpoints (e.g., StreamedListObjects)
+
+For streaming API endpoints, use the `ExecuteStreaming` method. This is useful for endpoints like `StreamedListObjects` that stream results as they are computed rather than waiting for all results before responding.
+
+```go
+// Get the generic API executor
+executor := fgaClient.GetAPIExecutor()
+
+// Build a streaming request for StreamedListObjects
+request := openfga.NewAPIExecutorRequestBuilder("StreamedListObjects", http.MethodPost, "/stores/{store_id}/streamed-list-objects").
+    WithPathParameter("store_id", storeID).
+    WithBody(openfga.ListObjectsRequest{
+        AuthorizationModelId: openfga.PtrString(modelID),
+        Type:                 "document",
+        Relation:             "viewer",
+        User:                 "user:alice",
+    }).
+    Build()
+
+// Execute the streaming request
+// The bufferSize parameter controls how many results can be buffered in the channel
+channel, err := executor.ExecuteStreaming(ctx, request, openfga.DefaultStreamBufferSize)
+if err != nil {
+    log.Fatalf("Streaming request failed: %v", err)
+}
+defer channel.Close() // Always close the channel when done
+
+// Process results as they stream in
+for {
+    select {
+    case result, ok := <-channel.Results:
+        if !ok {
+            // Results channel closed, stream completed
+            // Check for any final errors
+            select {
+            case err := <-channel.Errors:
+                if err != nil {
+                    log.Fatalf("Stream error: %v", err)
+                }
+            default:
+            }
+            fmt.Println("Stream completed successfully")
+            return
+        }
+        // Decode the raw JSON bytes into a typed response
+        var response openfga.StreamedListObjectsResponse
+        if err := json.Unmarshal(result, &response); err != nil {
+            log.Fatalf("Failed to decode stream result: %v", err)
+        }
+        fmt.Printf("Received object: %s\n", response.Object)
+    case err := <-channel.Errors:
+        if err != nil {
+            log.Fatalf("Stream error: %v", err)
+        }
+    }
+}
+```
+
+The `ExecuteStreaming` method returns an `APIExecutorStreamingChannel` with:
+- `Results chan []byte`: Raw JSON bytes for each streamed result
+- `Errors chan error`: Any errors that occur during streaming
+- `Close()`: Method to cancel streaming and cleanup resources
+
