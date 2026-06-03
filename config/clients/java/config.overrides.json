@@ -3,7 +3,7 @@
   "gitRepoId": "java-sdk",
   "artifactId": "openfga-sdk",
   "groupId": "dev.openfga",
-  "packageVersion": "0.9.3",
+  "packageVersion": "0.9.9",
   "basePackage": "dev.openfga.sdk",
   "apiPackage": "dev.openfga.sdk.api",
   "authPackage": "dev.openfga.sdk.api.auth",
@@ -32,6 +32,8 @@
   "enumUnknownDefaultCase": true,
   "allowUnicodeIdentifiers": true,
   "caseInsensitiveResponseHeaders": true,
+  "supportsCallingOtherEndpoints": true,
+  "hideClientBatchCheckToc": true,
   "openTelemetryDocumentation": "docs/OpenTelemetry.md",
   "files": {
     "src/main/constants/FgaConstants.mustache": {
