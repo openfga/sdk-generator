@@ -32,6 +32,8 @@
   "enumUnknownDefaultCase": true,
   "allowUnicodeIdentifiers": true,
   "caseInsensitiveResponseHeaders": true,
+  "supportsCallingOtherEndpoints": true,
+  "hideClientBatchCheckToc": true,
   "openTelemetryDocumentation": "docs/OpenTelemetry.md",
   "files": {
     "src/main/constants/FgaConstants.mustache": {

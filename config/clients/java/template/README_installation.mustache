@@ -1,23 +1,28 @@
 The {{appName}} Java SDK is available on [Maven Central](https://central.sonatype.com/).
 
-The OpenFGA Java SDK currently supports **Java 11** as the minimum JDK version.
+The OpenFGA Java SDK currently supports **Java 17** as the minimum JDK version.
 
 It can be used with the following:
 
 * Gradle (Groovy)
 
+<!-- x-release-please-start-version -->
 ```groovy
 implementation '{{groupId}}:{{artifactId}}:{{packageVersion}}'
 ```
+<!-- x-release-please-end -->
 
 * Gradle (Kotlin)
 
+<!-- x-release-please-start-version -->
 ```kotlin
 implementation("{{groupId}}:{{artifactId}}:{{packageVersion}}")
 ```
+<!-- x-release-please-end -->
 
 * Apache Maven
 
+<!-- x-release-please-start-version -->
 ```xml
 <dependency>
     <groupId>{{groupId}}</groupId>
@@ -25,21 +30,28 @@ implementation("{{groupId}}:{{artifactId}}:{{packageVersion}}")
     <version>{{packageVersion}}</version>
 </dependency>
 ```
+<!-- x-release-please-end -->
 
 * Ivy
 
+<!-- x-release-please-start-version -->
 ```xml
 <dependency org="{{groupId}}" name="{{artifactId}}" rev="{{packageVersion}}"/>
 ```
+<!-- x-release-please-end -->
 
 * SBT
 
+<!-- x-release-please-start-version -->
 ```scala
 libraryDependencies += "{{groupId}}" % "{{artifactId}}" % "{{packageVersion}}"
 ```
+<!-- x-release-please-end -->
 
 * Leiningen
 
+<!-- x-release-please-start-version -->
 ```edn
 [{{groupId}}/{{artifactId}} "{{packageVersion}}"]
 ```
+<!-- x-release-please-end -->
