@@ -6,34 +6,52 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
-	"net/url"
-	"strings"
 )
 
-// StreamResult represents a generic streaming result wrapper with either a result or an error
+// DefaultStreamBufferSize is the default buffer size for streaming channels.
+const DefaultStreamBufferSize = 10
+
+// StreamResult represents a streaming result wrapper with either a result or an error.
+// This is the format used by OpenFGA's streaming responses.
 type StreamResult[T any] struct {
 	Result *T      `json:"result,omitempty" yaml:"result,omitempty"`
 	Error  *Status `json:"error,omitempty" yaml:"error,omitempty"`
 }
 
-// StreamingChannel represents a generic channel for streaming responses
+// StreamStatusError is returned when the server sends an error object inside a streaming response.
+// Callers can type-assert to access the full Status (code, message, details) for classification.
+type StreamStatusError struct {
+	Status *Status
+}
+
+func (e *StreamStatusError) Error() string {
+	if e.Status != nil && e.Status.Message != nil {
+		return *e.Status.Message
+	}
+	return "stream error"
+}
+
+// StreamingChannel represents a generic channel for streaming responses.
+// It provides typed results directly decoded from the stream.
 type StreamingChannel[T any] struct {
 	Results chan T
 	Errors  chan error
 	cancel  context.CancelFunc
 }
 
-// Close cancels the streaming context and cleans up resources
+// Close cancels the streaming context and cleans up resources.
 func (s *StreamingChannel[T]) Close() {
 	if s.cancel != nil {
 		s.cancel()
 	}
 }
 
-// ProcessStreamingResponse processes an HTTP response as a streaming NDJSON response
-// and returns a StreamingChannel with results and errors
+// ProcessStreamingResponse processes an HTTP streaming response
+// and returns a StreamingChannel with typed results and errors.
+//
+// This is a convenience wrapper around processStreamingResponseRaw that adds automatic
+// JSON unmarshalling of the raw bytes into the target type T.
 //
 // Parameters:
 //   - ctx: The context for cancellation
@@ -48,7 +66,7 @@ func ProcessStreamingResponse[T any](ctx context.Context, httpResponse *http.Res
 
 	// Use default buffer size of 10 if not specified or invalid
 	if bufferSize <= 0 {
-		bufferSize = 10
+		bufferSize = DefaultStreamBufferSize
 	}
 
 	channel := &StreamingChannel[T]{
@@ -62,10 +80,22 @@ func ProcessStreamingResponse[T any](ctx context.Context, httpResponse *http.Res
 		return nil, errors.New("response or response body is nil")
 	}
 
+	doneCh := make(chan struct{})
+
+	// Interrupt blocking scanner.Scan() when the context is cancelled.
+	go func() {
+		select {
+		case <-streamCtx.Done():
+			_ = httpResponse.Body.Close()
+		case <-doneCh:
+		}
+	}()
+
 	go func() {
 		defer close(channel.Results)
 		defer close(channel.Errors)
 		defer cancel()
+		defer close(doneCh)
 		defer func() { _ = httpResponse.Body.Close() }()
 
 		scanner := bufio.NewScanner(httpResponse.Body)
@@ -91,11 +121,7 @@ func ProcessStreamingResponse[T any](ctx context.Context, httpResponse *http.Res
 				}
 
 				if streamResult.Error != nil {
-					msg := "stream error"
-					if streamResult.Error.Message != nil {
-						msg = *streamResult.Error.Message
-					}
-					channel.Errors <- errors.New(msg)
+					channel.Errors <- &StreamStatusError{Status: streamResult.Error}
 					return
 				}
 
@@ -122,121 +148,3 @@ func ProcessStreamingResponse[T any](ctx context.Context, httpResponse *http.Res
 
 	return channel, nil
 }
-
-// StreamedListObjectsChannel maintains backward compatibility with the old channel structure
-type StreamedListObjectsChannel struct {
-	Objects chan StreamedListObjectsResponse
-	Errors  chan error
-	cancel  context.CancelFunc
-}
-
-// Close cancels the streaming context and cleans up resources
-func (s *StreamedListObjectsChannel) Close() {
-	if s.cancel != nil {
-		s.cancel()
-	}
-}
-
-// ProcessStreamedListObjectsResponse processes a StreamedListObjects response
-// This is a backward compatibility wrapper around ProcessStreamingResponse
-func ProcessStreamedListObjectsResponse(ctx context.Context, httpResponse *http.Response, bufferSize int) (*StreamedListObjectsChannel, error) {
-	channel, err := ProcessStreamingResponse[StreamedListObjectsResponse](ctx, httpResponse, bufferSize)
-	if err != nil {
-		return nil, err
-	}
-
-	// Create a new channel with the old field name for backward compatibility
-	compatChannel := &StreamedListObjectsChannel{
-		Objects: channel.Results,
-		Errors:  channel.Errors,
-		cancel:  channel.cancel,
-	}
-
-	return compatChannel, nil
-}
-
-// ExecuteStreamedListObjects executes a StreamedListObjects request
-func ExecuteStreamedListObjects(client *APIClient, ctx context.Context, storeId string, body ListObjectsRequest, options RequestOptions) (*StreamedListObjectsChannel, error) {
-	return ExecuteStreamedListObjectsWithBufferSize(client, ctx, storeId, body, options, 0)
-}
-
-// ExecuteStreamedListObjectsWithBufferSize executes a StreamedListObjects request with a custom buffer size
-func ExecuteStreamedListObjectsWithBufferSize(client *APIClient, ctx context.Context, storeId string, body ListObjectsRequest, options RequestOptions, bufferSize int) (*StreamedListObjectsChannel, error) {
-	channel, err := executeStreamingRequest[ListObjectsRequest, StreamedListObjectsResponse](
-		client,
-		ctx,
-		"/stores/{store_id}/streamed-list-objects",
-		storeId,
-		body,
-		options,
-		bufferSize,
-		"StreamedListObjects",
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	// Convert to backward-compatible channel structure
-	return &StreamedListObjectsChannel{
-		Objects: channel.Results,
-		Errors:  channel.Errors,
-		cancel:  channel.cancel,
-	}, nil
-}
-
-// executeStreamingRequest is a generic function to execute streaming requests
-func executeStreamingRequest[TReq any, TRes any](
-	client *APIClient,
-	ctx context.Context,
-	pathTemplate string,
-	storeId string,
-	body TReq,
-	options RequestOptions,
-	bufferSize int,
-	operationName string,
-) (*StreamingChannel[TRes], error) {
-	if storeId == "" {
-		return nil, reportError("storeId is required and must be specified")
-	}
-
-	path := pathTemplate
-	path = strings.ReplaceAll(path, "{"+"store_id"+"}", url.PathEscape(parameterToString(storeId, "")))
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-
-	localVarHTTPContentType := "application/json"
-	localVarHeaderParams["Content-Type"] = localVarHTTPContentType
-	localVarHeaderParams["Accept"] = "application/x-ndjson"
-
-	for header, val := range options.Headers {
-		localVarHeaderParams[header] = val
-	}
-
-	req, err := client.prepareRequest(ctx, path, http.MethodPost, body, localVarHeaderParams, localVarQueryParams)
-	if err != nil {
-		return nil, err
-	}
-
-	httpResponse, err := client.callAPI(req)
-    if err != nil {
-   		return nil, err
-    }
-    if httpResponse == nil {
-    	return nil, errors.New("nil HTTP response from API client")
-    }
-
-	if httpResponse.StatusCode >= http.StatusMultipleChoices {
-		responseBody, readErr := io.ReadAll(httpResponse.Body)
-		_ = httpResponse.Body.Close()
-		if readErr != nil {
-			return nil, readErr
-		}
-		err = client.handleAPIError(httpResponse, responseBody, body, operationName, storeId)
-		return nil, err
-	}
-
-	return ProcessStreamingResponse[TRes](ctx, httpResponse, bufferSize)
-}
-
-
