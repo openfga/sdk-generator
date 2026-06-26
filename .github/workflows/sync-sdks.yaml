@@ -1,0 +1,287 @@
+name: Sync SDKs with generator
+
+# Regenerates the SDKs when generator templates/configs change on main and
+# opens a PR in the SDK repo if the output differs.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "config/**"
+      - "scripts/**"
+      - "docker/**"
+      - "Makefile"
+  workflow_dispatch:
+    inputs:
+      sdk:
+        description: "SDK to sync"
+        type: choice
+        default: all
+        options:
+          - all
+          - js
+          - go
+          - dotnet
+          - python
+          - java
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-sdks
+  cancel-in-progress: true
+
+env:
+  SYNC_BRANCH: sync/sdk-generator
+  PR_TITLE: "chore(sync): sync with generator"
+  PR_LABEL: "sync-with-generator"
+
+jobs:
+  # On manual dispatch, narrow the matrix to the selected SDK.
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set.outputs.matrix }}
+    steps:
+      - name: Compute matrix
+        id: set
+        env:
+          SELECTED: ${{ github.event_name == 'workflow_dispatch' && inputs.sdk || 'all' }}
+        run: |
+          ALL='[
+            {"language":"js","repo":"js-sdk","make_target":"test-client-js"},
+            {"language":"go","repo":"go-sdk","make_target":"test-client-go"},
+            {"language":"dotnet","repo":"dotnet-sdk","make_target":"test-client-dotnet","openapi_generator_tag":"v7.11.0"},
+            {"language":"python","repo":"python-sdk","make_target":"test-client-python"},
+            {"language":"java","repo":"java-sdk","make_target":"test-client-java"}
+          ]'
+
+          if [[ "$SELECTED" == "all" ]]; then
+            MATRIX=$(jq -c . <<<"$ALL")
+          else
+            MATRIX=$(jq -c --arg l "$SELECTED" '[ .[] | select(.language == $l) ]' <<<"$ALL")
+          fi
+
+          echo "Selected: $SELECTED"
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+
+  sync:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+
+    steps:
+      - name: Checkout sdk-generator
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+
+      # No token needed to clone (public repos). Credentials are not persisted
+      # so the push below uses the app token.
+      - name: Checkout SDK repo
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          repository: ${{ github.repository_owner }}/${{ matrix.repo }}
+          path: clients/fga-${{ matrix.language }}-sdk
+          persist-credentials: false
+
+      - name: Specify python version
+        if: matrix.language == 'python'
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.10"
+
+      - name: Set up JDK
+        if: matrix.language == 'java'
+        uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287 # v5.3.0
+        with:
+          java-version: 11
+          distribution: "temurin"
+          cache: "gradle"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      # If this fails, the job stops here and no PR is created or updated.
+      - name: Regenerate and test SDK
+        run: |
+          # OPEN_API_REF is only overridden when an explicit ref is provided,
+          # otherwise the generator's pinned default (in the Makefile) is used.
+          if [[ -n "$OPENAPI_REF" ]]; then
+            echo "Generating against OpenFGA API ref: $OPENAPI_REF"
+            make ${{ matrix.make_target }} OPEN_API_REF="$OPENAPI_REF"
+          else
+            make ${{ matrix.make_target }}
+          fi
+        env:
+          OPENAPI_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.openapi_ref || '' }}
+          OPENAPI_GENERATOR_CLI_DOCKER_TAG: ${{ matrix.openapi_generator_tag || 'v6.4.0' }}
+
+      - name: Check for SDK changes
+        id: diff
+        working-directory: clients/fga-${{ matrix.language }}-sdk
+        run: |
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "CLEAN: no changes found"
+            echo "dirty=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "DIRTY: changes found"
+          git status
+          git --no-pager diff
+          echo "dirty=true" >> "$GITHUB_OUTPUT"
+
+      # Minted after the build since app tokens expire after 1 hour.
+      - name: Generate token
+        if: steps.diff.outputs.dirty == 'true'
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ secrets.RELEASER_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASER_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ matrix.repo }}
+
+      # Runs from main use the canonical sync branch and a regular PR.
+      # Runs dispatched from other branches (WIP previews) get their own
+      # branch and a draft PR so they never clobber the main sync PR.
+      - name: Resolve sync branch
+        if: steps.diff.outputs.dirty == 'true'
+        id: branch
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "name=$SYNC_BRANCH" >> "$GITHUB_OUTPUT"
+            echo "draft=false" >> "$GITHUB_OUTPUT"
+          else
+            REF_SLUG=$(echo "${{ github.ref_name }}" | tr -c 'a-zA-Z0-9\n' '-')
+            echo "name=${SYNC_BRANCH}-${REF_SLUG}" >> "$GITHUB_OUTPUT"
+            echo "draft=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Import GPG key
+        if: steps.diff.outputs.dirty == 'true'
+        id: import-gpg
+        uses: crazy-max/ghaction-import-gpg@2dc316deee8e90f13e1a351ab510b4d5bc0c82cd # v7.0.0
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          workdir: clients/fga-${{ matrix.language }}-sdk
+
+      - name: Commit and push sync branch
+        if: steps.diff.outputs.dirty == 'true'
+        working-directory: clients/fga-${{ matrix.language }}-sdk
+        env:
+          PUSH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SDK_REPO: ${{ github.repository_owner }}/${{ matrix.repo }}
+          BRANCH: ${{ steps.branch.outputs.name }}
+        run: |
+          git config user.name openfga-releaser-bot
+          git config user.email "${{ steps.import-gpg.outputs.email }}"
+
+          git checkout -B "$BRANCH"
+          git add -A
+          git commit -m "$PR_TITLE" \
+            -m "Generated from ${{ github.repository }}@${{ github.sha }}"
+          git push --force \
+            "https://x-access-token:${PUSH_TOKEN}@github.com/${SDK_REPO}.git" \
+            "$BRANCH"
+
+      - name: Create or update pull request
+        if: steps.diff.outputs.dirty == 'true'
+        working-directory: clients/fga-${{ matrix.language }}-sdk
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SDK_REPO: ${{ github.repository_owner }}/${{ matrix.repo }}
+          BRANCH: ${{ steps.branch.outputs.name }}
+          DRAFT: ${{ steps.branch.outputs.draft }}
+          OPENAPI_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.openapi_ref || '' }}
+        run: |
+          BODY="This PR syncs the SDK with the latest generator templates and configuration.
+
+          Generated by [\`${{ github.repository }}@${GITHUB_SHA:0:7}\`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) via [this workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+
+          if [[ -n "$OPENAPI_REF" ]]; then
+            BODY="$BODY
+
+          Generated against OpenFGA API ref [\`${OPENAPI_REF}\`](${{ github.server_url }}/openfga/api/tree/${OPENAPI_REF})."
+          fi
+
+          if [[ "$DRAFT" == "true" ]]; then
+            BODY="$BODY
+
+          > [!WARNING]
+          > Preview from generator branch \`${{ github.ref_name }}\`, not main."
+          fi
+
+          EXISTING_PR=$(gh pr list \
+            --repo "$SDK_REPO" \
+            --head "$BRANCH" \
+            --base main \
+            --state open \
+            --json number \
+            --jq '.[0].number' 2>/dev/null || true)
+
+          if [[ -n "$EXISTING_PR" && "$EXISTING_PR" != "null" ]]; then
+            echo "Updating existing sync PR #$EXISTING_PR"
+            gh pr edit "$EXISTING_PR" \
+              --repo "$SDK_REPO" \
+              --title "$PR_TITLE" \
+              --body "$BODY"
+
+            gh pr comment "$EXISTING_PR" \
+              --repo "$SDK_REPO" \
+              --body "Updated with the latest regenerated output from [\`${{ github.repository }}@${GITHUB_SHA:0:7}\`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) ([workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})). Please re-review."
+
+            PR_NUMBER="$EXISTING_PR"
+          else
+            DRAFT_FLAG=()
+            if [[ "$DRAFT" == "true" ]]; then
+              DRAFT_FLAG=(--draft)
+            fi
+            PR_URL=$(gh pr create \
+              --repo "$SDK_REPO" \
+              --head "$BRANCH" \
+              --base main \
+              --title "$PR_TITLE" \
+              --body "$BODY" \
+              "${DRAFT_FLAG[@]}")
+            PR_NUMBER="${PR_URL##*/}"
+            echo "Created sync PR #$PR_NUMBER"
+          fi
+
+          # Best-effort labeling, don't fail the sync over it
+          gh label create "$PR_LABEL" \
+            --repo "$SDK_REPO" \
+            --color "0E8A16" \
+            --description "Automated sync from openfga/sdk-generator" \
+            --force 2>/dev/null || true
+          gh pr edit "$PR_NUMBER" \
+            --repo "$SDK_REPO" \
+            --add-label "$PR_LABEL" 2>/dev/null || true
+
+      - name: Summary
+        if: always()
+        run: |
+          if [[ "${{ job.status }}" != "success" ]]; then
+            echo "### \`${{ matrix.repo }}\`: sync failed, see job logs" >> "$GITHUB_STEP_SUMMARY"
+          elif [[ "${{ steps.diff.outputs.dirty }}" == "true" ]]; then
+            echo "### \`${{ matrix.repo }}\`: drift detected, sync PR created/updated" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### \`${{ matrix.repo }}\`: in sync, nothing to do" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+
+
+
+
+
+
+
