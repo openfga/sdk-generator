@@ -298,6 +298,7 @@
             return JsonSerializer.Serialize(this);
         }
 
+        {{^vendorExtensions.x-skip-from-json}}
         /// <summary>
         /// Builds a {{classname}} from the JSON string presentation of the object
         /// </summary>
@@ -305,6 +306,7 @@
         public static {{classname}} FromJson(string jsonString) {
             return JsonSerializer.Deserialize<{{classname}}>(jsonString) ?? throw new InvalidOperationException();
         }
+        {{/vendorExtensions.x-skip-from-json}}
 
         /// <summary>
         /// Returns true if objects are equal

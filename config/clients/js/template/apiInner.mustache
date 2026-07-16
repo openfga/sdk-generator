@@ -1,202 +1,13 @@
-{{#withSeparateModelsAndApi}}
-{{>partial_header}}
-
-import { COLLECTION_FORMATS, BaseAPI } from '{{apiRelativeToRoot}}base';
-import {
-  DUMMY_BASE_URL,
-  setSearchParams,
-  serializeDataIfNeeded,
-  toPathString,
-  createRequestFunction,
-  CallResult,
-  RequestArgs,
-  PromiseResult
-} from '{{apiRelativeToRoot}}common';
-
-import { Configuration } from '{{apiRelativeToRoot}}configuration';
-import { {{classname}}Error } from '{{apiRelativeToRoot}}errors';
-import { assertParamExists } from '{{apiRelativeToRoot}}validation';
-
-{{#imports}}
-// @ts-ignore
-import { {{classname}} } from '{{apiRelativeToRoot}}{{tsModelPackage}}';
-{{/imports}}
-{{/withSeparateModelsAndApi}}
-{{^withSeparateModelsAndApi}}
-{{/withSeparateModelsAndApi}}
 {{#operations}}
-/**
- * {{classname}} - axios parameter creator{{#description}}
- * {{&description}}{{/description}}
- * @export
- */
-export const {{classname}}AxiosParamCreator = function (configuration: Configuration, credentials: Credentials) {
-    return {
-    {{#operation}}
-        /**
-         * {{&notes}}
-         {{#summary}}
-         * @summary {{&summary}}
-         {{/summary}}
-         {{#allParams}}
-         * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
-         {{/allParams}}
-         * @param {*} [options] Override http request option.{{#isDeprecated}}
-         * @deprecated{{/isDeprecated}}
-         * @throws { FgaError }
-         */
-        {{nickname}}: ({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options: any = {}): RequestArgs => {
-    {{#allParams}}
-    {{#required}}
-            // verify required parameter '{{paramName}}' is not null or undefined
-            assertParamExists('{{nickname}}', '{{paramName}}', {{paramName}})
-    {{/required}}
-    {{/allParams}}
-            const localVarPath = `{{{path}}}`
-            {{#pathParams}}.replace(`{${"{{baseName}}"}}`, encodeURIComponent(String({{paramName}}))){{/pathParams}};
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: '{{httpMethod}}', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;{{#vendorExtensions}}{{#hasFormParams}}
-            const localVarFormParams = new {{^multipartFormData}}URLSearchParams(){{/multipartFormData}}{{#multipartFormData}}((configuration && configuration.formDataCtor) || FormData)(){{/multipartFormData}};{{/hasFormParams}}{{/vendorExtensions}}
-
-    {{#authMethods}}
-            // authentication {{name}} required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-    {{/authMethods}}
-    {{#queryParams}}
-            {{#isArray}}
-            if ({{paramName}}) {
-            {{#isCollectionFormatMulti}}
-                {{#uniqueItems}}
-                localVarQueryParameter['{{baseName}}'] = Array.from({{paramName}});
-                {{/uniqueItems}}
-                {{^uniqueItems}}
-                localVarQueryParameter['{{baseName}}'] = {{paramName}};
-                {{/uniqueItems}}
-            {{/isCollectionFormatMulti}}
-            {{^isCollectionFormatMulti}}
-                {{#uniqueItems}}
-                localVarQueryParameter['{{baseName}}'] = Array.from({{paramName}}).join(COLLECTION_FORMATS.{{collectionFormat}});
-                {{/uniqueItems}}
-                {{^uniqueItems}}
-                localVarQueryParameter['{{baseName}}'] = {{paramName}}.join(COLLECTION_FORMATS.{{collectionFormat}});
-                {{/uniqueItems}}
-            {{/isCollectionFormatMulti}}
-            }
-            {{/isArray}}
-            {{^isArray}}
-            if ({{paramName}} !== undefined) {
-                {{#isDateTime}}
-                localVarQueryParameter['{{baseName}}'] = ({{paramName}} as any instanceof Date) ?
-                    ({{paramName}} as any).toISOString() :
-                    {{paramName}};
-                {{/isDateTime}}
-                {{^isDateTime}}
-                {{#isDate}}
-                localVarQueryParameter['{{baseName}}'] = ({{paramName}} as any instanceof Date) ?
-                    ({{paramName}} as any).toISOString().substr(0,10) :
-                    {{paramName}};
-                {{/isDate}}
-                {{^isDate}}
-                localVarQueryParameter['{{baseName}}'] = {{paramName}};
-                {{/isDate}}
-                {{/isDateTime}}
-            }
-            {{/isArray}}
-
-    {{/queryParams}}
-    {{#headerParams}}
-            {{#isArray}}
-            if ({{paramName}}) {
-                {{#uniqueItems}}
-                let mapped = Array.from({{paramName}}).map(value => (<any>"{{{dataType}}}" !== "Set<string>") ? JSON.stringify(value) : (value || ""));
-                {{/uniqueItems}}
-                {{^uniqueItems}}
-                let mapped = {{paramName}}.map(value => (<any>"{{{dataType}}}" !== "Array<string>") ? JSON.stringify(value) : (value || ""));
-                {{/uniqueItems}}
-                localVarHeaderParameter['{{baseName}}'] = mapped.join(COLLECTION_FORMATS["{{collectionFormat}}"]);
-            }
-            {{/isArray}}
-            {{^isArray}}
-            if ({{paramName}} !== undefined && {{paramName}} !== null) {
-                {{#isString}}
-                localVarHeaderParameter['{{baseName}}'] = String({{paramName}});
-                {{/isString}}
-                {{^isString}}
-                localVarHeaderParameter['{{baseName}}'] = String(JSON.stringify({{paramName}}));
-                {{/isString}}
-            }
-            {{/isArray}}
-
-    {{/headerParams}}
-    {{#vendorExtensions}}
-    {{#formParams}}
-            {{#isArray}}
-            if ({{paramName}}) {
-            {{#isCollectionFormatMulti}}
-                {{paramName}}.forEach((element) => {
-                    localVarFormParams.{{#multipartFormData}}append{{/multipartFormData}}{{^multipartFormData}}set{{/multipartFormData}}('{{baseName}}', element as any);
-                })
-            {{/isCollectionFormatMulti}}
-            {{^isCollectionFormatMulti}}
-                localVarFormParams.{{#multipartFormData}}append{{/multipartFormData}}{{^multipartFormData}}set{{/multipartFormData}}('{{baseName}}', {{paramName}}.join(COLLECTION_FORMATS.{{collectionFormat}}));
-            {{/isCollectionFormatMulti}}
-            }{{/isArray}}
-            {{^isArray}}
-            if ({{paramName}} !== undefined) { {{^multipartFormData}}
-                localVarFormParams.set('{{baseName}}', {{paramName}} as any);{{/multipartFormData}}{{#multipartFormData}}{{#isPrimitiveType}}
-                localVarFormParams.append('{{baseName}}', {{paramName}} as any);{{/isPrimitiveType}}{{^isPrimitiveType}}
-                localVarFormParams.append('{{baseName}}', new Blob([JSON.stringify({{paramName}})], { type: "application/json", }));{{/isPrimitiveType}}{{/multipartFormData}}
-            }{{/isArray}}
-    {{/formParams}}{{/vendorExtensions}}
-    {{#vendorExtensions}}{{#hasFormParams}}{{^multipartFormData}}
-            localVarHeaderParameter['Content-Type'] = 'application/x-www-form-urlencoded';{{/multipartFormData}}{{#multipartFormData}}
-            localVarHeaderParameter['Content-Type'] = 'multipart/form-data';{{/multipartFormData}}
-    {{/hasFormParams}}{{/vendorExtensions}}
-    {{#bodyParam}}
-            {{^consumes}}
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-            {{/consumes}}
-            {{#consumes.0}}
-            localVarHeaderParameter['Content-Type'] = '{{{mediaType}}}';
-            {{/consumes.0}}
-
-    {{/bodyParam}}
-            setSearchParams(localVarUrlObj, localVarQueryParameter, options.query);
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...options.headers};
-    {{#hasFormParams}}
-            localVarRequestOptions.data = localVarFormParams{{#vendorExtensions}}{{^multipartFormData}}.toString(){{/multipartFormData}}{{/vendorExtensions}};
-    {{/hasFormParams}}
-    {{#bodyParam}}
-            localVarRequestOptions.data = serializeDataIfNeeded({{paramName}}, localVarRequestOptions)
-    {{/bodyParam}}
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    {{/operation}}
-    }
-};
-
 /**
  * {{classname}} - functional programming interface{{#description}}
  * {{{description}}}{{/description}}
  * @export
  */
 export const {{classname}}Fp = function(configuration: Configuration, credentials: Credentials) {
-    const localVarAxiosParamCreator = {{classname}}AxiosParamCreator(configuration, credentials)
-    return {
+    const api = {
     {{#operation}}
+    {{^vendorExtensions.x-streaming}}
         /**
          * {{&notes}}
          {{#summary}}
@@ -210,19 +21,91 @@ export const {{classname}}Fp = function(configuration: Configuration, credential
          * @throws { FgaError }
          */
         async {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): Promise<(axios?: AxiosInstance) => PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
-            const localVarAxiosArgs = localVarAxiosParamCreator.{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}}options);
+    {{#allParams}}
+    {{#required}}
+            assertParamExists("{{nickname}}", "{{paramName}}", {{paramName}});
+    {{/required}}
+    {{/allParams}}
+            return api.executeApiRequest<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>({
+                operationName: "{{operationIdCamelCase}}",
+                method: "{{httpMethod}}",
+                path: "{{{path}}}",
+    {{#hasPathParams}}
+                pathParams: { {{#pathParams}}{{baseName}}: {{paramName}}{{^-last}}, {{/-last}}{{/pathParams}} },
+    {{/hasPathParams}}
+    {{#hasQueryParams}}
+                queryParams: { {{#queryParams}}{{baseName}}: {{paramName}}{{^-last}}, {{/-last}}{{/queryParams}} },
+    {{/hasQueryParams}}
+    {{#bodyParam}}
+                body,
+    {{/bodyParam}}
+            }, options);
+        },
+    {{/vendorExtensions.x-streaming}}
+    {{#vendorExtensions.x-streaming}}
+        /**
+       * The Streamed ListObjects API is very similar to the ListObjects API, with two differences:
+       * 1. Instead of collecting all objects before returning a response, it streams them to the client as they are collected.
+       * 2. The number of results returned is only limited by the execution timeout specified in the flag OPENFGA_LIST_OBJECTS_DEADLINE.
+       * @summary Stream all objects of the given type that the user has a relation with
+         {{#allParams}}
+       * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
+         {{/allParams}}
+       * @param {*} [options] Override http request option.
+       * @throws { FgaError }
+       */
+        async {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): Promise<(axios?: AxiosInstance) => Promise<any>> {
+    {{#allParams}}
+    {{#required}}
+            assertParamExists("{{nickname}}", "{{paramName}}", {{paramName}});
+    {{/required}}
+    {{/allParams}}
+            return api.executeStreamedApiRequest({
+                operationName: "{{operationIdCamelCase}}",
+                method: "{{httpMethod}}",
+                path: "{{{path}}}",
+    {{#hasPathParams}}
+                pathParams: { {{#pathParams}}{{baseName}}: {{paramName}}{{^-last}}, {{/-last}}{{/pathParams}} },
+    {{/hasPathParams}}
+    {{#hasQueryParams}}
+                queryParams: { {{#queryParams}}{{baseName}}: {{paramName}}{{^-last}}, {{/-last}}{{/queryParams}} },
+    {{/hasQueryParams}}
+    {{#bodyParam}}
+                body,
+    {{/bodyParam}}
+            }, options);
+        },
+    {{/vendorExtensions.x-streaming}}
+    {{/operation}}
+        /**
+         * Make a raw HTTP request to an arbitrary API endpoint.
+         * This method provides an escape hatch for calling new or experimental endpoints
+         * that may not yet have dedicated SDK methods.
+         * @summary Make a raw HTTP request
+         * @param {RequestBuilderParams} request - The request parameters
+         * @param {RequestBuilderOptions} [options] Override http request option.
+         * @throws { FgaError }
+         */
+        async executeApiRequest<T extends object | void = object>(request: RequestBuilderParams, options?: RequestBuilderOptions): Promise<(axios?: AxiosInstance) => PromiseResult<T>> {
+            const localVarAxiosArgs = RequestBuilder(request, { ...configuration.baseOptions, ...options });
             return createRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
-                [TelemetryAttribute.FgaClientRequestMethod]: "{{operationIdCamelCase}}",
-                {{#pathParams.0}}
-                [TelemetryAttribute.FgaClientRequestStoreId]: storeId ?? "",
-                {{/pathParams.0}}
-                {{#bodyParam}}
-                ...TelemetryAttributes.fromRequestBody(body)
-                {{/bodyParam}}
+                [TelemetryAttribute.FgaClientRequestMethod]: request.operationName,
+                [TelemetryAttribute.FgaClientRequestStoreId]: request.pathParams?.["store_id"] ?? "",
+                ...TelemetryAttributes.fromRequestBody(request.body),
             });
         },
-    {{/operation}}
-    }
+{{#supportsStreamedListObjects}}
+        async executeStreamedApiRequest(request: RequestBuilderParams, options?: RequestBuilderOptions): Promise<(axios?: AxiosInstance) => PromiseResult<any>> {
+            const localVarAxiosArgs = RequestBuilder(request, { ...configuration.baseOptions, ...options });
+            return createStreamingRequestFunction(localVarAxiosArgs, globalAxios, configuration, credentials, {
+                [TelemetryAttribute.FgaClientRequestMethod]: request.operationName,
+                [TelemetryAttribute.FgaClientRequestStoreId]: request.pathParams?.["store_id"] ?? "",
+                ...TelemetryAttributes.fromRequestBody(request.body),
+            });
+        },
+{{/supportsStreamedListObjects}}
+    };
+    return api;
 };
 
 /**
@@ -231,9 +114,10 @@ export const {{classname}}Fp = function(configuration: Configuration, credential
  * @export
  */
 export const {{classname}}Factory = function (configuration: Configuration, credentials: Credentials, axios?: AxiosInstance) {
-    const localVarFp = {{classname}}Fp(configuration, credentials)
+    const localVarFp = {{classname}}Fp(configuration, credentials);
     return {
     {{#operation}}
+    {{^vendorExtensions.x-streaming}}
         /**
          * {{&notes}}
          {{#summary}}
@@ -249,63 +133,44 @@ export const {{classname}}Factory = function (configuration: Configuration, cred
         {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}> {
             return localVarFp.{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}}options).then((request) => request(axios));
         },
+    {{/vendorExtensions.x-streaming}}
+    {{#vendorExtensions.x-streaming}}
+        /**
+       * The Streamed ListObjects API is very similar to the ListObjects API, with two differences:
+       * 1. Instead of collecting all objects before returning a response, it streams them to the client as they are collected.
+       * 2. The number of results returned is only limited by the execution timeout specified in the flag OPENFGA_LIST_OBJECTS_DEADLINE.
+       * @summary Stream all objects of the given type that the user has a relation with
+         {{#allParams}}
+       * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
+         {{/allParams}}
+       * @param {*} [options] Override http request option.
+       * @throws { FgaError }
+       */
+        {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): Promise<any> {
+            return localVarFp.{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}}options).then((request) => request(axios));
+        },
+    {{/vendorExtensions.x-streaming}}
     {{/operation}}
+        /**
+         * Make a raw HTTP request to an arbitrary API endpoint.
+         * This method provides an escape hatch for calling new or experimental endpoints
+         * that may not yet have dedicated SDK methods.
+         * @summary Make a raw HTTP request
+         * @param {RequestBuilderParams} request - The request parameters
+         * @param {*} [options] Override http request option.
+         * @throws { FgaError }
+         */
+        executeApiRequest<T extends object | void = object>(request: RequestBuilderParams, options?: any): PromiseResult<T> {
+            return localVarFp.executeApiRequest<T>(request, options).then((request) => request(axios));
+        },
+{{#supportsStreamedListObjects}}
+        executeStreamedApiRequest(request: RequestBuilderParams, options?: any): Promise<any> {
+            return localVarFp.executeStreamedApiRequest(request, options).then((request) => request(axios));
+        },
+{{/supportsStreamedListObjects}}
     };
 };
 
-{{#withInterfaces}}
-/**
- * {{classname}} - interface{{#description}}
- * {{&description}}{{/description}}
- * @export
- * @interface {{classname}}
- */
-export interface {{classname}}Interface {
-{{#operation}}
-    /**
-     * {{&notes}}
-     {{#summary}}
-     * @summary {{&summary}}
-     {{/summary}}
-     {{#allParams}}
-     * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
-     {{/allParams}}
-     * @param {*} [options] Override http request option.{{#isDeprecated}}
-     * @deprecated{{/isDeprecated}}
-     * @throws { FgaError }
-     * @memberof {{classname}}Interface
-     */
-    {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): PromiseResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>;
-
-{{/operation}}
-}
-
-{{/withInterfaces}}
-{{#useSingleRequestParameter}}
-{{#operation}}
-{{#allParams.0}}
-/**
- * Request parameters for {{nickname}} operation in {{classname}}.
- * @export
- * @interface {{classname}}{{operationIdCamelCase}}Request
- */
-export interface {{classname}}{{operationIdCamelCase}}Request {
-    {{#allParams}}
-    /**
-     * {{description}}
-     * @type {{=<% %>=}}{<%&dataType%>}<%={{ }}=%>
-     * @memberof {{classname}}{{operationIdCamelCase}}
-     */
-    readonly {{paramName}}{{^required}}?{{/required}}: {{{dataType}}}
-    {{^-last}}
-
-    {{/-last}}
-    {{/allParams}}
-}
-
-{{/allParams.0}}
-{{/operation}}
-{{/useSingleRequestParameter}}
 /**
  * {{classname}} - object-oriented interface{{#description}}
  * {{{description}}}{{/description}}
@@ -313,46 +178,74 @@ export interface {{classname}}{{operationIdCamelCase}}Request {
  * @class {{classname}}
  * @extends {BaseAPI}
  */
-{{#withInterfaces}}
-export class {{classname}} extends BaseAPI implements {{classname}}Interface {
-{{/withInterfaces}}
-{{^withInterfaces}}
 export class {{classname}} extends BaseAPI {
-{{/withInterfaces}}
     {{#operation}}
+    {{^vendorExtensions.x-streaming}}
     /**
      * {{&notes}}
      {{#summary}}
      * @summary {{&summary}}
      {{/summary}}
-     {{#useSingleRequestParameter}}
-     {{#allParams.0}}
-     * @param {{=<% %>=}}{<%& classname %><%& operationIdCamelCase %>Request}<%={{ }}=%> requestParameters Request parameters.
-     {{/allParams.0}}
-     {{/useSingleRequestParameter}}
-     {{^useSingleRequestParameter}}
      {{#allParams}}
      * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
      {{/allParams}}
-     {{/useSingleRequestParameter}}
      * @param {*} [options] Override http request option.{{#isDeprecated}}
      * @deprecated{{/isDeprecated}}
      * @throws { FgaError }
      * @memberof {{classname}}
      */
-    {{#useSingleRequestParameter}}
-    public {{nickname}}({{#allParams.0}}requestParameters: {{classname}}{{operationIdCamelCase}}Request{{^hasRequiredParams}} = {}{{/hasRequiredParams}}, {{/allParams.0}}options?: any): Promise<CallResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
-        return {{classname}}Fp(this.configuration, this.credentials).{{nickname}}({{#allParams.0}}{{#allParams}}requestParameters.{{paramName}}, {{/allParams}}{{/allParams.0}}options).then((request) => request(this.axios));
-    }
-    {{/useSingleRequestParameter}}
-    {{^useSingleRequestParameter}}
     public {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): Promise<CallResult<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
         return {{classname}}Fp(this.configuration, this.credentials).{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}}options).then((request) => request(this.axios));
     }
-    {{/useSingleRequestParameter}}
-    {{^-last}}
 
-    {{/-last}}
+    {{/vendorExtensions.x-streaming}}
+    {{#vendorExtensions.x-streaming}}
+    /**
+     * The Streamed ListObjects API is very similar to the ListObjects API, with two differences:
+     * 1. Instead of collecting all objects before returning a response, it streams them to the client as they are collected.
+     * 2. The number of results returned is only limited by the execution timeout specified in the flag OPENFGA_LIST_OBJECTS_DEADLINE.
+     * @summary Stream all objects of the given type that the user has a relation with
+     {{#allParams}}
+     * @param {{=<% %>=}}{<%&dataType%>}<%={{ }}=%> {{^required}}[{{/required}}{{paramName}}{{^required}}]{{/required}}{{#description}} {{description}}{{/description}}
+     {{/allParams}}
+     * @param {*} [options] Override http request option.
+     * @throws { FgaError }
+     */
+    public {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: any): Promise<any> {
+        return {{classname}}Fp(this.configuration, this.credentials).{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}}options).then((request) => request(this.axios));
+    }
+
+    {{/vendorExtensions.x-streaming}}
     {{/operation}}
+    /**
+     * Make a raw HTTP request to an arbitrary API endpoint.
+     * This method provides an escape hatch for calling new or experimental endpoints
+     * that may not yet have dedicated SDK methods.
+     * @summary Make a raw HTTP request
+     * @param {RequestBuilderParams} request - The request parameters
+     * @param {RequestBuilderOptions} [options] Override http request option.
+     * @throws { FgaError }
+     * @memberof {{classname}}
+     */
+    public executeApiRequest<T extends object | void = object>(request: RequestBuilderParams, options?: any): Promise<CallResult<T>> {
+        return {{classname}}Fp(this.configuration, this.credentials).executeApiRequest<T>(request, options).then((request) => request(this.axios));
+    }
+{{#supportsStreamedListObjects}}
+
+    /**
+     * Make a raw HTTP request to an arbitrary streaming API endpoint.
+     * This method provides an escape hatch for calling new or experimental endpoints
+     * that may not yet have dedicated SDK methods.
+     * @summary Make a raw HTTP request
+     * @param {RequestBuilderParams} request - The request parameters
+     * @param {RequestBuilderOptions} [options] Override http request option.
+     * @throws { FgaError }
+     * @memberof {{classname}}
+     */
+    public executeStreamedApiRequest(request: RequestBuilderParams, options?: any): Promise<CallResult<any>> {
+        return {{classname}}Fp(this.configuration, this.credentials).executeStreamedApiRequest(request, options).then((request) => request(this.axios));
+    }
+{{/supportsStreamedListObjects}}
 }
 {{/operations}}
+
