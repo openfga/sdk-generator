@@ -78,7 +78,7 @@ build-client-js:
 	sed -i -e "s|_this|this|g" ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*.ts
 	sed -i -e "s|_this|this|g" ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*.md
 	rm -rf  ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/*-e
-	sort -uo ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/.openapi-generator/FILES{,}
+	sort -u -o ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/.openapi-generator/FILES ${CLIENTS_OUTPUT_DIR}/fga-js-sdk/.openapi-generator/FILES
 	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm i --lockfile-version 3 && npm run lint:fix -- --quiet'"
 	make run-in-docker sdk_language=js image=node:${NODE_DOCKER_TAG} command="/bin/sh -c 'npm run lint:fix && npm run build;'"
 
@@ -143,7 +143,7 @@ tag-client-python: test-client-python
 build-client-python:
 	make build-client-streamed sdk_language=python tmpdir=${TMP_DIR} library="asyncio"
 
-	sort -uo ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/.openapi-generator/FILES{,}
+	sort -u -o ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/.openapi-generator/FILES ${CLIENTS_OUTPUT_DIR}/fga-python-sdk/.openapi-generator/FILES
 
 	make run-in-docker sdk_language=python image=busybox:${BUSYBOX_DOCKER_TAG} command="/bin/sh -c 'patch -p1 /module/docs/OpenFgaApi.md /config/clients/python/patches/OpenFgaApi.md.patch'"
 
