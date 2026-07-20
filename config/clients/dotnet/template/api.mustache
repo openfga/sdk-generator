@@ -94,7 +94,7 @@ public class {{classname}} : IDisposable {
             QueryParameters = queryParams,
         };
 
-        await foreach (var response in _apiClient.SendStreamingRequestAsync<{{#bodyParam}}{{{dataType}}}{{/bodyParam}}{{^bodyParam}}Any{{/bodyParam}}, {{vendorExtensions.x-streaming-response-type}}>(requestBuilder,
+        await foreach (var response in _apiClient.ApiExecutor.ExecuteStreamingAsync<{{#bodyParam}}{{{dataType}}}{{/bodyParam}}{{^bodyParam}}Any{{/bodyParam}}, {{vendorExtensions.x-streaming-response-type}}>(requestBuilder,
             "{{operationId}}", options, cancellationToken)) {
             yield return response;
         }
@@ -158,8 +158,9 @@ public class {{classname}} : IDisposable {
             QueryParameters = queryParams,
         };
 
-        {{#returnType}}return {{/returnType}}await _apiClient.SendRequestAsync{{#returnType}}<{{#bodyParam}}{{{dataType}}}{{/bodyParam}}{{^bodyParam}}Any{{/bodyParam}}, {{{.}}}>{{/returnType}}(requestBuilder,
-            "{{operationId}}", options, cancellationToken);
+        {{#returnType}}return (await _apiClient.ApiExecutor.ExecuteAsync<{{#bodyParam}}{{{dataType}}}{{/bodyParam}}{{^bodyParam}}Any{{/bodyParam}}, {{{.}}}>(requestBuilder,
+            "{{operationId}}", options, cancellationToken)).Data!;{{/returnType}}{{^returnType}}await _apiClient.ApiExecutor.ExecuteAsync<{{#bodyParam}}{{{dataType}}}{{/bodyParam}}{{^bodyParam}}Any{{/bodyParam}}, object>(requestBuilder,
+            "{{operationId}}", options, cancellationToken);{{/returnType}}
     }
 
     {{/vendorExtensions.x-streaming}}

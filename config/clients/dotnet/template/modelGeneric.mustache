@@ -298,6 +298,7 @@
             return JsonSerializer.Serialize(this);
         }
 
+        {{^vendorExtensions.x-skip-from-json}}
         /// <summary>
         /// Builds a {{classname}} from the JSON string presentation of the object
         /// </summary>
@@ -305,6 +306,7 @@
         public static {{classname}} FromJson(string jsonString) {
             return JsonSerializer.Deserialize<{{classname}}>(jsonString) ?? throw new InvalidOperationException();
         }
+        {{/vendorExtensions.x-skip-from-json}}
 
         /// <summary>
         /// Returns true if objects are equal
@@ -341,8 +343,19 @@
                 (
                     this.{{name}} == input.{{name}} ||
                     {{^vendorExtensions.x-is-value-type}}
+                    {{#isDateTime}}
+                    {{#required}}
+                    this.{{name}}.Equals(input.{{name}})
+                    {{/required}}
+                    {{^required}}
                     (this.{{name}} != null &&
                     this.{{name}}.Equals(input.{{name}}))
+                    {{/required}}
+                    {{/isDateTime}}
+                    {{^isDateTime}}
+                    (this.{{name}} != null &&
+                    this.{{name}}.Equals(input.{{name}}))
+                    {{/isDateTime}}
                     {{/vendorExtensions.x-is-value-type}}
                     {{#vendorExtensions.x-is-value-type}}
                     this.{{name}}.Equals(input.{{name}})
@@ -376,10 +389,23 @@
                 {{/parent}}
                 {{#vars}}
                 {{^vendorExtensions.x-is-value-type}}
+                {{#isDateTime}}
+                {{#required}}
+                hashCode = (hashCode * FgaConstants.HashCodeMultiplierPrimeNumber) + this.{{name}}.GetHashCode();
+                {{/required}}
+                {{^required}}
                 if (this.{{name}} != null)
                 {
                     hashCode = (hashCode * FgaConstants.HashCodeMultiplierPrimeNumber) + this.{{name}}.GetHashCode();
                 }
+                {{/required}}
+                {{/isDateTime}}
+                {{^isDateTime}}
+                if (this.{{name}} != null)
+                {
+                    hashCode = (hashCode * FgaConstants.HashCodeMultiplierPrimeNumber) + this.{{name}}.GetHashCode();
+                }
+                {{/isDateTime}}
                 {{/vendorExtensions.x-is-value-type}}
                 {{#vendorExtensions.x-is-value-type}}
                 hashCode = (hashCode * FgaConstants.HashCodeMultiplierPrimeNumber) + this.{{name}}.GetHashCode();

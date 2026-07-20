@@ -1,5 +1,3 @@
-/* tslint:disable */
-/* eslint-disable */
 {{>partial_header}}
 
 export * from "./api";
@@ -13,5 +11,6 @@ export * from "./telemetry/counters";
 export * from "./telemetry/histograms";
 export * from "./telemetry/metrics";
 export * from "./errors";
-
-{{#withSeparateModelsAndApi}}export * from "./{{tsModelPackage}}";{{/withSeparateModelsAndApi}}
+{{#supportsStreamedListObjects}}
+export { parseNDJSONStream } from "./streaming";
+{{/supportsStreamedListObjects}}
