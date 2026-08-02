@@ -288,7 +288,7 @@ var options = new ClientWriteOptions()
     .additionalHeaders(Map.of("Some-Http-Header", "Some value"))
     // You can rely on the model id set in the configuration or override it for this specific request
     .authorizationModelId("01GXSA8YR785C4FYS3C0RTG7B1")
-    .disableTransactions(false);
+    .transactions(true);
 
 var response = fgaClient.write(request, options).get();
 ```
@@ -297,9 +297,9 @@ Convenience `WriteTuples` and `DeleteTuples` methods are also available.
 
 ###### Non-transaction mode
 
-The SDK will split the writes into separate requests and send them sequentially to avoid violating rate limits.
+The SDK will split the writes into separate chunks and send them in parallel. Each chunk is sent as its own transaction.
 
-> Passing `ClientWriteOptions` with `.disableTransactions(true)` is required to use non-transaction mode.
+> Passing `ClientWriteOptions` with `.transactions(false)` is required to use non-transaction mode.
 > All other fields of `ClientWriteOptions` are optional.
 
 ```java
@@ -324,8 +324,8 @@ var options = new ClientWriteOptions()
     .additionalHeaders(Map.of("Some-Http-Header", "Some value"))
     // You can rely on the model id set in the configuration or override it for this specific request
     .authorizationModelId("01GXSA8YR785C4FYS3C0RTG7B1")
-    .disableTransactions(true)
-    .transactionChunkSize(5); // Maximum number of requests to be sent in a transaction in a particular chunk
+    .transactions(false)
+    .transactionChunkSize(5); // Max tuples per chunk; each chunk is sent as its own transaction
 
 var response = fgaClient.write(request, options).get();
 ```
