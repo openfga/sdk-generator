@@ -4,7 +4,10 @@ OPEN_API_REF ?= 0ac19aac54f21f3c78970126b84b4c69c6e3b9a2
 OPEN_API_URL = https://raw.githubusercontent.com/openfga/api/${OPEN_API_REF}/docs/openapiv2/apidocs.swagger.json
 OPENAPI_GENERATOR_CLI_DOCKER_TAG ?= v6.4.0
 NODE_DOCKER_TAG = 22-alpine
-GO_DOCKER_TAG = 1
+# Pinned to 1.26: the floating `1` tag (now Go 1.27) changes gofmt comment
+# formatting and causes large formatting-only diffs in sync PRs to go-sdk.
+# Keep in step with the toolchain version used by openfga/go-sdk.
+GO_DOCKER_TAG = 1.26
 DOTNET_DOCKER_TAG = 9.0
 GOLINT_DOCKER_TAG = latest-alpine
 BUSYBOX_DOCKER_TAG = 1
