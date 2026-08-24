@@ -99,7 +99,10 @@ test-client-go: build-client-go
 .PHONY: build-client-go
 build-client-go:
 	make build-client-streamed sdk_language=go tmpdir=${TMP_DIR}
-	make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'gofmt -w . && go mod tidy'"
+	# gofmt is not idempotent on freshly generated block comments: it takes two
+	# passes to reach a fixpoint (raw -> intermediate -> stable). Run it three
+	# times so the output matches what `gofmt -l` in the SDK repos expects.
+	make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'gofmt -w . && gofmt -w . && gofmt -w . && go mod tidy'"
 	find ${CLIENTS_OUTPUT_DIR}/fga-go-sdk/example -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | while read example_dir; do \
 		make run-in-docker sdk_language=go image=golang:${GO_DOCKER_TAG} command="/bin/sh -c 'cd example/$$example_dir && gofmt -w . && go mod tidy'"; \
 	done
