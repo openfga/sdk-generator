@@ -3,8 +3,8 @@ package {{apiPackage}};
 
 import static {{basePackage}}.util.Validation.assertParamExists;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import {{clientPackage}}.ApiClient;
+import {{clientPackage}}.SdkTypeToken;
 import {{configPackage}}.Configuration;
 import {{configPackage}}.ConfigurationOverride;
 import {{modelPackage}}.ListObjectsRequest;
@@ -25,7 +25,10 @@ import java.util.function.Consumer;
 public class StreamedListObjectsApi extends BaseStreamingApi<StreamedListObjectsResponse> {
 
     public StreamedListObjectsApi(Configuration configuration, ApiClient apiClient) {
-        super(configuration, apiClient, new TypeReference<StreamResult<StreamedListObjectsResponse>>() {});
+        super(
+                configuration,
+                apiClient,
+                SdkTypeToken.parameterized(StreamResult.class, StreamedListObjectsResponse.class));
     }
 
     /**
