@@ -28,7 +28,7 @@ public class StreamedListObjectsApi extends BaseStreamingApi<StreamedListObjects
         super(
                 configuration,
                 apiClient,
-                SdkTypeToken.parameterized(StreamResult.class, StreamedListObjectsResponse.class));
+                new SdkTypeToken<StreamResult<StreamedListObjectsResponse>>() {});
     }
 
     /**
