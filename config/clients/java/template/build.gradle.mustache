@@ -1,10 +1,10 @@
 plugins {
-    id 'java'
+    id 'java-library'
 
     // Quality
     id 'jacoco'
     id 'jvm-test-suite'
-    id 'com.diffplug.spotless' version '7.2.1'
+    id 'com.diffplug.spotless' version '8.2.1'
 
     // IDE
     id 'idea'
@@ -26,8 +26,8 @@ repositories {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 
     withJavadocJar()
     withSourcesJar()
@@ -61,10 +61,18 @@ ext {
     {{#swagger2AnnotationLibrary}}
     swagger_annotations_version = "2.2.9"
     {{/swagger2AnnotationLibrary}}
-    jackson_version = "2.20.0"
+    jackson_version = "3.2.2"
     {{#hasFormParamsInSpec}}
     httpmime_version = "4.5.13"
     {{/hasFormParamsInSpec}}
+}
+
+configurations.testRuntimeClasspath {
+    // handlebars 4.3.1 (pulled in by wiremock) has a path traversal CVE fixed in 4.5.2.
+    // WireMock 3.x hasn't backported the fix — only the 4.x beta line has.
+    // We force the core jar only; handlebars-helpers cannot be forced to 4.5.2 because
+    // NumberHelper moved packages between versions, which breaks WireMock at runtime.
+    resolutionStrategy.force 'com.github.jknack:handlebars:4.5.4'
 }
 
 dependencies {
@@ -74,19 +82,17 @@ dependencies {
     {{#swagger2AnnotationLibrary}}
     implementation "io.swagger.core.v3:swagger-annotations:$swagger_annotations_version"
     {{/swagger2AnnotationLibrary}}
-    implementation "com.google.code.findbugs:jsr305:3.0.2"
+    api "com.google.code.findbugs:jsr305:3.0.2"
 
     // ---- Jackson ----
-    implementation platform("com.fasterxml.jackson:jackson-bom:$jackson_version")
-    implementation "com.fasterxml.jackson.core:jackson-core"
-    implementation "com.fasterxml.jackson.core:jackson-annotations"
-    implementation "com.fasterxml.jackson.core:jackson-databind"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
-    implementation "org.openapitools:jackson-databind-nullable:0.2.7"
+    implementation platform("tools.jackson:jackson-bom:$jackson_version")
+    api "com.fasterxml.jackson.core:jackson-annotations:2.22"
+    implementation "tools.jackson.core:jackson-core"
+    implementation "tools.jackson.core:jackson-databind"
 
     // ---- OpenTelemetry ----
-    implementation platform("io.opentelemetry:opentelemetry-bom:1.54.1")
-    implementation "io.opentelemetry:opentelemetry-api"
+    api platform("io.opentelemetry:opentelemetry-bom:1.65.0")
+    api "io.opentelemetry:opentelemetry-api"
     {{#hasFormParamsInSpec}}
     implementation "org.apache.httpcomponents:httpmime:$httpmime_version"
     {{/hasFormParamsInSpec}}
@@ -97,10 +103,12 @@ testing {
         test {
             useJUnitJupiter()
             dependencies {
-                implementation 'org.assertj:assertj-core:3.27.6'
-                implementation 'org.mockito:mockito-core:5.20.0'
-                implementation 'org.junit.jupiter:junit-jupiter:5.14.0'
-                implementation 'org.wiremock:wiremock:3.13.1'
+                implementation 'org.assertj:assertj-core:3.27.7'
+                implementation 'org.mockito:mockito-core:5.23.0'
+                implementation 'org.junit.jupiter:junit-jupiter:5.14.4'
+                implementation 'org.wiremock:wiremock:3.13.2'
+                implementation 'com.fasterxml.jackson.core:jackson-databind:2.22.2'
+                implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.2'
 
                 runtimeOnly 'org.junit.platform:junit-platform-launcher'
 
@@ -123,17 +131,16 @@ testing {
         }
 
         integration(JvmTestSuite) {
-            testType = TestSuiteType.INTEGRATION_TEST
             useJUnitJupiter()
 
             dependencies {
                 // --- Jackson ---
-                implementation platform("com.fasterxml.jackson:jackson-bom:$jackson_version")
-                implementation "com.fasterxml.jackson.core:jackson-core"
-                implementation "com.fasterxml.jackson.core:jackson-databind"
+                implementation platform("tools.jackson:jackson-bom:$jackson_version")
+                implementation "tools.jackson.core:jackson-core"
+                implementation "tools.jackson.core:jackson-databind"
 
-                implementation "org.testcontainers:junit-jupiter:1.21.3"
-                implementation "org.testcontainers:openfga:1.21.3"
+                implementation "org.testcontainers:testcontainers-junit-jupiter:2.0.5"
+                implementation "org.testcontainers:testcontainers-openfga:2.0.5"
                 implementation project()
             }
 
@@ -162,7 +169,7 @@ testing {
 // Ref: https://github.com/diffplug/spotless/tree/main/plugin-gradle
 spotless {
     // comment out below to run spotless as part of the `check` task
-    enforceCheck false
+    enforceCheck = false
     format 'misc', {
         // define the files (e.g. '*.gradle', '*.md') to apply `misc` to
         target '.gitignore'

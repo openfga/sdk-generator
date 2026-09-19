@@ -1,21 +1,19 @@
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.ser.std.StdSerializer;
 import {{invokerPackage}}.JSON;
 
 {{>additionalModelTypeAnnotations}}{{>xmlAnnotation}}
@@ -34,8 +32,8 @@ public class {{classname}} extends AbstractOpenApiSchema{{#vendorExtensions.x-im
         }
 
         @Override
-        public void serialize({{classname}} value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-            jgen.writeObject(value.getActualInstance());
+        public void serialize({{classname}} value, JsonGenerator jgen, SerializationContext provider) throws JacksonException {
+            provider.writeValue(jgen, value.getActualInstance());
         }
     }
 
@@ -49,8 +47,8 @@ public class {{classname}} extends AbstractOpenApiSchema{{#vendorExtensions.x-im
         }
 
         @Override
-        public {{classname}} deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-            JsonNode tree = jp.readValueAsTree();
+        public {{classname}} deserialize(JsonParser jp, DeserializationContext ctxt) throws JacksonException {
+            JsonNode tree = ctxt.readTree(jp);
 
             Object deserialized = null;
             {{#discriminator}}
@@ -59,7 +57,7 @@ public class {{classname}} extends AbstractOpenApiSchema{{#vendorExtensions.x-im
                 // When the OAS schema includes a discriminator, use the discriminator value to
                 // discriminate the anyOf schemas.
                 // Get the discriminator mapping value to get the class.
-                deserialized = tree.traverse(jp.getCodec()).readValueAs(cls);
+                deserialized = ctxt.readTreeAsValue(tree, cls);
                 {{classname}} ret = new {{classname}}();
                 ret.setActualInstance(deserialized);
                 return ret;
@@ -68,7 +66,7 @@ public class {{classname}} extends AbstractOpenApiSchema{{#vendorExtensions.x-im
             {{#anyOf}}
             // deserialize {{{.}}}
             try {
-                deserialized = tree.traverse(jp.getCodec()).readValueAs({{{.}}}.class);
+                deserialized = ctxt.readTreeAsValue(tree, {{{.}}}.class);
                 {{classname}} ret = new {{classname}}();
                 ret.setActualInstance(deserialized);
                 return ret;
@@ -78,19 +76,19 @@ public class {{classname}} extends AbstractOpenApiSchema{{#vendorExtensions.x-im
             }
 
             {{/anyOf}}
-            throw new IOException(String.format("Failed deserialization for {{classname}}: no match found"));
+            return ctxt.reportInputMismatch({{classname}}.class, "Failed deserialization for {{classname}}: no match found");
         }
 
         /**
          * Handle deserialization of the 'null' value.
          */
         @Override
-        public {{classname}} getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+        public {{classname}} getNullValue(DeserializationContext ctxt) throws JacksonException {
         {{#isNullable}}
             return null;
         {{/isNullable}}
         {{^isNullable}}
-            throw new JsonMappingException(ctxt.getParser(), "{{classname}} cannot be null");
+            return ctxt.reportInputMismatch({{classname}}.class, "{{classname}} cannot be null");
         {{/isNullable}}
         }
     }
