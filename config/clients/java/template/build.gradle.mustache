@@ -61,7 +61,7 @@ ext {
     {{#swagger2AnnotationLibrary}}
     swagger_annotations_version = "2.2.9"
     {{/swagger2AnnotationLibrary}}
-    jackson_version = "3.2.2"
+    jackson_version = "3.2.3"
     {{#hasFormParamsInSpec}}
     httpmime_version = "4.5.13"
     {{/hasFormParamsInSpec}}
@@ -107,8 +107,8 @@ testing {
                 implementation 'org.mockito:mockito-core:5.23.0'
                 implementation 'org.junit.jupiter:junit-jupiter:5.14.4'
                 implementation 'org.wiremock:wiremock:3.13.2'
-                implementation 'com.fasterxml.jackson.core:jackson-databind:2.22.2'
-                implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.2'
+                implementation 'com.fasterxml.jackson.core:jackson-databind:2.22.3'
+                implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.3'
 
                 runtimeOnly 'org.junit.platform:junit-platform-launcher'
 
