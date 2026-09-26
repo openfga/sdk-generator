@@ -298,6 +298,12 @@ body := ClientReadRequest{
     Object:   {{packageName}}.PtrString("document:"),
 }
 
+// Find all relationship tuples where any user is a viewer of a particular document
+body := ClientReadRequest{
+    Relation: {{packageName}}.PtrString("viewer"),
+    Object:   {{packageName}}.PtrString("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"),
+}
+
 // Find all relationship tuples where any user has a relationship as any relation with a particular document
 body := ClientReadRequest{
     Object:   {{packageName}}.PtrString("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"),
