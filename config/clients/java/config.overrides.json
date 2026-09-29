@@ -28,6 +28,7 @@
   "scmUrl": "https://github.com/openfga/java-sdk",
   "library": "native",
   "asyncNative": true,
+  "openApiNullable": false,
   "disallowAdditionalPropertiesIfNotPresent": false,
   "enumUnknownDefaultCase": true,
   "allowUnicodeIdentifiers": true,

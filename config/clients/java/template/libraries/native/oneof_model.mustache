@@ -1,23 +1,21 @@
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.ser.std.StdSerializer;
 import {{invokerPackage}}.JSON;
 
 {{>additionalModelTypeAnnotations}}{{>xmlAnnotation}}
@@ -36,8 +34,8 @@ public class {{classname}} extends AbstractOpenApiSchema{{#vendorExtensions.x-im
         }
 
         @Override
-        public void serialize({{classname}} value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-            jgen.writeObject(value.getActualInstance());
+        public void serialize({{classname}} value, JsonGenerator jgen, SerializationContext provider) throws JacksonException {
+            provider.writeValue(jgen, value.getActualInstance());
         }
     }
 
@@ -51,18 +49,17 @@ public class {{classname}} extends AbstractOpenApiSchema{{#vendorExtensions.x-im
         }
 
         @Override
-        public {{classname}} deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-            JsonNode tree = jp.readValueAsTree();
+        public {{classname}} deserialize(JsonParser jp, DeserializationContext ctxt) throws JacksonException {
+            JsonNode tree = ctxt.readTree(jp);
             Object deserialized = null;
             {{#useOneOfDiscriminatorLookup}}
             {{#discriminator}}
             {{classname}} new{{classname}} = new {{classname}}();
-            Map<String,Object> result2 = tree.traverse(jp.getCodec()).readValueAs(new TypeReference<Map<String, Object>>() {});
-            String discriminatorValue = (String)result2.get("{{{propertyBaseName}}}");
+            String discriminatorValue = tree.path("{{{propertyBaseName}}}").asString();
             switch (discriminatorValue) {
             {{#mappedModels}}
                 case "{{{mappingName}}}":
-                    deserialized = tree.traverse(jp.getCodec()).readValueAs({{{modelName}}}.class);
+                    deserialized = ctxt.readTreeAsValue(tree, {{{modelName}}}.class);
                     new{{classname}}.setActualInstance(deserialized);
                     return new{{classname}};
             {{/mappedModels}}
@@ -74,7 +71,7 @@ public class {{classname}} extends AbstractOpenApiSchema{{#vendorExtensions.x-im
             {{/useOneOfDiscriminatorLookup}}
             boolean typeCoercion = ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS);
             int match = 0;
-            JsonToken token = tree.traverse(jp.getCodec()).nextToken();
+            JsonToken token = tree.asToken();
             {{#oneOf}}
             // deserialize {{{.}}}
             try {
@@ -93,7 +90,7 @@ public class {{classname}} extends AbstractOpenApiSchema{{#vendorExtensions.x-im
                     }
                 }
                 if (attemptParsing) {
-                    deserialized = tree.traverse(jp.getCodec()).readValueAs({{{.}}}.class);
+                    deserialized = ctxt.readTreeAsValue(tree, {{{.}}}.class);
                     // TODO: there is no validation against JSON schema constraints
                     // (min, max, enum, pattern...), this does not perform a strict JSON
                     // validation, which means the 'match' count may be higher than it should be.
@@ -111,19 +108,19 @@ public class {{classname}} extends AbstractOpenApiSchema{{#vendorExtensions.x-im
                 ret.setActualInstance(deserialized);
                 return ret;
             }
-            throw new IOException(String.format("Failed deserialization for {{classname}}: %d classes match result, expected 1", match));
+            return ctxt.reportInputMismatch({{classname}}.class, "Failed deserialization for {{classname}}: %d classes match result, expected 1", match);
         }
 
         /**
          * Handle deserialization of the 'null' value.
          */
         @Override
-        public {{classname}} getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+        public {{classname}} getNullValue(DeserializationContext ctxt) throws JacksonException {
         {{#isNullable}}
             return null;
         {{/isNullable}}
         {{^isNullable}}
-            throw new JsonMappingException(ctxt.getParser(), "{{classname}} cannot be null");
+            return ctxt.reportInputMismatch({{classname}}.class, "{{classname}} cannot be null");
         {{/isNullable}}
         }
     }
