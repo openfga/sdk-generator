@@ -25,9 +25,14 @@ on:
           - dotnet
           - python
           - java
+      sdk_branch:
+        description: "SDK ref to target for a TEST run (single SDK only): branch name, PR number (refs/pull/N/head, fork-safe), or a raw refs/... value. Blank = auto-detect the linked SDK PR from this generator PR, else main. A non-main target regenerates + tests only — no sync PR."
+        type: string
+        default: ""
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: sync-sdks
@@ -81,6 +86,88 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Resolve which SDK ref to regenerate against.
+      # Precedence: explicit sdk_branch input > auto-detected linked SDK PR > main.
+      # A resolved ref other than main marks the run test-only (regenerate + test,
+      # but no commit/push/PR) so a specific PR or branch can be exercised safely.
+      - name: Resolve SDK target ref
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OWNER: ${{ github.repository_owner }}
+          SDK_REPO: ${{ github.repository_owner }}/${{ matrix.repo }}
+          MATCH_REPO: ${{ matrix.repo }}
+          SELECTED: ${{ github.event_name == 'workflow_dispatch' && inputs.sdk || 'all' }}
+          OVERRIDE: ${{ github.event_name == 'workflow_dispatch' && inputs.sdk_branch || '' }}
+          GENERATOR_REPO: ${{ github.repository }}
+          GENERATOR_HEAD: ${{ github.ref_name }}
+        run: |
+          set -uo pipefail
+
+          RESOLVED_REF=""
+          resolved() { # resolved <ref> <source>
+            RESOLVED_REF="$1"
+            echo "ref=$1"    >> "$GITHUB_OUTPUT"
+            echo "source=$2" >> "$GITHUB_OUTPUT"
+            echo "Resolved $SDK_REPO -> $1 ($2)"
+          }
+
+          # An explicit branch only makes sense for a single SDK; ignore it for "all".
+          if [[ -n "$OVERRIDE" && "$SELECTED" == "all" ]]; then
+            echo "::notice::ignoring sdk_branch='$OVERRIDE' because sdk=all"
+            OVERRIDE=""
+          fi
+
+          # 1) explicit override wins. A bare PR number -> refs/pull/N/head (works
+          #    for fork PRs); otherwise verbatim (branch name or raw refs/...).
+          if [[ -n "$OVERRIDE" ]]; then
+            if [[ "$OVERRIDE" =~ ^[0-9]+$ ]]; then
+              resolved "refs/pull/$OVERRIDE/head" "explicit input (PR #$OVERRIDE)"
+            else
+              resolved "$OVERRIDE" "explicit input"
+            fi
+          else
+            # 2) auto-detect: if this run's generator ref has an open PR, scan its
+            #    body for a linked SDK PR (owner/repo#N or a /pull/N URL). The first
+            #    reference that is an OPEN PR wins; target refs/pull/N/head so fork
+            #    PRs resolve to the right commit. (On push/dispatch from main this
+            #    finds nothing and falls through to main — unchanged behavior.)
+            BODY=$(gh pr list --repo "$GENERATOR_REPO" --head "$GENERATOR_HEAD" \
+                     --state open --json body --jq '.[0].body // ""' 2>/dev/null || true)
+            for num in $(grep -oiE "${OWNER}/${MATCH_REPO}(#|/pull/)[0-9]+" <<<"$BODY" \
+                           | grep -oE '[0-9]+' | awk '!seen[$0]++'); do
+              STATE=$(gh pr view "$num" --repo "$SDK_REPO" --json state \
+                        --jq '.state' 2>/dev/null || true)
+              if [[ "$STATE" == "OPEN" ]]; then
+                resolved "refs/pull/$num/head" \
+                  "auto-detected via $SDK_REPO#$num (linked from $GENERATOR_REPO@$GENERATOR_HEAD)"
+                break
+              fi
+              echo "  $SDK_REPO#$num is not an open PR (issue/closed) — skipping"
+            done
+            # 3) fallback: the default sync target
+            [[ -n "$RESOLVED_REF" ]] || resolved "main" "default (no linked open PR found)"
+          fi
+
+          # Fail fast on a bad ref instead of a cryptic ~35s checkout retry loop.
+          # (ls-remote exits 0 even on no match, so test for empty output.)
+          case "$RESOLVED_REF" in
+            refs/*) QUERY="$RESOLVED_REF" ;;
+            *)      QUERY="refs/heads/$RESOLVED_REF" ;;
+          esac
+          if [[ -z "$(git ls-remote "https://github.com/$SDK_REPO" "$QUERY" 2>/dev/null)" ]]; then
+            echo "::error::resolved ref not found: $SDK_REPO@$RESOLVED_REF"
+            exit 1
+          fi
+
+          # A non-default target makes this a test run: regenerate + test, no PR.
+          if [[ "$RESOLVED_REF" == "main" ]]; then
+            echo "test_only=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "test_only=true"  >> "$GITHUB_OUTPUT"
+            echo "::notice::test-only run against $SDK_REPO@$RESOLVED_REF — no sync PR will be created"
+          fi
+
       # No token needed to clone (public repos). Credentials are not persisted
       # so the push below uses the app token.
       - name: Checkout SDK repo
@@ -88,6 +175,7 @@ jobs:
         with:
           fetch-depth: 0
           repository: ${{ github.repository_owner }}/${{ matrix.repo }}
+          ref: ${{ steps.resolve.outputs.ref }}
           path: clients/fga-${{ matrix.language }}-sdk
           persist-credentials: false
 
@@ -139,7 +227,7 @@ jobs:
 
       # Minted after the build since app tokens expire after 1 hour.
       - name: Generate token
-        if: steps.diff.outputs.dirty == 'true'
+        if: steps.diff.outputs.dirty == 'true' && steps.resolve.outputs.test_only != 'true'
         id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
@@ -152,7 +240,7 @@ jobs:
       # Runs dispatched from other branches (WIP previews) get their own
       # branch and a draft PR so they never clobber the main sync PR.
       - name: Resolve sync branch
-        if: steps.diff.outputs.dirty == 'true'
+        if: steps.diff.outputs.dirty == 'true' && steps.resolve.outputs.test_only != 'true'
         id: branch
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
@@ -165,7 +253,7 @@ jobs:
           fi
 
       - name: Import GPG key
-        if: steps.diff.outputs.dirty == 'true'
+        if: steps.diff.outputs.dirty == 'true' && steps.resolve.outputs.test_only != 'true'
         id: import-gpg
         uses: crazy-max/ghaction-import-gpg@2dc316deee8e90f13e1a351ab510b4d5bc0c82cd # v7.0.0
         with:
@@ -176,7 +264,7 @@ jobs:
           workdir: clients/fga-${{ matrix.language }}-sdk
 
       - name: Commit and push sync branch
-        if: steps.diff.outputs.dirty == 'true'
+        if: steps.diff.outputs.dirty == 'true' && steps.resolve.outputs.test_only != 'true'
         working-directory: clients/fga-${{ matrix.language }}-sdk
         env:
           PUSH_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -195,7 +283,7 @@ jobs:
             "$BRANCH"
 
       - name: Create or update pull request
-        if: steps.diff.outputs.dirty == 'true'
+        if: steps.diff.outputs.dirty == 'true' && steps.resolve.outputs.test_only != 'true'
         working-directory: clients/fga-${{ matrix.language }}-sdk
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -272,16 +360,10 @@ jobs:
         run: |
           if [[ "${{ job.status }}" != "success" ]]; then
             echo "### \`${{ matrix.repo }}\`: sync failed, see job logs" >> "$GITHUB_STEP_SUMMARY"
+          elif [[ "${{ steps.resolve.outputs.test_only }}" == "true" ]]; then
+            echo "### \`${{ matrix.repo }}\`: test-only run against \`${{ steps.resolve.outputs.ref }}\` (${{ steps.resolve.outputs.source }}) — no PR" >> "$GITHUB_STEP_SUMMARY"
           elif [[ "${{ steps.diff.outputs.dirty }}" == "true" ]]; then
             echo "### \`${{ matrix.repo }}\`: drift detected, sync PR created/updated" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "### \`${{ matrix.repo }}\`: in sync, nothing to do" >> "$GITHUB_STEP_SUMMARY"
           fi
-
-
-
-
-
-
-
-
