@@ -18,7 +18,12 @@ Apply your custom retry values by passing the object to the `ClientConfiguration
 ```csharp
 using {{packageName}}.Client;
 using {{packageName}}.Client.Model;
+using {{packageName}}.Configuration;
+using {{packageName}}.Exceptions;
 using {{packageName}}.Model;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Example {
     public class Example {
