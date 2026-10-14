@@ -235,6 +235,11 @@ var request = new ClientReadRequest()
     .relation("viewer")
     ._object("document:");
 
+// Find all relationship tuples where any user is a viewer of a particular document
+var request = new ClientReadRequest()
+    .relation("viewer")
+    ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a");
+
 // Find all relationship tuples where any user has a relationship as any relation with a particular document
 var request = new ClientReadRequest()
     ._object("document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a");
