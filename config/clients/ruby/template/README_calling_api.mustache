@@ -263,6 +263,20 @@ response = fga_client.read(body)
 # Initialize the fga_client
 # fga_client = OpenFga::SdkClient.new(configuration)
 
+# Find all relationship tuples where any user is a viewer of a particular document
+body = {
+  relation: "viewer",
+  object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
+}
+
+response = fga_client.read(body)
+# response = ReadResponse(tuples: [Tuple(key: TupleKey(user: "...", relation: "...", object: "..."), timestamp: ...)])
+```
+
+```ruby
+# Initialize the fga_client
+# fga_client = OpenFga::SdkClient.new(configuration)
+
 # Find all relationship tuples where any user has a relationship as any relation with a particular document
 body = {
   object: "document:0192ab2a-d83f-756d-9397-c5ed9f3cb69a"
