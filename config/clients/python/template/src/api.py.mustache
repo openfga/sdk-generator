@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
+from contextlib import aclosing
 from typing import Any
 
 from {{packageName}}.api_client import ApiClient
@@ -373,8 +374,9 @@ class {{classname}}:
             _streaming=True,
         )
 
-        async for chunk in stream:
-            yield chunk
+        async with aclosing(stream):
+            async for chunk in stream:
+                yield chunk
 
 {{#operation}}
 
